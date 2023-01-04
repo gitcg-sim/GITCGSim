@@ -1,0 +1,14 @@
+[package]
+name = "gitcg_sim_tui_app"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "gitcg_sim_tui_app"
+path = "main.rs"
+
+[dependencies]
+gitcg_sim = { path = ".." }
+tui = { version = "0.19" }
+crossterm = { version = "0.25" }
+structopt = { version = "0.3.*" }

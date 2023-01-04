@@ -1,0 +1,70 @@
+[package]
+name = "gitcg_sim"
+version = "0.1.0"
+edition = "2021"
+default-run = "gitcg_sim_benchmark"
+
+[profile.dev]
+debug = true
+opt-level = 1
+
+[profile.release]
+debug = true
+codegen-units = 1
+opt-level = 3
+
+[profile.minimal]
+inherits = 'release'
+debug = false
+strip = true
+opt-level = 3
+codegen-units = 1
+lto = true
+
+[features]
+default = []
+wasm = [
+    "no_parallel",
+    "instant/stdweb",
+    "instant/wasm-bindgen",
+    "getrandom/js",
+    "dep:wasm-bindgen"
+]
+no_static_status_impl = []
+no_parallel = []
+
+[workspace]
+members = [
+    "gitcg_sim_tui_app"
+]
+
+[lib]
+name = "gitcg_sim"
+path = "src/lib.rs"
+
+[[bin]]
+name = "gitcg_sim_benchmark"
+path = "benchmark/main.rs"
+
+[dependencies]
+atree = { version = "0.5.*" }
+bitfield = { version = "0.14.*" }
+enum-map = { version = "2.4.*" }
+enum-map-derive = { version = "*" }
+enumset = { version = "1.0.*", features = ["serde"] }
+flurry = { version = "0.4.*" }
+getrandom = { version = "0.2" }
+instant = { version = "0.1" }
+lazy_static = { version = "1.4.*" }
+rand = { version = "0.8.*", features = ["small_rng", "serde", "serde1"] }
+rayon = { version = "1.6.*" }
+rustc-hash = { version = "1.1.*" }
+serde = { version = "1.0", features = ["derive", "rc"] }
+smallvec = { version = "1.10.*", features = ["serde"] }
+structopt = { version = "0.3.*" }
+wasm-bindgen = { version = "0.2.*", optional = true }
+
+[dev-dependencies]
+bincode = { version = "1.2.1" }
+serde_json = { version = "1.0.94" }
+proptest = "1.0.0"
