@@ -86,6 +86,7 @@ macro_rules! consume_matching {
 }
 
 impl DiceCounter {
+    pub const MASK: u8 = 31;
     pub const EMPTY: DiceCounter = DiceCounter {
         omni: 0,
         elem: [0, 0, 0, 0, 0, 0, 0],
@@ -159,33 +160,45 @@ impl DiceCounter {
     }
 
     #[inline]
-    pub fn add_in_place(&mut self, other: &DiceCounter) {
-        macro_rules! add {
-            ($a: expr, $b: expr) => {
-                $a = ($a + $b) & 31;
-            };
+    pub fn add_single(&mut self, dice: Dice, increase: u8) {
+        match dice {
+            Dice::Omni => Self::add(&mut self.omni, increase),
+            Dice::Elem(e) => Self::add(&mut self.elem[e.to_index()], increase),
         }
-        add!(self.omni, other.omni);
+    }
+
+    #[inline]
+    pub fn sub_single(&mut self, dice: Dice, decrease: u8) {
+        match dice {
+            Dice::Omni => Self::sub(&mut self.omni, decrease),
+            Dice::Elem(e) => Self::sub(&mut self.elem[e.to_index()], decrease),
+        }
+    }
+
+    #[inline]
+    pub fn add_in_place(&mut self, other: &DiceCounter) {
+        Self::add(&mut self.omni, other.omni);
         for i in 0..7 {
-            add!(self.elem[i], other.elem[i]);
+            Self::add(&mut self.elem[i], other.elem[i]);
         }
     }
 
     #[inline]
     pub fn subtract_in_place(&mut self, other: &DiceCounter) {
-        macro_rules! sub {
-            ($a: expr, $b: expr) => {
-                $a -= std::cmp::min($a, $b)
-            };
+        Self::sub(&mut self.omni, other.omni);
+        for i in 0..7 {
+            Self::sub(&mut self.elem[i], other.elem[i]);
         }
-        sub!(self.omni, other.omni);
-        sub!(self.elem[0], other.elem[0]);
-        sub!(self.elem[1], other.elem[1]);
-        sub!(self.elem[2], other.elem[2]);
-        sub!(self.elem[3], other.elem[3]);
-        sub!(self.elem[4], other.elem[4]);
-        sub!(self.elem[5], other.elem[5]);
-        sub!(self.elem[6], other.elem[6]);
+    }
+
+    #[inline(always)]
+    fn add(a: &mut u8, b: u8) {
+        *a = (*a + b) & Self::MASK;
+    }
+
+    #[inline(always)]
+    fn sub(a: &mut u8, b: u8) {
+        *a = *a - std::cmp::min(*a, b);
     }
 
     #[inline]

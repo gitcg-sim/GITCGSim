@@ -106,8 +106,8 @@ impl PlayerState {
         let remove = Dice::Elem(elem_to_remove);
         h.hash(HASH_PROVIDER.dice(player_id, add, self.dice[add]));
         h.hash(HASH_PROVIDER.dice(player_id, remove, self.dice[remove]));
-        self.dice[add] += 1;
-        self.dice[remove] -= 1;
+        self.dice.add_single(add, 1);
+        self.dice.sub_single(remove, 1);
         h.hash(HASH_PROVIDER.dice(player_id, add, self.dice[add]));
         h.hash(HASH_PROVIDER.dice(player_id, remove, self.dice[remove]));
         self.check_for_charged_attack();
