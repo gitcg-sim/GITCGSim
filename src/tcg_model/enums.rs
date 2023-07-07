@@ -53,12 +53,21 @@ pub enum Reaction {
     Vaporize,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub enum Dice {
     // Omni can be used to pay any 1 dice cost
     Omni,
     // Dice of a particular element
     Elem(Element),
+}
+
+impl std::fmt::Debug for Dice {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Omni => write!(f, "Omni"),
+            Self::Elem(e) => write!(f, "E.{e:?}"),
+        }
+    }
 }
 
 impl Dice {
