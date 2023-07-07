@@ -286,7 +286,6 @@ impl GameState {
             return ExecResult::Success;
         }
 
-        // TODO shift statuses here
         let mut defeated = CharIdxSet::default();
         let mut addl_cmds: SmallVec<[(CommandContext, Command); 8]> = cmd_list![];
         let mut i = 0;
@@ -970,10 +969,10 @@ impl GameState {
         status_id: StatusId,
         eff_state: AppliedEffectState,
     ) -> ExecResult {
-        let player = self.players.get_mut(player_id);
-        player
-            .status_collection
-            .set_status(StatusKey::Character(player.active_char_index, status_id), eff_state);
+        let active_char_idx = self.get_player(player_id).active_char_index;
+        mutate_statuses!(self, player_id, |sc| {
+            sc.set_status(StatusKey::Character(active_char_idx, status_id), eff_state)
+        });
         ExecResult::Success
     }
 
