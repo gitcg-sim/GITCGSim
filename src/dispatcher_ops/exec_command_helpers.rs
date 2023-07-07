@@ -89,19 +89,27 @@ macro_rules! view {
     };
 }
 
+/// Mutate a particular `StatusCollection` within the `GameState` in the code block
+/// while updating the Zobrish hash before and after the block.
+///
+/// Do not early terminate inside the block to preserve hash coherency.
 #[macro_export]
 macro_rules! mutate_statuses {
     ($self: expr, $player_id: expr, | $sc: ident | $closure: block) => {{
         let player_id: PlayerId = $player_id;
         let player: &mut _ = $self.players.get_mut(player_id);
-        mutate_statuses_1!(phc!($self, player_id), player, |$sc| $closure)
+        $crate::mutate_statuses_1!(phc!($self, player_id), player, |$sc| $closure)
     }};
 }
 
+/// Mutate a particular `StatusCollection` within the `GameState` in the code block
+/// while updating the Zobrish hash before and after the block.
+///
+/// Do not early terminate inside the block to preserve hash coherency.
 #[macro_export]
 macro_rules! mutate_statuses_1 {
     ($c: expr, $player: ident, | $sc: ident | $closure: block) => {{
-        let (h, player_id): PlayerHashContext = $c;
+        let (h, player_id): $crate::zobrist_hash::game_state_mutation::PlayerHashContext = $c;
         let $sc: &mut $crate::types::game_state::StatusCollection = &mut $player.status_collection;
         $sc.zobrist_hash(h, player_id);
         let _r = $closure;

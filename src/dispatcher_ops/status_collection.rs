@@ -406,6 +406,24 @@ impl StatusCollection {
         None
     }
 
+    pub fn find_preparing_skill_with_status_key_and_turns_remaining(&self) -> Option<(SkillId, StatusKey, u8)> {
+        if !self.responds_to(RespondsTo::PreparingSkill) {
+            return None;
+        }
+
+        for e in &self._status_entries {
+            let StatusKey::Character(_, status_id) = e.key else { continue };
+            let si: StaticStatusImpl = status_id.into();
+            if !si.responds_to().contains(RespondsTo::PreparingSkill) {
+                continue;
+            }
+            if let Some(t) = si.preparing_skill(&e.state) {
+                return Some((t, e.key, e.state.get_counter()));
+            }
+        }
+        None
+    }
+
     pub fn find_preparing_skill_status_entry_mut(&mut self) -> Option<(SkillId, &mut StatusEntry)> {
         if !self.responds_to(RespondsTo::PreparingSkill) {
             return None;

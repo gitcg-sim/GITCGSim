@@ -6,10 +6,10 @@ use crate::cards::ids::{CardId, GetCharCard, GetSkill};
 use crate::data_structures::ActionList;
 use crate::dispatcher_ops::exec_command_helpers::{augment_cost_immutable, can_pay_dice_cost};
 use crate::dispatcher_ops::types::NondetRequest;
-use crate::phc;
 use crate::types::card_impl::{CardImpl, CardImplContext};
 use crate::types::input::{Input, NondetResult, PlayerAction};
 use crate::{cards::ids::SkillId, cmd_list, vector};
+use crate::{mutate_statuses, phc};
 
 use crate::dispatcher_ops::types::*;
 use crate::types::command::*;
@@ -673,40 +673,51 @@ impl GameState {
     fn handle_preparing_skill(
         &mut self,
         input: Input,
-        active_player: PlayerId,
+        active_player_id: PlayerId,
     ) -> Option<Result<DispatchResult, DispatchError>> {
-        let player = self.players.get_mut(active_player);
-        let Some((skill_id, e)) = player.status_collection.find_preparing_skill_status_entry_mut() else {
+        let player = self.players.get(active_player_id);
+        let active_char_index = player.active_char_index;
+        let Some((skill_id, key, turns_remaining)) = player.status_collection.find_preparing_skill_with_status_key_and_turns_remaining() else {
             return None
         };
         let Input::NoAction = input else {
             return Some(Err(DispatchError::InvalidInput("Preparing skill".to_string())));
         };
-        let key = e.key;
         let char_idx = key.char_idx().expect("Prepared skills must be character statuses.");
-        if player.active_char_index != char_idx {
-            player.status_collection.delete(key);
+        if active_char_index != char_idx {
+            mutate_statuses!(self, active_player_id, |sc| {
+                sc.delete(key);
+            });
             // Character switched away -> cancel preparation and delete status
             let res = self
                 .exec_commands(&cmd_list![(
-                    CommandContext::new_event(active_player),
+                    CommandContext::new_event(active_player_id),
                     Command::HandOverPlayer
                 )])
                 .map(|opt| self.handle_post_exec(opt));
             return Some(res);
         }
 
-        let turns_remaining = e.state.get_counter();
         let res = if turns_remaining == 0 {
-            player.status_collection.delete(key);
-            if player.status_collection.cannot_perform_actions(char_idx) {
+            mutate_statuses!(self, active_player_id, |sc| {
+                sc.delete(key);
+            });
+            if self
+                .players
+                .get(active_player_id)
+                .status_collection
+                .cannot_perform_actions(char_idx)
+            {
                 return Some(Ok(self.handle_post_exec(None)));
             }
             self.cast_skill(skill_id, true).map(|opt| self.handle_post_exec(opt))
         } else {
-            e.state.set_counter(turns_remaining - 1);
+            mutate_statuses!(self, active_player_id, |sc| {
+                let state = sc.get_mut(key).expect("Status key must exist.");
+                state.set_counter(turns_remaining - 1);
+            });
             self.exec_commands(&cmd_list![(
-                CommandContext::new_event(active_player),
+                CommandContext::new_event(active_player_id),
                 Command::HandOverPlayer
             )])
             .map(|opt| self.handle_post_exec(opt))
