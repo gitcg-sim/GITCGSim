@@ -651,23 +651,24 @@ impl GameState {
     }
 
     fn increase_status_usages(&mut self, ctx: &CommandContext, key: StatusKey, usages: u8) -> ExecResult {
-        'a: {
-            mutate_statuses!(self, ctx.src_player_id, |sc| {
-                let Some(eff_state) = sc.get_mut(key) else { break 'a };
+        if self.get_player(ctx.src_player_id).status_collection.get(key).is_none() {
+            return ExecResult::Success;
+        }
 
-                let status = key.get_status();
-                if status.duration_rounds.is_some() {
-                    eff_state.set_duration(eff_state.get_duration() + usages);
-                } else if status.usages.is_some() {
-                    eff_state.set_usages(eff_state.get_usages() + usages);
-                } else {
-                    panic!(
-                        "increase_status_usages: Does not have a Usages/Duration counter: {:?}",
-                        key
-                    )
-                }
-            })
-        };
+        mutate_statuses!(self, ctx.src_player_id, |sc| {
+            let eff_state = sc.get_mut(key).expect("Status key must be present.");
+            let status = key.get_status();
+            if status.duration_rounds.is_some() {
+                eff_state.set_duration(eff_state.get_duration() + usages);
+            } else if status.usages.is_some() {
+                eff_state.set_usages(eff_state.get_usages() + usages);
+            } else {
+                panic!(
+                    "increase_status_usages: Does not have a Usages/Duration counter: {:?}",
+                    key
+                )
+            }
+        });
         ExecResult::Success
     }
 
