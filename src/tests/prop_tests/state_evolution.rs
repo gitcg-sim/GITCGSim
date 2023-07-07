@@ -1,5 +1,3 @@
-use crate::cards::ids::CardId;
-
 use super::*;
 
 proptest! {

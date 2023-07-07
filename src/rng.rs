@@ -80,27 +80,26 @@ mod tests {
     use rand::prelude::*;
 
     use super::RngState;
+    use proptest::prelude::*;
 
-    #[test]
-    fn test_bincode_serialize_deserialize_preserves_state() {
-        for state in [0, 10, 123, 500] {
+    proptest! {
+        #[test]
+        fn test_bincode_serialize_deserialize_preserves_state(state in any::<u64>()) {
             let mut rng: RngState = SmallRng::seed_from_u64(state).into();
             let ser = bincode::serialize(&rng).unwrap();
-            println!("Bytes = {ser:?}");
+            // println!("Bytes = {ser:?}");
             let mut rng1: RngState = bincode::deserialize(&ser).unwrap();
             for _ in 0..100 {
                 assert_eq!(rng.next_u64(), rng1.next_u64());
                 assert_eq!(rng.next_u32(), rng1.next_u32());
             }
         }
-    }
 
-    #[test]
-    fn test_json_serialize_deserialize_preserves_state() {
-        for state in [0, 10, 123, 500] {
+        #[test]
+        fn test_json_serialize_deserialize_preserves_state(state in any::<u64>()) {
             let mut rng: RngState = SmallRng::seed_from_u64(state).into();
             let ser = serde_json::to_string_pretty(&rng).unwrap();
-            println!("Bytes = {ser:?}");
+            // println!("Bytes = {ser:?}");
             let mut rng1: RngState = serde_json::from_str(&ser).unwrap();
             for _ in 0..100 {
                 assert_eq!(rng.next_u64(), rng1.next_u64());
