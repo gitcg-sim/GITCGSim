@@ -577,7 +577,9 @@ impl GameState {
         }
         if self.pending_cmds.is_some() {
             let res = self.resolve_pending_cmds(input).map(|opt| self.handle_post_exec(opt));
-            self.update_hash();
+            // TODO actually implement pending commands incremental hashing
+            self.rehash();
+            // self.update_hash();
             return res;
         }
 
