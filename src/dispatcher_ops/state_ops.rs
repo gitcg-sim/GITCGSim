@@ -149,7 +149,7 @@ impl PlayerState {
 
     /// While there is an off-element dice and a card on hand:
     /// Remove the dice and card and add an Omni dice
-    pub(crate) fn pseudo_elemental_tuning(&mut self, phc: PlayerHashContext) {
+    pub(crate) fn pseudo_elemental_tuning(&mut self, (h, player_id): PlayerHashContext) {
         if self.hand.is_empty() {
             return;
         }
@@ -171,12 +171,12 @@ impl PlayerState {
 
             let dv = &mut dice[Dice::Elem(elem)];
             if *dv > 0 {
-                self.hand.remove(0);
+                self.remove_card_from_hand_by_index((h, player_id), 0);
                 *dv -= 1;
                 dice.omni += 1;
             }
         }
-        self.set_dice(phc, &dice);
+        self.set_dice((h, player_id), &dice);
     }
 
     pub(crate) fn get_status_spec_modifiers(&self, key: StatusKey) -> Option<StatusSpecModifier> {
@@ -324,5 +324,6 @@ impl GameState {
         self.players
             .1
             .pseudo_elemental_tuning(phc!(self, PlayerId::PlayerSecond));
+        self.rehash();
     }
 }
