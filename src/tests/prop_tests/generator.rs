@@ -4,7 +4,7 @@ use proptest::prelude::*;
 use rand::{rngs::SmallRng, SeedableRng};
 
 use crate::cards::ids::{CardId, SummonId};
-use crate::types::input::PlayerAction;
+use crate::types::input::{Input, PlayerAction};
 use crate::types::{game_state::*, nondet::*};
 use crate::{cards::ids::CharId, data_structures::*, deck::Decklist, game_tree_search::*, vector};
 
@@ -41,7 +41,14 @@ prop_compose! {
         let mut rng = SmallRng::seed_from_u64(seed);
         let mut cards: smallvec::SmallVec<[CardId; 32]> = Default::default();
         for _ in 0..count {
-            cards.push(CardId::from_usize(rng.gen_range(0..CardId::LENGTH)));
+            loop {
+                let card_id = CardId::from_usize(rng.gen_range(0..CardId::LENGTH));
+                if card_id == CardId::BlankCard {
+                    continue
+                }
+                cards.push(card_id);
+                break
+            }
         }
         cards
     }
@@ -78,7 +85,28 @@ prop_compose! {
                 panic!("{e:?}");
             }
         }
+        gs.game_state.rehash();
         gs
+    }
+}
+
+prop_compose! {
+    pub fn arb_init_game_state_wrapper_with_action()(gs in arb_init_game_state_wrapper(), seed in any::<u64>())
+        -> (GameStateWrapper<StandardNondetHandlerState>, Input) {
+        let actions = gs.actions();
+        let mut rng = SmallRng::seed_from_u64(seed);
+        (gs, actions[rng.gen_range(0..actions.len())])
+    }
+}
+
+prop_compose! {
+    pub fn arb_reachable_game_state_wrapper_with_action()(gs in arb_reachable_game_state_wrapper(), seed in any::<u64>())
+        -> (GameStateWrapper<StandardNondetHandlerState>, Input) {
+        let actions = gs.actions();
+        let mut rng = SmallRng::seed_from_u64(seed);
+        let mut gs = gs;
+        gs.game_state.ignore_costs = true;
+        (gs, actions[rng.gen_range(0..actions.len())])
     }
 }
 
