@@ -10,7 +10,7 @@ pub type CommandList<T> = smallvec::SmallVec<[T; 8]>;
 
 pub type StatusEntryList<T> = smallvec::SmallVec<[T; 8]>;
 
-pub type ActionList<T> = smallvec::SmallVec<[T; 8]>;
+pub type ActionList<T> = smallvec::SmallVec<[T; 16]>;
 
 #[macro_export]
 macro_rules! list8 {
@@ -34,7 +34,7 @@ macro_rules! cmd_list {
 #[macro_export]
 macro_rules! action_list {
     () => {
-        $crate::smallvec::SmallVec::<[_; 8]>::new()
+        $crate::smallvec::SmallVec::<[_; 16]>::new()
     };
     ($($e : expr),+ $(,)?) => {
         $crate::smallvec::smallvec![$($e),+]

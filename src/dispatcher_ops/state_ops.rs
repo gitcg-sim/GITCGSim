@@ -48,7 +48,6 @@ impl CharState {
     }
 }
 
-// TODO clear elements and energy on death
 #[inline]
 pub fn check_valid_char_index(char_states: &Vector<CharState>, char_idx: u8) -> bool {
     let char_idx = char_idx as usize;

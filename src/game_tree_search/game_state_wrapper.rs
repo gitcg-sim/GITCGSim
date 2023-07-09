@@ -3,12 +3,12 @@ use rand::{
     seq::SliceRandom,
 };
 use serde::{Deserialize, Serialize};
-use smallvec::SmallVec;
 use std::fmt::Debug;
 
 use super::*;
 use crate::{
     cards::ids::GetSkill,
+    data_structures::ActionList,
     deck::Decklist,
     dispatcher_ops::types::DispatchError,
     rule_based::RuleBasedSearchConfig,
@@ -68,7 +68,7 @@ impl<S: NondetState> ZobristHashable for GameStateWrapper<S> {
 impl<S: NondetState> Game for GameStateWrapper<S> {
     type Action = Input;
 
-    type Actions = SmallVec<[Input; 8]>;
+    type Actions = ActionList<Input>;
 
     type Eval = crate::minimax::Eval;
 

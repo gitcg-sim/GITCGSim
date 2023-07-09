@@ -473,7 +473,7 @@ impl GameState {
         }
 
         // Elemental Tuning
-        if let Some(_cs) = self.get_active_character() {
+        if self.get_active_character().is_some() {
             let mut found: SmallVec<[CardId; 8]> = SmallVec::new();
             for &card_id in &player.hand {
                 if found.contains(&card_id) {

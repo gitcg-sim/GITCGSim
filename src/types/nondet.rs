@@ -9,6 +9,7 @@ use enumset::{enum_set, EnumSet, EnumSetType};
 use rand::{Rng, RngCore};
 use rustc_hash::FxHasher;
 use serde::{Deserialize, Serialize};
+use smallvec::SmallVec;
 
 use crate::{
     cards::ids::*,
@@ -108,9 +109,12 @@ impl StandardNondetHandlerState {
     }
 
     fn draw_cards(&mut self, player_id: PlayerId, count: u8) -> CappedLengthList8<CardId> {
+        if count >= 8 {
+            unimplemented!();
+        }
         let hide = self.should_hide_player_cards(player_id);
         let d = player_id.select_mut(&mut self.decks);
-        let mut v = Vec::with_capacity(min(8, count as usize));
+        let mut v = SmallVec::<[CardId; 8]>::with_capacity(min(8, count as usize));
         let range = 0..min(8, count);
         for _ in range {
             if let Some(c) = d.draw(&mut self.rng) {
