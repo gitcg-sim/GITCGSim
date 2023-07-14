@@ -121,7 +121,7 @@ struct App<B: Backend> {
     pub rects: HashMap<(PlayerId, RectKey), Rect>,
     pub game: GameStateWrapper<StandardNondetHandlerState>,
     pub search: GenericSearch<StandardNondetHandlerState>,
-    pub actions: SmallVec<[Input; 8]>,
+    pub actions: SmallVec<[Input; 16]>,
     pub status: String,
     pub action_row_index: usize,
     pub scroll_y: i16,
