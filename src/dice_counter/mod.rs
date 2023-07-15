@@ -11,6 +11,8 @@ use crate::types::{
 
 pub mod distribution;
 
+/// Represents the collection of Elemental Dice (Omni and the 7 elements).
+/// The maximum number of dice for a particular element (or Omni) is 31.
 #[derive(Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize)]
 pub struct DiceCounter {
     pub omni: u8,
@@ -23,9 +25,13 @@ impl std::fmt::Debug for DiceCounter {
     }
 }
 
+/// Describes the preferred elements for (1) automatically paying Elemental Dice costs
+/// and (2) Elemental Dice to keep whilee automatically rerolling Elemental dice.
 #[derive(Debug, Default, Copy, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct ElementPriority {
+    /// Preferred elements (lower priority)
     pub important_elems: ElementSet,
+    /// Element of the active character, if applicable (higher priority)
     pub active_elem: Option<Element>,
 }
 

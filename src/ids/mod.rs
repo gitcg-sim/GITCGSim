@@ -1,6 +1,7 @@
-mod enums;
+pub(crate) mod enums;
 
-pub(crate) mod lookup;
+/// Module containing traits to perform lookup from ID to implementation.
+pub mod lookup;
 
 pub use enums::*;
 

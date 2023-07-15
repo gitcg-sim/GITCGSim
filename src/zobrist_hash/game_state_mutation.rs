@@ -18,6 +18,7 @@ impl GameState {
     }
 }
 
+/// Handle used to update the Zobrist hash, focusing on a specific player.
 pub type PlayerHashContext<'a> = (&'a mut ZobristHasher, PlayerId);
 
 #[macro_export]
@@ -26,8 +27,6 @@ macro_rules! phc {
         (&mut ($self_game_state)._incremental_hash, $player_id)
     };
 }
-
-// TODO refactor status collection operations into their own setters
 
 impl PlayerState {
     #[inline]

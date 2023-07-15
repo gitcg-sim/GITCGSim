@@ -3,8 +3,6 @@ use enumset::EnumSetType;
 use serde::{Deserialize, Serialize};
 use std::hash::Hash;
 
-// Affects generated code, one entry per line
-
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Enum, Serialize, Deserialize)]
 pub enum CharId {
     Yoimiya,

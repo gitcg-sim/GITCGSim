@@ -19,6 +19,7 @@ use crate::{
     },
 };
 
+// TODO remove
 #[derive(Debug, PartialOrd, Ord, EnumSetType)]
 #[enumset(repr = "u8")]
 pub enum CharIdx {

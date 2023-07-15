@@ -6,11 +6,23 @@ use rand::prelude::*;
 
 use super::*;
 
+/// Represents the probability distribution for rolling Elemental Dice given
+/// total number of dice, number of rerolls, preferred elements and fixed dice.
+///
+/// The reroll strategy is:
+///  - Reroll as many times as possible.
+///  - Only non-preferred and non-fixed dice are rerolled.
+///
+/// This type is used for implementing smart dice selection and fully automated dice reroll.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct DiceDistribution {
+    /// Number of dice
     pub count: u8,
+    /// Maximum number of rerolls
     pub rerolls: u8,
+    /// Describes the elements to keep (i.e. will not be rerolled)
     pub priority: ElementPriority,
+    /// A list of guaranteed starting Elemental Dice. Maximum 4 distinct elements.
     pub fixed: [(Element, u8); 4],
 }
 
@@ -40,7 +52,7 @@ impl DiceDistribution {
     // Each dice has up to r rerolls and can be treated independently.
     // X ~ Binomial(n, 1 - (1 - p)^(r + 1))
     // E[X] = n(1 - f^(p + 1))
-    pub(crate) fn avg_with_reroll(n: u8, preferred: u8, rerolls: u8) -> f32 {
+    pub fn avg_with_reroll(n: u8, preferred: u8, rerolls: u8) -> f32 {
         let n = n as f32;
         let f = (n - preferred as f32) / n;
         n * (1.0 - f32::powi(f, (rerolls + 1) as i32))

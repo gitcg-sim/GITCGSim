@@ -10,6 +10,7 @@ use crate::types::ElementSet;
 
 use super::*;
 
+/// Random seed used to compute Zobrist hashes.
 const SEED: u64 = 1200;
 
 pub const HP_COUNT: usize = 32;
@@ -24,6 +25,7 @@ pub const DICE_COUNT: usize = 8;
 pub const TACTICAL_HASH: HashValue = 3435243932;
 
 lazy_static! {
+    /// The deafult instance for the `HashProvider`.
     pub static ref HASH_PROVIDER: HashProvider = HashProvider::new();
 }
 
@@ -34,6 +36,10 @@ pub const STATUS_B_COUNT: usize = 32;
 
 type BoxStatusHashes = Box<[[HashValue; STATUS_B_COUNT]; STATUS_A_COUNT]>;
 
+/// Contains pre-computed Zobrist hashes of individual elements of the `GameState`.
+/// The random seed used to compute these hashes is `SEED`.
+///
+/// If there is an index overflow, a hash based on `FxHash` will be computed instad.
 pub struct HashProvider {
     pub active_char_index_hashes: ByPlayer<[HashValue; CHAR_COUNT]>,
     pub hp_hashes: ByPlayer<[[HashValue; HP_COUNT]; CHAR_COUNT]>,

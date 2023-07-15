@@ -1,3 +1,13 @@
+/// Zobrist hashing is the hashing method used for Genius Invokation TCG game states.
+/// The Zobrist hash of a game state is the XOR over all aspects of the game state that
+/// is relevant to its distinctiveness, such as:
+/// - The first character of the first player has HP of 6
+/// - There are 2 copies of "Strategize" on the second player's hand.
+///
+/// The Zobrist hash can be updated for each incremental change of the game state.
+///
+/// Wikipedia: https://en.wikipedia.org/wiki/Zobrist_hashing
+///
 use std::fmt::Debug;
 use std::hash::Hash;
 
@@ -20,7 +30,10 @@ pub type HashValue = u128;
 #[cfg(not(HASH128))]
 pub type HashValue = u64;
 
+/// Module containing mutation methods for `GameState`, `PlayerState` and `CharState`
+/// that maintain the Zobrist has.
 pub(crate) mod game_state_mutation;
+
 pub(crate) mod hash_provider;
 
 pub(crate) use hash_provider::*;
