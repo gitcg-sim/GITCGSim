@@ -1,3 +1,5 @@
+#![allow(non_snake_case)]
+
 use enum_map::Enum;
 use enumset::EnumSetType;
 use serde::{Deserialize, Serialize};
