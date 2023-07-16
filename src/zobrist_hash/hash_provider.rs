@@ -300,6 +300,20 @@ impl HashProvider {
         req.hash(&mut h);
         h.finish() as HashValue
     }
+
+    /// Given a hash value, modify it based on an "index" value.
+    /// This function exists to avoid pre-computing Zobrist hash elements based on index.
+    #[inline]
+    pub fn with_index(hv: HashValue, index: usize) -> HashValue {
+        if index <= 31 {
+            hv.rotate_right(index as u32)
+        } else {
+            let mut h = FxHasher::default();
+            hv.hash(&mut h);
+            index.hash(&mut h);
+            h.finish() as HashValue
+        }
+    }
 }
 
 impl Default for HashProvider {

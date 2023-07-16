@@ -5,8 +5,8 @@ pub mod cards;
 pub(crate) mod data_structures;
 pub mod deck;
 pub mod dice_counter;
-pub mod dispatcher;
-pub mod dispatcher_ops;
+pub(crate) mod dispatcher;
+pub(crate) mod dispatcher_ops;
 pub mod game_tree_search;
 
 /// Module containing `enums` that identify Genios Invokation TCG entities.
@@ -47,18 +47,22 @@ pub mod types;
 
 pub(crate) mod zobrist_hash;
 
+/// Re-exports the `smallvec` create.
 pub mod smallvec {
     pub use smallvec::*;
 }
 
+/// Re-exports the `rand` create.
 pub mod rand {
     pub use rand::*;
 }
 
+/// Re-exports the `enum_map` create.
 pub mod enum_map {
     pub use enum_map::*;
 }
 
+/// Re-exports the `enumset` create.
 pub mod enumset {
     pub use enumset::*;
 }

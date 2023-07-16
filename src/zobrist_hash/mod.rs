@@ -304,8 +304,8 @@ impl GameState {
                     character_statuses_to_shift: cs,
                 } => {
                     h.hash(HASH_PROVIDER.post_death_switch(player_id));
-                    for status_entry in cs.iter().flatten() {
-                        status_entry.zobrist_hash(h, player_id);
+                    for (index, status_entry) in cs.iter().flatten().enumerate() {
+                        status_entry.zobrist_hash(h, index, player_id);
                     }
                 }
                 SuspendedState::NondetRequest(req) => h.hash(HASH_PROVIDER.nondet_request(req)),
@@ -398,29 +398,28 @@ impl CharState {
 
 impl StatusEntry {
     #[inline]
-    pub fn zobrist_hash(&self, h: &mut ZobristHasher, player_id: PlayerId) {
+    pub fn zobrist_hash(&self, h: &mut ZobristHasher, index: usize, player_id: PlayerId) {
         let (a, b) = (
             self.state.get_usages(),
             self.state.get_counter() + if self.state.can_use_once_per_round() { 8 } else { 0 },
         );
-        match self.key {
+        let hv: HashValue = match self.key {
             StatusKey::Character(char_idx, status_id) | StatusKey::Equipment(char_idx, _, status_id) => {
-                h.hash(HASH_PROVIDER.character_status(player_id, char_idx, status_id, a, b))
+                HASH_PROVIDER.character_status(player_id, char_idx, status_id, a, b)
             }
-            StatusKey::Team(status_id) => h.hash(HASH_PROVIDER.team_status(player_id, status_id, a, b)),
-            StatusKey::Summon(summon_id) => h.hash(HASH_PROVIDER.summon_status(player_id, summon_id, a, b)),
-            StatusKey::Support(slot, support_id) => {
-                h.hash(HASH_PROVIDER.support_status(player_id, slot, support_id, a, b))
-            }
-        }
+            StatusKey::Team(status_id) => HASH_PROVIDER.team_status(player_id, status_id, a, b),
+            StatusKey::Summon(summon_id) => HASH_PROVIDER.summon_status(player_id, summon_id, a, b),
+            StatusKey::Support(slot, support_id) => HASH_PROVIDER.support_status(player_id, slot, support_id, a, b),
+        };
+        h.hash(HashProvider::with_index(hv, index));
     }
 }
 
 impl StatusCollection {
     #[inline]
     pub fn zobrist_hash(&self, h: &mut ZobristHasher, player_id: PlayerId) {
-        for s in &self._status_entries {
-            s.zobrist_hash(h, player_id)
+        for (index, s) in self._status_entries.iter().enumerate() {
+            s.zobrist_hash(h, index, player_id)
         }
     }
 }

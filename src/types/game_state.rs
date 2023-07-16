@@ -1,3 +1,4 @@
+#![allow(non_snake_case)]
 use std::fmt::{Debug, Display};
 
 use enum_map::Enum;
