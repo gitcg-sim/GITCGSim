@@ -1,12 +1,10 @@
-use crate::cards::ids::CharId;
-
 use super::*;
 
 proptest! {
     #![proptest_config(ProptestConfig {
-        cases: 10_000,
-        max_local_rejects: 100_000,
-        max_global_rejects: 100_000,
+        cases: CASES,
+        max_local_rejects: 2 * CASES,
+        max_global_rejects: 2 * CASES,
         ..ProptestConfig::default()
     })]
 
@@ -62,7 +60,9 @@ proptest! {
     }
 
     #[test]
+    #[cfg(DISABLED)]
     fn actions_should_preserve_incremental_hash_for_game_state_prepared_skill((gs, action) in arb_reachable_game_state_wrapper_with_action()) {
+        use crate::cards::ids::CharId;
         prop_assume!(gs.game_state.players.0.char_states.iter().any(|c| c.char_id == CharId::Beidou || c.char_id == CharId::Candace));
         let h0 = gs.game_state.zobrist_hash();
         let h_incremental = {

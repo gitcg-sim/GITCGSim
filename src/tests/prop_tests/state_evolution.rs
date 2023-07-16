@@ -2,9 +2,9 @@ use super::*;
 
 proptest! {
     #![proptest_config(ProptestConfig {
-        cases: 10_000,
-        max_local_rejects: 10_000,
-        max_global_rejects: 10_000,
+        cases: CASES,
+        max_local_rejects: 2 * CASES,
+        max_global_rejects: 2 * CASES,
         ..ProptestConfig::default()
     })]
 
