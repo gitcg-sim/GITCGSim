@@ -29,9 +29,7 @@ pub use super::applied_effect_state::AppliedEffectState;
 pub use crate::types::card_selection::*;
 pub use crate::types::char_state::*;
 
-// TODO implement Prepare Skill:
-// Takes N turns, and the casting is involuntary as long as it's allowed to perform an action
-
+/// The deterministic and perfect information portion of the Genius Invokation TCG game state.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct GameState {
     /// When game state is suspended while executing commands
@@ -46,7 +44,9 @@ pub struct GameState {
     pub ignore_costs: bool,
     /// True to support tactical search.
     pub tactical: bool,
+    /// The incrementally-updated portion of the Zobrist hash of this `GameState`.
     pub _incremental_hash: ZobristHasher,
+    /// The entire Zobrist hash of this `GmaeState`.
     pub _hash: ZobristHasher,
 }
 

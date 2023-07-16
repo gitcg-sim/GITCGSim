@@ -21,6 +21,8 @@ impl GameState {
 /// Handle used to update the Zobrist hash, focusing on a specific player.
 pub type PlayerHashContext<'a> = (&'a mut ZobristHasher, PlayerId);
 
+/// Constructs a new `PlayerHashContext` given mutable game state and player ID.
+/// Avoids borrowing the entire `&mut GameState`.
 #[macro_export]
 macro_rules! phc {
     ($self_game_state: expr, $player_id: expr) => {
@@ -126,8 +128,11 @@ impl PlayerState {
     }
 }
 
+/// Handle used to update the Zobrist hash, focusing on a specific player's character.
 pub type CharacterHashContext<'a> = (&'a mut ZobristHasher, PlayerId, u8);
 
+/// Constructs a new `CharacterHashContext` given mutable game state, player ID and character index.
+/// Avoids borrowing the entire `&mut GameState`.
 #[macro_export]
 macro_rules! chc {
     ($self_game_state: expr, $player_id: expr, $char_idx: expr) => {

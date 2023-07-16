@@ -17,15 +17,17 @@ pub const HP_COUNT: usize = 32;
 pub const ENERGY_COUNT: usize = 4;
 pub const CHAR_COUNT: usize = 8;
 
-/// Max number of cards on hand
+/// Max number of cards on hand generated for the hasher.
 pub const CARD_COUNT: usize = 4;
 
+/// Max possible dice count generated for the hasher.
 pub const DICE_COUNT: usize = 8;
 
+/// Hash for the game state being in "tactical search".
 pub const TACTICAL_HASH: HashValue = 3435243932;
 
 lazy_static! {
-    /// The deafult instance for the `HashProvider`.
+    /// The default instance for the `HashProvider`.
     pub static ref HASH_PROVIDER: HashProvider = HashProvider::new();
 }
 
@@ -233,6 +235,7 @@ impl HashProvider {
 
     #[inline]
     pub fn character_status(&self, player_id: PlayerId, char_idx: u8, status_id: StatusId, a: u8, b: u8) -> HashValue {
+        // TODO check out of bounds
         self.char_status_hashes[player_id][status_id][char_idx as usize][a as usize][b as usize]
     }
 

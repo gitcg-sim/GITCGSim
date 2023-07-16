@@ -7,6 +7,47 @@
 /// The Zobrist hash can be updated for each incremental change of the game state.
 ///
 /// Wikipedia: https://en.wikipedia.org/wiki/Zobrist_hashing
+/// Chess Programming Wiki: https://www.chessprogramming.org/Zobrist_Hashing
+///
+/// # Zobrist hashing and datatypes
+/// ## Equality
+/// For a type `T` to be Zobrist hashable, it must be isomorphic to a finite set of features `features: T -> Set<F>`.
+///
+/// Then the equality for `T` can be defined into:
+///
+/// ```ignore
+/// eq(a: T, b:T) := features(a) == features(b)
+/// ```
+///
+/// Then the Zobrist hash for `T` is:
+///
+/// ```ignore
+/// hash(a: T) := xor( { hash_element(e) | e in to_set(a) })
+/// ```
+///
+/// ## Multisets
+/// For a collection of values where the order does not matter but
+/// multiplicity (number of copies of an element) matters:
+/// ```ignore
+/// features(xs: List<F>): Set<(F, number)> := { (e, xs.multiplicity(e)) | e in xs }
+/// ```
+///
+/// In the Genius Invokation TCG, a player's dice and hand are hashed as multisets.
+///
+/// ## Ordered lists
+/// For a list where the order of elements matter:
+/// ```ignore
+/// features(xs: List<F>): Set<(F, number)> := { (e, index) | (index, e) in enumerate(xs) }
+/// ```
+///
+/// ## Structs and enums
+/// The features are tupled with the path to the struct/enum item.
+/// ```ignore
+/// // Sum type (enums)
+/// features(xs: A + B + ...): Set<(F, number)> = { (a, 0) | a in features(A) } union { (b, 1) b in features(B) } union ...
+/// // Product type (structs and tuples)
+/// features(xs: A * B * ...): Set<(F, number)> = { (a, 0) | a in features(A) } union { (b, 1) b in features(B) } union ...
+/// ```
 ///
 use std::fmt::Debug;
 use std::hash::Hash;
@@ -31,7 +72,17 @@ pub type HashValue = u128;
 pub type HashValue = u64;
 
 /// Module containing mutation methods for `GameState`, `PlayerState` and `CharState`
-/// that maintain the Zobrist has.
+/// while maintain the Zobrist hash.
+///
+/// # Hash coherence
+/// The `GameState` is hash coherent if and only if the incrementally-updated hash is
+/// identical to the recomputed hash.
+///
+/// ```ignore
+/// let incremental_hash = game_state.zobrist_hash();
+/// let recomputed_hash = { game_state.rehash(); game_state.zobrist_hash() };
+/// assert_eq!(incremental_hash, recomputed_hash);
+/// ```
 pub(crate) mod game_state_mutation;
 
 pub(crate) mod hash_provider;
@@ -229,7 +280,7 @@ impl GameState {
         self._hash.finish()
     }
 
-    /// Recompute the incremental portion of the Zobrist hash without updating
+    /// Recompute the incremental portion of the Zobrist hash without updating `self._hash`.
     pub fn incremental_zobrist_hash(&self, h: &mut ZobristHasher) {
         h.hash(HASH_PROVIDER.phase(self.phase));
         h.hash(HASH_PROVIDER.tactical(self.tactical));
@@ -263,7 +314,7 @@ impl GameState {
     }
 
     /// Re-compute the entire Zobrist hash.
-    /// Call this function after mutating the game state.
+    /// Call this function after mutating the game state manually (i.e. without using methods in `game_state_mutation`).
     #[inline]
     pub fn rehash(&mut self) {
         let mut ih = ZobristHasher::new();
