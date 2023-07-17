@@ -1,3 +1,5 @@
+use crate::types::game_state::PlayerId;
+
 use super::*;
 
 proptest! {
@@ -44,5 +46,26 @@ proptest! {
         let input = Input::FromPlayer(player_id, action);
         let mut gs1 = gs;
         assert_eq!(Ok(DispatchResult::Winner(winner)), gs1.advance(input))
+    }
+
+    #[test]
+    fn status_collections_are_sorted_by_sort_key(gs in arb_reachable_game_state_wrapper()) {
+        fn is_sorted<T: Ord>(v: &Vec<T>) -> bool {
+            if v.len() <= 1 {
+                return true
+            }
+            for i in 0..=v.len() - 2 {
+                if v[i] > v[i + 1] {
+                    return false
+                }
+            }
+            true
+        }
+
+        let gs = gs.game_state;
+        for sc in [&gs.get_player(PlayerId::PlayerFirst).status_collection, &gs.get_player(PlayerId::PlayerSecond).status_collection ] {
+            let sort_keys: Vec<_> = sc._status_entries.iter().map(|s| s.key.sort_key()).collect();
+            assert!(is_sorted(&sort_keys));
+        }
     }
 }

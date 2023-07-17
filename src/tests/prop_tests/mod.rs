@@ -11,6 +11,7 @@ use crate::{dispatcher_ops::types::DispatchResult, types::input::Input};
 
 pub(crate) const CASES: u32 = 5_000;
 // pub(crate) const CASES: u32 = 50_000;
+// pub(crate) const CASES: u32 = 500_000;
 // pub(crate) const CASES: u32 = 5_000_000;
 
 pub mod state_evolution;

@@ -330,7 +330,7 @@ impl StatusCollection {
             if let Some(modifiers) = modifiers {
                 modifiers.modify(path, &mut eff_state);
             }
-            self._status_entries.push(StatusEntry::new(path, eff_state));
+            self.push_status_entry(StatusEntry::new(path, eff_state));
             let si: StaticStatusImpl = match path {
                 StatusKey::Team(status_id) => status_id.into(),
                 StatusKey::Summon(summon_id) => summon_id.into(),
@@ -627,23 +627,26 @@ impl StatusCollection {
             found.state = state;
             return true;
         }
-        self._status_entries.push(StatusEntry::new(key, state));
+        self.push_status_entry(StatusEntry::new(key, state));
         false
     }
 
-    // TODO not needed for now
-    pub(crate) fn get_affected_by_keys(&self) -> SmallVec<[StatusKey; 4]> {
-        Default::default()
-        // self._status_entries
-        //     .iter()
-        //     .filter_map(|s| {
-        //         let key = s.key;
-        //         if matches!(key.status_id(), Some(StatusId::Riptide | StatusId::SeedOfSkandha)) {
-        //             Some(key)
-        //         } else {
-        //             None
-        //         }
-        //     })
-        //     .collect()
+    #[inline]
+    fn push_status_entry(&mut self, status_entry: StatusEntry) {
+        let key = status_entry.key.sort_key();
+        let n = self._status_entries.len();
+        if self._status_entries.is_empty() || self._status_entries[n - 1].key.sort_key() <= key {
+            self._status_entries.push(status_entry);
+            return;
+        }
+
+        let mut ins_index = n;
+        for (i, status_entry) in self._status_entries.iter().enumerate() {
+            if status_entry.key.sort_key() > key {
+                ins_index = i;
+                break;
+            }
+        }
+        self._status_entries.insert(ins_index, status_entry);
     }
 }

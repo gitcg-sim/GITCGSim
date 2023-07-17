@@ -376,6 +376,17 @@ impl StatusKey {
             _ => None,
         }
     }
+
+    #[inline]
+    pub fn sort_key(&self) -> u8 {
+        match *self {
+            Self::Equipment(..) => 0,
+            Self::Character(..) => 1,
+            Self::Team(..) => 2,
+            Self::Summon(..) => 3,
+            Self::Support(..) => 4,
+        }
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]

@@ -86,7 +86,9 @@ macro_rules! view {
             char_states: &$p.char_states,
             flags: $p.flags,
             dice: $p.dice,
-            affected_by: $p.status_collection.get_affected_by_keys(),
+            // TODO will eventually be needed?
+            // affected_by: $p.status_collection.get_affected_by_keys(),
+            affected_by: Default::default(),
         }
     };
 }
