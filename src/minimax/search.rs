@@ -52,17 +52,10 @@ const STATIC_SEARCH_MAX_ITERS: u8 = 100;
 const NULL_WINDOW: bool = false;
 
 #[derive(Copy, Clone)]
-enum DepthState {
-    FullSearch { tactical_depth: u8 },
-    TacticalSearch,
-}
-
-#[derive(Copy, Clone)]
 struct SearchState<'a, 'b, G: Game> {
     pub tt: &'b TT<G::Eval, G::Action>,
     pub maximize_player: PlayerId,
     pub depth: u8,
-    pub depth_state: DepthState,
     // TODO rename to `window` and extract struct
     pub ab: (G::Eval, G::Eval),
     pub pv: &'a PV<G>,
@@ -153,7 +146,6 @@ fn static_search<G: Game>(game: &G, maximize_player: PlayerId, target_round: u8,
 fn minimax<G: Game>(game: &G, ss: SearchState<G>) -> SearchResult<G> {
     let SearchState {
         maximize_player,
-        depth_state,
         depth,
         tt,
         mut ab,
@@ -165,7 +157,7 @@ fn minimax<G: Game>(game: &G, ss: SearchState<G>) -> SearchResult<G> {
         return handle_no_to_move(game, maximize_player)
     };
 
-    if maximize_player != to_move {
+    if ss.maximize_player != to_move {
         return minimax(
             game,
             SearchState {
@@ -192,26 +184,6 @@ fn minimax<G: Game>(game: &G, ss: SearchState<G>) -> SearchResult<G> {
     }
 
     if depth == 0 {
-        match depth_state {
-            DepthState::FullSearch { tactical_depth } => {
-                let mut game = game.clone();
-                game.convert_to_tactical_search();
-                return minimax(
-                    &game,
-                    SearchState {
-                        maximize_player,
-                        depth_state: DepthState::TacticalSearch,
-                        depth: tactical_depth,
-                        tt,
-                        ab,
-                        pv,
-                        lazy_smp_index,
-                    },
-                );
-            }
-            DepthState::TacticalSearch => {}
-        };
-
         let mut counter = SearchCounter::default();
         let eval = if QS {
             let mut game = game.clone();
@@ -260,7 +232,6 @@ fn minimax<G: Game>(game: &G, ss: SearchState<G>) -> SearchResult<G> {
             SearchState {
                 maximize_player,
                 depth: depth - 1,
-                depth_state,
                 ab,
                 pv: &pv,
                 tt,
@@ -529,11 +500,10 @@ fn minimax_iterative_deepening_aspiration_windows<G: Game>(
     parallel: bool,
 ) -> SearchResult<G> {
     let default_window: (G::Eval, G::Eval) = (G::Eval::MIN, G::Eval::MAX);
-    let depth_state = DepthState::FullSearch { tactical_depth: 0 };
+    // let target_round_number = game.round_number() + 2;
     let ss0 = SearchState {
         maximize_player,
         depth,
-        depth_state,
         ab: default_window,
         pv: &linked_list![],
         tt,
@@ -549,9 +519,6 @@ fn minimax_iterative_deepening_aspiration_windows<G: Game>(
                 SearchState {
                     tt,
                     depth: current_depth,
-                    depth_state: DepthState::FullSearch {
-                        tactical_depth: depth - current_depth,
-                    },
                     pv: &pv,
                     ab: window,
                     ..ss0
@@ -561,16 +528,12 @@ fn minimax_iterative_deepening_aspiration_windows<G: Game>(
         };
 
         let (mut pv, mut eval, mut counter) = search(depth0, default_window, linked_list![]);
-        // let mut pv: LinkedList<G::Action> = Default::default();
-        // let mut eval = G::Eval::MIN;
-        // let mut counter = SearchCounter::default();
 
-        if ASPIRATION_WINDOWS {
-            for current_depth in (depth0..=depth).step_by(STEP as usize) {
+        for current_depth in (depth0..=depth).step_by(STEP as usize) {
+            let mut found = false;
+            let window = if ASPIRATION_WINDOWS {
                 let mut window = eval.aspiration_window();
-                let mut found = false;
-
-                for step in 1..=1_u8 {
+                for step in 0..=0_u8 {
                     let (pv1, value, counter1) = search(current_depth, window, pv.clone());
                     counter.add_in_place(&counter1);
                     if window.0 < value && value < window.1 {
@@ -588,17 +551,13 @@ fn minimax_iterative_deepening_aspiration_windows<G: Game>(
                         };
                     }
                 }
+                window
+            } else {
+                (G::Eval::MIN, G::Eval::MAX)
+            };
 
-                if !found {
-                    let (pv1, eval1, counter1) = search(current_depth, window, pv.clone());
-                    eval = eval1;
-                    pv = pv1.clone();
-                    counter.add_in_place(&counter1);
-                }
-            }
-        } else {
-            for current_depth in (depth0..=depth).step_by(STEP as usize) {
-                let (pv1, eval1, counter1) = search(current_depth, default_window, pv.clone());
+            if !found {
+                let (pv1, eval1, counter1) = search(current_depth, window, pv.clone());
                 eval = eval1;
                 pv = pv1.clone();
                 counter.add_in_place(&counter1);
