@@ -4,8 +4,11 @@ use crate::{data_structures::LinkedList, zobrist_hash::HashValue};
 
 #[derive(Debug, Copy, Clone)]
 pub enum TTFlag {
+    /// Search raised alpha and was not pruned (PV-node)
     Exact,
+    /// Search was beta pruned (CUT-node)
     Lower,
+    /// Search did not raise alpha (ALL-node)
     Upper,
 }
 

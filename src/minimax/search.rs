@@ -1,5 +1,5 @@
 use std::{
-    cmp::{max, min},
+    cmp::max,
     sync::atomic::{AtomicBool, Ordering},
 };
 
@@ -9,7 +9,7 @@ use rand::thread_rng;
 use {rayon::prelude::*, std::ops::Add};
 
 use crate::{
-    data_structures::LinkedList,
+    cons,
     minimax::{transposition_table::TTEntry, Windowable},
 };
 use crate::{game_tree_search::*, types::game_state::PlayerId};
@@ -40,7 +40,7 @@ const ITERATIVE_DEEPENING: bool = true;
 const ITERATIVE_DEEPENING_STEP: u8 = 2;
 
 /// Enable quiescence search
-const QS: bool = true;
+const QS: bool = false;
 
 /// Enable static search
 const STATIC_SEARCH: bool = false;
@@ -49,7 +49,7 @@ const STATIC_SEARCH_ROUNDS: u8 = 4;
 const STATIC_SEARCH_MAX_ITERS: u8 = 100;
 
 /// Use null window search in the sequential portion.
-const NULL_WINDOW: bool = false;
+const NULL_WINDOW: bool = true;
 
 #[derive(Copy, Clone)]
 struct SearchState<'a, 'b, G: Game> {
@@ -148,10 +148,12 @@ fn minimax<G: Game>(game: &G, ss: SearchState<G>) -> SearchResult<G> {
         maximize_player,
         depth,
         tt,
-        mut ab,
+        ab,
         pv,
         lazy_smp_index,
     } = ss;
+
+    let mut pv = pv.clone();
 
     let Some(to_move) = game.to_move() else {
         return handle_no_to_move(game, maximize_player)
@@ -172,7 +174,7 @@ fn minimax<G: Game>(game: &G, ss: SearchState<G>) -> SearchResult<G> {
     let alpha0 = ab.0;
     let mut hit = false;
     let mut tt_depth = 0;
-    if let Some(return_value) = probe_tt(tt, game, depth, pv, &mut ab, &mut hit, &mut tt_depth) {
+    if let Some(return_value) = probe_tt(tt, game, depth, ab, &mut hit, &mut tt_depth) {
         return return_value;
     }
     let ab = ab;
@@ -224,7 +226,7 @@ fn minimax<G: Game>(game: &G, ss: SearchState<G>) -> SearchResult<G> {
     }
 
     // Recursively perform the search
-    let recurse = |game: &G, input: G::Action, ab| {
+    let recurse = |game: &G, input: G::Action, ab, pv: &PV<G>| {
         let mut game = game.clone();
         let pv = advance_with_pv(&mut game, pv, input).unwrap();
         minimax(
@@ -241,18 +243,7 @@ fn minimax<G: Game>(game: &G, ss: SearchState<G>) -> SearchResult<G> {
         .add_input_and_increment_counter(input)
     };
 
-    /// Update best result and perform alpha-beta pruning.
-    /// Executes the block if pruning happens.
-    macro_rules! update_prune {
-        ($best: ident, $alpha: ident, $beta: ident, $if_prune: block) => {
-            if $best.eval > $alpha {
-                $alpha = $best.eval
-            }
-            if $alpha >= $beta $if_prune
-        };
-    }
-
-    let res = {
+    let (res, alpha) = {
         // Sequential portion
         let (mut alpha, beta) = ab;
         let mut best = SearchResult::default();
@@ -267,10 +258,10 @@ fn minimax<G: Game>(game: &G, ss: SearchState<G>) -> SearchResult<G> {
         if shuffle {
             G::shuffle_actions(&mut actions, &mut thread_rng());
         } else {
-            game.move_ordering(pv, &mut actions);
+            game.move_ordering(&pv, &mut actions);
         }
 
-        let mut is_pv = true;
+        let mut do_pvs = true;
         for act in actions {
             if let Some(a) = abort {
                 if a.load(Ordering::SeqCst) {
@@ -278,38 +269,43 @@ fn minimax<G: Game>(game: &G, ss: SearchState<G>) -> SearchResult<G> {
                 }
             }
 
-            let res = if !NULL_WINDOW || is_pv {
-                is_pv = false;
-                recurse(game, act, (alpha, beta))
-            } else {
-                let null_window = alpha.null_window();
-                let res0 = recurse(game, act, null_window);
-                if alpha < res0.eval && res0.eval < beta {
-                    best.counter.fail_highs += 1;
-                    best.counter.add_in_place(&res0.counter);
-                    recurse(game, act, (res0.eval, beta))
+            let res = if NULL_WINDOW && !do_pvs {
+                let res_zws = recurse(game, act, alpha.null_window(), &pv);
+                if alpha < res_zws.eval && res_zws.eval < beta {
+                    best.counter.zws_fails += 1;
+                    // res0 thrown away, need to manually add counter
+                    best.counter.add_in_place(&res_zws.counter);
+                    recurse(game, act, (alpha, beta), &pv)
                 } else {
-                    res0
+                    res_zws
                 }
+            } else {
+                recurse(game, act, (alpha, beta), &pv)
             };
 
             best.update(&res);
-            update_prune!(best, alpha, beta, {
-                best.counter.prunes += 1;
+
+            if res.eval >= beta {
+                best.counter.beta_prunes += 1;
                 break;
-            });
+            }
+
+            if res.eval > alpha {
+                alpha = best.eval;
+                do_pvs = false;
+                pv = cons!(act, res.pv);
+            }
         }
 
-        best
+        (best, alpha)
     };
 
     let hash = game.zobrist_hash();
     let key = TT::<G::Eval, G::Action>::to_key(hash);
     if depth >= tt_depth {
         let entry = {
-            let value = res.eval;
-            let flag = tt_flag(value, alpha0, ab);
-            TTEntry::new(flag, depth, value, res.pv.clone())
+            let flag = tt_flag(alpha, alpha0, ab);
+            TTEntry::new(flag, depth, alpha, res.pv.clone())
         };
         tt.table.pin().insert(key, entry);
     }
@@ -336,8 +332,7 @@ fn probe_tt<G: Game>(
     tt: &TT<G::Eval, G::Action>,
     game: &G,
     depth: u8,
-    pv: &LinkedList<G::Action>,
-    ab: &mut (G::Eval, G::Eval),
+    ab: (G::Eval, G::Eval),
     hit: &mut bool,
     tt_depth: &mut u8,
 ) -> Option<SearchResult<G>> {
@@ -345,42 +340,41 @@ fn probe_tt<G: Game>(
     let key = TT::<G::Eval, G::Action>::to_key(hash);
     let tt_ref = tt.pin();
     let Some(entry) = tt_ref.get(&key) else { return None };
-
-    if entry.depth < depth {
-        let mut entry = entry.clone();
-        entry.pv = pv.clone();
-        tt_ref.insert(key, entry);
+    let TTEntry {
+        flag,
+        value,
+        depth: depth_from_tt,
+        ..
+    } = *entry;
+    if depth_from_tt < depth {
         return None;
     }
 
-    let TTEntry { flag, value, depth, .. } = *entry;
     let early_exit = {
+        *hit = true;
         let pv = entry.pv.clone();
-        move || Some(SearchResult::new(pv, value, SearchCounter::HIT))
+        move |value: G::Eval| {
+            *tt_depth = depth;
+            Some(SearchResult::new(pv, value, SearchCounter::HIT))
+        }
     };
 
     match flag {
         TTFlag::Exact => {
-            if pv.is_empty() || {
-                let head = pv.head().unwrap();
-                let mut game1 = game.clone();
-                game1.advance(head).is_err()
-            } {
-                *ab = (max(value, ab.0), min(value, ab.1))
-            } else {
-                return early_exit();
+            return early_exit(value);
+        }
+        TTFlag::Upper => {
+            if value <= ab.0 {
+                return early_exit(ab.0);
             }
         }
-        TTFlag::Lower => ab.0 = max(value, ab.0),
-        TTFlag::Upper => ab.1 = min(value, ab.1),
-    };
-    *tt_depth = depth;
-
-    if ab.0 >= ab.1 && !entry.pv.is_empty() {
-        return early_exit();
+        TTFlag::Lower => {
+            if value >= ab.1 {
+                return early_exit(ab.1);
+            }
+        }
     }
 
-    *hit = true;
     None
 }
 
@@ -536,6 +530,7 @@ fn minimax_iterative_deepening_aspiration_windows<G: Game>(
                 for step in 0..=0_u8 {
                     let (pv1, value, counter1) = search(current_depth, window, pv.clone());
                     counter.add_in_place(&counter1);
+                    counter.aw_iters += 1;
                     if window.0 < value && value < window.1 {
                         found = true;
                         pv = pv1.clone();
@@ -543,10 +538,10 @@ fn minimax_iterative_deepening_aspiration_windows<G: Game>(
                         break;
                     } else {
                         window = if value < window.0 {
-                            counter.fail_lows += 1;
+                            counter.aw_fail_lows += 1;
                             (value.minus_unit(step), window.1)
                         } else {
-                            counter.fail_highs += 1;
+                            counter.aw_fail_highs += 1;
                             (window.0, value.plus_unit(step))
                         };
                     }

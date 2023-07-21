@@ -19,13 +19,17 @@ pub struct SearchCounter {
     /// Number of states visited through game state advancements.
     pub states_visited: u64,
     /// Number of times the pruning condition has been reached.
-    pub prunes: u64,
+    pub beta_prunes: u64,
+    /// Zero-window search failures
+    pub zws_fails: u64,
     /// Number of times a board position was being evaluated (zero depth or winner found).
     pub evals: u64,
-    /// Number of times fail-high conditions trigger
-    pub fail_highs: u64,
-    /// Number of times fail-low conditions trigger
-    pub fail_lows: u64,
+    /// Number of times aspiration window fail-high conditions trigger
+    pub aw_fail_highs: u64,
+    /// Number of times aspiration window fail-low conditions trigger
+    pub aw_fail_lows: u64,
+    /// Number of aspiration window iterations
+    pub aw_iters: u64,
     /// Number of times there is a transposition table hit
     pub tt_hits: u64,
 }
@@ -33,28 +37,34 @@ pub struct SearchCounter {
 impl SearchCounter {
     pub const EVAL: SearchCounter = SearchCounter {
         states_visited: 1,
-        prunes: 0,
+        beta_prunes: 0,
+        zws_fails: 0,
         evals: 1,
-        fail_highs: 0,
-        fail_lows: 0,
+        aw_fail_highs: 0,
+        aw_fail_lows: 0,
+        aw_iters: 0,
         tt_hits: 0,
     };
     pub const HIT: SearchCounter = SearchCounter {
         states_visited: 0,
-        prunes: 0,
+        beta_prunes: 0,
+        zws_fails: 0,
         evals: 0,
-        fail_highs: 0,
-        fail_lows: 0,
+        aw_fail_highs: 0,
+        aw_fail_lows: 0,
+        aw_iters: 0,
         tt_hits: 1,
     };
 
     #[inline]
     pub fn add_in_place(&mut self, c: &SearchCounter) {
         self.states_visited += c.states_visited;
-        self.prunes += c.prunes;
+        self.beta_prunes += c.beta_prunes;
+        self.zws_fails += c.zws_fails;
         self.evals += c.evals;
-        self.fail_highs += c.fail_highs;
-        self.fail_lows += c.fail_lows;
+        self.aw_fail_highs += c.aw_fail_highs;
+        self.aw_fail_lows += c.aw_fail_lows;
+        self.aw_iters += c.aw_iters;
         self.tt_hits += c.tt_hits;
     }
 
@@ -118,7 +128,9 @@ impl<G: Game> SearchResult<G> {
     #[inline]
     pub fn update(&mut self, other: &Self) {
         if other.eval > self.eval {
-            self.pv = other.pv.clone();
+            if !other.pv.is_empty() {
+                self.pv = other.pv.clone();
+            }
             self.eval = other.eval;
         }
         self.counter.add_in_place(&other.counter);
