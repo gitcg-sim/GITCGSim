@@ -633,16 +633,8 @@ impl GameState {
             RollPhaseState::Drawing => {
                 match input {
                     Input::NondetResult(NondetResult::ProvideCards(cards1, cards2)) => {
-                        cards1.to_vec().iter().copied().for_each(|card_id| {
-                            self.players
-                                .0
-                                .add_card_to_hand(phc!(self, PlayerId::PlayerFirst), card_id)
-                        });
-                        cards2.to_vec().iter().copied().for_each(|card_id| {
-                            self.players
-                                .1
-                                .add_card_to_hand(phc!(self, PlayerId::PlayerSecond), card_id)
-                        });
+                        self.add_cards_to_hand(PlayerId::PlayerFirst, &cards1);
+                        self.add_cards_to_hand(PlayerId::PlayerSecond, &cards2);
                         self.set_phase(Phase::RollPhase {
                             first_active_player: active_player,
                             roll_phase_state: RollPhaseState::Rolling,
@@ -663,7 +655,13 @@ impl GameState {
                         cmd_trigger_event(active_player.opposite(), EventId::StartOfActionPhase),
                         (CommandContext::new_event(active_player), Command::HandOverPlayer),
                     ])
-                    .map(|opt| self.handle_post_exec(opt))?;
+                    .map(|opt| self.handle_post_exec(opt))
+                    .unwrap();
+
+                    if self.tactical {
+                        self.perform_pseudo_elemental_tuning(PlayerId::PlayerFirst);
+                        self.perform_pseudo_elemental_tuning(PlayerId::PlayerSecond);
+                    }
                     Ok(DispatchResult::PlayerInput(active_player))
                 }
                 Input::NondetResult(..) => Err(DispatchError::NondetResultInvalid),

@@ -12,9 +12,9 @@ impl GameState {
 
     #[inline]
     pub(crate) fn set_tactical(&mut self, tactical: bool) {
-        self._incremental_hash.hash(HASH_PROVIDER.tactical(tactical));
+        self._incremental_hash.hash(HASH_PROVIDER.tactical(self.tactical));
         self.tactical = tactical;
-        self._incremental_hash.hash(HASH_PROVIDER.tactical(tactical));
+        self._incremental_hash.hash(HASH_PROVIDER.tactical(self.tactical));
     }
 }
 

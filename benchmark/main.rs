@@ -13,6 +13,7 @@ fn trace_search<S: NondetState>(
     steps: u32,
     search: &mut GenericSearch<S>,
 ) -> (u128, SearchCounter) {
+    // game.convert_to_tactical_search();
     let mut total_counter = SearchCounter::default();
     let mut total_time: u128 = 0;
     for i in 0..steps {

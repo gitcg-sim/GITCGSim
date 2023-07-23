@@ -727,15 +727,10 @@ impl GameState {
         ExecResult::Success
     }
 
-    fn add_cards_to_hand(&mut self, ctx: &CommandContext, cards: &CappedLengthList8<CardId>) -> ExecResult {
-        let player_id = ctx.src_player_id;
+    pub(crate) fn add_cards_to_hand(&mut self, player_id: PlayerId, cards: &CappedLengthList8<CardId>) -> ExecResult {
         let player = self.players.get_mut(player_id);
         for card_id in cards.to_vec() {
             player.add_card_to_hand(phc!(self, player_id), card_id);
-        }
-
-        if self.tactical {
-            player.pseudo_elemental_tuning(phc!(self, player_id));
         }
 
         ExecResult::Success
@@ -1103,7 +1098,7 @@ impl GameState {
             Command::RerollDice => self.reroll_dice(ctx),
             Command::AddDice(d) => self.add_dice(ctx, &d),
             Command::SubtractDice(d) => self.subtract_dice(ctx, &d),
-            Command::AddCardsToHand(cards) => self.add_cards_to_hand(ctx, &cards),
+            Command::AddCardsToHand(cards) => self.add_cards_to_hand(ctx.src_player_id, &cards),
             Command::DrawCards(n, t) => self.draw_cards(ctx, n, t),
             Command::ApplyStatusToActiveCharacter(status_id) => self.apply_status_to_active_character(ctx, status_id),
             Command::ApplyStatusToCharacter(status_id, char_idx) => {

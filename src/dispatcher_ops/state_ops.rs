@@ -168,10 +168,9 @@ impl PlayerState {
                 continue;
             }
 
-            let dv = &mut dice[Dice::Elem(elem)];
-            if *dv > 0 {
+            while dice[Dice::Elem(elem)] > 0 && !self.hand.is_empty() {
                 self.remove_card_from_hand_by_index((h, player_id), 0);
-                *dv -= 1;
+                dice[Dice::Elem(elem)] -= 1;
                 dice.omni += 1;
             }
         }
@@ -324,5 +323,12 @@ impl GameState {
             .1
             .pseudo_elemental_tuning(phc!(self, PlayerId::PlayerSecond));
         self.rehash();
+    }
+
+    pub(crate) fn perform_pseudo_elemental_tuning(&mut self, player_id: PlayerId) {
+        match player_id {
+            PlayerId::PlayerFirst => self.players.0.pseudo_elemental_tuning(phc!(self, player_id)),
+            PlayerId::PlayerSecond => self.players.1.pseudo_elemental_tuning(phc!(self, player_id)),
+        }
     }
 }
