@@ -74,6 +74,8 @@ impl<S: NondetState> Game for GameStateWrapper<S> {
 
     type Error = DispatchError;
 
+    const PREPARE_FOR_EVAL: bool = true;
+
     #[inline]
     fn winner(&self) -> Option<PlayerId> {
         match self.game_state.phase {
@@ -111,6 +113,48 @@ impl<S: NondetState> Game for GameStateWrapper<S> {
         let _ = self.game_state.advance(action)?;
         self.ensure_player();
         Ok(())
+    }
+
+    #[inline]
+    fn prepare_for_eval(&mut self) {
+        const ROUNDS: u8 = 2;
+        fn try_skip_round(game_state: &mut GameState) -> bool {
+            while game_state.phase.winner().is_some() {
+                let actions = game_state.available_actions();
+                if actions.is_empty() {
+                    return false;
+                }
+                if let Some(end_round) = actions
+                    .iter()
+                    .copied()
+                    .find(|a| matches!(a, Input::FromPlayer(.., PlayerAction::EndRound)))
+                {
+                    game_state.advance(end_round).expect("Can't perform end round");
+                    return true;
+                } else {
+                    game_state.advance(actions[0]).expect("Can't perform skipping action");
+                }
+            }
+            false
+        }
+
+        for _ in 0..ROUNDS {
+            if self.winner().is_some() {
+                break;
+            }
+            if !try_skip_round(&mut self.game_state) {
+                break;
+            }
+            if let Phase::ActionPhase {
+                first_end_round: Some(..),
+                ..
+            } = self.game_state.phase
+            {
+                if !try_skip_round(&mut self.game_state) {
+                    break;
+                }
+            }
+        }
     }
 
     #[inline]

@@ -15,6 +15,10 @@ impl<T: Clone> Default for LinkedList<T> {
 }
 
 impl<T: Clone> LinkedList<T> {
+    pub fn decons(&self) -> Option<(T, LinkedList<T>)> {
+        self.0.as_ref().map(|rc| (rc.0.clone(), rc.1.clone()))
+    }
+
     pub fn is_empty(&self) -> bool {
         self.0.is_none()
     }

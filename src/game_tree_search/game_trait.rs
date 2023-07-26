@@ -50,6 +50,8 @@ pub trait Game: ZobristHashable + Debug + Clone + Send + Sync {
     type Error: Debug;
     type Eval: Windowable + EvalTrait;
 
+    const PREPARE_FOR_EVAL: bool = false;
+
     fn winner(&self) -> Option<PlayerId>;
 
     fn to_move(&self) -> Option<PlayerId>;
@@ -64,6 +66,9 @@ pub trait Game: ZobristHashable + Debug + Clone + Send + Sync {
 
     /// Called to prepare this game state for tactical search.
     fn convert_to_tactical_search(&mut self) {}
+
+    /// Called to prepare this game state before static evaluation.
+    fn prepare_for_eval(&mut self) {}
 
     fn eval(&self, player_id: PlayerId) -> Self::Eval;
 
