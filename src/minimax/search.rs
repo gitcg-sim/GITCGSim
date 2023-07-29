@@ -1,7 +1,4 @@
-use std::{
-    cmp::max,
-    sync::atomic::{AtomicBool, Ordering},
-};
+use std::sync::atomic::{AtomicBool, Ordering};
 
 use rand::thread_rng;
 
@@ -45,13 +42,7 @@ const TACTICAL_SEARCH: bool = true;
 /// Max. depth for tactical search
 const TACTICAL_SEARCH_DEPTH: u8 = 8;
 
-/// Enable quiescence search
-const QS: bool = false;
-
 const TARGET_ROUND_DELTA: u8 = 2;
-
-/// Enable static search
-const STATIC_SEARCH: bool = false;
 
 const STATIC_SEARCH_MAX_ITERS: u8 = 20;
 
@@ -63,20 +54,18 @@ struct SearchState<'a, 'b, G: Game> {
     pub tt: &'b TT<G::Eval, G::Action>,
     pub maximize_player: PlayerId,
     pub depth: u8,
-    // TODO rename to `window` and extract struct
     pub ab: (G::Eval, G::Eval),
     pub pv: &'a PV<G>,
     pub lazy_smp_index: Option<(u8, &'b LazySMPState<'b>)>,
     pub target_round: u8,
 }
 
-// #[derive(Copy, Clone)]
-// enum DepthTransitionState {
-//     LazySMPRoot,
-//     Full,
-//     Tactical,
-//     Static,
-// }
+#[derive(Copy, Clone)]
+enum DepthTransitionState {
+    LazySMPRoot { depth: u8 },
+    Full,
+    Tactical,
+}
 
 struct SearchContext<'b, G: Game> {
     pub counter: SearchCounter,
@@ -104,62 +93,6 @@ fn eval_position<G: Game>(game: &G, maximize_player: PlayerId) -> G::Eval {
     }
 }
 
-/// Perform quiescence search.
-fn qs<G: Game>(
-    game: &G,
-    maximize_player: PlayerId,
-    ab: (G::Eval, G::Eval),
-    counter: &mut SearchCounter,
-    target_round: u8,
-    depth: u8,
-) -> G::Eval {
-    let eval = eval_position(game, maximize_player);
-    counter.evals += 1;
-    let Some(player) = game.to_move() else {
-        return eval
-    };
-
-    if depth == 0 || game.winner().is_some() || game.round_number() >= target_round {
-        return eval;
-    }
-
-    let (mut alpha, beta) = ab;
-    if player != maximize_player {
-        return -qs(
-            game,
-            maximize_player.opposite(),
-            (-beta, -alpha),
-            counter,
-            target_round,
-            depth,
-        );
-    }
-
-    if eval >= beta {
-        return beta;
-    }
-    alpha = max(alpha, eval);
-
-    let mut actions = game.actions();
-    G::move_ordering_for_qs(&mut actions);
-    for action in actions {
-        if !G::is_tactical_action(action) {
-            continue;
-        }
-
-        let mut game = game.clone();
-        game.advance(action).unwrap();
-        counter.states_visited += 1;
-        let eval = qs(&game, maximize_player, (alpha, beta), counter, target_round, depth - 1);
-        if eval >= beta {
-            return beta;
-        }
-        alpha = max(alpha, eval);
-    }
-
-    alpha
-}
-
 fn tactical_search_rec<G: Game>(
     game: &G,
     maximize_player: PlayerId,
@@ -167,17 +100,46 @@ fn tactical_search_rec<G: Game>(
     depth: u8,
     pv: &PV<G>,
     ctx: &mut SearchContext<G>,
+    dts: DepthTransitionState,
 ) -> (G::Eval, PV<G>) {
-    if depth == 0 || game.winner().is_some() || game.round_number() >= ctx.target_round || ctx.lazy_smp_finished() {
+    if game.winner().is_some() || game.round_number() >= ctx.target_round || ctx.lazy_smp_finished() {
         ctx.counter.evals += 1;
         return (eval_position(game, maximize_player), linked_list![]);
+    }
+
+    if depth == 0 {
+        return match dts {
+            DepthTransitionState::LazySMPRoot { depth: _ } => {
+                // tactical_search_rec(game, maximize_player, ab, depth, pv, ctx, DepthTransitionState::Full)
+                todo!()
+            }
+            DepthTransitionState::Full => {
+                let mut game = game.clone();
+                game.convert_to_tactical_search();
+                tactical_search_rec(
+                    &game,
+                    maximize_player,
+                    ab,
+                    depth,
+                    pv,
+                    ctx,
+                    DepthTransitionState::Tactical,
+                )
+            }
+            DepthTransitionState::Tactical => {
+                ctx.counter.evals += 1;
+                let (eval, n) = static_search(game, maximize_player, ctx.target_round, STATIC_SEARCH_MAX_ITERS);
+                ctx.counter.states_visited += n;
+                return (eval, linked_list![]);
+            }
+        };
     }
 
     let player = game.to_move().unwrap();
 
     let (mut alpha, beta) = ab;
     if player != maximize_player {
-        let (e, pv1) = tactical_search_rec(game, maximize_player.opposite(), (-beta, -alpha), depth, pv, ctx);
+        let (e, pv1) = tactical_search_rec(game, maximize_player.opposite(), (-beta, -alpha), depth, pv, ctx, dts);
         return (-e, pv1);
     }
 
@@ -201,7 +163,7 @@ fn tactical_search_rec<G: Game>(
     if pv.is_empty() && depth >= 2 {
         let iid_depth = 1 + depth / 4;
         for current_depth in (1..iid_depth).step_by(2) {
-            pv = tactical_search_rec::<G>(game, maximize_player, (alpha, beta), current_depth, &pv, ctx).1;
+            pv = tactical_search_rec::<G>(game, maximize_player, (alpha, beta), current_depth, &pv, ctx, dts).1;
         }
     }
 
@@ -225,7 +187,8 @@ fn tactical_search_rec<G: Game>(
         let mut game = game.clone();
         game.advance(action).unwrap();
         ctx.counter.states_visited += 1;
-        let (eval, pv_rest) = tactical_search_rec(&game, maximize_player, (alpha, beta), depth - 1, &pv_inner, ctx);
+        let (eval, pv_rest) =
+            tactical_search_rec(&game, maximize_player, (alpha, beta), depth - 1, &pv_inner, ctx, dts);
 
         if eval >= beta {
             ctx.counter.beta_prunes += 1;
@@ -278,9 +241,10 @@ fn tactical_search_iterative_deepening<G: Game>(
             current_depth,
             &pv,
             ctx,
+            DepthTransitionState::Tactical,
         );
         eval = eval_next;
-        if pv_next.len() >= pv.len() {
+        if !pv_next.is_empty() {
             pv = pv_next;
         }
     }
@@ -386,15 +350,6 @@ fn minimax<G: Game>(game: &G, ss: SearchState<G>) -> SearchResult<G> {
             );
             counter.add_in_place(&ctx.counter);
             res
-        } else if QS {
-            let mut game = game.clone();
-            game.convert_to_tactical_search();
-            qs(&game, maximize_player, ab, &mut counter, target_round, game.qs_depth())
-        } else if STATIC_SEARCH {
-            let (eval, states_visited) = static_search(game, maximize_player, target_round, STATIC_SEARCH_MAX_ITERS);
-            counter.evals += 1;
-            counter.states_visited += states_visited;
-            eval
         } else {
             counter.evals += 1;
             eval_position(game, maximize_player)

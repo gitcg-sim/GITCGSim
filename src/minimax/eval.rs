@@ -41,11 +41,11 @@ impl PlayerState {
 
         0 + low_hp_total + 10 * (hp_total as HV) + 6 * (energy_total as HV) - 16 * (elem_total as HV)
             + active_char_value
-            + 4 * (dice_value as HV)
-            + 20 * support_total
+            + 3 * (dice_value as HV)
+            + 15 * support_total
             + 11 * status_total
             + 13 * summons_total
-            + 3 * (hand_value as HV)
+            + 2 * (hand_value as HV)
     }
 }
 
