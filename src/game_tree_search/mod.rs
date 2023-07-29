@@ -20,6 +20,8 @@ pub struct SearchCounter {
     pub states_visited: u64,
     /// Number of times the pruning condition has been reached.
     pub beta_prunes: u64,
+    /// Number of times ALL nodes have been searched through.
+    pub all_nodes: u64,
     /// Zero-window search failures
     pub zws_fails: u64,
     /// Number of times a board position was being evaluated (zero depth or winner found).
@@ -35,31 +37,34 @@ pub struct SearchCounter {
 }
 
 impl SearchCounter {
-    pub const EVAL: SearchCounter = SearchCounter {
-        states_visited: 1,
-        beta_prunes: 0,
-        zws_fails: 0,
-        evals: 1,
-        aw_fail_highs: 0,
-        aw_fail_lows: 0,
-        aw_iters: 0,
-        tt_hits: 0,
-    };
-    pub const HIT: SearchCounter = SearchCounter {
+    pub const ZERO: SearchCounter = SearchCounter {
         states_visited: 0,
         beta_prunes: 0,
+        all_nodes: 0,
         zws_fails: 0,
         evals: 0,
         aw_fail_highs: 0,
         aw_fail_lows: 0,
         aw_iters: 0,
+        tt_hits: 0,
+    };
+
+    pub const EVAL: SearchCounter = SearchCounter {
+        states_visited: 1,
+        evals: 1,
+        ..Self::ZERO
+    };
+
+    pub const HIT: SearchCounter = SearchCounter {
         tt_hits: 1,
+        ..Self::ZERO
     };
 
     #[inline]
     pub fn add_in_place(&mut self, c: &SearchCounter) {
         self.states_visited += c.states_visited;
         self.beta_prunes += c.beta_prunes;
+        self.all_nodes += c.all_nodes;
         self.zws_fails += c.zws_fails;
         self.evals += c.evals;
         self.aw_fail_highs += c.aw_fail_highs;

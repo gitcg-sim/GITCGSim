@@ -73,7 +73,7 @@ impl<'a, E: Sync + Send, A: Clone + Sync + Send> TTPin<'a, E, A> {
 }
 
 pub const DEFAULT_SIZE: usize = 4 * 4096 * 4096;
-// pub const DEFAULT_SIZE: usize = 4096 * 4096;
+//pub const DEFAULT_SIZE: usize = 4096 * 4096;
 //pub const DEFAULT_SIZE: usize = 1024 * 4096;
 //pub const DEFAULT_SIZE: usize = 256 * 4096;
 
