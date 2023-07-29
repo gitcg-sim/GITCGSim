@@ -8,7 +8,7 @@ mod game_state_wrapper;
 pub use game_state_wrapper::*;
 use serde::{Deserialize, Serialize};
 
-use crate::{cons, data_structures::LinkedList, linked_list, types::game_state::PlayerId};
+use crate::{data_structures::LinkedList, linked_list, types::game_state::PlayerId};
 
 /// Principal Variation: A sequence of moves known to be best and is used to guide the search to be more efficient at pruning.
 #[allow(type_alias_bounds)]
@@ -108,37 +108,6 @@ impl<G: Game> SearchResult<G> {
     #[inline]
     pub(crate) fn new(pv: PV<G>, eval: G::Eval, counter: SearchCounter) -> Self {
         SearchResult { pv, eval, counter }
-    }
-
-    #[inline]
-    pub(crate) fn negate(&self) -> Self {
-        SearchResult {
-            pv: self.pv.clone(),
-            eval: -self.eval,
-            counter: self.counter,
-        }
-    }
-
-    #[inline]
-    pub(crate) fn add_input_and_increment_counter(&self, input: G::Action) -> Self {
-        let mut counter = self.counter;
-        counter.states_visited += 1;
-        SearchResult {
-            pv: cons!(input, self.pv.clone()),
-            counter,
-            eval: self.eval.plus_one_turn(),
-        }
-    }
-
-    #[inline]
-    pub fn update(&mut self, other: &Self) {
-        if other.eval > self.eval {
-            if !other.pv.is_empty() {
-                self.pv = other.pv.clone();
-            }
-            self.eval = other.eval;
-        }
-        self.counter.add_in_place(&other.counter);
     }
 }
 

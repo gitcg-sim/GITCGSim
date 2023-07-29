@@ -1,9 +1,8 @@
 use std::sync::atomic::{AtomicBool, Ordering};
-
-use rand::thread_rng;
-
 #[cfg(not(feature = "no_parallel"))]
 use {rayon::prelude::*, std::ops::Add};
+
+use rand::thread_rng;
 
 use crate::{
     cons,
@@ -36,41 +35,25 @@ const ASPIRATION_WINDOWS: bool = true;
 const ITERATIVE_DEEPENING: bool = true;
 const ITERATIVE_DEEPENING_STEP: u8 = 2;
 
-/// Enable tactical search
-const TACTICAL_SEARCH: bool = true;
-
 /// Max. depth for tactical search
-const TACTICAL_SEARCH_DEPTH: u8 = 8;
+const TACTICAL_SEARCH_DEPTH: u8 = 6;
 
-const TARGET_ROUND_DELTA: u8 = 2;
+const TARGET_ROUND_DELTA: u8 = 1;
 
 const STATIC_SEARCH_MAX_ITERS: u8 = 20;
 
-/// Use null window search in the sequential portion.
-const NULL_WINDOW: bool = false;
-
-#[derive(Copy, Clone)]
-struct SearchState<'a, 'b, G: Game> {
-    pub tt: &'b TT<G::Eval, G::Action>,
-    pub maximize_player: PlayerId,
-    pub depth: u8,
-    pub ab: (G::Eval, G::Eval),
-    pub pv: &'a PV<G>,
-    pub lazy_smp_index: Option<(u8, &'b LazySMPState<'b>)>,
-    pub target_round: u8,
-}
-
 #[derive(Copy, Clone)]
 enum DepthTransitionState {
-    LazySMPRoot { depth: u8 },
     Full,
     Tactical,
 }
 
+type ThreadId = u8;
+
 struct SearchContext<'b, G: Game> {
     pub counter: SearchCounter,
     pub target_round: u8,
-    pub lazy_smp_index: Option<(u8, &'b LazySMPState<'b>)>,
+    pub lazy_smp_index: Option<(ThreadId, &'b LazySMPState<'b>)>,
     pub tt: &'b TT<G::Eval, G::Action>,
 }
 
@@ -79,6 +62,13 @@ impl<'b, G: Game> SearchContext<'b, G> {
     pub fn lazy_smp_finished(&self) -> bool {
         let Some((_, lazy_smp)) = self.lazy_smp_index else { return false };
         lazy_smp.finished.load(Ordering::SeqCst)
+    }
+
+    #[inline]
+    pub fn should_shuffle_actions(&self, depth: u8, dts: DepthTransitionState) -> bool {
+        let DepthTransitionState::Full = dts else { return false };
+        let Some((_, lazy_smp)) = self.lazy_smp_index else { return false };
+        lazy_smp.top_depth == depth
     }
 }
 
@@ -93,7 +83,7 @@ fn eval_position<G: Game>(game: &G, maximize_player: PlayerId) -> G::Eval {
     }
 }
 
-fn tactical_search_rec<G: Game>(
+fn minimax<G: Game>(
     game: &G,
     maximize_player: PlayerId,
     ab: (G::Eval, G::Eval),
@@ -109,28 +99,25 @@ fn tactical_search_rec<G: Game>(
 
     if depth == 0 {
         return match dts {
-            DepthTransitionState::LazySMPRoot { depth: _ } => {
-                // tactical_search_rec(game, maximize_player, ab, depth, pv, ctx, DepthTransitionState::Full)
-                todo!()
-            }
             DepthTransitionState::Full => {
                 let mut game = game.clone();
                 game.convert_to_tactical_search();
-                tactical_search_rec(
-                    &game,
-                    maximize_player,
-                    ab,
-                    depth,
-                    pv,
-                    ctx,
-                    DepthTransitionState::Tactical,
+                (
+                    tactical_search_iterative_deepening(
+                        &game,
+                        maximize_player,
+                        (G::Eval::MIN, G::Eval::MAX),
+                        TACTICAL_SEARCH_DEPTH,
+                        ctx,
+                    ),
+                    linked_list![],
                 )
             }
             DepthTransitionState::Tactical => {
                 ctx.counter.evals += 1;
                 let (eval, n) = static_search(game, maximize_player, ctx.target_round, STATIC_SEARCH_MAX_ITERS);
                 ctx.counter.states_visited += n;
-                return (eval, linked_list![]);
+                (eval, linked_list![])
             }
         };
     }
@@ -139,7 +126,7 @@ fn tactical_search_rec<G: Game>(
 
     let (mut alpha, beta) = ab;
     if player != maximize_player {
-        let (e, pv1) = tactical_search_rec(game, maximize_player.opposite(), (-beta, -alpha), depth, pv, ctx, dts);
+        let (e, pv1) = minimax(game, maximize_player.opposite(), (-beta, -alpha), depth, pv, ctx, dts);
         return (-e, pv1);
     }
 
@@ -156,19 +143,23 @@ fn tactical_search_rec<G: Game>(
     }
 
     let mut write_back_tt = true;
-    let alpha0 = alpha;
     let mut actions = game.actions();
     let mut pv = pv.clone();
     // internal iterative deepening
     if pv.is_empty() && depth >= 2 {
         let iid_depth = 1 + depth / 4;
         for current_depth in (1..iid_depth).step_by(2) {
-            pv = tactical_search_rec::<G>(game, maximize_player, (alpha, beta), current_depth, &pv, ctx, dts).1;
+            pv = minimax::<G>(game, maximize_player, (alpha, beta), current_depth, &pv, ctx, dts).1;
         }
     }
 
-    G::move_ordering(game, &pv, &mut actions);
+    if ctx.should_shuffle_actions(depth, dts) {
+        G::shuffle_actions(&mut actions, &mut thread_rng());
+    } else {
+        G::move_ordering(game, &pv, &mut actions);
+    }
     let mut best = G::Eval::MIN;
+    let mut flag = TTFlag::Upper;
     for action in actions {
         if ctx.lazy_smp_finished() {
             write_back_tt = false;
@@ -187,11 +178,11 @@ fn tactical_search_rec<G: Game>(
         let mut game = game.clone();
         game.advance(action).unwrap();
         ctx.counter.states_visited += 1;
-        let (eval, pv_rest) =
-            tactical_search_rec(&game, maximize_player, (alpha, beta), depth - 1, &pv_inner, ctx, dts);
+        let (eval, pv_rest) = minimax(&game, maximize_player, (alpha, beta), depth - 1, &pv_inner, ctx, dts);
 
         if eval >= beta {
             ctx.counter.beta_prunes += 1;
+            flag = TTFlag::Lower;
             break;
         }
 
@@ -202,6 +193,7 @@ fn tactical_search_rec<G: Game>(
 
         if eval > alpha {
             alpha = eval;
+            flag = TTFlag::Exact;
         }
     }
 
@@ -213,10 +205,7 @@ fn tactical_search_rec<G: Game>(
         let hash = game.zobrist_hash();
         let key = TT::<G::Eval, G::Action>::to_key(hash);
         if depth >= tt_depth {
-            let entry = {
-                let flag = tt_flag(alpha, alpha0, ab);
-                TTEntry::new(flag, depth, alpha, pv.clone())
-            };
+            let entry = TTEntry::new(flag, depth, alpha, pv.clone());
             ctx.tt.table.pin().insert(key, entry);
         }
     }
@@ -234,7 +223,7 @@ fn tactical_search_iterative_deepening<G: Game>(
     let mut eval = ab.0;
     let mut pv = linked_list![];
     for current_depth in (1..=depth).step_by(2) {
-        let (eval_next, pv_next) = tactical_search_rec(
+        let (eval_next, pv_next) = minimax(
             game,
             maximize_player,
             (G::Eval::MIN, G::Eval::MAX),
@@ -269,257 +258,6 @@ fn static_search<G: Game>(game: &G, maximize_player: PlayerId, target_round: u8,
     }
 
     (game.eval(maximize_player), count)
-}
-
-fn minimax<G: Game>(game: &G, ss: SearchState<G>) -> SearchResult<G> {
-    let SearchState {
-        maximize_player,
-        mut depth,
-        tt,
-        ab,
-        pv,
-        lazy_smp_index,
-        target_round,
-    } = ss;
-
-    let mut pv = pv.clone();
-
-    let Some(to_move) = game.to_move() else {
-        return handle_no_to_move(game, maximize_player)
-    };
-
-    if ss.maximize_player != to_move {
-        return minimax(
-            game,
-            SearchState {
-                maximize_player: maximize_player.opposite(),
-                ab: (-ab.1, -ab.0),
-                ..ss
-            },
-        )
-        .negate();
-    }
-
-    {
-        if game.round_number() >= target_round {
-            depth = 0;
-        }
-    }
-
-    let depth = depth; // No longer mutable
-    let mut use_tt = true;
-    let alpha0 = ab.0;
-    let mut hit = false;
-    let mut tt_depth = 0;
-    let tt_res = if use_tt {
-        probe_tt(tt, game, depth, ab, &mut hit, &mut tt_depth)
-    } else {
-        None
-    };
-    if let Some(return_value) = tt_res {
-        if depth == 0 || !return_value.pv.is_empty() {
-            return return_value;
-        }
-    }
-    let ab = ab;
-
-    if let Some((_, lazy_smp)) = lazy_smp_index {
-        if lazy_smp.finished.load(Ordering::SeqCst) {
-            return probe_tt(tt, game, depth, ab, &mut hit, &mut tt_depth)
-                .unwrap_or_else(|| SearchResult::new(linked_list![], ab.0, SearchCounter::default()));
-        }
-    }
-
-    if depth == 0 {
-        let mut counter = SearchCounter::default();
-        let eval = if TACTICAL_SEARCH {
-            let mut game = game.clone();
-            game.convert_to_tactical_search();
-            let mut ctx = SearchContext {
-                counter: Default::default(),
-                target_round,
-                lazy_smp_index,
-                tt,
-            };
-            let res = tactical_search_iterative_deepening(
-                &game,
-                maximize_player,
-                (G::Eval::MIN, G::Eval::MAX),
-                TACTICAL_SEARCH_DEPTH,
-                &mut ctx,
-            );
-            counter.add_in_place(&ctx.counter);
-            res
-        } else {
-            counter.evals += 1;
-            eval_position(game, maximize_player)
-        };
-
-        let hash = game.zobrist_hash();
-        let key = TT::<G::Eval, G::Action>::to_key(hash);
-        let entry = {
-            let value = eval;
-            let flag = tt_flag::<G::Eval>(value, alpha0, ab);
-            TTEntry::new(flag, depth, value, linked_list![])
-        };
-        tt.table.pin().insert(key, entry);
-
-        return SearchResult::new(linked_list![], eval, counter);
-    }
-
-    // Recursively perform the search
-    let recurse = |game: &G, input: G::Action, ab, pv: &PV<G>| {
-        let mut game = game.clone();
-        let pv = advance_with_pv(&mut game, pv, input).unwrap();
-        minimax(
-            &game,
-            SearchState {
-                maximize_player,
-                depth: depth - 1,
-                ab,
-                pv: &pv,
-                tt,
-                lazy_smp_index,
-                target_round,
-            },
-        )
-        .add_input_and_increment_counter(input)
-    };
-
-    let mut iid_counter = SearchCounter::default();
-    // internal iterative deepening
-    if pv.is_empty() && depth >= 2 {
-        let iid_depth = 1 + depth / 4;
-        for current_depth in (1..=iid_depth).step_by(2) {
-            let game = game.clone();
-            let res_iid = minimax(
-                &game,
-                SearchState {
-                    maximize_player,
-                    depth: current_depth,
-                    ab,
-                    pv: &pv,
-                    tt,
-                    lazy_smp_index,
-                    target_round,
-                },
-            );
-            iid_counter.add_in_place(&res_iid.counter);
-            pv = res_iid.pv;
-        }
-    }
-
-    let (res, alpha) = {
-        // Sequential portion
-        let (mut alpha, beta) = ab;
-        let mut best = SearchResult::default();
-        best.counter.add_in_place(&iid_counter);
-        let mut actions = game.actions();
-        let mut abort = None;
-        let mut shuffle = false;
-        if let Some((_, lazy_smp)) = lazy_smp_index {
-            abort = Some(&lazy_smp.finished);
-            shuffle = lazy_smp.top_depth == depth;
-        }
-
-        if shuffle {
-            G::shuffle_actions(&mut actions, &mut thread_rng());
-        } else {
-            game.move_ordering(&pv, &mut actions);
-        }
-
-        let mut best_move = None;
-        let mut do_pvs = true;
-        for act in actions {
-            if let Some(a) = abort {
-                if a.load(Ordering::SeqCst) {
-                    use_tt = false;
-                    break;
-                }
-            }
-
-            if let Some((_, lazy_smp)) = lazy_smp_index {
-                if lazy_smp.finished.load(Ordering::SeqCst) {
-                    use_tt = false;
-                    best = SearchResult::default();
-                    best.eval = G::Eval::MIN;
-                    hit = false;
-                    break;
-                }
-            }
-
-            let res = if NULL_WINDOW && !do_pvs {
-                let res_zws = recurse(game, act, alpha.null_window(), &pv);
-                if alpha < res_zws.eval && res_zws.eval < beta {
-                    best.counter.zws_fails += 1;
-                    // res0 thrown away, need to manually add counter
-                    best.counter.add_in_place(&res_zws.counter);
-                    recurse(game, act, (alpha, beta), &pv)
-                } else {
-                    res_zws
-                }
-            } else {
-                recurse(game, act, (alpha, beta), &pv)
-            };
-
-            if res.eval > best.eval {
-                best_move = Some(act);
-            }
-            best.update(&res);
-
-            if res.eval >= beta {
-                best.counter.beta_prunes += 1;
-                break;
-            }
-
-            if res.eval > alpha {
-                alpha = best.eval;
-                do_pvs = false;
-                pv = cons!(act, res.pv);
-            }
-        }
-
-        if best.eval < alpha {
-            best.counter.all_nodes += 1;
-        }
-
-        if best.pv.is_empty() {
-            if let Some(act) = best_move {
-                best.pv = linked_list![act];
-            }
-        }
-
-        (best, alpha)
-    };
-
-    if use_tt {
-        let hash = game.zobrist_hash();
-        let key = TT::<G::Eval, G::Action>::to_key(hash);
-        if depth >= tt_depth {
-            let entry = {
-                let flag = tt_flag(alpha, alpha0, ab);
-                TTEntry::new(flag, depth, alpha, res.pv.clone())
-            };
-            tt.table.pin().insert(key, entry);
-        }
-    }
-
-    let mut res = res;
-    if hit {
-        res.counter.tt_hits += 1;
-    }
-    res
-}
-
-#[inline]
-fn tt_flag<E: EvalTrait>(value: E, alpha0: E, ab: (E, E)) -> TTFlag {
-    if value <= alpha0 {
-        TTFlag::Upper
-    } else if value >= ab.1 {
-        TTFlag::Lower
-    } else {
-        TTFlag::Exact
-    }
 }
 
 fn probe_tt<G: Game>(
@@ -572,17 +310,6 @@ fn probe_tt<G: Game>(
     None
 }
 
-fn handle_no_to_move<G: Game>(game: &G, maximize_player: PlayerId) -> SearchResult<G> {
-    let Some(winner) = game.winner() else {
-        panic!("handle_no_move: Error: {maximize_player} {game:?}")
-    };
-    if winner == maximize_player {
-        SearchResult::new(linked_list![], G::Eval::MAX, SearchCounter::EVAL)
-    } else {
-        SearchResult::new(linked_list![], G::Eval::MIN, SearchCounter::EVAL)
-    }
-}
-
 struct LazySMPState<'a> {
     pub finished: &'a AtomicBool,
     pub top_depth: u8,
@@ -591,89 +318,95 @@ struct LazySMPState<'a> {
 fn minimax_lazy_smp<G: Game>(
     #[allow(unused_variables)] parallel: bool,
     game: &G,
-    ss: SearchState<G>,
-) -> Option<SearchResult<G>> {
+    maximize_player: PlayerId,
+    ab: (G::Eval, G::Eval),
+    depth: u8,
+    pv: &PV<G>,
+    ctx: &mut SearchContext<G>,
+) -> Option<(G::Eval, PV<G>)> {
     #[cfg(feature = "no_parallel")]
-    let ret = minimax(game, ss);
+    let (eval, pv) = minimax(game, maximize_player, ab, depth, pv, ctx, DepthTransitionState::Full);
 
     #[cfg(not(feature = "no_parallel"))]
-    let ret = if parallel && LAZY_SMP {
-        let threads = 24;
-        let depth = ss.depth;
+    let (eval, pv) = if parallel && LAZY_SMP {
+        let threads: ThreadId = 24;
         let finished = &AtomicBool::default();
+        let SearchContext {
+            target_round,
+            tt,
+            lazy_smp_index: _,
+            counter: _,
+        } = *ctx;
 
-        let (total_counter, mut res) = rayon::join(
+        let (total_counter, (eval, pv, search_counter)) = rayon::join(
             {
                 let game_1 = game.clone();
                 move || {
                     (1..threads)
                         .into_par_iter()
-                        .map(move |i| {
-                            if i >= 8 {
+                        .map(move |thread_id| {
+                            if thread_id >= 8 {
                                 std::thread::yield_now();
                             }
                             if finished.load(Ordering::SeqCst) {
                                 return SearchCounter::default();
                             }
-                            let depth = depth
-                                + match i * (if threads >= 12 { 1 } else { 2 }) {
-                                    0 => 4,
-                                    1 => 3,
-                                    2 => 2,
-                                    3 => 2,
-                                    4 => 1,
-                                    5 => 1,
-                                    6 => 1,
-                                    7 => 1,
-                                    _ => 0,
-                                };
+                            // let depth = depth + std::cmp::min(3, thread_id.trailing_ones() as u8);
+                            let depth = depth + depth % 2;
                             let lazy_smp = LazySMPState {
                                 finished,
                                 top_depth: depth,
                             };
+                            let mut ctx = SearchContext {
+                                counter: SearchCounter::default(),
+                                target_round,
+                                lazy_smp_index: Some((thread_id, &lazy_smp)),
+                                tt,
+                            };
                             minimax(
                                 &game_1,
-                                SearchState {
-                                    lazy_smp_index: Some((i, &lazy_smp)),
-                                    depth,
-                                    ..ss
-                                },
-                            )
-                            .counter
+                                maximize_player,
+                                ab,
+                                depth,
+                                pv,
+                                &mut ctx,
+                                DepthTransitionState::Full,
+                            );
+                            ctx.counter
                         })
                         .reduce(SearchCounter::default, SearchCounter::add)
                 }
             },
             move || {
-                let tt = ss.tt;
-                let ss = SearchState {
+                let mut ctx = SearchContext {
+                    counter: SearchCounter::default(),
+                    target_round,
                     lazy_smp_index: None,
-                    ..ss
+                    tt,
                 };
-                let mut res = minimax(game, ss.clone());
-                for _ in 0..2 {
-                    if res.pv.head().is_some() {
-                        break;
-                    }
-                    tt.pin().tt.clear();
-                    let ss = SearchState {
-                        lazy_smp_index: None,
-                        ..ss.clone()
-                    };
-                    res = minimax(game, ss);
-                }
+                let (eval, pv) = minimax(
+                    game,
+                    maximize_player,
+                    ab,
+                    depth,
+                    pv,
+                    &mut ctx,
+                    DepthTransitionState::Full,
+                );
                 finished.store(true, Ordering::SeqCst);
-                res
+                (eval, pv, ctx.counter)
             },
         );
 
-        res.counter.add_in_place(&total_counter);
-        res
+        ctx.counter.add_in_place(&total_counter);
+        ctx.counter.add_in_place(&search_counter);
+        (eval, pv)
     } else {
-        minimax(game, ss)
+        let (eval, pv) = minimax(game, maximize_player, ab, depth, pv, ctx, DepthTransitionState::Full);
+        (eval, pv)
     };
-    if ret.pv.head().is_some() && game.clone().advance(ret.pv.head().unwrap()).is_ok() {
-        Some(ret)
+    if pv.head().is_some() && game.clone().advance(pv.head().unwrap()).is_ok() {
+        Some((eval, pv))
     } else {
         None
     }
@@ -687,82 +420,100 @@ fn minimax_iterative_deepening_aspiration_windows<G: Game>(
     parallel: bool,
 ) -> SearchResult<G> {
     let default_window: (G::Eval, G::Eval) = (G::Eval::MIN, G::Eval::MAX);
-    let ss0 = SearchState {
-        maximize_player,
-        depth,
-        ab: default_window,
-        pv: &linked_list![],
+    let mut ctx0 = SearchContext {
+        counter: SearchCounter::default(),
         tt,
         lazy_smp_index: None,
         target_round: game.round_number() + TARGET_ROUND_DELTA,
     };
     const STEP: u8 = ITERATIVE_DEEPENING_STEP;
-    if ITERATIVE_DEEPENING {
-        let depth0 = if depth > STEP { STEP } else { depth };
-        let search = |current_depth, window, pv| {
-            let Some(SearchResult { pv, eval, counter }) = minimax_lazy_smp(
+    if !ITERATIVE_DEEPENING {
+        let (eval, pv) = minimax_lazy_smp(
+            parallel,
+            game,
+            maximize_player,
+            default_window,
+            depth,
+            &linked_list![],
+            &mut ctx0,
+        )
+        .unwrap_or_else(|| {
+            minimax(
+                game,
+                maximize_player,
+                default_window,
+                depth,
+                &linked_list![],
+                &mut ctx0,
+                DepthTransitionState::Full,
+            )
+        });
+        return SearchResult::new(pv, eval, ctx0.counter);
+    }
+
+    let depth0 = if depth > STEP { STEP } else { depth };
+    macro_rules! search {
+        ($current_depth: expr, $ab: expr, $pv: expr $(,)?) => {
+            minimax_lazy_smp(
                 parallel,
                 game,
-                SearchState {
-                    tt,
-                    depth: current_depth,
-                    pv: &pv,
-                    ab: window,
-                    ..ss0
-                },
-            ) else {
-                return None;
-            };
-            Some((pv, eval, counter))
+                maximize_player,
+                $ab,
+                $current_depth,
+                &$pv,
+                &mut ctx0,
+            )
         };
+    }
 
-        let (mut pv, mut eval, mut counter) = search(1, (G::Eval::MIN, G::Eval::MAX), linked_list![]).unwrap();
+    let (mut eval, mut pv) = search!(
+        std::cmp::max(1, depth0.saturating_sub(1)),
+        default_window,
+        linked_list![]
+    )
+    .expect("minimax_lazy_smp must succeed here");
 
-        for current_depth in (depth0..=depth).step_by(STEP as usize) {
-            let mut found = false;
-            let window = if ASPIRATION_WINDOWS {
-                let mut window = eval.aspiration_window();
-                for step in 0..=0_u8 {
-                    let Some((pv1, value, counter1)) = search(current_depth, window, pv.clone()) else {
-                        break
-                    };
-                    counter.add_in_place(&counter1);
-                    counter.aw_iters += 1;
-                    if window.0 < value && value < window.1 {
-                        found = true;
-                        pv = pv1.clone();
-                        eval = value;
-                        break;
-                    } else {
-                        window = if value < window.0 {
-                            counter.aw_fail_lows += 1;
-                            (value.minus_unit(step), window.1)
-                        } else {
-                            counter.aw_fail_highs += 1;
-                            (window.0, value.plus_unit(step))
-                        };
-                    }
-                }
-                window
-            } else {
-                (G::Eval::MIN, G::Eval::MAX)
-            };
-
-            // let pv_vec: Vec<_> = pv.clone().into_iter().collect();
-            // println!("{current_depth:2}: Eval={eval:?}, PV={pv_vec:?}");
-            if !found {
-                let Some((pv1, eval1, counter1)) = search(current_depth, window, pv.clone()) else {
+    for current_depth in (depth0..=depth).step_by(STEP as usize) {
+        let mut found = false;
+        let window = if ASPIRATION_WINDOWS {
+            let mut window = eval.aspiration_window();
+            for step in 0..=0_u8 {
+                let Some((value, pv1)) = search!(current_depth, window, pv.clone()) else {
                     break
                 };
-                eval = eval1;
-                pv = pv1.clone();
-                counter.add_in_place(&counter1);
+                ctx0.counter.aw_iters += 1;
+                let (alpha, beta) = window;
+                if alpha < value && value < beta {
+                    found = true;
+                    pv = pv1.clone();
+                    eval = value;
+                    break;
+                } else {
+                    window = if value < alpha {
+                        ctx0.counter.aw_fail_lows += 1;
+                        (value.minus_unit(step), beta)
+                    } else {
+                        ctx0.counter.aw_fail_highs += 1;
+                        (alpha, value.plus_unit(step))
+                    };
+                }
             }
+            window
+        } else {
+            (G::Eval::MIN, G::Eval::MAX)
+        };
+
+        // let pv_vec: Vec<_> = pv.clone().into_iter().collect();
+        // println!("{current_depth:2}: Eval={eval:?}, PV={pv_vec:?}");
+        if !found {
+            let Some((eval1, pv1)) = search!(current_depth, window, pv.clone()) else {
+                break
+            };
+            eval = eval1;
+            pv = pv1.clone();
         }
-        SearchResult::new(pv, eval, counter)
-    } else {
-        minimax(game, ss0)
     }
+    SearchResult::new(pv, eval, ctx0.counter)
 }
 
 pub struct MinimaxConfig {
