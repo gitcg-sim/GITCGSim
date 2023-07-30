@@ -165,7 +165,7 @@ impl DeckOpt {
             }
             SearchAlgorithm::MCTS => {
                 let config = MCTSConfig {
-                    c: self.mcts_c.unwrap_or(2.0),
+                    c: self.mcts_c.unwrap_or(3.5),
                     tt_size_mb: self
                         .tt_size_mb
                         .unwrap_or(crate::minimax::transposition_table::DEFAULT_SIZE_MB),

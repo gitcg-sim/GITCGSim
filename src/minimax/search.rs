@@ -36,7 +36,6 @@ pub fn advance_with_pv<G: Game>(game: &mut G, pv: &PV<G>, input: G::Action) -> R
 #[allow(dead_code)]
 const LAZY_SMP: bool = true;
 const ASPIRATION_WINDOWS: bool = true;
-const ITERATIVE_DEEPENING: bool = true;
 const ITERATIVE_DEEPENING_STEP: u8 = 2;
 
 /// Max. depth for tactical search
@@ -269,7 +268,12 @@ fn tactical_search_iterative_deepening<G: Game>(
 ) -> G::Eval {
     let mut eval = ab.0;
     let mut pv = linked_list![];
-    for current_depth in (1..=depth).step_by(ITERATIVE_DEEPENING_STEP as usize) {
+    let depth0 = if depth > ITERATIVE_DEEPENING_STEP {
+        ITERATIVE_DEEPENING_STEP
+    } else {
+        depth
+    };
+    for current_depth in (depth0..=depth).step_by(ITERATIVE_DEEPENING_STEP as usize) {
         let (eval_next, pv_next) = minimax(
             game,
             maximize_player,
@@ -486,29 +490,6 @@ fn minimax_iterative_deepening_aspiration_windows<G: Game>(
         target_round: game.round_number() + config.target_round_delta,
     };
     const STEP: u8 = ITERATIVE_DEEPENING_STEP;
-    if !ITERATIVE_DEEPENING {
-        let (eval, pv) = minimax_lazy_smp(
-            parallel,
-            game,
-            maximize_player,
-            full_window,
-            depth,
-            &linked_list![],
-            &mut ctx0,
-        )
-        .unwrap_or_else(|| {
-            minimax(
-                game,
-                maximize_player,
-                full_window,
-                depth,
-                &linked_list![],
-                &mut ctx0,
-                DepthTransitionState::Full,
-            )
-        });
-        return SearchResult::new(pv, eval, ctx0.counter);
-    }
 
     let depth0 = if depth > STEP { STEP } else { depth };
     macro_rules! search {

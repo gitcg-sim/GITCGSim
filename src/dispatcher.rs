@@ -124,7 +124,6 @@ impl GameState {
         if !player.is_valid_char_index(player.active_char_index) {
             return false;
         }
-        let active_char = player.get_active_character();
         if player
             .status_collection
             .cannot_perform_actions(player.active_char_index)
@@ -132,14 +131,15 @@ impl GameState {
             return false;
         }
 
-        let char_skills = &active_char.char_id.get_char_card().skills;
-        let found = char_skills.to_vec().iter().any(|&s| s == skill_id);
-        if !found {
+        let active_char = player.get_active_character();
+        let cost = skill_id.get_skill().cost;
+        if !active_char.can_pay_energy_cost(&cost) {
             return false;
         }
 
-        let cost = skill_id.get_skill().cost;
-        if !active_char.can_pay_energy_cost(&cost) {
+        let char_skills = &active_char.char_id.get_char_card().skills;
+        let found = char_skills.to_vec().iter().any(|&s| s == skill_id);
+        if !found {
             return false;
         }
 

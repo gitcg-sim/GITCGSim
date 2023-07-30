@@ -250,9 +250,6 @@ impl<G: Game> MCTS<G> {
                 break;
             }
 
-            // let acts = game.actions().into_iter().collect::<SmallVec<[_; 8]>>();
-            // let action = acts[rng.gen_range(0..acts.len())];
-            // game.advance(action).unwrap();
             let mut acts = game.actions();
             if false {
                 game.move_ordering(&Default::default(), &mut acts);
@@ -296,7 +293,6 @@ impl<G: Game> MCTS<G> {
         let random_playout_iters = self.config.random_playout_iters;
         let mut path = Vec::with_capacity(8);
         if self.tree.get(root).and_then(|x| x.data.state.winner()).is_some() {
-            //println!("winner found at root");
             return None;
         }
 
@@ -306,7 +302,6 @@ impl<G: Game> MCTS<G> {
             if !path.is_empty() {
                 (0, path[path.len() - 1])
             } else {
-                println!("iteration: path.is_empty()");
                 return None;
             }
         } else {
@@ -440,6 +435,7 @@ impl<G: Game> GameTreeSearch<G> for MCTS<G> {
         let mut states_visited = 0;
         let tt_hits = Rc::new(RefCell::new(0u64));
         let root = self.init(position.clone(), maximize_player, tt_hits.clone());
+        let mut last_print = t0;
         'iter: loop {
             for _ in 0..10 {
                 let Some(dn) = self.iteration(root, tt_hits.clone()) else {
@@ -452,6 +448,16 @@ impl<G: Game> GameTreeSearch<G> for MCTS<G> {
                 if t0.elapsed().as_millis() >= time_limit_ms {
                     break 'iter;
                 }
+            }
+            if last_print.elapsed().as_millis() >= 500 {
+                last_print = Instant::now();
+                let pv = self.get_pv(root);
+                let rate = (states_visited as f64) / (t0.elapsed().as_micros() as f64);
+                println!(
+                    "  states_visited={states_visited:8}, PV={:?} rate={:.4}Mstates/s",
+                    pv.clone().collect::<Vec<_>>(),
+                    rate
+                );
             }
         }
 
