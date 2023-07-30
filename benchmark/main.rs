@@ -65,7 +65,7 @@ fn main() -> Result<(), std::io::Error> {
     let steps: u32 = opt.steps.unwrap_or(200);
     let benchmark = move |parallel: bool| {
         let game = new_standard_game(&decklist1, &decklist2, SmallRng::seed_from_u64(opt.seed.unwrap_or(100)));
-        let mut search = opt.make_search(parallel);
+        let mut search = opt.make_search(parallel, opt.get_limits());
         let (dt_ns, c) = trace_search(game, steps, &mut search);
         (dt_ns, c)
     };

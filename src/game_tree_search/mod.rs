@@ -34,6 +34,8 @@ pub struct SearchCounter {
     pub aw_iters: u64,
     /// Number of times there is a transposition table hit
     pub tt_hits: u64,
+    /// Last finished depth for iterative deepening
+    pub last_depth: u8,
 }
 
 impl SearchCounter {
@@ -47,6 +49,7 @@ impl SearchCounter {
         aw_fail_lows: 0,
         aw_iters: 0,
         tt_hits: 0,
+        last_depth: 0,
     };
 
     pub const EVAL: SearchCounter = SearchCounter {
@@ -113,4 +116,24 @@ impl<G: Game> SearchResult<G> {
 
 pub trait GameTreeSearch<G: Game> {
     fn search(&mut self, position: &G, maximize_player: PlayerId) -> SearchResult<G>;
+}
+
+#[derive(Debug, Default, Copy, Clone, Serialize, Deserialize)]
+pub struct SearchLimits {
+    pub max_time_ms: Option<u128>,
+    pub max_positions: Option<u64>,
+}
+
+impl SearchLimits {
+    pub fn should_terminate(&self, start_time: std::time::Instant, positions_searched: u64) -> bool {
+        if let Some(max_time_ms) = self.max_time_ms {
+            let dt = start_time.elapsed();
+            return dt.as_millis() >= max_time_ms;
+        }
+        if let Some(max_positions) = self.max_positions {
+            return positions_searched >= max_positions;
+        }
+
+        false
+    }
 }

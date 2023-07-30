@@ -4,7 +4,10 @@ use structopt::StructOpt;
 use crate::{
     game_tree_search::*,
     mcts::{MCTSConfig, MCTS},
-    minimax::{MinimaxConfig, MinimaxSearch},
+    minimax::{
+        search::{STATIC_SEARCH_MAX_ITERS, TACTICAL_SEARCH_DEPTH, TARGET_ROUND_DELTA},
+        MinimaxConfig, MinimaxSearch,
+    },
     rule_based::RuleBasedSearch,
     types::{
         game_state::PlayerId,
@@ -60,7 +63,7 @@ pub struct DeckOpt {
     )]
     pub random_decks: bool,
 
-    #[structopt(short = "s", long = "--steps", help = "Benchmark steps")]
+    #[structopt(short = "s", long = "--steps", help = "Benchmark max steps to play out")]
     pub steps: Option<u32>,
 
     #[structopt(
@@ -73,15 +76,11 @@ pub struct DeckOpt {
     #[structopt(short = "d", long = "--depth", help = "Minimax: search depth")]
     pub search_depth: Option<u8>,
 
-    #[structopt(short = "D", long = "--mcts-debug", help = "MCTS: print debug info")]
-    pub mcts_debug: bool,
+    #[structopt(short = "Q", long = "--tactical-depth", help = "Minimax: tactical search depth")]
+    pub tactical_depth: Option<u8>,
 
-    #[structopt(
-        short = "T",
-        long = "--mcts-time-limit-ms",
-        help = "MCTS: set time limit per move in milliseconds"
-    )]
-    pub mcts_time_limit_ms: Option<u32>,
+    #[structopt(long = "--target-round-delta", help = "Minimax: target round delta")]
+    pub target_round_delta: Option<u8>,
 
     #[structopt(short = "C", long = "--mcts-c", help = "MCTS: search constant")]
     pub mcts_c: Option<f32>,
@@ -95,6 +94,22 @@ pub struct DeckOpt {
 
     #[structopt(short = "M", long = "--mcts-max-steps", help = "MCTS: max steps per playout")]
     pub mcts_random_playout_max_steps: Option<u32>,
+
+    #[structopt(
+        short = "T",
+        long = "--time-limit-ms",
+        help = "Set time limit per move in milliseconds"
+    )]
+    pub time_limit_ms: Option<u128>,
+
+    #[structopt(short = "P", long = "--max-positions", help = "Max positions to search")]
+    pub max_positions: Option<u64>,
+
+    #[structopt(long = "--tt-size-mb", help = "Transposition table size")]
+    pub tt_size_mb: Option<u32>,
+
+    #[structopt(short = "D", long = "--debug", help = "Print debug info")]
+    pub debug: bool,
 
     #[structopt(short = "S", long = "--seed", help = "Random seed for the game states")]
     pub seed: Option<u64>,
@@ -131,27 +146,50 @@ impl DeckOpt {
         read_decklist_from_file(f)
     }
 
-    pub fn make_search<S: NondetState>(&self, parallel: bool) -> GenericSearch<S> {
+    pub fn make_search<S: NondetState>(&self, parallel: bool, limits: Option<SearchLimits>) -> GenericSearch<S> {
         match self.algorithm.unwrap_or(SearchAlgorithm::Minimax) {
             SearchAlgorithm::Minimax => {
-                let config = MinimaxConfig::new(self.search_depth.unwrap_or(6), parallel, None);
+                let config = MinimaxConfig {
+                    depth: self.search_depth.unwrap_or(6),
+                    parallel,
+                    limits,
+                    tt_size_mb: self
+                        .tt_size_mb
+                        .unwrap_or(crate::minimax::transposition_table::DEFAULT_SIZE_MB),
+                    debug: self.debug,
+                    tactical_depth: self.tactical_depth.unwrap_or(TACTICAL_SEARCH_DEPTH),
+                    target_round_delta: self.target_round_delta.unwrap_or(TARGET_ROUND_DELTA),
+                    static_search_max_iters: STATIC_SEARCH_MAX_ITERS,
+                };
                 GenericSearch::Minimax(MinimaxSearch::new(config))
             }
             SearchAlgorithm::MCTS => {
-                let config = MCTSConfig::new(
-                    self.mcts_time_limit_ms.unwrap_or(2000),
-                    self.mcts_c.unwrap_or(2.0),
-                    crate::minimax::transposition_table::DEFAULT_SIZE,
+                let config = MCTSConfig {
+                    c: self.mcts_c.unwrap_or(2.0),
+                    tt_size_mb: self
+                        .tt_size_mb
+                        .unwrap_or(crate::minimax::transposition_table::DEFAULT_SIZE_MB),
+                    limits,
                     parallel,
-                    self.mcts_random_playout_iters.unwrap_or(500),
-                    self.mcts_random_playout_max_steps.unwrap_or(200),
-                    self.mcts_debug,
-                );
+                    random_playout_iters: self.mcts_random_playout_iters.unwrap_or(500),
+                    random_playout_cutoff: self.mcts_random_playout_max_steps.unwrap_or(200),
+                    debug: self.debug,
+                };
                 GenericSearch::MCTS(MCTS::new(config))
             }
             SearchAlgorithm::RuleBasedSearch => {
                 GenericSearch::RuleBasedSearch(RuleBasedSearch::new(Default::default()))
             }
         }
+    }
+
+    pub fn get_limits(&self) -> Option<SearchLimits> {
+        if self.time_limit_ms.is_none() && self.max_positions.is_none() {
+            return None;
+        }
+        Some(SearchLimits {
+            max_time_ms: self.time_limit_ms,
+            max_positions: self.max_positions,
+        })
     }
 }

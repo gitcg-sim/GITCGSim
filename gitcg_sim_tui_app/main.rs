@@ -981,13 +981,13 @@ fn describe_action<'a, 'b>(player_state: &'b PlayerState, input: &'b Input) -> (
 pub fn main() -> Result<(), io::Error> {
     let mut opt = DeckOpt::from_args();
     // Ignore debug flag
-    opt.mcts_debug = false;
+    opt.debug = false;
     let rand1 = SmallRng::seed_from_u64(opt.seed.unwrap_or(100));
     let decklist1 = opt.get_player1_deck()?;
     let decklist2 = opt.get_player2_deck()?;
     {
         let game = new_standard_game(&decklist1, &decklist2, rand1);
-        let search = opt.make_search(true);
+        let search = opt.make_search(true, opt.get_limits());
 
         // setup terminal
         enable_raw_mode()?;

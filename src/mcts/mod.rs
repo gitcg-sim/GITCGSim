@@ -112,35 +112,13 @@ impl<G: Game> Node<G> {
 
 #[derive(Debug, Copy, Clone, Serialize, Deserialize)]
 pub struct MCTSConfig {
-    pub time_limit_ms: u32,
     pub c: f32,
-    pub tt_size: usize,
+    pub tt_size_mb: u32,
     pub parallel: bool,
     pub random_playout_iters: u32,
     pub random_playout_cutoff: u32,
     pub debug: bool,
-}
-
-impl MCTSConfig {
-    pub fn new(
-        time_limit_ms: u32,
-        c: f32,
-        tt_size: usize,
-        parallel: bool,
-        random_playout_iters: u32,
-        random_playout_cutoff: u32,
-        debug: bool,
-    ) -> Self {
-        Self {
-            time_limit_ms,
-            c,
-            tt_size,
-            parallel,
-            random_playout_iters,
-            random_playout_cutoff,
-            debug,
-        }
-    }
+    pub limits: Option<SearchLimits>,
 }
 
 #[derive(Debug)]
@@ -159,7 +137,7 @@ impl<G: Game> MCTS<G> {
             config,
             tree,
             maximize_player: PlayerId::PlayerFirst,
-            tt: TT::new(config.tt_size),
+            tt: TT::new(config.tt_size_mb),
             root: None,
         }
     }
@@ -456,27 +434,29 @@ impl<G: Game> GameTreeSearch<G> for MCTS<G> {
             return Default::default();
         }
 
-        let time_limit_ms = self.config.time_limit_ms as u128;
+        let time_limit_ms = self.config.limits.and_then(|l| l.max_time_ms).unwrap_or(600_000);
+        let states_limit = self.config.limits.and_then(|l| l.max_positions).unwrap_or(u64::MAX);
         let t0 = Instant::now();
-        let mut n = 0;
+        let mut states_visited = 0;
         let tt_hits = Rc::new(RefCell::new(0u64));
         let root = self.init(position.clone(), maximize_player, tt_hits.clone());
-        'a: loop {
+        'iter: loop {
             for _ in 0..10 {
                 let Some(dn) = self.iteration(root, tt_hits.clone()) else {
-                    //println!("search: break");
-                    break 'a
+                    break 'iter;
                 };
-                n += dn;
-            }
-
-            if (Instant::now() - t0).as_millis() >= time_limit_ms {
-                break;
+                states_visited += dn;
+                if states_visited >= states_limit {
+                    break 'iter;
+                }
+                if t0.elapsed().as_millis() >= time_limit_ms {
+                    break 'iter;
+                }
             }
         }
 
         let counter = SearchCounter {
-            states_visited: n,
+            states_visited,
             tt_hits: *tt_hits.borrow(),
             ..Default::default()
         };

@@ -39,9 +39,9 @@ impl PlayerState {
         let low_hp_total = self.char_states.iter().fold(0, |x, c| x + low_hp_factor(c.get_hp()));
         let active_char_value = self.get_active_character().active_eval();
 
-        0 + low_hp_total + 10 * (hp_total as HV) + 6 * (energy_total as HV) - 16 * (elem_total as HV)
+        0 + low_hp_total + 10 * (hp_total as HV) + 5 * (energy_total as HV) - 16 * (elem_total as HV)
             + active_char_value
-            + 3 * (dice_value as HV)
+            + 6 * (dice_value as HV)
             + 15 * support_total
             + 11 * status_total
             + 13 * summons_total

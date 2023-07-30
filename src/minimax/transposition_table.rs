@@ -61,10 +61,10 @@ impl<'a, E: Sync + Send, A: Clone + Sync + Send> TTPin<'a, E, A> {
     pub fn insert(&self, key: TTKey, entry: TTEntry<E, A>) {
         let n = self.tt.len();
         if n >= self.size {
-            let mut d = 0;
-            let target_size = 9 * self.size / 10;
+            let mut d = 1;
+            let target_size = 7 * self.size / 10;
             while self.tt.len() - 4 >= target_size {
-                self.tt.retain(|_, e| e.depth > d);
+                self.tt.retain(|_, e| e.depth >= d);
                 d += 1;
             }
         }
@@ -72,10 +72,7 @@ impl<'a, E: Sync + Send, A: Clone + Sync + Send> TTPin<'a, E, A> {
     }
 }
 
-pub const DEFAULT_SIZE: usize = 4 * 4096 * 4096;
-//pub const DEFAULT_SIZE: usize = 4096 * 4096;
-//pub const DEFAULT_SIZE: usize = 1024 * 4096;
-//pub const DEFAULT_SIZE: usize = 256 * 4096;
+pub const DEFAULT_SIZE_MB: u32 = 128;
 
 impl<E: Sync + Send, A: Clone + Sync + Send> TT<E, A> {
     #[inline]
@@ -83,9 +80,11 @@ impl<E: Sync + Send, A: Clone + Sync + Send> TT<E, A> {
         TTKey(hash)
     }
 
-    pub fn new(size: usize) -> Self {
+    pub fn new(size_mb: u32) -> Self {
         let table = HashMap::new();
-        table.pin().reserve(4096);
+        let size_bytes: usize = (size_mb as usize) * (1024 * 1024);
+        let size = size_bytes / (std::mem::size_of::<TTKey>() + std::mem::size_of::<TTEntry<E, A>>());
+        table.pin().reserve(size);
         Self { size, table }
     }
 
@@ -97,6 +96,6 @@ impl<E: Sync + Send, A: Clone + Sync + Send> TT<E, A> {
 
 impl<E: Sync + Send, A: Clone + Sync + Send> Default for TT<E, A> {
     fn default() -> Self {
-        Self::new(DEFAULT_SIZE)
+        Self::new(DEFAULT_SIZE_MB)
     }
 }
