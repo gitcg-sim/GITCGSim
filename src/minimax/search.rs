@@ -220,7 +220,10 @@ fn minimax<G: Game>(
         let (eval, pv_rest) = minimax(&game, maximize_player, (alpha, beta), depth - 1, &pv_inner, ctx, dts);
 
         if eval >= beta {
-            ctx.counter.beta_prunes += 1;
+            #[cfg(detailed_search_stats)]
+            {
+                ctx.counter.beta_prunes += 1;
+            }
             flag = TTFlag::Lower;
             break;
         }
@@ -243,6 +246,7 @@ fn minimax<G: Game>(
         }
     }
 
+    #[cfg(detailed_search_stats)]
     if best <= alpha {
         ctx.counter.all_nodes += 1;
     }
@@ -507,7 +511,7 @@ fn minimax_iterative_deepening_aspiration_windows<G: Game>(
     }
 
     let (mut eval, mut pv) = search!(std::cmp::max(1, depth0.saturating_sub(1)), full_window, linked_list![])
-        .expect("minimax_lazy_smp must succeed here");
+        .unwrap_or((G::Eval::MIN, linked_list![]));
 
     'iterative_deepening_loop: for current_depth in (depth0..=depth).step_by(STEP as usize) {
         let mut found = false;
@@ -530,7 +534,10 @@ fn minimax_iterative_deepening_aspiration_windows<G: Game>(
                     );
                 }
 
-                ctx0.counter.aw_iters += 1;
+                #[cfg(detailed_search_stats)]
+                {
+                    ctx0.counter.aw_iters += 1;
+                }
 
                 if alpha < value && value < beta {
                     found = true;
@@ -540,10 +547,16 @@ fn minimax_iterative_deepening_aspiration_windows<G: Game>(
                     break 'aspiration_loop;
                 } else {
                     window = if value <= alpha {
-                        ctx0.counter.aw_fail_lows += 1;
+                        #[cfg(detailed_search_stats)]
+                        {
+                            ctx0.counter.aw_fail_lows += 1;
+                        }
                         (value.minus_unit(step), beta.plus_unit(step))
                     } else {
-                        ctx0.counter.aw_fail_highs += 1;
+                        #[cfg(detailed_search_stats)]
+                        {
+                            ctx0.counter.aw_fail_highs += 1;
+                        }
                         (alpha.minus_unit(step), value.plus_unit(step))
                     };
                 }

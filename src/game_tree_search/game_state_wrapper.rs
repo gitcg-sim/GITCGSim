@@ -7,12 +7,10 @@ use std::fmt::Debug;
 
 use super::*;
 use crate::{
-    cards::ids::GetSkill,
     data_structures::ActionList,
     deck::Decklist,
     dispatcher_ops::types::DispatchError,
     rule_based::RuleBasedSearchConfig,
-    tcg_model::enums::SkillType,
     types::{game_state::*, input::*, nondet::*},
 };
 
@@ -213,18 +211,5 @@ impl<S: NondetState> Game for GameStateWrapper<S> {
                 PlayerAction::SwitchCharacter(..) | PlayerAction::CastSkill(..) | PlayerAction::EndRound
             )
         )
-    }
-
-    fn move_ordering_for_qs(actions: &mut Self::Actions) {
-        actions.sort_by_key(|a| match *a {
-            Input::FromPlayer(_, PlayerAction::CastSkill(skill_id)) => match skill_id.get_skill().skill_type {
-                SkillType::ElementalBurst => 1u8,
-                SkillType::ElementalSkill => 2,
-                SkillType::NormalAttack => 3,
-            },
-            Input::FromPlayer(_, PlayerAction::SwitchCharacter(..)) => 4,
-            Input::FromPlayer(_, PlayerAction::EndRound) => 5,
-            _ => 3,
-        })
     }
 }

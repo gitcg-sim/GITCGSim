@@ -18,20 +18,26 @@ pub type PV<G: Game> = LinkedList<G::Action>;
 pub struct SearchCounter {
     /// Number of states visited through game state advancements.
     pub states_visited: u64,
+    #[cfg(detailed_search_stats)]
     /// Number of times the pruning condition has been reached.
     pub beta_prunes: u64,
+    #[cfg(detailed_search_stats)]
     /// Number of times ALL nodes have been searched through.
     pub all_nodes: u64,
+    #[cfg(detailed_search_stats)]
     /// Zero-window search failures
     pub zws_fails: u64,
-    /// Number of times a board position was being evaluated (zero depth or winner found).
-    pub evals: u64,
+    #[cfg(detailed_search_stats)]
     /// Number of times aspiration window fail-high conditions trigger
     pub aw_fail_highs: u64,
+    #[cfg(detailed_search_stats)]
     /// Number of times aspiration window fail-low conditions trigger
     pub aw_fail_lows: u64,
+    #[cfg(detailed_search_stats)]
     /// Number of aspiration window iterations
     pub aw_iters: u64,
+    /// Number of times a board position was being evaluated (zero depth or winner found).
+    pub evals: u64,
     /// Number of times there is a transposition table hit
     pub tt_hits: u64,
     /// Last finished depth for iterative deepening
@@ -39,6 +45,7 @@ pub struct SearchCounter {
 }
 
 impl SearchCounter {
+    #[cfg(detailed_search_stats)]
     pub const ZERO: SearchCounter = SearchCounter {
         states_visited: 0,
         beta_prunes: 0,
@@ -48,6 +55,14 @@ impl SearchCounter {
         aw_fail_highs: 0,
         aw_fail_lows: 0,
         aw_iters: 0,
+        tt_hits: 0,
+        last_depth: 0,
+    };
+
+    #[cfg(not(detailed_search_stats))]
+    pub const ZERO: SearchCounter = SearchCounter {
+        states_visited: 0,
+        evals: 0,
         tt_hits: 0,
         last_depth: 0,
     };
@@ -66,13 +81,16 @@ impl SearchCounter {
     #[inline]
     pub fn add_in_place(&mut self, c: &SearchCounter) {
         self.states_visited += c.states_visited;
-        self.beta_prunes += c.beta_prunes;
-        self.all_nodes += c.all_nodes;
-        self.zws_fails += c.zws_fails;
+        #[cfg(detailed_search_stats)]
+        {
+            self.beta_prunes += c.beta_prunes;
+            self.all_nodes += c.all_nodes;
+            self.zws_fails += c.zws_fails;
+            self.aw_fail_highs += c.aw_fail_highs;
+            self.aw_fail_lows += c.aw_fail_lows;
+            self.aw_iters += c.aw_iters;
+        }
         self.evals += c.evals;
-        self.aw_fail_highs += c.aw_fail_highs;
-        self.aw_fail_lows += c.aw_fail_lows;
-        self.aw_iters += c.aw_iters;
         self.tt_hits += c.tt_hits;
     }
 

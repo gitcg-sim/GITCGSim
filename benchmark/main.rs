@@ -33,6 +33,9 @@ fn trace_search<S: NondetState>(
         total_counter.add_in_place(&c);
         let dt_ns = t1.elapsed().as_nanos();
         total_time += dt_ns;
+        if pv.is_empty() {
+            panic!("PV is empty.");
+        }
         let input = pv.head().unwrap();
         match game.advance(input) {
             Err(e) => {

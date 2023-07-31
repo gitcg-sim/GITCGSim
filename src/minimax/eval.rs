@@ -18,7 +18,7 @@ fn low_hp_factor(hp: u8) -> HV {
 impl CharState {
     #[inline]
     fn active_eval(&self) -> HV {
-        6 * (self.applied.len() as HV) + low_hp_factor(self.get_hp()) / 5
+        100 - 6 * (self.applied.len() as HV) + low_hp_factor(self.get_hp()) / 5
     }
 }
 
@@ -37,6 +37,7 @@ impl PlayerState {
         let summons_total = self.status_collection.summon_count() as HV;
         let elem_total = self.char_states.iter().fold(0, |x, c| x + (c.applied.len() as u8));
         let low_hp_total = self.char_states.iter().fold(0, |x, c| x + low_hp_factor(c.get_hp()));
+        // TODO use switch score instead
         let active_char_value = self.get_active_character().active_eval();
 
         0 + low_hp_total + 10 * (hp_total as HV) + 5 * (energy_total as HV) - 16 * (elem_total as HV)

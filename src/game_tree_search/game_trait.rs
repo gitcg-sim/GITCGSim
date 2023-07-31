@@ -85,11 +85,4 @@ pub trait Game: ZobristHashable + Debug + Clone + Send + Sync {
     fn round_number(&self) -> u8;
 
     fn is_tactical_action(action: Self::Action) -> bool;
-
-    fn move_ordering_for_qs(actions: &mut Self::Actions);
-
-    #[inline]
-    fn qs_depth(&self) -> u8 {
-        8
-    }
 }
