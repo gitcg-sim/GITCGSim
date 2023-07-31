@@ -19,7 +19,9 @@ const UNIT_SIZES: [HV; 4] = [4, 30, 60, 220];
 impl Windowable for Eval {
     #[inline]
     fn aspiration_window(self) -> (Self, Self) {
-        if self.winner_found_value == 0 {
+        if self == Self::MIN || self == Self::MAX {
+            (Self::MIN, Self::MAX)
+        } else if self.winner_found_value == 0 {
             (
                 Self {
                     winner_found_value: 0,
