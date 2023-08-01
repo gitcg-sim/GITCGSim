@@ -565,10 +565,10 @@ fn minimax_iterative_deepening_aspiration_windows<G: Game>(
 
     'iterative_deepening_loop: for current_depth in (depth0..=depth).step_by(STEP as usize) {
         let mut found = false;
+        let mut last_visited = 0;
         if ASPIRATION_WINDOWS {
             let mut window = eval.aspiration_window();
             // For debugging
-            let mut last_visited = 0;
             'aspiration_loop: for step in 1..=3_u8 {
                 if ctx0.should_terminate() {
                     break 'iterative_deepening_loop;
@@ -609,12 +609,13 @@ fn minimax_iterative_deepening_aspiration_windows<G: Game>(
         }
 
         if !found {
-            if config.debug {
-                println!("  --> AW: full search");
-            }
             let Some((eval1, pv1)) = search!(current_depth, full_window, pv.clone()) else {
                 break 'iterative_deepening_loop;
             };
+            let next_visited = ctx0.counter.states_visited;
+            if config.debug {
+                println!("  --> AW: full search, states_visited={}", next_visited - last_visited);
+            }
             ctx0.counter.last_depth = current_depth;
             eval = eval1;
             pv = pv1.clone();
