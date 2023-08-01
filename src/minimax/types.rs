@@ -14,7 +14,7 @@ pub struct Eval {
     pub heuristic_value: HV,
 }
 
-const UNIT_SIZES: [HV; 4] = [4, 30, 60, 220];
+const UNIT_SIZES: [HV; 4] = [11, 42, 60, 120];
 
 impl Windowable for Eval {
     #[inline]
