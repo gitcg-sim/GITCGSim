@@ -453,11 +453,13 @@ impl<G: Game> GameTreeSearch<G> for MCTS<G> {
                 last_print = Instant::now();
                 let pv = self.get_pv(root);
                 let rate = (states_visited as f64) / (t0.elapsed().as_micros() as f64);
-                println!(
-                    "  states_visited={states_visited:8}, PV={:?} rate={:.4}Mstates/s",
-                    pv.clone().collect::<Vec<_>>(),
-                    rate
-                );
+                if self.config.debug {
+                    println!(
+                        "  states_visited={states_visited:8}, PV={:?} rate={:.4}Mstates/s",
+                        pv.clone().collect::<Vec<_>>(),
+                        rate
+                    );
+                }
             }
         }
 
