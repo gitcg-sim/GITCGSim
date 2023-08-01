@@ -21,16 +21,32 @@ use super::{
     EvalTrait, Game, SearchCounter,
 };
 
-/// Advance the game state while advancing the corresponding PV. Will discard the entire PV if the move does not match.
-#[inline]
-pub fn advance_with_pv<G: Game>(game: &mut G, pv: &PV<G>, input: G::Action) -> Result<PV<G>, G::Error> {
-    game.advance(input)?;
-    let pv1 = if Some(input) == pv.head() {
-        pv.tail().unwrap()
+fn widen_aspiration_window<G: Game>(
+    value: G::Eval,
+    step: u8,
+    window: (G::Eval, G::Eval),
+    #[allow(unused_variables)] counter: &mut SearchCounter,
+) -> (G::Eval, G::Eval) {
+    let (alpha, beta) = window;
+    if value <= alpha {
+        #[cfg(detailed_search_stats)]
+        {
+            counter.aw_fail_lows += 1;
+        }
+        (value.minus_unit(step), beta.plus_unit(step))
     } else {
-        linked_list![]
-    };
-    Ok(pv1)
+        #[cfg(detailed_search_stats)]
+        {
+            counter.aw_fail_highs += 1;
+        }
+        (alpha.minus_unit(step), value.plus_unit(step))
+    }
+}
+
+#[inline]
+fn is_within_aspiration_window<T: PartialOrd + Ord>(value: T, window: (T, T)) -> bool {
+    let (alpha, beta) = window;
+    alpha < value && value < beta
 }
 
 #[allow(dead_code)]
@@ -277,19 +293,52 @@ fn tactical_search_iterative_deepening<G: Game>(
     } else {
         depth
     };
-    for current_depth in (depth0..=depth).step_by(ITERATIVE_DEEPENING_STEP as usize) {
-        let (eval_next, pv_next) = minimax(
-            game,
-            maximize_player,
-            (G::Eval::MIN, G::Eval::MAX),
-            current_depth,
-            &pv,
-            ctx,
-            DepthTransitionState::Tactical,
-        );
-        eval = eval_next;
+    'iterative_deepening_loop: for current_depth in (depth0..=depth).step_by(ITERATIVE_DEEPENING_STEP as usize) {
+        let mut window = ab;
+        let mut found = false;
+        let search = {
+            let pv = pv.clone();
+            move |window: (G::Eval, G::Eval), ctx: &mut SearchContext<G>| {
+                minimax(
+                    game,
+                    maximize_player,
+                    window,
+                    current_depth,
+                    &pv,
+                    ctx,
+                    DepthTransitionState::Tactical,
+                )
+            }
+        };
+
+        if ASPIRATION_WINDOWS {
+            'aspiration_loop: for step in 1..=2u8 {
+                if ctx.lazy_smp_finished() || ctx.should_terminate() {
+                    break 'iterative_deepening_loop;
+                }
+
+                let (value, pv_next) = search(window, ctx);
+                if is_within_aspiration_window(value, window) {
+                    found = true;
+                    pv = pv_next.clone();
+                    eval = value;
+                    break 'aspiration_loop;
+                } else {
+                    window = widen_aspiration_window::<G>(value, step, window, &mut ctx.counter);
+                }
+            }
+        } else if ctx.lazy_smp_finished() || ctx.should_terminate() {
+            break 'iterative_deepening_loop;
+        }
+
+        if found {
+            continue;
+        }
+
+        let (value, pv_next) = search(window, ctx);
+        eval = value;
         if !pv_next.is_empty() {
-            pv = pv_next;
+            pv = pv_next.clone();
         }
     }
     eval
@@ -338,9 +387,9 @@ fn probe_tt<G: Game>(
     }
 
     let early_exit = {
-        *hit = true;
         let pv = entry.pv.clone();
         move |value: G::Eval| {
+            *hit = true;
             *tt_depth = depth;
             Some(SearchResult::new(pv, value, SearchCounter::HIT))
         }
@@ -476,6 +525,7 @@ fn minimax_lazy_smp<G: Game>(
     }
 }
 
+#[inline]
 fn minimax_iterative_deepening_aspiration_windows<G: Game>(
     game: &G,
     tt: &TT<G::Eval, G::Action>,
@@ -517,6 +567,8 @@ fn minimax_iterative_deepening_aspiration_windows<G: Game>(
         let mut found = false;
         if ASPIRATION_WINDOWS {
             let mut window = eval.aspiration_window();
+            // For debugging
+            let mut last_visited = 0;
             'aspiration_loop: for step in 1..=3_u8 {
                 if ctx0.should_terminate() {
                     break 'iterative_deepening_loop;
@@ -526,12 +578,15 @@ fn minimax_iterative_deepening_aspiration_windows<G: Game>(
                     break 'aspiration_loop;
                 };
 
-                let (alpha, beta) = window;
+                let next_visited = ctx0.counter.states_visited;
+
                 if config.debug {
                     println!(
-                        "  --> AW: {window:?} | value={value:?}, within_range={}",
-                        (alpha < value && value < beta)
+                        "  --> AW: {window:?} | value={value:?}, within_range={}, states_visited={}",
+                        is_within_aspiration_window(value, window),
+                        next_visited - last_visited
                     );
+                    last_visited = next_visited;
                 }
 
                 #[cfg(detailed_search_stats)]
@@ -539,26 +594,14 @@ fn minimax_iterative_deepening_aspiration_windows<G: Game>(
                     ctx0.counter.aw_iters += 1;
                 }
 
-                if alpha < value && value < beta {
+                if is_within_aspiration_window(value, window) {
                     found = true;
                     ctx0.counter.last_depth = current_depth;
                     pv = pv1.clone();
                     eval = value;
                     break 'aspiration_loop;
                 } else {
-                    window = if value <= alpha {
-                        #[cfg(detailed_search_stats)]
-                        {
-                            ctx0.counter.aw_fail_lows += 1;
-                        }
-                        (value.minus_unit(step), beta.plus_unit(step))
-                    } else {
-                        #[cfg(detailed_search_stats)]
-                        {
-                            ctx0.counter.aw_fail_highs += 1;
-                        }
-                        (alpha.minus_unit(step), value.plus_unit(step))
-                    };
+                    window = widen_aspiration_window::<G>(value, step, window, &mut ctx0.counter);
                 }
             }
         } else if ctx0.should_terminate() {
@@ -578,7 +621,7 @@ fn minimax_iterative_deepening_aspiration_windows<G: Game>(
         }
         if config.debug {
             let pv_vec: Vec<_> = pv.clone().into_iter().collect();
-            println!("Depth {current_depth:2}: Eval={eval:?}, PV={pv_vec:?}");
+            println!(" - Depth {current_depth:2}: Eval={eval:?}, PV={pv_vec:?}");
         }
     }
     SearchResult::new(pv, eval, ctx0.counter)
