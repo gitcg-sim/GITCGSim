@@ -25,7 +25,7 @@ pub trait EvalTrait:
 {
     const MIN: Self;
     const MAX: Self;
-    fn plus_one_turn(self) -> Self {
+    fn plus_one_step(self) -> Self {
         self
     }
 }

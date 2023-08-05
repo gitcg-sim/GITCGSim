@@ -162,12 +162,12 @@ impl<S: NondetState> Game for GameStateWrapper<S> {
         let h = e1 - e2;
         if let Some(winner) = self.winner() {
             if winner == player_id {
-                Self::Eval::win(h)
+                Self::Eval::win()
             } else {
-                Self::Eval::lose(h)
+                Self::Eval::lose()
             }
         } else {
-            Self::Eval::from_heuristic(h)
+            Self::Eval::from_eval(h)
         }
     }
 

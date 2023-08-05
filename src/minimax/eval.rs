@@ -1,8 +1,6 @@
-use std::{cmp::Ordering, ops::Neg};
-
 use crate::types::game_state::{CharState, PlayerState};
 
-use super::{Eval, EvalTrait, HV};
+use super::HV;
 
 #[inline]
 fn low_hp_factor(hp: u8) -> HV {
@@ -47,57 +45,5 @@ impl PlayerState {
             + 11 * status_total
             + 13 * summons_total
             + 2 * (hand_value as HV)
-    }
-}
-
-impl Neg for Eval {
-    type Output = Self;
-
-    #[inline]
-    fn neg(self) -> Eval {
-        Eval::new(-self.winner_found_value, -self.heuristic_value)
-    }
-}
-
-impl EvalTrait for Eval {
-    const MIN: Eval = Eval::new(-100, 0);
-    const MAX: Eval = Eval::new(100, 0);
-
-    #[inline]
-    fn plus_one_turn(self) -> Eval {
-        let Eval {
-            winner_found_value: x,
-            heuristic_value: y,
-        } = self;
-        match x.cmp(&0) {
-            Ordering::Less => Eval::new(x + 1, y),
-            Ordering::Equal => Eval::new(x, y),
-            Ordering::Greater => Eval::new(x - 1, y),
-        }
-    }
-}
-
-impl Eval {
-    #[inline]
-    pub const fn new(winner_found_value: i8, heuristic_value: HV) -> Eval {
-        Eval {
-            winner_found_value,
-            heuristic_value,
-        }
-    }
-
-    #[inline]
-    pub fn from_heuristic(e: HV) -> Eval {
-        Eval::new(0, e)
-    }
-
-    #[inline]
-    pub fn win(e: HV) -> Eval {
-        Eval::new(Eval::MAX.winner_found_value, e)
-    }
-
-    #[inline]
-    pub fn lose(e: HV) -> Eval {
-        Eval::new(Eval::MIN.winner_found_value, e)
     }
 }
