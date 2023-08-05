@@ -33,13 +33,13 @@ fn widen_aspiration_window<G: Game>(
         {
             counter.aw_fail_lows += 1;
         }
-        (value.minus_unit(step), beta.plus_unit(step))
+        (value.minus_unit(step), beta)
     } else {
         #[cfg(detailed_search_stats)]
         {
             counter.aw_fail_highs += 1;
         }
-        (alpha.minus_unit(step), value.plus_unit(step))
+        (alpha, value.plus_unit(step))
     }
 }
 
