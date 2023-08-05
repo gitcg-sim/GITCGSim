@@ -116,6 +116,9 @@ pub struct DeckOpts {
     #[structopt(short = "S", long = "--seed", help = "Random seed for the game states")]
     pub seed: Option<u64>,
 
+    #[structopt(long = "--tactical", help = "Tactical mode")]
+    pub tactical: bool,
+
     // TODO split up
     #[structopt(flatten)]
     pub search: SearchConfig,

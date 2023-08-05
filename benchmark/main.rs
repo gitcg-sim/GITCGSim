@@ -91,21 +91,24 @@ fn main() -> Result<(), std::io::Error> {
     let opts = BenchmarkOpts::from_args();
     let steps: u32 = opts.deck().steps.unwrap_or(200);
     let (bf, benchmark) = {
-        let opt: &DeckOpts = opts.deck();
-        let search_opts = &opt.search;
-        let (decklist1, decklist2) = if opt.random_decks {
-            let mut r = SmallRng::seed_from_u64(opt.seed.unwrap_or(100));
+        let deck_opts: &DeckOpts = opts.deck();
+        let search_opts = &deck_opts.search;
+        let (decklist1, decklist2) = if deck_opts.random_decks {
+            let mut r = SmallRng::seed_from_u64(deck_opts.seed.unwrap_or(100));
             r.gen_bool(0.5);
             (random_decklist(&mut r), random_decklist(&mut r))
         } else {
-            (opt.get_player1_deck()?, opt.get_player2_deck()?)
+            (deck_opts.get_player1_deck()?, deck_opts.get_player2_deck()?)
         };
 
         let depth: u8 = search_opts.search_depth.unwrap_or(8);
         let bf = move |n: f64| n.powf(1_f64 / (depth as f64));
         let benchmark = move |parallel: bool, steps: u32| {
-            let game = new_standard_game(&decklist1, &decklist2, SmallRng::seed_from_u64(opt.seed.unwrap_or(100)));
-            let mut search = opt.make_search(parallel, opt.get_limits());
+            let mut game = new_standard_game(&decklist1, &decklist2, SmallRng::seed_from_u64(deck_opts.seed.unwrap_or(100)));
+            if deck_opts.tactical {
+                game.convert_to_tactical_search();
+            }
+            let mut search = deck_opts.make_search(parallel, deck_opts.get_limits());
             let (dt_ns, c) = trace_search(game, steps, &mut search);
             (dt_ns, c)
         };

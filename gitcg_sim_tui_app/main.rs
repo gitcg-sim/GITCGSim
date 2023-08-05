@@ -979,15 +979,18 @@ fn describe_action<'a, 'b>(player_state: &'b PlayerState, input: &'b Input) -> (
 }
 
 pub fn main() -> Result<(), io::Error> {
-    let mut opt = DeckOpts::from_args();
+    let mut deck_opts = DeckOpts::from_args();
     // Ignore debug flag
-    opt.search.debug = false;
-    let rand1 = SmallRng::seed_from_u64(opt.seed.unwrap_or(100));
-    let decklist1 = opt.get_player1_deck()?;
-    let decklist2 = opt.get_player2_deck()?;
+    deck_opts.search.debug = false;
+    let rand1 = SmallRng::seed_from_u64(deck_opts.seed.unwrap_or(100));
+    let decklist1 = deck_opts.get_player1_deck()?;
+    let decklist2 = deck_opts.get_player2_deck()?;
     {
-        let game = new_standard_game(&decklist1, &decklist2, rand1);
-        let search = opt.make_search(true, opt.get_limits());
+        let mut game = new_standard_game(&decklist1, &decklist2, rand1);
+        if deck_opts.tactical {
+            game.convert_to_tactical_search();
+        }
+        let search = deck_opts.make_search(true, deck_opts.get_limits());
 
         // setup terminal
         enable_raw_mode()?;
