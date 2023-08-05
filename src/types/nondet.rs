@@ -150,7 +150,7 @@ impl NondetState for StandardNondetHandlerState {
         for c in player.hand.iter_mut() {
             *c = CardId::BlankCard;
         }
-
+        player.flags.insert(super::game_state::PlayerFlag::Tactical);
         player.dice = DiceCounter::rand_with_reroll(&mut self.rng, player.get_dice_distribution());
         game_state.rehash();
     }

@@ -9,13 +9,6 @@ impl GameState {
         self.phase = phase;
         self._incremental_hash.hash(HASH_PROVIDER.phase(self.phase));
     }
-
-    #[inline]
-    pub(crate) fn set_tactical(&mut self, tactical: bool) {
-        self._incremental_hash.hash(HASH_PROVIDER.tactical(self.tactical));
-        self.tactical = tactical;
-        self._incremental_hash.hash(HASH_PROVIDER.tactical(self.tactical));
-    }
 }
 
 /// Handle used to update the Zobrist hash, focusing on a specific player.
@@ -77,7 +70,7 @@ impl PlayerState {
         Self::dice_hash(h, player_id, &self.dice);
         self.dice = *dice;
         Self::dice_hash(h, player_id, &self.dice);
-        self.check_for_charged_attack();
+        self.check_for_charged_attack((h, player_id));
     }
 
     #[inline]
@@ -85,7 +78,7 @@ impl PlayerState {
         Self::dice_hash(h, player_id, &self.dice);
         self.dice.add_in_place(dice);
         Self::dice_hash(h, player_id, &self.dice);
-        self.check_for_charged_attack();
+        self.check_for_charged_attack((h, player_id));
     }
 
     #[inline]
@@ -93,7 +86,7 @@ impl PlayerState {
         Self::dice_hash(h, player_id, &self.dice);
         self.dice.subtract_in_place(dice);
         Self::dice_hash(h, player_id, &self.dice);
-        self.check_for_charged_attack();
+        self.check_for_charged_attack((h, player_id));
     }
 
     #[inline]
@@ -111,12 +104,48 @@ impl PlayerState {
         self.dice.sub_single(remove, 1);
         h.hash(HASH_PROVIDER.dice(player_id, add, self.dice[add]));
         h.hash(HASH_PROVIDER.dice(player_id, remove, self.dice[remove]));
-        self.check_for_charged_attack();
+        self.check_for_charged_attack((h, player_id));
     }
 
     #[inline]
-    pub fn clear_flags_for_end_of_turn(&mut self) {
+    pub fn clear_flags_for_end_of_turn(&mut self, (h, player_id): PlayerHashContext) {
+        h.hash(HASH_PROVIDER.player_flags(player_id, self.flags));
         self.flags.remove_all(PlayerFlag::END_OF_TURN_CLEAR);
+        h.hash(HASH_PROVIDER.player_flags(player_id, self.flags));
+    }
+
+    #[inline]
+    pub fn insert_flag(&mut self, (h, player_id): PlayerHashContext, flag: PlayerFlag) {
+        h.hash(HASH_PROVIDER.player_flags(player_id, self.flags));
+        self.flags.insert(flag);
+        h.hash(HASH_PROVIDER.player_flags(player_id, self.flags));
+    }
+
+    #[inline]
+    pub fn remove_flag(&mut self, (h, player_id): PlayerHashContext, flag: PlayerFlag) {
+        h.hash(HASH_PROVIDER.player_flags(player_id, self.flags));
+        self.flags.remove(flag);
+        h.hash(HASH_PROVIDER.player_flags(player_id, self.flags));
+    }
+
+    #[inline]
+    pub fn set_tactical(&mut self, (h, player_id): PlayerHashContext, tactical: bool) {
+        if tactical {
+            self.insert_flag((h, player_id), PlayerFlag::Tactical);
+        } else {
+            self.remove_flag((h, player_id), PlayerFlag::Tactical);
+        }
+    }
+
+    #[inline]
+    pub fn check_for_charged_attack(&mut self, (h, player_id): PlayerHashContext) {
+        h.hash(HASH_PROVIDER.player_flags(player_id, self.flags));
+        if self.dice.parity() == 0 {
+            self.flags.insert(PlayerFlag::ChargedAttack);
+        } else {
+            self.flags.remove(PlayerFlag::ChargedAttack);
+        }
+        h.hash(HASH_PROVIDER.player_flags(player_id, self.flags));
     }
 
     #[inline]

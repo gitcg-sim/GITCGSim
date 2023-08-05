@@ -64,15 +64,6 @@ impl PlayerState {
         self.char_states[char_idx as usize].char_id.get_char_card()
     }
 
-    #[inline]
-    pub fn check_for_charged_attack(&mut self) {
-        if self.dice.parity() == 0 {
-            self.flags |= PlayerFlag::ChargedAttack;
-        } else {
-            self.flags.remove(PlayerFlag::ChargedAttack);
-        }
-    }
-
     /// Checks if char_index refers to a valid and alive character.
     #[inline]
     pub fn is_valid_char_index(&self, char_index: u8) -> bool {
@@ -164,15 +155,28 @@ impl PlayerState {
 
         let mut dice = self.dice;
         for elem in off_elems {
-            if self.hand.is_empty() {
-                continue;
-            }
-
             while dice[Dice::Elem(elem)] > 0 && !self.hand.is_empty() {
+                // TODO pick CardId::BlankCard only
                 self.remove_card_from_hand_by_index((h, player_id), 0);
                 dice[Dice::Elem(elem)] -= 1;
                 dice.omni += 1;
             }
+
+            if self.hand.is_empty() {
+                break;
+            }
+        }
+
+        // 1 additional ET for free
+        for elem in off_elems {
+            if dice[Dice::Elem(elem)] == 0 {
+                continue;
+            }
+
+            // 1 additional ET for free
+            dice[Dice::Elem(elem)] -= 1;
+            dice.omni += 1;
+            break;
         }
         self.set_dice((h, player_id), &dice);
     }
@@ -260,7 +264,6 @@ impl GameState {
             pending_cmds: None,
             phase: Phase::new_roll_phase(PlayerId::PlayerFirst),
             round_number: 1,
-            tactical: false,
             ignore_costs: false,
             log: Box::new(EventLog::new(log)),
             _incremental_hash: Default::default(),
@@ -314,14 +317,11 @@ impl GameState {
     }
 
     pub(crate) fn convert_to_tactical_search(&mut self) {
-        self.set_tactical(true);
         self.log.enabled = false;
-        self.players
-            .0
-            .pseudo_elemental_tuning(phc!(self, PlayerId::PlayerFirst));
-        self.players
-            .1
-            .pseudo_elemental_tuning(phc!(self, PlayerId::PlayerSecond));
+        for player in [&mut self.players.0, &mut self.players.1] {
+            player.set_tactical(phc!(self, PlayerId::PlayerFirst), true);
+            player.pseudo_elemental_tuning(phc!(self, PlayerId::PlayerFirst));
+        }
         self.rehash();
     }
 

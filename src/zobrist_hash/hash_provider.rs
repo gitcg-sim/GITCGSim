@@ -23,9 +23,6 @@ pub const CARD_COUNT: usize = 4;
 /// Max possible dice count generated for the hasher.
 pub const DICE_COUNT: usize = 8;
 
-/// Hash for the game state being in "tactical search".
-pub const TACTICAL_HASH: HashValue = 3435243932;
-
 lazy_static! {
     /// The default instance for the `HashProvider`.
     pub static ref HASH_PROVIDER: HashProvider = HashProvider::new();
@@ -153,15 +150,6 @@ impl HashProvider {
     #[inline]
     pub fn phase(&self, phase: Phase) -> HashValue {
         self.phase_hashes[phase.to_index()]
-    }
-
-    #[inline]
-    pub fn tactical(&self, tactical: bool) -> HashValue {
-        if tactical {
-            TACTICAL_HASH
-        } else {
-            0
-        }
     }
 
     #[inline]

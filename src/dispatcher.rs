@@ -188,9 +188,8 @@ impl GameState {
         };
         let res = self.exec_commands(&cmd_list![(ctx, Command::CastSkill(skill_id))])?;
         if skill_id == SkillId::FrostflakeArrow {
-            self.get_player_mut(player_id)
-                .flags
-                .insert(PlayerFlag::SkillCastedThisMatch);
+            let player = self.players.get_mut(player_id);
+            player.insert_flag(phc!(self, player_id), PlayerFlag::SkillCastedThisMatch);
         }
         Ok(res)
     }
@@ -658,8 +657,11 @@ impl GameState {
                     .map(|opt| self.handle_post_exec(opt))
                     .unwrap();
 
-                    if self.tactical {
+                    if self.players.0.is_tactical() {
                         self.perform_pseudo_elemental_tuning(PlayerId::PlayerFirst);
+                    }
+
+                    if self.players.1.is_tactical() {
                         self.perform_pseudo_elemental_tuning(PlayerId::PlayerSecond);
                     }
                     Ok(DispatchResult::PlayerInput(active_player))

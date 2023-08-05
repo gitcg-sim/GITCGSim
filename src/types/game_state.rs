@@ -43,8 +43,6 @@ pub struct GameState {
     /// If this field is set to `true`, costs (dice and energy) will not
     /// be checked and will not be paid. Effects that reduce costs will never be consumed.
     pub ignore_costs: bool,
-    /// True to support tactical search.
-    pub tactical: bool,
     /// The incrementally-updated portion of the Zobrist hash of this `GameState`.
     pub _incremental_hash: ZobristHasher,
     /// The entire Zobrist hash of this `GmaeState`.
@@ -186,6 +184,7 @@ pub enum PlayerFlag {
     ChargedAttack,
     DiedThisRound,
     SkillCastedThisMatch,
+    Tactical,
 }
 
 impl PlayerFlag {
@@ -213,6 +212,11 @@ impl PlayerState {
             hand: vector![],
             flags: enum_set![],
         }
+    }
+
+    #[inline]
+    pub fn is_tactical(&self) -> bool {
+        self.flags.contains(PlayerFlag::Tactical)
     }
 }
 

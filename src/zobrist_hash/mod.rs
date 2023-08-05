@@ -283,7 +283,6 @@ impl GameState {
     /// Recompute the incremental portion of the Zobrist hash without updating `self._hash`.
     pub fn incremental_zobrist_hash(&self, h: &mut ZobristHasher) {
         h.hash(HASH_PROVIDER.phase(self.phase));
-        h.hash(HASH_PROVIDER.tactical(self.tactical));
         self.players.0.incremental_zobrist_hash(h, PlayerId::PlayerFirst);
         self.players.1.incremental_zobrist_hash(h, PlayerId::PlayerSecond);
     }
@@ -362,6 +361,11 @@ impl PlayerState {
         Self::dice_hash(h, player_id, &self.dice);
     }
 
+    #[inline]
+    pub fn zobrist_hash_for_flags(&self, h: &mut ZobristHasher, player_id: PlayerId) {
+        h.hash(HASH_PROVIDER.player_flags(player_id, self.flags));
+    }
+
     pub fn zobrist_hash_for_char_states(&self, h: &mut ZobristHasher, player_id: PlayerId) {
         for (i, cs) in self.char_states.iter().enumerate() {
             cs.zobrist_hash(h, player_id, i as u8);
@@ -376,13 +380,15 @@ impl PlayerState {
     pub fn incremental_zobrist_hash(&self, h: &mut ZobristHasher, player_id: PlayerId) {
         h.hash(HASH_PROVIDER.active_char_index(player_id, self.active_char_index));
         self.status_collection.zobrist_hash(h, player_id);
+        self.zobrist_hash_for_flags(h, player_id);
         self.zobrist_hash_for_dice(h, player_id);
         self.zobrist_hash_for_hand(h, player_id);
         self.zobrist_hash_for_char_states(h, player_id);
     }
 
-    pub fn non_incremental_zobrist_hash(&self, h: &mut ZobristHasher, player_id: PlayerId) {
-        h.hash(HASH_PROVIDER.player_flags(player_id, self.flags));
+    #[inline]
+    pub fn non_incremental_zobrist_hash(&self, _h: &mut ZobristHasher, _player_id: PlayerId) {
+        // empty
     }
 }
 

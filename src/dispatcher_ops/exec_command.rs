@@ -117,7 +117,7 @@ impl GameState {
                 });
                 {
                     let player = self.players.get_mut(player_id);
-                    player.clear_flags_for_end_of_turn();
+                    player.clear_flags_for_end_of_turn(phc!(self, player_id));
                     for (char_idx, char_state) in player.char_states.iter_mut().enumerate() {
                         let next_flags = char_state.flags & CharFlag::RETAIN;
                         char_state.set_flags_hashed(chc!(self, player_id, char_idx as u8), next_flags);
@@ -1028,7 +1028,7 @@ impl GameState {
                 _ => None,
             };
 
-            player.flags.insert(PlayerFlag::DiedThisRound);
+            player.insert_flag(phc!(self, player_id), PlayerFlag::DiedThisRound);
             return ExecResult::Suspend(SuspendedState::post_death_switch(player_id), prev_addl_cmds);
         }
 
@@ -1048,7 +1048,7 @@ impl GameState {
         } else {
             if !matches!(ctx.src, CommandSource::Card { .. }) {
                 active_player.add_card_to_hand((&mut h, player_id), CardId::LightningStiletto);
-                if self.tactical {
+                if active_player.is_tactical() {
                     active_player.pseudo_elemental_tuning((&mut h, player_id));
                 }
             }
@@ -1204,8 +1204,12 @@ impl GameState {
             }
             return r;
         }
-        self.players.0.check_for_charged_attack();
-        self.players.1.check_for_charged_attack();
+        self.players
+            .0
+            .check_for_charged_attack(phc!(self, PlayerId::PlayerFirst));
+        self.players
+            .1
+            .check_for_charged_attack(phc!(self, PlayerId::PlayerSecond));
 
         if let Some(active_player) = self.phase.active_player() {
             DispatchResult::PlayerInput(active_player)
