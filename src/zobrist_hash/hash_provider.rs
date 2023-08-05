@@ -276,7 +276,7 @@ impl HashProvider {
     }
 
     #[inline]
-    pub fn player_flags(&self, player_id: PlayerId, flags: EnumSet<PlayerFlags>) -> HashValue {
+    pub fn player_flags(&self, player_id: PlayerId, flags: EnumSet<PlayerFlag>) -> HashValue {
         let flags = flags.as_repr();
         if flags < 8 {
             return self.other_hashes[player_id][flags as usize];

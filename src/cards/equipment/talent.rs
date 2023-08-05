@@ -261,7 +261,7 @@ pub mod undivided_heart {
         }
 
         fn outgoing_dmg(&self, e: &StatusImplContext<DMGInfo>, dmg: &mut DealDMG) -> Option<AppliedEffectResult> {
-            if !e.src_player_state.flags.contains(PlayerFlags::SkillCastedThisMatch) {
+            if !e.src_player_state.flags.contains(PlayerFlag::SkillCastedThisMatch) {
                 return None;
             }
             let Some(SkillId::FrostflakeArrow) = e.skill_id() else { return None };

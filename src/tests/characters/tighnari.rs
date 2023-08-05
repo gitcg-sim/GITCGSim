@@ -24,7 +24,7 @@ fn test_vijnana_phala_mine_charged_attack() {
     assert!(gs
         .get_player(PlayerId::PlayerFirst)
         .flags
-        .contains(PlayerFlags::ChargedAttack));
+        .contains(PlayerFlag::ChargedAttack));
 
     gs.advance_multiple(&vec![Input::FromPlayer(
         PlayerId::PlayerFirst,
@@ -68,7 +68,7 @@ fn test_vijnana_phala_mine_non_charged_attack() {
     assert!(!gs
         .get_player(PlayerId::PlayerFirst)
         .flags
-        .contains(PlayerFlags::ChargedAttack));
+        .contains(PlayerFlag::ChargedAttack));
 
     gs.advance_multiple(&vec![Input::FromPlayer(
         PlayerId::PlayerFirst,
@@ -109,7 +109,7 @@ fn test_talent_card_charged_attack() {
     assert!(gs
         .get_player(PlayerId::PlayerFirst)
         .flags
-        .contains(PlayerFlags::ChargedAttack));
+        .contains(PlayerFlag::ChargedAttack));
 
     gs.advance_multiple(&vec![Input::FromPlayer(
         PlayerId::PlayerFirst,

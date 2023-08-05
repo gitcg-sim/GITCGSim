@@ -67,9 +67,9 @@ impl PlayerState {
     #[inline]
     pub fn check_for_charged_attack(&mut self) {
         if self.dice.parity() == 0 {
-            self.flags |= PlayerFlags::ChargedAttack;
+            self.flags |= PlayerFlag::ChargedAttack;
         } else {
-            self.flags.remove(PlayerFlags::ChargedAttack);
+            self.flags.remove(PlayerFlag::ChargedAttack);
         }
     }
 

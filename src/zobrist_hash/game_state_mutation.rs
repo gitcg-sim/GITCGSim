@@ -116,7 +116,7 @@ impl PlayerState {
 
     #[inline]
     pub fn clear_flags_for_end_of_turn(&mut self) {
-        self.flags.remove_all(PlayerFlags::END_OF_TURN_CLEAR);
+        self.flags.remove_all(PlayerFlag::END_OF_TURN_CLEAR);
     }
 
     #[inline]

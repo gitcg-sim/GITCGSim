@@ -190,7 +190,7 @@ impl GameState {
         if skill_id == SkillId::FrostflakeArrow {
             self.get_player_mut(player_id)
                 .flags
-                .insert(PlayerFlags::SkillCastedThisMatch);
+                .insert(PlayerFlag::SkillCastedThisMatch);
         }
         Ok(res)
     }

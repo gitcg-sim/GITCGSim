@@ -182,13 +182,13 @@ impl Phase {
 
 #[derive(Debug, PartialOrd, Ord, EnumSetType, Serialize, Deserialize)]
 #[enumset(repr = "u8")]
-pub enum PlayerFlags {
+pub enum PlayerFlag {
     ChargedAttack,
     DiedThisRound,
     SkillCastedThisMatch,
 }
 
-impl PlayerFlags {
+impl PlayerFlag {
     pub const END_OF_TURN_CLEAR: EnumSet<Self> = enum_set![Self::DiedThisRound];
 }
 
@@ -200,7 +200,7 @@ pub struct PlayerState {
     pub status_collection: StatusCollection,
     // TODO enforce limit of 10
     pub hand: Vector<CardId>,
-    pub flags: EnumSet<PlayerFlags>,
+    pub flags: EnumSet<PlayerFlag>,
 }
 
 impl PlayerState {
@@ -223,7 +223,7 @@ impl PlayerState {
 pub struct PlayerStateView<'a> {
     pub active_char_index: u8,
     pub char_states: &'a Vector<CharState>,
-    pub flags: EnumSet<PlayerFlags>,
+    pub flags: EnumSet<PlayerFlag>,
     pub dice: DiceCounter,
     pub affected_by: SmallVec<[StatusKey; 4]>,
 }

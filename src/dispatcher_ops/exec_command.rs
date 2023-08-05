@@ -1028,7 +1028,7 @@ impl GameState {
                 _ => None,
             };
 
-            player.flags.insert(PlayerFlags::DiedThisRound);
+            player.flags.insert(PlayerFlag::DiedThisRound);
             return ExecResult::Suspend(SuspendedState::post_death_switch(player_id), prev_addl_cmds);
         }
 

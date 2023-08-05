@@ -83,7 +83,7 @@ impl<'a, 'b, 'c, 'v, D> StatusImplContext<'a, 'b, 'c, 'v, D> {
     /// Skill is Normal Attack and dice counter pre-cast is even
     pub fn is_charged_attack(&self) -> bool {
         self.skill_type() == Some(SkillType::NormalAttack)
-            && self.src_player_state.flags.contains(PlayerFlags::ChargedAttack)
+            && self.src_player_state.flags.contains(PlayerFlag::ChargedAttack)
     }
 
     #[inline]

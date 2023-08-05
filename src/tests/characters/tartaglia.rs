@@ -39,7 +39,7 @@ fn test_foul_legacy_raging_tide_melee_stance_and_riptide_transfer() {
     assert!(gs
         .get_player(PlayerId::PlayerFirst)
         .flags
-        .contains(PlayerFlags::ChargedAttack));
+        .contains(PlayerFlag::ChargedAttack));
     gs.advance_multiple(&vec![
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::CuttingTorrent)),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
