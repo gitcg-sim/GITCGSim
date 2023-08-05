@@ -3,7 +3,7 @@ use crossterm::{
     execute,
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
-use gitcg_sim::deck::cli_args::{DeckOpt, GenericSearch};
+use gitcg_sim::deck::cli_args::{DeckOpts, GenericSearch};
 use gitcg_sim::ids::GetStatus;
 use gitcg_sim::rand::{rngs::SmallRng, SeedableRng};
 use gitcg_sim::smallvec::SmallVec;
@@ -979,9 +979,9 @@ fn describe_action<'a, 'b>(player_state: &'b PlayerState, input: &'b Input) -> (
 }
 
 pub fn main() -> Result<(), io::Error> {
-    let mut opt = DeckOpt::from_args();
+    let mut opt = DeckOpts::from_args();
     // Ignore debug flag
-    opt.debug = false;
+    opt.search.debug = false;
     let rand1 = SmallRng::seed_from_u64(opt.seed.unwrap_or(100));
     let decklist1 = opt.get_player1_deck()?;
     let decklist2 = opt.get_player2_deck()?;

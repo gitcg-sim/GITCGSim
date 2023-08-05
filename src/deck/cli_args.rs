@@ -38,34 +38,7 @@ impl FromStr for SearchAlgorithm {
 }
 
 #[derive(Debug, StructOpt, Clone)]
-#[structopt(about = "Genius Invokation TCG simulator")]
-pub struct DeckOpt {
-    #[structopt(
-        parse(from_os_str),
-        short = "a",
-        long = "--player1-deck",
-        help = "Path to the deck for Player 1."
-    )]
-    pub player1_deck: PathBuf,
-
-    #[structopt(
-        parse(from_os_str),
-        short = "b",
-        long = "--player2-deck",
-        help = "Path to the deck for Player 2."
-    )]
-    pub player2_deck: PathBuf,
-
-    #[structopt(
-        short = "R",
-        long = "--random-decks",
-        help = "Randomize both players characters and decks"
-    )]
-    pub random_decks: bool,
-
-    #[structopt(short = "s", long = "--steps", help = "Benchmark max steps to play out")]
-    pub steps: Option<u32>,
-
+pub struct SearchConfig {
     #[structopt(
         short = "A",
         long = "--algorithm",
@@ -110,9 +83,42 @@ pub struct DeckOpt {
 
     #[structopt(short = "D", long = "--debug", help = "Print debug info")]
     pub debug: bool,
+}
+
+#[derive(Debug, StructOpt, Clone)]
+pub struct DeckOpts {
+    #[structopt(
+        parse(from_os_str),
+        short = "a",
+        long = "--player1-deck",
+        help = "Path to the deck for Player 1."
+    )]
+    pub player1_deck: PathBuf,
+
+    #[structopt(
+        parse(from_os_str),
+        short = "b",
+        long = "--player2-deck",
+        help = "Path to the deck for Player 2."
+    )]
+    pub player2_deck: PathBuf,
+
+    #[structopt(
+        short = "R",
+        long = "--random-decks",
+        help = "Randomize both players characters and decks"
+    )]
+    pub random_decks: bool,
+
+    #[structopt(short = "s", long = "--steps", help = "Benchmark max steps to play out")]
+    pub steps: Option<u32>,
 
     #[structopt(short = "S", long = "--seed", help = "Random seed for the game states")]
     pub seed: Option<u64>,
+
+    // TODO split up
+    #[structopt(flatten)]
+    pub search: SearchConfig,
 }
 
 pub enum GenericSearch<S: NondetState = StandardNondetHandlerState> {
@@ -135,17 +141,7 @@ impl<S: NondetState> GenericSearch<S> {
     }
 }
 
-impl DeckOpt {
-    pub fn get_player1_deck(&self) -> Result<Decklist, std::io::Error> {
-        let f = File::open(&self.player1_deck)?;
-        read_decklist_from_file(f)
-    }
-
-    pub fn get_player2_deck(&self) -> Result<Decklist, std::io::Error> {
-        let f = File::open(&self.player2_deck)?;
-        read_decklist_from_file(f)
-    }
-
+impl SearchConfig {
     pub fn make_search<S: NondetState>(&self, parallel: bool, limits: Option<SearchLimits>) -> GenericSearch<S> {
         match self.algorithm.unwrap_or(SearchAlgorithm::Minimax) {
             SearchAlgorithm::Minimax => {
@@ -191,5 +187,25 @@ impl DeckOpt {
             max_time_ms: self.time_limit_ms,
             max_positions: self.max_positions,
         })
+    }
+}
+
+impl DeckOpts {
+    pub fn get_player1_deck(&self) -> Result<Decklist, std::io::Error> {
+        let f = File::open(&self.player1_deck)?;
+        read_decklist_from_file(f)
+    }
+
+    pub fn get_player2_deck(&self) -> Result<Decklist, std::io::Error> {
+        let f = File::open(&self.player2_deck)?;
+        read_decklist_from_file(f)
+    }
+
+    pub fn make_search<S: NondetState>(&self, parallel: bool, limits: Option<SearchLimits>) -> GenericSearch<S> {
+        self.search.make_search(parallel, limits)
+    }
+
+    pub fn get_limits(&self) -> Option<SearchLimits> {
+        self.search.get_limits()
     }
 }
