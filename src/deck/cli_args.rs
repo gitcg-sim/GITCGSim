@@ -55,6 +55,9 @@ pub struct SearchConfig {
     #[structopt(long = "--target-round-delta", help = "Minimax: target round delta")]
     pub target_round_delta: Option<u8>,
 
+    #[structopt(long = "--static-search-iters", help = "Minimax: static search iterations")]
+    pub static_search_iters: Option<u8>,
+
     #[structopt(short = "C", long = "--mcts-c", help = "MCTS: search constant")]
     pub mcts_c: Option<f32>,
 
@@ -158,7 +161,7 @@ impl SearchConfig {
                     debug: self.debug,
                     tactical_depth: self.tactical_depth.unwrap_or(TACTICAL_SEARCH_DEPTH),
                     target_round_delta: self.target_round_delta.unwrap_or(TARGET_ROUND_DELTA),
-                    static_search_max_iters: STATIC_SEARCH_MAX_ITERS,
+                    static_search_max_iters: self.static_search_iters.unwrap_or(STATIC_SEARCH_MAX_ITERS),
                 };
                 GenericSearch::Minimax(MinimaxSearch::new(config))
             }

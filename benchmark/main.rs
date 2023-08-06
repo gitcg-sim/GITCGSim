@@ -104,7 +104,11 @@ fn main() -> Result<(), std::io::Error> {
         let depth: u8 = search_opts.search_depth.unwrap_or(8);
         let bf = move |n: f64| n.powf(1_f64 / (depth as f64));
         let benchmark = move |parallel: bool, steps: u32| {
-            let mut game = new_standard_game(&decklist1, &decklist2, SmallRng::seed_from_u64(deck_opts.seed.unwrap_or(100)));
+            let mut game = new_standard_game(
+                &decklist1,
+                &decklist2,
+                SmallRng::seed_from_u64(deck_opts.seed.unwrap_or(100)),
+            );
             if deck_opts.tactical {
                 game.convert_to_tactical_search();
             }

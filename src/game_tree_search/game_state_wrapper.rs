@@ -184,17 +184,35 @@ impl<S: NondetState> Game for GameStateWrapper<S> {
         let Some(player_id) = self.to_move() else {
             return
         };
-        let next_tactical_action = pv.clone().find(|a| Self::is_tactical_action(*a));
+        const LOOKAHEAD: usize = 4;
+        let move_chain = pv
+            .clone()
+            .into_iter()
+            .take(LOOKAHEAD)
+            .filter(|a| a.player() == Some(player_id))
+            .collect::<smallvec::SmallVec<[_; LOOKAHEAD]>>();
+
         let scores = RuleBasedSearchConfig::DEFAULT.action_scores(self, actions, player_id);
-        actions[1..].sort_by_key(|&action| {
+        actions.sort_by_key(|&action| {
+            let index_from_move_chain = move_chain
+                .iter()
+                .copied()
+                .enumerate()
+                .find(|(_, a)| action == *a)
+                .map(|x| x.0);
+            // score >= 0
             let score = scores
                 .iter()
                 .find_map(|(a, s)| if *a == action { Some(*s) } else { None })
-                .unwrap_or(0);
-            if next_tactical_action == Some(action) {
-                210u8
+                .unwrap_or(0) as i16;
+            if index_from_move_chain == Some(0) {
+                -1100
+            } else if index_from_move_chain == Some(move_chain.len() - 1) {
+                -1080
+            } else if index_from_move_chain.is_some() {
+                -1060
             } else {
-                200 - score
+                -score
             }
         });
     }
