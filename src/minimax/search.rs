@@ -233,7 +233,8 @@ fn minimax<G: Game>(
         let mut game = game.clone();
         game.advance(action).unwrap();
         ctx.add_states_visited(1);
-        let (eval, pv_rest) = minimax(&game, maximize_player, (alpha, beta), depth - 1, &pv_inner, ctx, dts);
+        let new_depth = depth - 1 + game.depth_extension(action);
+        let (eval, pv_rest) = minimax(&game, maximize_player, (alpha, beta), new_depth, &pv_inner, ctx, dts);
 
         if eval >= beta {
             #[cfg(detailed_search_stats)]

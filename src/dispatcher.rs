@@ -427,6 +427,7 @@ impl GameState {
 
     fn available_actions_action_phase(&self, player_id: PlayerId, acts: &mut ActionList<Input>) {
         let player = self.get_player(player_id);
+        let mut has_others = false;
 
         // Cast Skill
         if let Some(cs) = self.get_active_character() {
@@ -440,6 +441,7 @@ impl GameState {
             for skill_id in skills_vec {
                 if self.can_cast_skill(player_id, skill_id) {
                     acts.push(Input::FromPlayer(player_id, PlayerAction::CastSkill(skill_id)));
+                    has_others = true;
                 }
             }
         }
@@ -459,6 +461,9 @@ impl GameState {
                     found.push(card_id);
                 }
             }
+            if !found.is_empty() {
+                has_others = true;
+            }
         }
 
         // Switch
@@ -472,7 +477,8 @@ impl GameState {
         }
 
         // Elemental Tuning
-        if self.get_active_character().is_some() {
+        let allowed_to_et = !player.is_tactical() || !has_others;
+        if allowed_to_et && self.get_active_character().is_some() {
             let mut found: SmallVec<[CardId; 8]> = SmallVec::new();
             for &card_id in &player.hand {
                 if found.contains(&card_id) {

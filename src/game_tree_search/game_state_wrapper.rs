@@ -239,4 +239,25 @@ impl<S: NondetState> Game for GameStateWrapper<S> {
             )
         )
     }
+
+    #[inline]
+    fn depth_extension(&self, action: Self::Action) -> u8 {
+        let Some(player_id) = self.to_move() else { return 0 };
+        let player = self.game_state.get_player(player_id);
+        if !player.is_tactical() {
+            return 0;
+        }
+
+        if matches!(
+            action,
+            Input::FromPlayer(
+                ..,
+                PlayerAction::ElementalTuning(..) | PlayerAction::SwitchCharacter(..)
+            )
+        ) {
+            1
+        } else {
+            0
+        }
+    }
 }

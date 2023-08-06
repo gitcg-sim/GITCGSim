@@ -85,4 +85,9 @@ pub trait Game: ZobristHashable + Debug + Clone + Send + Sync {
     fn round_number(&self) -> u8;
 
     fn is_tactical_action(action: Self::Action) -> bool;
+
+    #[allow(unused_variables)]
+    fn depth_extension(&self, action: Self::Action) -> u8 {
+        0
+    }
 }
