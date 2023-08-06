@@ -1,3 +1,4 @@
+use rand::{rngs::SmallRng, Rng, SeedableRng};
 use std::{fs::File, path::PathBuf, str::FromStr};
 use structopt::StructOpt;
 
@@ -15,7 +16,7 @@ use crate::{
     },
 };
 
-use super::{read_decklist_from_file, Decklist};
+use super::{random_decklist, read_decklist_from_file, Decklist};
 
 #[derive(Debug, Copy, Clone)]
 pub enum SearchAlgorithm {
@@ -37,7 +38,7 @@ impl FromStr for SearchAlgorithm {
     }
 }
 
-#[derive(Debug, StructOpt, Clone)]
+#[derive(Debug, StructOpt, Clone, Default)]
 pub struct SearchConfig {
     #[structopt(
         short = "A",
@@ -125,6 +126,31 @@ pub struct DeckOpts {
     // TODO split up
     #[structopt(flatten)]
     pub search: SearchConfig,
+}
+
+impl DeckOpts {
+    pub fn get_decks(&self) -> Result<(Decklist, Decklist), std::io::Error> {
+        if self.random_decks {
+            let mut r = SmallRng::seed_from_u64(self.seed.unwrap_or(100));
+            r.gen_bool(0.5);
+            Ok((random_decklist(&mut r), random_decklist(&mut r)))
+        } else {
+            Ok((self.get_player1_deck()?, self.get_player2_deck()?))
+        }
+    }
+
+    pub fn get_standard_game(&self, rng: Option<SmallRng>) -> Result<GameStateWrapper, std::io::Error> {
+        let (d1, d2) = self.get_decks()?;
+        let mut game = new_standard_game(
+            &d1,
+            &d2,
+            rng.unwrap_or_else(|| SmallRng::seed_from_u64(self.seed.unwrap_or(100))),
+        );
+        if self.tactical {
+            game.convert_to_tactical_search();
+        }
+        Ok(game)
+    }
 }
 
 pub enum GenericSearch<S: NondetState = StandardNondetHandlerState> {
