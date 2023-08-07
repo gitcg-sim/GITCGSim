@@ -1,6 +1,7 @@
+#[cfg(feature = "old_tt")]
 use flurry::{HashMap, HashMapRef};
 
-use crate::{data_structures::LinkedList, zobrist_hash::HashValue};
+use crate::{data_structures::LinkedList, transposition_table::CacheTable, zobrist_hash::HashValue};
 
 #[derive(Debug, Copy, Clone)]
 pub enum TTFlag {
@@ -13,14 +14,14 @@ pub enum TTFlag {
 }
 
 #[derive(Debug, Clone)]
-pub struct TTEntry<E: Sync + Send, A: Clone + Sync + Send> {
+pub struct TTEntry<E: Clone + Sync + Send, A: Clone + Sync + Send> {
     pub flag: TTFlag,
     pub depth: u8,
     pub value: E,
     pub pv: LinkedList<A>,
 }
 
-impl<E: Sync + Send, A: Clone + Sync + Send> TTEntry<E, A> {
+impl<E: Clone + Sync + Send, A: Clone + Sync + Send> TTEntry<E, A> {
     #[inline]
     pub fn new(flag: TTFlag, depth: u8, value: E, pv: LinkedList<A>) -> Self {
         Self { flag, depth, value, pv }
@@ -30,23 +31,49 @@ impl<E: Sync + Send, A: Clone + Sync + Send> TTEntry<E, A> {
 #[derive(Copy, Clone, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub struct TTKey(pub u64);
 
-pub struct TT<E: Sync + Send, A: Clone + Sync + Send> {
-    pub size: usize,
-    pub table: HashMap<TTKey, TTEntry<E, A>>,
-}
-
-impl<E: Sync + Send, A: Clone + Sync + Send> std::fmt::Debug for TT<E, A> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("TT").field("size", &self.size).finish()
+impl From<TTKey> for usize {
+    fn from(value: TTKey) -> Self {
+        value.0 as usize
     }
 }
 
-pub struct TTPin<'a, E: Sync + Send, A: Clone + Sync + Send> {
+pub struct TT<E: Clone + Sync + Send, A: Clone + Sync + Send> {
+    #[cfg(feature = "old_tt")]
+    pub size: usize,
+
+    #[cfg(feature = "old_tt")]
+    pub table: HashMap<TTKey, TTEntry<E, A>>,
+
+    #[cfg(not(feature = "old_tt"))]
+    pub table: CacheTable<TTKey, TTEntry<E, A>>,
+}
+
+impl<E: Clone + Sync + Send, A: Clone + Sync + Send> std::fmt::Debug for TT<E, A> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        #[cfg(feature = "old_tt")]
+        {
+            f.debug_struct("TT").field("size", &self.size).finish()
+        }
+        #[cfg(not(feature = "old_tt"))]
+        f.debug_struct("TT")
+            .field("megabytes", &self.table.get_megabytes())
+            .finish()
+    }
+}
+
+#[cfg(feature = "old_tt")]
+pub struct TTPin<'a, E: Clone + Sync + Send, A: Clone + Sync + Send> {
     pub tt: HashMapRef<'a, TTKey, TTEntry<E, A>>,
     pub size: usize,
 }
 
-impl<'a, E: Sync + Send, A: Clone + Sync + Send> TTPin<'a, E, A> {
+#[cfg(not(feature = "old_tt"))]
+pub struct TTPin<'a, E: Clone + Sync + Send, A: Clone + Sync + Send> {
+    pub tt: &'a CacheTable<TTKey, TTEntry<E, A>>,
+}
+
+#[cfg(feature = "old_tt")]
+impl<'a, E: Clone + Sync + Send, A: Clone + Sync + Send> TTPin<'a, E, A> {
     #[inline]
     pub fn new(tt: HashMapRef<'a, TTKey, TTEntry<E, A>>, size: usize) -> Self {
         Self { tt, size }
@@ -72,9 +99,29 @@ impl<'a, E: Sync + Send, A: Clone + Sync + Send> TTPin<'a, E, A> {
     }
 }
 
+#[cfg(not(feature = "old_tt"))]
+impl<'a, E: Clone + Sync + Send, A: Clone + Sync + Send> TTPin<'a, E, A> {
+    #[inline]
+    pub fn new(tt: &'a CacheTable<TTKey, TTEntry<E, A>>) -> Self {
+        Self { tt }
+    }
+
+    #[inline]
+    pub fn get(&self, key: &TTKey) -> Option<TTEntry<E, A>> {
+        self.tt.get(key)
+    }
+
+    #[inline]
+    pub fn insert(&self, key: TTKey, entry: TTEntry<E, A>) {
+        let depth = entry.depth;
+        self.tt.replace_if(&key, entry, |entry1| entry1.depth < depth);
+    }
+}
+
 pub const DEFAULT_SIZE_MB: u32 = 128;
 
-impl<E: Sync + Send, A: Clone + Sync + Send> TT<E, A> {
+#[cfg(feature = "old_tt")]
+impl<E: Clone + Sync + Send, A: Clone + Sync + Send> TT<E, A> {
     #[inline]
     pub fn to_key(hash: HashValue) -> TTKey {
         TTKey(hash)
@@ -94,7 +141,26 @@ impl<E: Sync + Send, A: Clone + Sync + Send> TT<E, A> {
     }
 }
 
-impl<E: Sync + Send, A: Clone + Sync + Send> Default for TT<E, A> {
+#[cfg(not(feature = "old_tt"))]
+impl<E: Clone + Sync + Send, A: Clone + Sync + Send> TT<E, A> {
+    #[inline]
+    pub fn to_key(hash: HashValue) -> TTKey {
+        TTKey(hash)
+    }
+
+    pub fn new(size_mb: u32) -> Self {
+        Self {
+            table: CacheTable::new(size_mb as usize),
+        }
+    }
+
+    #[inline]
+    pub fn pin(&self) -> TTPin<E, A> {
+        TTPin::new(&self.table)
+    }
+}
+
+impl<E: Clone + Sync + Send, A: Clone + Sync + Send> Default for TT<E, A> {
     fn default() -> Self {
         Self::new(DEFAULT_SIZE_MB)
     }

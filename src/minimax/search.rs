@@ -273,7 +273,7 @@ fn minimax<G: Game>(
         let key = TT::<G::Eval, G::Action>::to_key(hash);
         if depth >= tt_depth {
             let entry = TTEntry::new(flag, depth, alpha, pv.clone());
-            ctx.tt.table.pin().insert(key, entry);
+            ctx.tt.pin().insert(key, entry);
         }
     }
 
@@ -381,14 +381,26 @@ fn probe_tt<G: Game>(
         flag,
         value,
         depth: depth_from_tt,
+        pv,
         ..
-    } = *entry;
+    } = {
+        #[cfg(feature = "old_tt")]
+        {
+            *entry
+        }
+        #[cfg(not(feature = "old_tt"))]
+        entry
+    };
     if depth_from_tt < depth {
         return None;
     }
 
     let early_exit = {
-        let pv = entry.pv.clone();
+        #[cfg(feature = "old_tt")]
+        let pv = pv.clone();
+        #[cfg(not(feature = "old_tt"))]
+        let pv = pv;
+
         move |value: G::Eval| {
             *hit = true;
             *tt_depth = depth;

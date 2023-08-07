@@ -9,6 +9,8 @@ pub(crate) mod dispatcher;
 pub(crate) mod dispatcher_ops;
 pub mod game_tree_search;
 
+pub mod transposition_table;
+
 /// Module containing `enums` that identify Genios Invokation TCG entities.
 ///
 /// They include:

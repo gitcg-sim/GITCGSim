@@ -132,11 +132,6 @@ impl GameState {
         }
 
         let active_char = player.get_active_character();
-        let cost = skill_id.get_skill().cost;
-        if !active_char.can_pay_energy_cost(&cost) {
-            return false;
-        }
-
         let char_skills = &active_char.char_id.get_char_card().skills;
         let found = char_skills.to_vec().iter().any(|&s| s == skill_id);
         if !found {
@@ -144,10 +139,14 @@ impl GameState {
         }
 
         if self.ignore_costs {
-            true
-        } else {
-            can_pay_dice_cost(player, &cost, CostType::Skill(skill_id))
+            return true;
         }
+        let cost = skill_id.get_skill().cost;
+        if !active_char.can_pay_energy_cost(&cost) {
+            return false;
+        }
+
+        can_pay_dice_cost(player, &cost, CostType::Skill(skill_id))
     }
 
     fn cmd_tgt(&self, player_id: PlayerId) -> Option<CommandTarget> {
