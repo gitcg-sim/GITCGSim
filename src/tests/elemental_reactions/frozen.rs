@@ -39,7 +39,7 @@ fn test_frozen_cannot_perform_action() {
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::SwitchCharacter(2)),
     ]);
     assert_eq!(Some(PlayerId::PlayerSecond), gs.to_move_player());
-    assert_eq!(4, gs.available_actions().len());
+    assert_eq!(5, gs.available_actions().len());
 }
 
 #[test]
