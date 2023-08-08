@@ -4,11 +4,11 @@ use std::{cell::RefCell, rc::Rc};
 
 use crate::{
     cons,
-    game_tree_search::*,
     linked_list,
-    minimax::transposition_table::{TTEntry, TTFlag, TTKey, TTPin, TT},
+    game_tree_search::*,
+    minimax::transposition_table::TTKey,
     types::game_state::PlayerId,
-    zobrist_hash::HashValue,
+    zobrist_hash::HashValue, transposition_table::CacheTable,
 };
 use atree::{Arena, Token};
 use rand::{thread_rng, Rng};
@@ -45,7 +45,6 @@ pub struct Node<G: Game> {
     pub q: u32,
     pub n: u32,
     pub depth: u8,
-    pub init_prior: Option<f32>,
 }
 
 impl<G: Game> std::fmt::Debug for Node<G> {
@@ -63,7 +62,6 @@ impl<G: Game> Node<G> {
             q: 0,
             n: 0,
             depth: 0,
-            init_prior: None,
         }
     }
 
@@ -80,14 +78,30 @@ impl<G: Game> Node<G> {
     }
 
     #[inline]
-    fn prior(&self, tt: TTPin<TTValue, G::Action>, tt_hits: Rc<RefCell<u64>>) -> Option<f32> {
+    fn ratio_with_transposition(
+        &self,
+        is_maximize: bool,
+        tt: &CacheTable<TTKey, TTValue>,
+        tt_hits: Rc<RefCell<u64>>,
+    ) -> f32 {
+        let n = self.n + 2;
+        let (n1, q1) = self.lookup_tt(tt, tt_hits).unwrap_or_default();
+        let n = n + n1;
+        let q = if is_maximize {
+            self.q + q1 + 1
+        } else {
+            n - (self.q + q1 + 1)
+        };
+        (q as f32) / (n as f32)
+    }
+
+    #[inline]
+    fn lookup_tt(&self, tt: &CacheTable<TTKey, TTValue>, tt_hits: Rc<RefCell<u64>>) -> Option<(u32, u32)> {
         let Some(res) = tt.get(&TTKey(self.state.zobrist_hash())) else {
             return None
         };
         *tt_hits.borrow_mut() += 1;
-
-        let (q, n) = res.value;
-        Some((q as f32) / (n as f32))
+        Some(res)
     }
 
     fn debug_description(&self, children_count: usize, describe_action: &dyn Fn(G::Action) -> String) -> String {
@@ -99,13 +113,10 @@ impl<G: Game> Node<G> {
         };
 
         format!(
-            "{action_part} ({}), #children = {}, depth={}{}",
+            "{action_part} ({}), #children = {}, depth={}",
             format_ratio(self.q, self.n),
             children_count,
-            self.depth,
-            self.init_prior
-                .map(|x| format!(", init_prior={:2}%", x * 1e2))
-                .unwrap_or_default()
+            self.depth
         )
     }
 }
@@ -126,7 +137,7 @@ pub struct MCTS<G: Game> {
     pub config: MCTSConfig,
     pub maximize_player: PlayerId,
     pub tree: Arena<Node<G>>,
-    pub tt: TT<TTValue, G::Action>,
+    pub tt: CacheTable<TTKey, TTValue>,
     pub root: Option<(HashValue, Token)>,
 }
 
@@ -137,12 +148,12 @@ impl<G: Game> MCTS<G> {
             config,
             tree,
             maximize_player: PlayerId::PlayerFirst,
-            tt: TT::new(config.tt_size_mb),
+            tt: CacheTable::new(config.tt_size_mb as usize),
             root: None,
         }
     }
 
-    fn init(&mut self, init: G, maximize_player: PlayerId, tt_hits: Rc<RefCell<u64>>) -> Token {
+    fn init(&mut self, init: G, maximize_player: PlayerId) -> Token {
         let hash = init.zobrist_hash();
         if maximize_player == self.maximize_player {
             if let Some((root_hash, root_token)) = self.root {
@@ -151,8 +162,7 @@ impl<G: Game> MCTS<G> {
                 }
             }
         }
-        let mut root = Node::new(init, None);
-        root.init_prior = root.prior(self.tt.pin(), tt_hits);
+        let root = Node::new(init, None);
         let (tree, root_token) = Arena::<Node<G>>::with_data(root);
         self.tree = tree;
         self.maximize_player = maximize_player;
@@ -160,7 +170,7 @@ impl<G: Game> MCTS<G> {
         root_token
     }
 
-    fn expand(&mut self, token: Token, tt_hits: Rc<RefCell<u64>>) -> Result<u64, Option<PlayerId>> {
+    fn expand(&mut self, token: Token) -> Result<u64, Option<PlayerId>> {
         let Some(current) = self.tree.get(token).map(|x| &x.data.state) else {
             return Err(None)
         };
@@ -173,8 +183,7 @@ impl<G: Game> MCTS<G> {
         for action in current.actions() {
             let mut next = current.clone();
             next.advance(action).unwrap();
-            let mut node = Node::new(next, Some(action));
-            node.init_prior = node.prior(self.tt.pin(), tt_hits.clone());
+            let node = Node::new(next, Some(action));
             token.append(&mut self.tree, node);
             n += 1;
         }
@@ -186,15 +195,15 @@ impl<G: Game> MCTS<G> {
         node.data.state.to_move()?;
         let c = self.config.c;
         let n0 = node.data.n;
-        let ln = 2f32 * f32::ln((n0 + 1) as f32);
-        //let ln = f32::sqrt(n0 as f32);
+        let ln = ((n0 + 1) as f32).ln_1p();
         let is_maximize = node.data.is_maximize(self.maximize_player);
         let best = node.children(&self.tree).into_iter().max_by_key(move |&child| {
-            let n = child.data.n;
-            let ratio = child.data.ratio(is_maximize);
-            let sr = f32::sqrt(ln / ((1 + n) as f32));
-            let prior = child.data.prior(self.tt.pin(), tt_hits.clone()).unwrap_or(0.5);
-            let bandit = ratio + c * prior * sr;
+            let n = child.data.n + 1;
+            let ratio = child
+                .data
+                .ratio_with_transposition(is_maximize, &self.tt, tt_hits.clone());
+            let uct = (ln / (n as f32)).sqrt();
+            let bandit = ratio + c * uct;
             (1e6 * bandit) as u32
         });
 
@@ -279,12 +288,12 @@ impl<G: Game> MCTS<G> {
         let mut n = path.len() as u8;
         for token in path {
             let data = &mut tree.get_mut(token).unwrap().data;
-            let pin = self.tt.pin();
+            let key = TTKey(data.state.zobrist_hash());
+            let (q0, n0) = self.tt.get(&key).unwrap_or_default();
             data.q += dq;
             data.n += dn;
             data.depth = n;
-            let entry = TTEntry::new(TTFlag::Exact, data.depth, (data.q, data.n), linked_list![]);
-            pin.insert(TTKey(data.state.zobrist_hash()), entry);
+            self.tt.replace_if(&key, (data.q + q0, data.n + n0), |(_, nt)| *nt <= n0);
             n -= 1;
         }
     }
@@ -305,7 +314,7 @@ impl<G: Game> MCTS<G> {
                 return None;
             }
         } else {
-            let expand_states_visited = self.expand(selected, tt_hits.clone()).unwrap_or(0);
+            let expand_states_visited = self.expand(selected).unwrap_or(0);
             (expand_states_visited, self.select_level(selected, tt_hits)?.1)
         };
         let no_parallel = cfg!(feature = "no_parallel");
@@ -434,7 +443,7 @@ impl<G: Game> GameTreeSearch<G> for MCTS<G> {
         let t0 = Instant::now();
         let mut states_visited = 0;
         let tt_hits = Rc::new(RefCell::new(0u64));
-        let root = self.init(position.clone(), maximize_player, tt_hits.clone());
+        let root = self.init(position.clone(), maximize_player);
         let mut last_print = t0;
         'iter: loop {
             for _ in 0..10 {

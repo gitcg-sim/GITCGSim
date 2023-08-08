@@ -16,6 +16,17 @@ pub struct CacheTable<K: Eq + Copy + Into<usize>, V: Sized + Clone> {
     buckets: Vec<RwLock<Bucket<K, V>>>,
 }
 
+impl<K: Eq + Copy + Into<usize>, V: Sized + Clone> std::fmt::Debug for CacheTable<K, V> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("CacheTable")
+            .field("megabytes", &self.megabytes)
+            .field("number_of_entries", &self.number_of_entries)
+            .field("bucket_count", &self.bucket_count)
+            .field("occupancy", &self.get_occupancy())
+            .finish()
+    }
+}
+
 impl<K: Eq + Copy + Into<usize>, V: Sized + Clone> CacheTable<K, V> {
     pub fn new(megabytes: usize) -> Self {
         let bytes = megabytes * 1024 * 1024;
@@ -70,6 +81,9 @@ impl<K: Eq + Copy + Into<usize>, V: Sized + Clone> CacheTable<K, V> {
     }
 
     pub fn get(&self, k: &K) -> Option<V> {
+        if self.number_of_entries == 0 {
+            return None;
+        }
         let (bi, ei) = self.decompose(k);
         let Ok(bucket) = self.buckets[bi].read() else {
             return None
@@ -85,6 +99,9 @@ impl<K: Eq + Copy + Into<usize>, V: Sized + Clone> CacheTable<K, V> {
     }
 
     pub fn set(&self, k: &K, v: V) {
+        if self.number_of_entries == 0 {
+            return;
+        }
         let (bi, ei) = self.decompose(k);
         let Ok(mut bucket) = self.buckets[bi].write() else {
             return
@@ -93,6 +110,9 @@ impl<K: Eq + Copy + Into<usize>, V: Sized + Clone> CacheTable<K, V> {
     }
 
     pub fn replace_if<F: Fn(&V) -> bool>(&self, k: &K, v: V, should_replace: F) -> bool {
+        if self.number_of_entries == 0 {
+            return false;
+        }
         let (bi, ei) = self.decompose(k);
         let Ok(mut bucket) = self.buckets[bi].write() else {
             return false
