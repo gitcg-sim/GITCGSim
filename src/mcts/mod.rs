@@ -1,14 +1,11 @@
 use instant::Instant;
+use rustc_hash::{FxHashMap, FxHashSet};
 use serde::{Deserialize, Serialize};
 use std::{cell::RefCell, rc::Rc};
 
 use crate::{
-    cons,
-    linked_list,
-    game_tree_search::*,
-    minimax::transposition_table::TTKey,
-    types::game_state::PlayerId,
-    zobrist_hash::HashValue, transposition_table::CacheTable,
+    cons, game_tree_search::*, linked_list, minimax::transposition_table::TTKey, transposition_table::CacheTable,
+    types::game_state::PlayerId, zobrist_hash::HashValue,
 };
 use atree::{Arena, Token};
 use rand::{thread_rng, Rng};
@@ -39,11 +36,15 @@ fn format_ratio(q: u32, n: u32) -> String {
     format!("{q}/{n} = {:.2}% \u{b1} {:.2}%", 1e2 * r, 1e2 * 2.0 * sd)
 }
 
+#[allow(type_alias_bounds)]
+type AMAFMap<G: Game> = FxHashMap<G::Action, (u32, u32)>;
+
 pub struct Node<G: Game> {
     pub state: G,
     pub action: Option<G::Action>,
     pub q: u32,
     pub n: u32,
+    pub amaf: AMAFMap<G>,
     pub depth: u8,
 }
 
@@ -61,6 +62,7 @@ impl<G: Game> Node<G> {
             action,
             q: 0,
             n: 0,
+            amaf: FxHashMap::default(),
             depth: 0,
         }
     }
@@ -83,16 +85,34 @@ impl<G: Game> Node<G> {
         is_maximize: bool,
         tt: &CacheTable<TTKey, TTValue>,
         tt_hits: Rc<RefCell<u64>>,
-    ) -> f32 {
-        let n = self.n + 2;
-        let (n1, q1) = self.lookup_tt(tt, tt_hits).unwrap_or_default();
+    ) -> (f32, u32) {
+        let n = self.n;
+        let (q1, n1) = self.lookup_tt(tt, tt_hits).unwrap_or_default();
         let n = n + n1;
         let q = if is_maximize {
             self.q + q1 + 1
         } else {
-            n - (self.q + q1 + 1)
+            (n + 2) - (self.q + q1 + 1)
         };
-        (q as f32) / (n as f32)
+        ((q as f32) / ((n + 2) as f32), n)
+    }
+
+    #[allow(dead_code)]
+    #[inline]
+    fn rave_adjusted_ratio(&self, is_maximize: bool, action: G::Action, n: u32, ratio: f32, b: f32) -> Option<f32> {
+        let Some((q_amaf, n_amaf)) = self.amaf.get(&action).copied() else {
+            return None
+        };
+
+        let deno = (n + n_amaf) as f32 + (4f32 * b * b) * ((n * n_amaf) as f32);
+        let beta = (n_amaf as f32) / (deno + 1.0);
+        let nr = n_amaf + 2;
+        let ratio_amaf = if is_maximize {
+            ((q_amaf + 1) as f32) / (nr as f32)
+        } else {
+            ((nr - (q_amaf + 1)) as f32) / (nr as f32)
+        };
+        Some((1f32 - beta) * ratio + beta * ratio_amaf)
     }
 
     #[inline]
@@ -123,13 +143,23 @@ impl<G: Game> Node<G> {
 
 #[derive(Debug, Copy, Clone, Serialize, Deserialize)]
 pub struct MCTSConfig {
+    /// UCB constant
     pub c: f32,
+    /// RAVE constant, None to disable RAVE
+    pub b: Option<f32>,
     pub tt_size_mb: u32,
     pub parallel: bool,
     pub random_playout_iters: u32,
     pub random_playout_cutoff: u32,
     pub debug: bool,
     pub limits: Option<SearchLimits>,
+}
+
+impl MCTSConfig {
+    #[inline]
+    fn is_rave_enabled(&self) -> bool {
+        self.b.is_some()
+    }
 }
 
 #[derive(Debug)]
@@ -193,16 +223,27 @@ impl<G: Game> MCTS<G> {
     fn select_level(&self, token: Token, tt_hits: Rc<RefCell<u64>>) -> Option<(G::Action, Token)> {
         let node = self.tree.get(token)?;
         node.data.state.to_move()?;
-        let c = self.config.c;
-        let n0 = node.data.n;
-        let ln = ((n0 + 1) as f32).ln_1p();
         let is_maximize = node.data.is_maximize(self.maximize_player);
+        let c = self.config.c;
+        let b = self.config.b;
+        let n_parent = node.data.n;
+        let uct_log = ((n_parent + 1) as f32).ln_1p();
+        let action = node.data.action;
         let best = node.children(&self.tree).into_iter().max_by_key(move |&child| {
-            let n = child.data.n + 1;
-            let ratio = child
-                .data
-                .ratio_with_transposition(is_maximize, &self.tt, tt_hits.clone());
-            let uct = (ln / (n as f32)).sqrt();
+            let child_node = &child.data;
+            let (ratio, n_with_tt) = child_node.ratio_with_transposition(is_maximize, &self.tt, tt_hits.clone());
+            let ratio = if let (Some(action), Some(b)) = (action, b) {
+                child
+                    .data
+                    .rave_adjusted_ratio(is_maximize, action, n_with_tt, ratio, b)
+                    .unwrap_or(ratio)
+            } else {
+                ratio
+            };
+
+            // + 1 to avoid division by zero
+            let n_child = child_node.n + 1;
+            let uct = (uct_log / (n_child as f32)).sqrt();
             let bandit = ratio + c * uct;
             (1e6 * bandit) as u32
         });
@@ -285,16 +326,39 @@ impl<G: Game> MCTS<G> {
 
     fn backpropagate(&mut self, path: Vec<Token>, dq: u32, dn: u32) {
         let tree = &mut self.tree;
-        let mut n = path.len() as u8;
-        for token in path {
+        let n = path.len() as u8;
+        let mut d = n;
+        for i in 0..(n as usize) {
+            let token = path[i];
             let data = &mut tree.get_mut(token).unwrap().data;
             let key = TTKey(data.state.zobrist_hash());
-            let (q0, n0) = self.tt.get(&key).unwrap_or_default();
             data.q += dq;
             data.n += dn;
-            data.depth = n;
-            self.tt.replace_if(&key, (data.q + q0, data.n + n0), |(_, nt)| *nt <= n0);
-            n -= 1;
+            data.depth = d;
+            d -= 1;
+            let (q0, n0) = self.tt.get(&key).unwrap_or_default();
+            self.tt.replace_if(&key, (q0 + dq, n0 + dn), |(_, nt)| *nt <= n0);
+
+            if !self.config.is_rave_enabled() {
+                continue;
+            }
+
+            let mut touched = FxHashSet::default();
+            #[allow(clippy::needless_range_loop)]
+            for i_child in i..(n as usize) {
+                let child = &mut tree.get_mut(path[i_child]).unwrap().data;
+                let Some(a) = child.action else {
+                    continue
+                };
+                if touched.contains(&a) {
+                    continue;
+                }
+
+                touched.insert(a);
+                let amaf = &mut child.amaf;
+                let (q0, n0) = amaf.get(&a).copied().unwrap_or_default();
+                amaf.insert(a, (q0 + dq, n0 + dn));
+            }
         }
     }
 

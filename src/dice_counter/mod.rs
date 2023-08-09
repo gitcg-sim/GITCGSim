@@ -13,7 +13,7 @@ pub mod distribution;
 
 /// Represents the collection of Elemental Dice (Omni and the 7 elements).
 /// The maximum number of dice for a particular element (or Omni) is 31.
-#[derive(Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Default, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct DiceCounter {
     pub omni: u8,
     pub elem: [u8; 7],

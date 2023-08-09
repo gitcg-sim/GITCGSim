@@ -45,7 +45,16 @@ pub trait ZobristHashable {
 }
 
 pub trait Game: ZobristHashable + Debug + Clone + Send + Sync {
-    type Action: Copy + Clone + Send + Sync + Debug + PartialEq + Eq + Serialize + for<'de> Deserialize<'de>;
+    type Action: Copy
+        + Clone
+        + Send
+        + Sync
+        + Debug
+        + PartialEq
+        + Eq
+        + std::hash::Hash
+        + Serialize
+        + for<'de> Deserialize<'de>;
     type Actions: IntoIterator<Item = Self::Action>;
     type Error: Debug;
     type Eval: Windowable + EvalTrait;

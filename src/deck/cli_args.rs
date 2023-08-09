@@ -62,6 +62,9 @@ pub struct SearchConfig {
     #[structopt(short = "C", long = "--mcts-c", help = "MCTS: search constant")]
     pub mcts_c: Option<f32>,
 
+    #[structopt(short = "B", long = "--mcts-rave", help = "MCTS: RAVE bias constant")]
+    pub mcts_b: Option<f32>,
+
     #[structopt(
         short = "I",
         long = "--mcts-iters",
@@ -194,6 +197,7 @@ impl SearchConfig {
             SearchAlgorithm::MCTS => {
                 let config = MCTSConfig {
                     c: self.mcts_c.unwrap_or(3.5),
+                    b: self.mcts_b.and_then(|b| if b < 0f32 { None } else { Some(b) }),
                     tt_size_mb: self
                         .tt_size_mb
                         .unwrap_or(crate::minimax::transposition_table::DEFAULT_SIZE_MB),
