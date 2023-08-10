@@ -75,6 +75,9 @@ pub struct SearchConfig {
     #[structopt(short = "M", long = "--mcts-max-steps", help = "MCTS: max steps per playout")]
     pub mcts_random_playout_max_steps: Option<u32>,
 
+    #[structopt(short = "M", long = "--mcts-playout-bias", help = "MCTS: random playout bias")]
+    pub mcts_random_playout_bias: Option<f32>,
+
     #[structopt(
         short = "T",
         long = "--time-limit-ms",
@@ -198,6 +201,7 @@ impl SearchConfig {
                 let config = MCTSConfig {
                     c: self.mcts_c.unwrap_or(3.5),
                     b: self.mcts_b.and_then(|b| if b < 0f32 { None } else { Some(b) }),
+                    random_playout_bias: self.mcts_random_playout_bias,
                     tt_size_mb: self
                         .tt_size_mb
                         .unwrap_or(crate::minimax::transposition_table::DEFAULT_SIZE_MB),

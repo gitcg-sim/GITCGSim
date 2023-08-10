@@ -8,7 +8,7 @@ use crate::{
     types::game_state::PlayerId, zobrist_hash::HashValue,
 };
 use atree::{Arena, Token};
-use rand::{thread_rng, Rng};
+use rand::{distributions::WeightedIndex, prelude::Distribution, thread_rng, Rng};
 
 #[cfg(not(feature = "no_parallel"))]
 use rayon::prelude::*;
@@ -151,6 +151,8 @@ pub struct MCTSConfig {
     pub parallel: bool,
     pub random_playout_iters: u32,
     pub random_playout_cutoff: u32,
+    /// Random playout bias, None to disable bias
+    pub random_playout_bias: Option<f32>,
     pub debug: bool,
     pub limits: Option<SearchLimits>,
 }
@@ -282,16 +284,6 @@ impl<G: Game> MCTS<G> {
     }
 
     fn random_playout<R: Rng>(&self, token: Token, rng: &mut R) -> (u64, bool) {
-        fn get_cut<R: Rng>(rng: &mut R, mut n: usize, iters: u8) -> usize {
-            for _ in 0..iters {
-                if n <= 1 {
-                    break;
-                }
-                n = rng.gen_range(0..=n);
-            }
-            std::cmp::max(1, n)
-        }
-
         let mut count = 0;
         let node = self.tree.get(token).unwrap();
         let mut game = node.data.state.clone();
@@ -300,12 +292,17 @@ impl<G: Game> MCTS<G> {
                 break;
             }
 
-            let mut acts = game.actions();
-            if false {
-                game.move_ordering(&Default::default(), &mut acts);
-                let acts = acts.into_iter().collect::<SmallVec<[_; 8]>>();
-                let cut = get_cut(rng, acts.len(), 1);
-                let action = acts[rng.gen_range(0..cut)];
+            let acts = game.actions();
+            if let Some(bias) = self.config.random_playout_bias {
+                let pairs = game.action_weights(&acts);
+                let weights = pairs
+                    .iter()
+                    .map(|(_, x)| (x * bias).exp().clamp(1e-2, 1e2))
+                    .collect::<SmallVec<[_; 16]>>();
+                let Ok(dist) = WeightedIndex::new(weights) else {
+                    panic!("MCTS::random_playout: Invalid weights: {:?}", pairs);
+                };
+                let action = pairs[dist.sample(rng)].0;
                 game.advance(action).unwrap();
             } else {
                 let acts = acts.into_iter().collect::<SmallVec<[_; 8]>>();

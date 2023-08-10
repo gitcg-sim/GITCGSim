@@ -83,6 +83,8 @@ pub trait Game: ZobristHashable + Debug + Clone + Send + Sync {
 
     fn static_search_action(&self, player_id: PlayerId) -> Option<Self::Action>;
 
+    fn action_weights(&self, actions: &Self::Actions) -> Vec<(Self::Action, f32)>;
+
     fn shuffle_actions(actions: &mut Self::Actions, rng: &mut ThreadRng);
 
     /// Apply move ordering.

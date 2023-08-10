@@ -229,6 +229,18 @@ impl<S: NondetState> Game for GameStateWrapper<S> {
         }
     }
 
+    fn action_weights(&self, actions: &Self::Actions) -> Vec<(Self::Action, f32)> {
+        let Some(player_id) = self.to_move() else { return Default::default() };
+        let scores = RuleBasedSearchConfig::DEFAULT
+            .action_scores(self, actions, player_id)
+            .iter()
+            .copied()
+            .map(|x| (x.0, 1e-6 + (x.1 as f32)))
+            .collect::<Vec<_>>();
+        let tot = scores.iter().map(|(_, x)| *x).sum::<f32>().clamp(1.0, 1e6);
+        scores.iter().map(|x| (x.0, x.1 / tot)).collect()
+    }
+
     #[inline]
     fn is_tactical_action(action: Self::Action) -> bool {
         matches!(
