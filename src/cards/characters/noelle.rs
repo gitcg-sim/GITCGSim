@@ -30,7 +30,7 @@ pub const BREASTPLATE: Skill = Skill {
 pub const SWEEPING_TIME: Skill = Skill {
     name: "Sweeping Time",
     skill_type: SkillType::ElementalBurst,
-    cost: cost_elem(Element::Geo, 3, 0, 2),
+    cost: cost_elem(Element::Geo, 4, 0, 2),
     deal_dmg: Some(deal_elem_dmg(Element::Geo, 4, 0)),
     apply: Some(StatusId::SweepingTime),
     ..Skill::new()
