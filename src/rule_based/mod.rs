@@ -28,16 +28,16 @@ pub struct RuleBasedSearchConfig {
     pub switch_score_reaction: u8,
     pub switch_score_diff_threshold: u8,
     pub switch_score_diff_threshold_opp_ended_round: u8,
+    pub switch_score_offensive: u8,
+    pub switch_score_defensive: u8,
+    pub defensive_low_hp_threshold: u8,
     pub end_round_score: u8,
     pub normal_attack_score: u8,
     pub elemental_skill_score: u8,
     pub elemental_burst_score: u8,
     pub elemental_tuning_score: u8,
-    pub min_dice_for_skills: u8,
+    pub play_card_min_dice_for_skills: u8,
     pub score_candidate_threshold: u8,
-    pub offensive_switch_score: u8,
-    pub defensive_switch_score: u8,
-    pub low_hp_threshold: u8,
 }
 
 impl Default for RuleBasedSearchConfig {
@@ -75,19 +75,19 @@ impl RuleBasedSearchConfig {
         switch_scores_hp: [0, 1, 2, 4, 6, 8, 10, 11, 12, 12],
         switch_score_burst: 5,
         switch_score_one_off_burst: 2,
-        switch_score_reaction: 4,
-        switch_score_diff_threshold: 9,
+        switch_score_reaction: 6,
+        switch_score_diff_threshold: 15,
         switch_score_diff_threshold_opp_ended_round: 5,
-        offensive_switch_score: 20,
-        defensive_switch_score: 20,
+        switch_score_offensive: 10,
+        switch_score_defensive: 30,
         end_round_score: 1,
         normal_attack_score: 4,
-        elemental_skill_score: 7,
-        elemental_burst_score: 10,
-        elemental_tuning_score: 2,
-        min_dice_for_skills: 7,
+        elemental_skill_score: 20,
+        elemental_burst_score: 30,
+        elemental_tuning_score: 5,
+        play_card_min_dice_for_skills: 6,
         score_candidate_threshold: 0,
-        low_hp_threshold: 3,
+        defensive_low_hp_threshold: 3,
     };
 
     pub fn switch_scores<S: NondetState>(
@@ -116,9 +116,10 @@ impl RuleBasedSearchConfig {
                     let can_counter_switch = src_char_idx == !src_player.active_char_index
                         || game_state.opponent_can_counter_switch(player_id, Some(src_char_idx));
                     let has_offensive_reaction = can_switch_attack && has_outgoing_reaction && !can_counter_switch;
-                    let has_kill = can_switch_attack && tgt_hp <= self.low_hp_threshold && !can_counter_switch;
+                    let has_kill =
+                        can_switch_attack && tgt_hp <= self.defensive_low_hp_threshold && !can_counter_switch;
                     if has_offensive_reaction || has_kill {
-                        self.offensive_switch_score
+                        self.switch_score_offensive
                     } else {
                         0
                     }
@@ -137,8 +138,8 @@ impl RuleBasedSearchConfig {
 
                 let incoming_threat_score = {
                     let src_hp = src_player.get_active_character().get_hp();
-                    if has_incoming_reaction || src_hp <= self.low_hp_threshold {
-                        self.defensive_switch_score
+                    if has_incoming_reaction || src_hp <= self.defensive_low_hp_threshold {
+                        self.switch_score_defensive
                     } else {
                         0
                     }
@@ -167,7 +168,7 @@ impl RuleBasedSearchConfig {
         let cost_total = card_id.get_card().cost.total_dice();
         let dice_total = player.dice.total();
         let hand_size = player.hand.len();
-        if cost_total > 0 && dice_total >= cost_total && dice_total - cost_total < self.min_dice_for_skills {
+        if cost_total > 0 && dice_total >= cost_total && dice_total - cost_total < self.play_card_min_dice_for_skills {
             0
         } else {
             10 * min(hand_size as u8, 5) / 5

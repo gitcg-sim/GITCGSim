@@ -1,9 +1,10 @@
-use rand::{rngs::SmallRng, Rng, SeedableRng};
+use rand::{rngs::SmallRng, thread_rng, Rng, SeedableRng};
 use std::{fs::File, path::PathBuf, str::FromStr};
 use structopt::StructOpt;
 
 use crate::{
     game_tree_search::*,
+    linked_list,
     mcts::{MCTSConfig, MCTS},
     minimax::{
         search::{STATIC_SEARCH_MAX_ITERS, TACTICAL_SEARCH_DEPTH, TARGET_ROUND_DELTA},
@@ -23,6 +24,7 @@ pub enum SearchAlgorithm {
     Minimax,
     MCTS,
     RuleBasedSearch,
+    Random,
 }
 
 impl FromStr for SearchAlgorithm {
@@ -33,6 +35,7 @@ impl FromStr for SearchAlgorithm {
             "minimax" => Ok(Self::Minimax),
             "mcts" => Ok(Self::MCTS),
             "rule-based" => Ok(Self::RuleBasedSearch),
+            "random" => Ok(Self::Random),
             _ => Err(""),
         }
     }
@@ -75,7 +78,7 @@ pub struct SearchConfig {
     #[structopt(short = "M", long = "--mcts-max-steps", help = "MCTS: max steps per playout")]
     pub mcts_random_playout_max_steps: Option<u32>,
 
-    #[structopt(short = "M", long = "--mcts-playout-bias", help = "MCTS: random playout bias")]
+    #[structopt(long = "--mcts-playout-bias", help = "MCTS: random playout bias")]
     pub mcts_random_playout_bias: Option<f32>,
 
     #[structopt(
@@ -163,6 +166,18 @@ pub enum GenericSearch<S: NondetState = StandardNondetHandlerState> {
     Minimax(MinimaxSearch<GameStateWrapper<S>>),
     MCTS(MCTS<GameStateWrapper<S>>),
     RuleBasedSearch(RuleBasedSearch),
+    Random,
+}
+
+fn random_search<S: NondetState>(position: &GameStateWrapper<S>) -> SearchResult<GameStateWrapper<S>> {
+    let mut rng = thread_rng();
+    let actions = position.actions();
+    let selected = actions[rng.gen_range(0..actions.len())];
+    SearchResult {
+        pv: linked_list![selected],
+        eval: Default::default(),
+        counter: Default::default(),
+    }
 }
 
 impl<S: NondetState> GenericSearch<S> {
@@ -175,6 +190,7 @@ impl<S: NondetState> GenericSearch<S> {
             Self::Minimax(s) => s.search(position, maximize_player),
             Self::MCTS(s) => s.search(position, maximize_player),
             Self::RuleBasedSearch(s) => s.search(position, maximize_player),
+            Self::Random => random_search(position),
         }
     }
 }
@@ -216,6 +232,7 @@ impl SearchConfig {
             SearchAlgorithm::RuleBasedSearch => {
                 GenericSearch::RuleBasedSearch(RuleBasedSearch::new(Default::default()))
             }
+            SearchAlgorithm::Random => GenericSearch::Random,
         }
     }
 
