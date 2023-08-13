@@ -187,17 +187,11 @@ impl<G: Game> MCTS<G> {
 
     fn init(&mut self, init: G, maximize_player: PlayerId) -> Token {
         let hash = init.zobrist_hash();
-        if maximize_player == self.maximize_player {
-            if let Some((root_hash, root_token)) = self.root {
-                if root_hash == hash {
-                    return root_token;
-                }
-            }
-        }
         let root = Node::new(init, None);
         let (tree, root_token) = Arena::<Node<G>>::with_data(root);
         self.tree = tree;
         self.maximize_player = maximize_player;
+        self.tt.clear();
         self.root = Some((hash, root_token));
         root_token
     }
@@ -211,8 +205,9 @@ impl<G: Game> MCTS<G> {
         };
 
         let current = current.clone();
+        let actions = current.actions();
         let mut n = 0;
-        for action in current.actions() {
+        for action in actions {
             let mut next = current.clone();
             next.advance(action).unwrap();
             let node = Node::new(next, Some(action));
@@ -267,6 +262,20 @@ impl<G: Game> MCTS<G> {
             return linked_list![];
         }
         let is_maximize = node.data.is_maximize(self.maximize_player);
+        #[cfg(any())]
+        {
+            let actions_expected = node.data.state.actions().into_iter().collect::<Vec<_>>();
+            let actions_mcts = node
+                .children(&self.tree)
+                .map(|n| n.data.action.unwrap())
+                .collect::<Vec<_>>();
+            if actions_expected != actions_mcts {
+                println!("---");
+                dbg!(&actions_expected);
+                dbg!(&actions_mcts);
+                println!("get_pv_rec: Children mismatch.");
+            }
+        }
         let best_node = node
             .children(&self.tree)
             .into_iter()
@@ -568,5 +577,49 @@ impl<G: Game> GameTreeSearch<G> for MCTS<G> {
             eval: Default::default(),
             counter,
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::{
+        game_tree_search::{Game, GameStateWrapper, GameTreeSearch, SearchLimits, ZobristHashable},
+        mcts::{MCTSConfig, MCTS},
+        types::{game_state::PlayerId, nondet::StandardNondetHandlerState},
+    };
+
+    const CONFIG: MCTSConfig = MCTSConfig {
+        c: 2.0,
+        b: None,
+        tt_size_mb: 0,
+        parallel: false,
+        random_playout_iters: 10,
+        random_playout_cutoff: 20,
+        random_playout_bias: Some(50f32),
+        debug: false,
+        limits: Some(SearchLimits {
+            max_time_ms: Some(100),
+            max_positions: None,
+        }),
+    };
+
+    #[test]
+    fn test_problematic_state() {
+        let json = "{\"game_state\":{\"pending_cmds\":null,\"round_number\":2,\"phase\":{\"ActionPhase\":{\"first_end_round\":\"PlayerFirst\",\"active_player\":\"PlayerSecond\"}},\"players\":[{\"active_char_index\":0,\"dice\":{\"omni\":0,\"elem\":[0,0,1,0,0,1,0]},\"char_states\":[{\"char_id\":\"Noelle\",\"_hp_and_energy\":65,\"applied\":0,\"flags\":6},{\"char_id\":\"KamisatoAyaka\",\"_hp_and_energy\":10,\"applied\":0,\"flags\":0}],\"status_collection\":{\"responds_to\":512,\"responds_to_triggers\":4,\"responds_to_events\":0,\"_status_entries\":[{\"key\":{\"Character\":[1,\"KamisatoArtSenho\"]},\"state\":{\"_repr\":128}}]},\"hand\":[],\"flags\":1},{\"active_char_index\":0,\"dice\":{\"omni\":0,\"elem\":[0,0,1,0,0,0,0]},\"char_states\":[{\"char_id\":\"Noelle\",\"_hp_and_energy\":72,\"applied\":0,\"flags\":14},{\"char_id\":\"KamisatoAyaka\",\"_hp_and_energy\":10,\"applied\":0,\"flags\":0}],\"status_collection\":{\"responds_to\":1549,\"responds_to_triggers\":4,\"responds_to_events\":256,\"_status_entries\":[{\"key\":{\"Character\":[1,\"KamisatoArtSenho\"]},\"state\":{\"_repr\":128}},{\"key\":{\"Character\":[0,\"SweepingTime\"]},\"state\":{\"_repr\":2}},{\"key\":{\"Team\":\"FullPlate\"},\"state\":{\"_repr\":2}}]},\"hand\":[\"Starsigns\",\"Starsigns\"],\"flags\":0}],\"log\":{\"enabled\":false,\"events\":[]},\"ignore_costs\":false,\"_incremental_hash\":1270447005094472145,\"_hash\":1270447005094472145},\"nd\":{\"state\":{\"decks\":[{\"deck\":[\"WolfsGravestone\",\"WolfsGravestone\",\"WolfsGravestone\",\"WolfsGravestone\",\"WolfsGravestone\",\"WolfsGravestone\",\"Starsigns\",\"Starsigns\",\"Starsigns\",\"Starsigns\",\"Starsigns\",\"Starsigns\"],\"mask\":1336,\"count\":5},{\"deck\":[\"WolfsGravestone\",\"WolfsGravestone\",\"WolfsGravestone\",\"WolfsGravestone\",\"WolfsGravestone\",\"WolfsGravestone\",\"Starsigns\",\"Starsigns\",\"Starsigns\",\"Starsigns\",\"Starsigns\",\"Starsigns\"],\"mask\":2581,\"count\":5}],\"rng\":[1858280268712277698,16272710452965485635,11711732624276845211,291822442333847434],\"flags\":0}}}";
+        let game: GameStateWrapper<StandardNondetHandlerState> = serde_json::from_str(json).unwrap();
+        let mut mcts: MCTS<GameStateWrapper<StandardNondetHandlerState>> = MCTS::new(CONFIG);
+        let acts0 = game.actions().into_iter().collect::<Vec<_>>();
+        mcts.search(&game, PlayerId::PlayerSecond);
+        let root = mcts.root.unwrap().1;
+        let game1 = mcts.tree.get(root).unwrap().data.state.clone();
+        let acts1 = game1.actions().into_iter().collect::<Vec<_>>();
+        dbg!(&game);
+        dbg!(&game1);
+        println!("{:?}", mcts.get_pv(root));
+        println!("{:?}", game.zobrist_hash());
+        println!("{:?}", game1.zobrist_hash());
+        println!("{:?}", acts0);
+        println!("{:?}", acts1);
+        assert_eq!(acts0, acts1);
     }
 }
