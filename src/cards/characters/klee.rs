@@ -70,10 +70,19 @@ pub mod explosive_spark {
             enum_set![RespondsTo::OutgoingDMG | RespondsTo::UpdateCost]
         }
 
-        fn update_cost(&self, e: &StatusImplContext, cost: &mut Cost, _: CostType) -> Option<AppliedEffectResult> {
+        fn update_cost(
+            &self,
+            e: &StatusImplContext,
+            cost: &mut Cost,
+            cost_type: CostType,
+        ) -> Option<AppliedEffectResult> {
             if !e.is_charged_attack() {
                 return None;
             }
+
+            let CostType::Skill(SkillId::Kaboom) = cost_type else {
+                return None
+            };
 
             if cost.try_reduce_elemental_cost(1, Element::Pyro) {
                 Some(AppliedEffectResult::NoChange)

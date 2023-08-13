@@ -85,3 +85,32 @@ fn test_talent_card_heals_all() {
         assert_eq!(6, c.get_hp())
     }
 }
+
+#[test]
+fn test_sweeping_time_reduces_cost_for_na() {
+    let mut gs = GameState::new(&vector![CharId::Noelle], &vector![CharId::Ganyu], true);
+    gs.advance_roll_phase_no_dice();
+    {
+        let p = gs.get_player_mut(PlayerId::PlayerFirst);
+        p.dice.add_single(Dice::Omni, 7);
+        p.dice.add_single(Dice::DENDRO, 1);
+        p.char_states[0].set_energy(3);
+    }
+
+    gs.advance_multiple(&vec![
+        Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::SweepingTime)),
+        Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
+    ]);
+    assert_eq!(4, gs.get_player(PlayerId::PlayerFirst).dice.total());
+    gs.advance_multiple(&vec![Input::FromPlayer(
+        PlayerId::PlayerFirst,
+        PlayerAction::CastSkill(SkillId::FavoniusBladeworkMaid),
+    )]);
+    assert_eq!(2, gs.get_player(PlayerId::PlayerFirst).dice.total());
+    assert!(gs
+        .advance(Input::FromPlayer(
+            PlayerId::PlayerFirst,
+            PlayerAction::CastSkill(SkillId::FavoniusBladeworkMaid),
+        ))
+        .is_err());
+}

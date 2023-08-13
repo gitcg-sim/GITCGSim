@@ -319,16 +319,11 @@ pub fn update_dice_distribution(player: &PlayerState, dist: &mut DiceDistributio
     );
 }
 
-/// Assumption: augment_cost will never increase costs
 pub fn can_pay_dice_cost(player: &PlayerState, cost: &Cost, cost_type: CostType) -> bool {
     let ep = player.get_element_priority();
-    if player.dice.try_pay_cost(cost, &ep).is_some() {
-        true
-    } else {
-        let mut cost = *cost;
-        augment_cost_immutable(player, &mut cost, cost_type);
-        player.dice.try_pay_cost(&cost, &ep).is_some()
-    }
+    let mut cost = *cost;
+    augment_cost_immutable(player, &mut cost, cost_type);
+    player.dice.try_pay_cost(&cost, &ep).is_some()
 }
 
 /// Assumption: augment_cost will never increase costs

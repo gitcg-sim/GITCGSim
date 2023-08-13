@@ -262,20 +262,40 @@ impl<G: Game> MCTS<G> {
         }
     }
 
-    pub fn get_pv(&self, token: Token) -> PV<G> {
-        let Some(node) = self.tree.get(token) else {
-            return linked_list![]
-        };
+    fn get_pv_rec(&self, node: &atree::Node<Node<G>>, tt_hits: Rc<RefCell<u64>>) -> PV<G> {
+        if node.is_leaf() {
+            return linked_list![];
+        }
         let is_maximize = node.data.is_maximize(self.maximize_player);
-        node.children(&self.tree)
+        let best_node = node
+            .children(&self.tree)
             .into_iter()
-            .max_by_key(|&child| {
-                let ratio = child.data.ratio(is_maximize);
+            .max_by_key(|child_node| {
+                let ratio = child_node
+                    .data
+                    .ratio_with_transposition(is_maximize, &self.tt, tt_hits.clone())
+                    .0;
                 (1e6 * ratio) as u32
             })
-            .and_then(|best| best.data.action.map(|a| (a, best.token())))
-            .map(|(act, token1)| cons!(act, self.get_pv(token1)))
-            .unwrap_or(linked_list![])
+            .expect("get_pv: Must be non-empty");
+        let Some(best) = best_node.data.action else {
+            return linked_list![]
+        };
+        #[cfg(any())]
+        {
+            let state = node.data.state.clone();
+            if !state.actions().into_iter().any(|a| a == best) {
+                dbg!(&state);
+                self.dump_tree(node.token(), 2, &|a| format!("{a:?}"));
+                panic!("get_pv: Action is not available: {best:?}");
+            }
+        }
+        cons!(best, self.get_pv_rec(best_node, tt_hits.clone()))
+    }
+
+    pub fn get_pv(&self, token: Token) -> PV<G> {
+        let tt_hits: Rc<RefCell<u64>> = Rc::new(Default::default());
+        self.get_pv_rec(self.tree.get(token).expect("get_pv: node must exist"), tt_hits)
     }
 
     pub fn evaluate(&self, token: Token) -> G::Eval {

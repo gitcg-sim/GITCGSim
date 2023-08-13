@@ -133,8 +133,7 @@ impl GameState {
 
         let active_char = player.get_active_character();
         let char_skills = &active_char.char_id.get_char_card().skills;
-        let found = char_skills.to_vec().iter().any(|&s| s == skill_id);
-        if !found {
+        if !char_skills.to_vec().iter().any(|&s| s == skill_id) {
             return false;
         }
 
@@ -361,12 +360,12 @@ impl GameState {
             Input::NoAction => NONE,
             Input::NondetResult(_) => NONE,
             Input::FromPlayer(p, _) if p != active_player_id => NONE,
-            Input::FromPlayer(_, action) => {
+            Input::FromPlayer(player_id, action) => {
                 if let PlayerAction::ElementalTuning(_) = action {
                     return (Cost::ONE, true);
                 };
 
-                let player = self.get_player(active_player_id);
+                let player = self.get_player(player_id);
                 let mut is_fast_action = true;
                 let Some((mut cost, cost_type)) = (match action {
                     PlayerAction::PlayCard(card_id, _) => {

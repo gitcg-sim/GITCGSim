@@ -30,36 +30,34 @@ impl GameState {
         }
 
         let log = &mut self.log;
-        if let Some(active_player_id) = self.phase.active_player() {
-            let player = self.players.get_mut(active_player_id);
-            let mut cost = *cost;
-            augment_cost(phc!(self, active_player_id), player, &mut cost, cost_type);
+        let Some(active_player_id) = self.phase.active_player() else {
+            return Err(DispatchError::UnableToPayCost)
+        };
+        let player = self.players.get_mut(active_player_id);
+        let mut cost = *cost;
+        augment_cost(phc!(self, active_player_id), player, &mut cost, cost_type);
 
-            if cost.energy_cost > 0 {
-                let ec = cost.energy_cost;
-                let active_char_index = player.active_char_index;
-                if let Some(active_char) = player.try_get_character_mut(active_char_index) {
-                    let e = active_char.get_energy();
-                    if e >= ec {
-                        active_char.set_energy_hashed(chc!(self, active_player_id, active_char_index), e - ec);
-                    } else {
-                        return Err(DispatchError::UnableToPayCost);
-                    }
-                } else {
-                    return Err(DispatchError::UnableToPayCost);
-                }
-            }
-
-            log.log(Event::PayCost(active_player_id, cost, cost_type));
-            if let Some(d) = try_pay_dice_cost(phc!(self, active_player_id), player, &cost, cost_type) {
-                player.set_dice_after_paying_cast(phc!(self, active_player_id), &d);
-            } else {
+        if cost.energy_cost > 0 {
+            let ec = cost.energy_cost;
+            let active_char_index = player.active_char_index;
+            let Some(active_char) = player.try_get_character_mut(active_char_index) else {
+                return Err(DispatchError::UnableToPayCost)
+            };
+            let e = active_char.get_energy();
+            if e < ec {
                 return Err(DispatchError::UnableToPayCost);
             }
-            Ok(())
-        } else {
-            Err(DispatchError::UnableToPayCost)
+
+            active_char.set_energy_hashed(chc!(self, active_player_id, active_char_index), e - ec);
         }
+
+        log.log(Event::PayCost(active_player_id, cost, cost_type));
+        let Some(d) = try_pay_dice_cost(phc!(self, active_player_id), player, &cost, cost_type) else {
+            return Err(DispatchError::UnableToPayCost);
+        };
+
+        player.set_dice_after_paying_cast(phc!(self, active_player_id), &d);
+        Ok(())
     }
 
     pub fn check_switch_is_fast_action(&self, player_id: PlayerId, src_char_idx: u8) -> bool {
