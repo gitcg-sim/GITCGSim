@@ -163,8 +163,8 @@ impl DeckOpts {
 }
 
 pub enum GenericSearch<S: NondetState = StandardNondetHandlerState> {
-    MCTS(MCTS<GameStateWrapper<S>>),
     Minimax(MinimaxSearch<GameStateWrapper<S>>),
+    MCTS(MCTS<GameStateWrapper<S>>),
     RuleBasedSearch(RuleBasedSearch),
     Random,
 }
@@ -191,13 +191,6 @@ impl<S: NondetState> GenericSearch<S> {
             Self::MCTS(s) => s.search(position, maximize_player),
             Self::RuleBasedSearch(s) => s.search(position, maximize_player),
             Self::Random => random_search(position),
-        }
-    }
-
-    pub fn get_mcts(&self) -> Option<&MCTS<GameStateWrapper<S>>> {
-        match self {
-            Self::MCTS(s) => Some(s),
-            _ => None,
         }
     }
 }

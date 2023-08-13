@@ -96,7 +96,6 @@ impl<S: NondetState> Game for GameStateWrapper<S> {
     fn hide_private_information(&mut self, player_to_hide: PlayerId) {
         self.game_state.log.enabled = false;
         self.nd.hide_private_information(&mut self.game_state, player_to_hide);
-        self.game_state.rehash();
     }
 
     fn convert_to_tactical_search(&mut self) {
