@@ -7,6 +7,7 @@ use lazy_static::__Deref;
 use rand::rngs::SmallRng;
 use rand::SeedableRng;
 use rayon::prelude::{IntoParallelIterator, ParallelIterator};
+use serde::Serialize;
 use std::ops::Add;
 use std::rc::Rc;
 use std::time::Instant;
@@ -70,7 +71,7 @@ impl BenchmarkOpts {
     }
 }
 
-fn trace_search<S: NondetState>(
+fn trace_search<S: NondetState + Serialize>(
     game: &GameStateWrapper<S>,
     steps: u32,
     search: &mut GenericSearch<S>,
@@ -85,13 +86,15 @@ fn trace_search<S: NondetState>(
             break;
         }
         let p = game.to_move().unwrap();
-        let mut game1 = game.clone();
-        game1.hide_private_information(p.opposite());
         let SearchResult {
             pv,
             eval: v,
             counter: c,
-        } = search.search(&game1, p);
+        } = {
+            let mut game1 = game.clone();
+            game1.hide_private_information(p.opposite());
+            search.search(&game1, p)
+        };
         total_counter.add_in_place(&c);
         let dt_ns = t1.elapsed().as_nanos();
         total_time += dt_ns;
@@ -117,7 +120,7 @@ fn trace_search<S: NondetState>(
     (total_time, total_counter)
 }
 
-fn match_round<S: NondetState>(
+fn match_round<S: NondetState + Serialize>(
     mut game: GameStateWrapper<S>,
     search: &mut ByPlayer<GenericSearch<S>>,
     steps: u32,
@@ -129,29 +132,111 @@ fn match_round<S: NondetState>(
             break;
         }
 
-        let p = game.to_move().unwrap();
-        let mut game1 = game.clone();
-        game1.hide_private_information(p.opposite());
-        let search = &mut search[p];
-        let SearchResult {
-            pv,
-            eval: _,
-            counter: c,
-        } = search.search(&game1, p);
+        let player_id_to_move = game.to_move().unwrap();
+        let search = &mut search[player_id_to_move];
+        let (
+            game0,
+            root_hash_0,
+            SearchResult {
+                pv,
+                eval: _,
+                counter: c,
+            },
+        ) = {
+            let game1 = game.clone();
+            let mut game1 = game.clone();
+            game1.hide_private_information(player_id_to_move.opposite());
+            let h = game1.zobrist_hash();
+            (game1.clone(), h, search.search(&game1, player_id_to_move))
+        };
         total_counter.add_in_place(&c);
         if pv.is_empty() {
             println!("perform_match: PV is empty.");
             break;
         }
         let input = pv.head().unwrap();
+        let acts = game.actions();
+        if !acts.iter().copied().any(|a| a == input) {
+            println!("----------");
+            let mcts = search.get_mcts().unwrap();
+            let (root_hash_1, root_token) = mcts.root.unwrap();
+            let root_node = mcts.tree.get(root_token).unwrap();
+            let root_actions = root_node
+                .children(&mcts.tree)
+                .map(|n| n.data.action.unwrap())
+                .collect::<Vec<_>>();
+            let root_hash_2 = root_node.data.state.zobrist_hash();
+            println!("h0={root_hash_0} h1={root_hash_1}, h_root={root_hash_2}");
+            println!("rA={root_actions:?}");
+            println!("Input: {input:?}");
+            // println!("PV: {:?}", pv.into_iter().collect::<Vec<_>>());
+            println!(
+                "Actions (external): [{:?}] {:?} contains={}",
+                game.zobrist_hash(),
+                acts,
+                acts.iter().copied().any(|a| a == input)
+            );
+            println!("Root actions (tree): [{:?}] {:?}", game.zobrist_hash(), root_actions);
+            println!(
+                "Root actions (reeval): [{:?}] {:?}",
+                root_node.data.state.zobrist_hash(),
+                root_node.data.state.actions().into_iter().collect::<Vec<_>>()
+            );
+            println!("----------");
+            println!(
+                "A0: {} {:?}",
+                root_hash_0,
+                game0.actions().into_iter().collect::<Vec<_>>()
+            );
+            println!(
+                "A1: {} {:?}",
+                game.zobrist_hash(),
+                game.actions().into_iter().collect::<Vec<_>>()
+            );
+            println!(
+                "A2: {} {:?}",
+                root_node.data.state.zobrist_hash(),
+                root_node.data.state.actions().into_iter().collect::<Vec<_>>()
+            );
+            let s3 = root_node.data.state.clone();
+            println!(
+                "A3: {} {:?}",
+                s3.zobrist_hash(),
+                s3.actions().into_iter().collect::<Vec<_>>()
+            );
+            println!(
+                "A4: {} {:?}",
+                s3.zobrist_hash(),
+                s3.actions().into_iter().collect::<Vec<_>>()
+            );
+            println!("----------");
+            println!("Game state 0: {:#?}", &game0.game_state.players.1.dice.clone());
+            println!("----------");
+            println!("Game state 1: {:#?}", game.clone().game_state.players.1.dice.clone());
+            println!("----------");
+            println!(
+                "Game state 2: {:#?}",
+                root_node.data.state.game_state.players.1.dice.clone()
+            );
+            println!("----------");
+            // let json = serde_json::to_string(&game0).unwrap();
+            // println!("{json}");
+            std::process::exit(2);
+            // panic!("perform_match: Action is not available");
+        }
         if let Err(e) = game.advance(input) {
             println!("----------");
             println!("Error: {e:?}");
             println!("Input: {input:?}");
-            println!("Game state: {game:?}");
+            println!(
+                "Actions: {:?} contains={}",
+                acts,
+                acts.iter().copied().any(|a| a == input)
+            );
+            println!("Game state: {game:#?}");
             println!("----------");
             println!();
-            break;
+            panic!("Exit");
         };
     }
 
