@@ -97,9 +97,6 @@ impl CharState {
     #[inline]
     pub fn set_hp(&mut self, hp: u8) {
         self._hp_and_energy = (self._hp_and_energy & !Self::HP_MASK) | (hp & Self::HP_MASK);
-        if hp == 0 {
-            self.set_energy(0);
-        }
     }
 
     #[inline]

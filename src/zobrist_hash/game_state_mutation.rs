@@ -98,12 +98,14 @@ impl PlayerState {
     ) {
         let add = Dice::Elem(elem_to_add);
         let remove = Dice::Elem(elem_to_remove);
-        h.hash(HASH_PROVIDER.dice(player_id, add, self.dice[add]));
-        h.hash(HASH_PROVIDER.dice(player_id, remove, self.dice[remove]));
+        // h.hash(HASH_PROVIDER.dice(player_id, add, self.dice[add]));
+        // h.hash(HASH_PROVIDER.dice(player_id, remove, self.dice[remove]));
+        Self::dice_hash(h, player_id, &self.dice);
         self.dice.add_single(add, 1);
         self.dice.sub_single(remove, 1);
-        h.hash(HASH_PROVIDER.dice(player_id, add, self.dice[add]));
-        h.hash(HASH_PROVIDER.dice(player_id, remove, self.dice[remove]));
+        Self::dice_hash(h, player_id, &self.dice);
+        // h.hash(HASH_PROVIDER.dice(player_id, add, self.dice[add]));
+        // h.hash(HASH_PROVIDER.dice(player_id, remove, self.dice[remove]));
         self.check_for_charged_attack((h, player_id));
     }
 
@@ -175,6 +177,9 @@ impl CharState {
         h.hash(HASH_PROVIDER.hp(player_id, char_idx, self.get_hp()));
         self.set_hp(hp);
         h.hash(HASH_PROVIDER.hp(player_id, char_idx, hp));
+        if self.get_hp() == 0 {
+            self.set_energy_hashed((h, player_id, char_idx), 0);
+        }
     }
 
     #[inline]
@@ -182,6 +187,9 @@ impl CharState {
         h.hash(HASH_PROVIDER.hp(player_id, char_idx, self.get_hp()));
         self.reduce_hp(dmg_value);
         h.hash(HASH_PROVIDER.hp(player_id, char_idx, self.get_hp()));
+        if self.get_hp() == 0 {
+            self.set_energy_hashed((h, player_id, char_idx), 0);
+        }
     }
 
     #[inline]

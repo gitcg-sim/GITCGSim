@@ -64,20 +64,20 @@ macro_rules! by_player {
 }
 
 macro_rules! rand_array {
-    ($expr: expr ; $count: expr $(;)?) => {
-        {
-            let mut arr: [_; $count] = Default::default();
-            for i in 0 .. $count {
-                arr[i] = $expr;
-            }
-            arr
-        }
-    };
     ( [ $($rest: expr);+ ] ; $count: expr ) => {
         {
             let mut arr: [_; $count] = Default::default();
             for i in 0 .. $count {
                 arr[i] = rand_array![$($rest);+];
+            }
+            arr
+        }
+    };
+    ($expr: expr ; $count: expr $(;)?) => {
+        {
+            let mut arr: [_; $count] = Default::default();
+            for i in 0 .. $count {
+                arr[i] = $expr;
             }
             arr
         }
@@ -313,5 +313,20 @@ impl Default for HashProvider {
 impl Debug for HashProvider {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("HashProvider").finish()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::{
+        cards::ids::CardId, status_impls::prelude::Dice, types::game_state::PlayerId, zobrist_hash::HASH_PROVIDER,
+    };
+
+    #[test]
+    fn test_macro_rules_for_rand_array_are_ordered_properly() {
+        let arr = &HASH_PROVIDER.card_hashes[PlayerId::PlayerFirst][CardId::Paimon];
+        assert_ne!(arr[0], arr[1]);
+        let arr = &HASH_PROVIDER.dice_hashes[PlayerId::PlayerSecond][Dice::CRYO.to_index()];
+        assert_ne!(arr[0], arr[1]);
     }
 }

@@ -702,7 +702,7 @@ impl GameState {
             let Some(character) = p.try_get_character_mut(char_idx) else {
                 continue
             };
-            character.heal(hp);
+            character.heal_hashed(chc!(self, ctx.src_player_id, char_idx), hp);
             if self.log.enabled {
                 self.log
                     .log(Event::Heal(ctx.src_player_id, (char_idx, character.char_id), hp));
