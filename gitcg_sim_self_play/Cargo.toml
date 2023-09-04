@@ -1,0 +1,15 @@
+[package]
+name = "gitcg_sim_self_play"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "gitcg_sim_self_play"
+path = "main.rs"
+
+[dependencies]
+gitcg_sim = { path = "..", features = ["training"] }
+itertools = { version = "0.8.*" }
+ndarray = { version = "*" }
+neuronika = { git = "https://github.com/neuronika/neuronika" }
+structopt = { version = "0.3.*" }

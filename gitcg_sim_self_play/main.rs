@@ -1,7 +1,7 @@
 use std::fmt::Debug;
 
 use itertools::Itertools;
-use rand::{rngs::SmallRng, thread_rng, Rng, SeedableRng};
+use gitcg_sim::rand::{distributions::WeightedIndex, prelude::Distribution, rngs::SmallRng, thread_rng, Rng, SeedableRng};
 use structopt::StructOpt;
 
 use ndarray::{Array1, Dim};
@@ -9,7 +9,7 @@ use neuronika::{Var, VarDiff};
 
 use gitcg_sim::{
     deck::cli_args::DeckOpts,
-    game_tree_search::{Game, GameStateWrapper, GameTreeSearch, SearchResult},
+    game_tree_search::*,
     linked_list,
     minimax::Eval,
     prelude::*,
@@ -35,6 +35,12 @@ pub struct SelfPlayOpts {
         default_value = "0.95"
     )]
     pub temporal_rate: f32,
+    #[structopt(
+        long,
+        help = "Boltzmann action selection - reciprocal of temperature",
+        default_value = "1"
+    )]
+    pub beta: f32,
 }
 
 #[derive(Default, Clone)]
@@ -74,20 +80,23 @@ impl SelfPlayModel {
     }
 }
 
+/// Boltzmann action selection
+/// Select action based on weight: exp(x * beta) + random(0..delta)
+/// where x is the evaluation of the position after making a particular action.
 struct SelfPlaySearch {
     pub model: SelfPlayModel,
+    pub beta: f32,
+    pub delta: f32,
 }
 
 impl SelfPlaySearch {
-    pub fn new<S: NondetState>(s: &GameStateWrapper<S>) -> Self {
+    pub fn new<S: NondetState>(s: &GameStateWrapper<S>, beta: f32, delta: f32) -> Self {
         let n = s.features_len();
         let weights = Array1::zeros(n);
-        // let mut rng = thread_rng();
-        // weights.borrow_mut().iter_mut().for_each(|w| {
-        //     *w = rng.gen_range(-0.1 * SelfPlayModel::EVAL_SCALING..0.1 * SelfPlayModel::EVAL_SCALING)
-        // });
         Self {
             model: SelfPlayModel::new(weights),
+            beta,
+            delta,
         }
     }
 }
@@ -96,15 +105,25 @@ impl<S: NondetState> GameTreeSearch<GameStateWrapper<S>> for SelfPlaySearch {
     fn search(&mut self, position: &GameStateWrapper<S>, _: PlayerId) -> SearchResult<GameStateWrapper<S>> {
         let model = &self.model;
         let actions = position.actions();
-        let (selected, best_eval) = actions
+        let pairs = actions
             .iter()
             .map(|&a| {
                 let mut gs = position.clone();
                 gs.advance(a).unwrap();
-                (a, model.evaluate(&gs, false).0 + thread_rng().gen_range(0f32..1e-2f32))
+                let eval = model.evaluate(&gs, false).0;
+                (
+                    (eval * self.beta).exp() + thread_rng().gen_range(0f32..self.delta),
+                    eval,
+                )
             })
-            .max_by_key(|&(_, v)| (v * 1e3) as i16)
-            .unwrap();
+            .collect::<Vec<_>>();
+        let weights = pairs.iter().map(|x| x.0).collect::<Vec<_>>();
+        let mut rng = thread_rng();
+        let Ok(dist) = WeightedIndex::new(weights) else {
+            panic!("SelfPlaySearch: Invalid weights: {:?}", &pairs);
+        };
+        let i_best = dist.sample(&mut rng);
+        let (selected, best_eval) = (actions[i_best], pairs[i_best].1);
         SearchResult {
             pv: linked_list![selected],
             eval: Eval::from_eval((best_eval * 1e3) as i16),
@@ -218,8 +237,12 @@ fn main() -> Result<(), std::io::Error> {
     let mut seed_gen = thread_rng();
     let mut opts = SelfPlayOpts::from_args();
     let mut initial = opts.deck.get_standard_game(Some(SmallRng::from_seed(seed_gen.gen())))?;
-    let mut models = ByPlayer::new(SelfPlaySearch::new(&initial), SelfPlaySearch::new(&initial));
-    for i in 0..500000i32 {
+    let (beta, delta) = (opts.beta, 1e-4);
+    let mut models = ByPlayer::new(
+        SelfPlaySearch::new(&initial, beta, delta),
+        SelfPlaySearch::new(&initial, beta, delta),
+    );
+    for i in 0..50_000i32 {
         opts.deck.seed = Some(seed_gen.gen());
         initial = opts.deck.get_standard_game(Some(SmallRng::from_seed(seed_gen.gen())))?;
         let learning_rate = opts.base_learning_rate * 0.95f32.powi(i / opts.learning_rate_decay);

@@ -383,7 +383,6 @@ dependencies = [
  "flurry",
  "getrandom",
  "instant",
- "itertools 0.8.2",
  "lazy_static",
  "ndarray",
  "neuronika",
@@ -396,6 +395,17 @@ dependencies = [
  "smallvec",
  "structopt",
  "wasm-bindgen",
+]
+
+[[package]]
+name = "gitcg_sim_self_play"
+version = "0.1.0"
+dependencies = [
+ "gitcg_sim",
+ "itertools 0.8.2",
+ "ndarray",
+ "neuronika",
+ "structopt",
 ]
 
 [[package]]
