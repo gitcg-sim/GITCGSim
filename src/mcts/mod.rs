@@ -14,6 +14,10 @@ use rand::{distributions::WeightedIndex, prelude::Distribution, thread_rng, Rng}
 use rayon::prelude::*;
 use smallvec::SmallVec;
 
+use self::policy::{EvalPolicy, DefaultEvalPolicy};
+
+pub mod policy;
+
 type TTValue = (u32, u32);
 
 #[derive(Debug, Default, Serialize, Deserialize)]
@@ -165,15 +169,16 @@ impl MCTSConfig {
 }
 
 #[derive(Debug)]
-pub struct MCTS<G: Game> {
+pub struct MCTS<G: Game, E: EvalPolicy<G> = DefaultEvalPolicy> {
     pub config: MCTSConfig,
     pub maximize_player: PlayerId,
     pub tree: Arena<Node<G>>,
     pub tt: CacheTable<TTKey, TTValue>,
     pub root: Option<(HashValue, Token)>,
+    pub eval_policy: E,
 }
 
-impl<G: Game> MCTS<G> {
+impl<G: Game, E: EvalPolicy<G> + Default> MCTS<G, E> {
     pub fn new(config: MCTSConfig) -> Self {
         let tree = Arena::<Node<G>>::new();
         Self {
@@ -182,9 +187,12 @@ impl<G: Game> MCTS<G> {
             maximize_player: PlayerId::PlayerFirst,
             tt: CacheTable::new(config.tt_size_mb as usize),
             root: None,
+            eval_policy: Default::default(),
         }
     }
+}
 
+impl<G: Game, E: EvalPolicy<G>> MCTS<G, E> {
     fn init(&mut self, init: G, maximize_player: PlayerId) -> Token {
         let hash = init.zobrist_hash();
         let root = Node::new(init, None);
