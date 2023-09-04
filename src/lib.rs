@@ -2,7 +2,7 @@ pub(crate) mod card_impls;
 pub mod cards;
 
 /// Contains collection data types used to implement the Genius Invokation TCG.
-pub(crate) mod data_structures;
+pub mod data_structures;
 pub mod deck;
 pub mod dice_counter;
 pub(crate) mod dispatcher;
@@ -68,6 +68,15 @@ pub mod enum_map {
 pub mod enumset {
     pub use enumset::*;
 }
+
+pub mod prelude {
+    pub use crate::dispatcher_ops::types::DispatchError;
+    pub use crate::types::game_state::GameState;
+    pub use crate::types::game_state::PlayerId;
+    pub use crate::types::input::Input;
+}
+
+pub mod training;
 
 #[cfg(test)]
 mod tests;

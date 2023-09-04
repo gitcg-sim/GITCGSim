@@ -343,6 +343,11 @@ impl StatusKey {
     }
 
     #[inline]
+    pub fn is_equipment(&self) -> bool {
+        matches!(self, Self::Equipment(..))
+    }
+
+    #[inline]
     pub fn summon_id(&self) -> Option<SummonId> {
         match self {
             Self::Team(..) | Self::Character(..) | Self::Equipment(..) | Self::Support(..) => None,
