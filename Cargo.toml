@@ -68,7 +68,7 @@ rand = { version = "0.8.*", features = ["small_rng", "serde", "serde1"] }
 rayon = { version = "1.6.*" }
 rustc-hash = { version = "1.1.*" }
 ndarray = { version = "*", optional = true }
-neuronika = { git = "https://github.com/neuronika/neuronika", optional = true }
+neuronika = { git = "https://github.com/neuronika/neuronika", rev = "a5e37b21", optional = true }
 serde = { version = "1.0", features = ["derive", "rc"] }
 smallvec = { version = "1.10.*", features = ["serde"] }
 structopt = { version = "0.3.*" }
