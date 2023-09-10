@@ -78,9 +78,11 @@ impl FeatureEntry for FeatureUnit {
 
 impl GameState {
     pub fn features_vec<F: FeatureEntry<Output = V>, V>(&self, v: &mut Vec<V>, f: F) {
-        const PER_ELEMENT: bool = false;
+        const PER_ELEMENT: bool = true;
         const ENERGY: bool = true;
-        const STATUSES: bool = false;
+        const STATUSES: bool = true;
+        const IS_ALIVE: bool = true;
+        const IS_ACTIVE: bool = true;
         const COMPLEX_DICE: bool = false;
         macro_rules! entry {
             ($str: expr, $val: expr) => {
@@ -125,19 +127,23 @@ impl GameState {
                 let prefix = format!("{player_id}.{:?}", char_state.char_id);
                 v.push(entry!(format!("{prefix}.HP"), char_state.get_hp() as f32));
 
-                v.push(entry!(
-                    format!("{prefix}.IsAlive"),
-                    if char_state.get_hp() > 0 { 1.0 } else { 0.0 }
-                ));
+                if IS_ALIVE {
+                    v.push(entry!(
+                        format!("{prefix}.IsAlive"),
+                        if char_state.get_hp() > 0 { 1.0 } else { 0.0 }
+                    ));
+                }
 
                 if ENERGY {
                     v.push(entry!(format!("{prefix}.Energy"), char_state.get_energy() as f32));
                 }
 
-                v.push(entry!(
-                    format!("{prefix}.IsActive"),
-                    if active_char_idx == ci { 1.0 } else { 0.0 }
-                ));
+                if IS_ACTIVE {
+                    v.push(entry!(
+                        format!("{prefix}.IsActive"),
+                        if active_char_idx == ci { 1.0 } else { 0.0 }
+                    ));
+                }
 
                 if STATUSES {
                     let equip_count = status_collection

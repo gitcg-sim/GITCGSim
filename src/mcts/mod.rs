@@ -14,7 +14,7 @@ use rand::{distributions::WeightedIndex, prelude::Distribution, thread_rng, Rng}
 use rayon::prelude::*;
 use smallvec::SmallVec;
 
-use self::policy::{EvalPolicy, DefaultEvalPolicy};
+use self::policy::{DefaultEvalPolicy, EvalPolicy};
 
 pub mod policy;
 
@@ -178,8 +178,8 @@ pub struct MCTS<G: Game, E: EvalPolicy<G> = DefaultEvalPolicy> {
     pub eval_policy: E,
 }
 
-impl<G: Game, E: EvalPolicy<G> + Default> MCTS<G, E> {
-    pub fn new(config: MCTSConfig) -> Self {
+impl<G: Game, E: EvalPolicy<G>> MCTS<G, E> {
+    pub fn new_with_eval_policy(config: MCTSConfig, eval_policy: E) -> Self {
         let tree = Arena::<Node<G>>::new();
         Self {
             config,
@@ -187,8 +187,14 @@ impl<G: Game, E: EvalPolicy<G> + Default> MCTS<G, E> {
             maximize_player: PlayerId::PlayerFirst,
             tt: CacheTable::new(config.tt_size_mb as usize),
             root: None,
-            eval_policy: Default::default(),
+            eval_policy,
         }
+    }
+}
+
+impl<G: Game, E: EvalPolicy<G> + Default> MCTS<G, E> {
+    pub fn new(config: MCTSConfig) -> Self {
+        Self::new_with_eval_policy(config, Default::default())
     }
 }
 
@@ -530,7 +536,7 @@ impl<G: Game, E: EvalPolicy<G>> MCTS<G, E> {
     }
 }
 
-impl<G: Game> GameTreeSearch<G> for MCTS<G> {
+impl<G: Game, E: EvalPolicy<G>> GameTreeSearch<G> for MCTS<G, E> {
     fn search(&mut self, position: &G, maximize_player: PlayerId) -> SearchResult<G> {
         if position.winner().is_some() {
             return Default::default();
