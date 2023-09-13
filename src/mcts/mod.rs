@@ -271,6 +271,21 @@ impl<G: Game, E: EvalPolicy<G>> MCTS<G, E> {
         }
     }
 
+    fn get_best_child(
+        &self,
+        node: &atree::Node<Node<G>>,
+        is_maximize: bool,
+        tt_hits: Rc<RefCell<u64>>,
+    ) -> Option<&atree::Node<Node<G>>> {
+        node.children(&self.tree).into_iter().max_by_key(|child_node| {
+            let ratio = child_node
+                .data
+                .ratio_with_transposition(is_maximize, &self.tt, tt_hits.clone())
+                .0;
+            (1e6 * ratio) as u32
+        })
+    }
+
     fn get_pv_rec(&self, node: &atree::Node<Node<G>>, tt_hits: Rc<RefCell<u64>>) -> PV<G> {
         if node.is_leaf() {
             return linked_list![];
@@ -290,17 +305,9 @@ impl<G: Game, E: EvalPolicy<G>> MCTS<G, E> {
                 println!("get_pv_rec: Children mismatch.");
             }
         }
-        let best_node = node
-            .children(&self.tree)
-            .into_iter()
-            .max_by_key(|child_node| {
-                let ratio = child_node
-                    .data
-                    .ratio_with_transposition(is_maximize, &self.tt, tt_hits.clone())
-                    .0;
-                (1e6 * ratio) as u32
-            })
-            .expect("get_pv: Must be non-empty");
+        let best_node = self
+            .get_best_child(node, is_maximize, tt_hits.clone())
+            .expect("get_best_child: Must be non-empty");
         let Some(best) = best_node.data.action else {
             return linked_list![]
         };
@@ -313,7 +320,7 @@ impl<G: Game, E: EvalPolicy<G>> MCTS<G, E> {
                 panic!("get_pv: Action is not available: {best:?}");
             }
         }
-        cons!(best, self.get_pv_rec(best_node, tt_hits.clone()))
+        cons!(best, self.get_pv_rec(best_node, tt_hits))
     }
 
     pub fn get_pv(&self, token: Token) -> PV<G> {
@@ -533,6 +540,44 @@ impl<G: Game, E: EvalPolicy<G>> MCTS<G, E> {
                 format_ratio(omitted_q, omitted_n)
             );
         }
+    }
+
+    pub fn get_self_play_data_points(
+        &self,
+        maximize_player: PlayerId,
+        min_depth: u8,
+        vec: &mut Vec<(G, G::Action, u8)>,
+    ) {
+        fn traverse<D, F: FnMut(Token, u8)>(tree: &Arena<D>, token: Token, f: &mut F) -> u8 {
+            let Some(node) = tree.get(token) else { return 0 };
+            let depth = node
+                .children_tokens(tree)
+                .map(|token| 1 + traverse(tree, token, f))
+                .max()
+                .unwrap_or_default();
+            f(token, depth);
+            depth
+        }
+
+        let Some((_, root)) = self.root else {
+            return
+        };
+        traverse(&self.tree, root, &mut |token, depth| {
+            if depth < min_depth {
+                return;
+            }
+
+            let Some(node) = self.tree.get(token) else {
+                return
+            };
+            let is_maximize = node.data.is_maximize(maximize_player);
+            if let Some(best_move) = self
+                .get_best_child(node, is_maximize, Default::default())
+                .and_then(|node| node.data.action)
+            {
+                vec.push((node.data.state.clone(), best_move, depth));
+            }
+        });
     }
 }
 

@@ -18,7 +18,7 @@ impl SelfPlayModel {
     pub const LOSE: f32 = 0.0;
     pub const WIN: f32 = 1.0;
     // Modify this variable until eval per unit of HP is around 10
-    pub const EVAL_SCALING: f32 = 50.0;
+    pub const EVAL_SCALING: f32 = 75.0;
 
     pub fn network(x: Var<Dim<[usize; 1]>>, w: VarDiff<Dim<[usize; 1]>>) -> VarDiff<Dim<[usize; 0]>> {
         (w.vv(x) / Self::EVAL_SCALING).sigmoid()

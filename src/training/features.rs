@@ -1,4 +1,9 @@
+use crate::cards::ids::{CardId, GetCard, GetSkill};
+use crate::impl_as_slice;
+use crate::prelude::Input;
 use crate::status_impls::prelude::*;
+use crate::types::card_defs::CardType;
+use crate::types::input::PlayerAction;
 use crate::{
     game_tree_search::GameStateWrapper,
     types::{
@@ -7,6 +12,8 @@ use crate::{
         nondet::NondetState,
     },
 };
+
+pub const N_CHARS: usize = 3;
 
 struct DiceFeatures {
     pub omni_count: u8,
@@ -78,12 +85,12 @@ impl FeatureEntry for FeatureUnit {
 
 impl GameState {
     pub fn features_vec<F: FeatureEntry<Output = V>, V>(&self, v: &mut Vec<V>, f: F) {
-        const PER_ELEMENT: bool = true;
         const ENERGY: bool = true;
         const STATUSES: bool = true;
         const IS_ALIVE: bool = true;
         const IS_ACTIVE: bool = true;
         const COMPLEX_DICE: bool = false;
+        const PER_ELEMENT: bool = false;
         macro_rules! entry {
             ($str: expr, $val: expr) => {
                 f.make_entry((|| $str), $val as f32)
@@ -195,5 +202,127 @@ impl<S: NondetState> GameStateWrapper<S> {
         let mut v = Vec::with_capacity(32);
         self.features_vec(&mut v, FeatureUnit);
         v.len()
+    }
+}
+
+#[repr(C)]
+#[derive(Default, Copy, Clone)]
+pub struct PlayCardFeatures<T> {
+    pub event_or_other: T,
+    pub support: T,
+    pub weapon_or_artifact: [T; N_CHARS],
+}
+
+#[repr(C)]
+#[derive(Default, Copy, Clone)]
+pub struct CastSkillFeatures<T> {
+    pub normal_attack: T,
+    pub elemental_skill: T,
+    pub elemental_burst: T,
+}
+
+#[repr(C)]
+#[derive(Default, Copy, Clone)]
+pub struct InputFeatures<T> {
+    pub end_round: T,
+    pub switch: [T; N_CHARS],
+    pub elemental_tuning: T,
+    pub cast_skill: CastSkillFeatures<T>,
+    pub play_card: PlayCardFeatures<T>,
+}
+
+impl_as_slice!(InputFeatures<f32>, f32);
+
+macro_rules! vf {
+    ($T: ident, $f: ident : $value: expr) => {
+        $T {
+            $f: $value,
+            ..Default::default()
+        }
+    };
+}
+
+impl Input {
+    pub fn features<T: Copy + Default>(self, value: T) -> InputFeatures<T> {
+        match self {
+            Input::NoAction => Default::default(),
+            Input::NondetResult(_) => Default::default(),
+            Input::FromPlayer(_, x) => match x {
+                PlayerAction::EndRound => vf!(InputFeatures, end_round: value),
+                PlayerAction::PlayCard(card_id, target) => Self::play_card_features(card_id, target, value),
+                PlayerAction::ElementalTuning(..) => vf!(InputFeatures, elemental_tuning: value),
+                PlayerAction::CastSkill(skill_id) => Self::cast_skill_features(skill_id, value),
+                PlayerAction::SwitchCharacter(char_idx) | PlayerAction::PostDeathSwitch(char_idx) => InputFeatures {
+                    switch: Self::from_char_idx(char_idx, value),
+                    ..Default::default()
+                },
+            },
+        }
+    }
+
+    fn play_card_features<T: Copy + Default>(
+        card_id: CardId,
+        target: Option<CardSelection>,
+        value: T,
+    ) -> InputFeatures<T> {
+        let card_type = card_id.get_card().card_type;
+        let play_card = match card_type {
+            CardType::Event | CardType::Food | CardType::ElementalResonance(..) | CardType::Talent(..) => {
+                vf!(PlayCardFeatures, event_or_other: value)
+            }
+            CardType::Support(..) => vf!(PlayCardFeatures, support: value),
+            CardType::Weapon(..) | CardType::Artifact => {
+                let targeting = target
+                    .map(|t| match t {
+                        CardSelection::OwnCharacter(char_idx) => Self::from_char_idx(char_idx, value),
+                        CardSelection::OwnSummon(..) | CardSelection::OpponentSummon(..) => Default::default(),
+                    })
+                    .unwrap_or_default();
+                PlayCardFeatures {
+                    weapon_or_artifact: targeting,
+                    ..Default::default()
+                }
+            }
+        };
+        InputFeatures {
+            play_card,
+            ..Default::default()
+        }
+    }
+
+    fn cast_skill_features<T: Copy + Default>(skill_id: SkillId, value: T) -> InputFeatures<T> {
+        let cast_skill = match skill_id.get_skill().skill_type {
+            SkillType::NormalAttack => vf!(CastSkillFeatures, normal_attack: value),
+            SkillType::ElementalSkill => vf!(CastSkillFeatures, elemental_skill: value),
+            SkillType::ElementalBurst => vf!(CastSkillFeatures, elemental_burst: value),
+        };
+        InputFeatures {
+            cast_skill,
+            ..Default::default()
+        }
+    }
+
+    fn from_char_idx<T: Copy + Default>(char_idx: u8, value: T) -> [T; N_CHARS] {
+        let mut arr: [T; N_CHARS] = Default::default();
+        arr[char_idx as usize] = value;
+        arr
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use proptest::prelude::*;
+
+    use crate::training::as_slice::AsSlice;
+
+    type Slice = <InputFeatures<f32> as AsSlice>::Slice;
+    proptest! {
+        #[test]
+        fn test_input_features_as_slice_roundtrip(slice in any::<Slice>()) {
+            let input_features = InputFeatures::from_slice(slice);
+            let slice1 = input_features.as_slice();
+            assert_eq!(slice1, slice);
+        }
     }
 }

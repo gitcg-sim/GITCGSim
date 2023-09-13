@@ -18,10 +18,16 @@ pub mod model;
 use model::*;
 
 #[derive(Debug, StructOpt, Clone)]
-#[structopt(about = "Genius Invokation TCG simulator - temporal difference learning")]
-pub struct SelfPlayOpts {
-    #[structopt(flatten)]
-    pub deck: DeckOpts,
+pub struct TDLOpts {
+    #[structopt(short = "N", long = "--max-iters", help = "Max. Iterations", default_value = "10000")]
+    pub max_iters: u32,
+    #[structopt(
+        short = "L",
+        long = "--log-iters",
+        help = "Iterations per log print",
+        default_value = "500"
+    )]
+    pub log_iters: u32,
     #[structopt(long, help = "Base learning rate", default_value = "1.0")]
     pub base_learning_rate: f32,
     #[structopt(
@@ -42,6 +48,28 @@ pub struct SelfPlayOpts {
         default_value = "1"
     )]
     pub beta: f32,
+}
+
+#[derive(Debug, StructOpt, Clone)]
+pub struct PolicyOpts {}
+
+#[derive(Debug, StructOpt, Clone)]
+#[structopt(about = "Genius Invokation TCG simulator - self-play")]
+pub enum SelfPlayOpts {
+    #[structopt(help = "Run temporal different learning")]
+    TDL {
+        #[structopt(flatten)]
+        deck: DeckOpts,
+        #[structopt(flatten)]
+        tdl: TDLOpts,
+    },
+    #[structopt(help = "Run policy learning")]
+    Policy {
+        #[structopt(flatten)]
+        deck: DeckOpts,
+        #[structopt(flatten)]
+        policy: PolicyOpts,
+    },
 }
 
 fn run_playout<T: GameTreeSearch<GameStateWrapper<S>> + GetSelfPlayModel, S: NondetState>(
@@ -70,9 +98,20 @@ fn run_playout<T: GameTreeSearch<GameStateWrapper<S>> + GetSelfPlayModel, S: Non
 }
 
 struct CSVDebug<'a, F: Fn(PlayerId) -> String> {
-    pub index: i32,
+    pub index: u32,
     pub header_prefix: &'a str,
     pub row_prefix: F,
+}
+
+fn winner_eval(winner: PlayerId, player_id: PlayerId) -> (f32, Option<Array1<f32>>) {
+    (
+        if winner == player_id {
+            SelfPlayModel::WIN
+        } else {
+            SelfPlayModel::LOSE
+        },
+        None,
+    )
 }
 
 fn run_self_play<T: GameTreeSearch<GameStateWrapper<S>> + GetSelfPlayModel, S: NondetState>(
@@ -91,14 +130,7 @@ fn run_self_play<T: GameTreeSearch<GameStateWrapper<S>> + GetSelfPlayModel, S: N
                 .iter()
                 .map(|game_state| {
                     if let Some(winner) = game_state.winner() {
-                        (
-                            if winner == player_id {
-                                SelfPlayModel::WIN
-                            } else {
-                                SelfPlayModel::LOSE
-                            },
-                            None,
-                        )
+                        winner_eval(winner, player_id)
                     } else {
                         searches.get(player_id).get_self_play_model().evaluate(game_state, true)
                     }
@@ -174,21 +206,20 @@ fn new_search<S: NondetState>(
     MCTS::new_with_eval_policy(config, model)
 }
 
-fn main() -> Result<(), std::io::Error> {
+fn main_tdl(mut deck: DeckOpts, opts: TDLOpts) -> Result<(), std::io::Error> {
     let mut seed_gen = thread_rng();
-    let mut opts = SelfPlayOpts::from_args();
-    let mut initial = opts.deck.get_standard_game(Some(SmallRng::from_seed(seed_gen.gen())))?;
+    let mut initial = deck.get_standard_game(Some(SmallRng::from_seed(seed_gen.gen())))?;
     let (beta, delta) = (opts.beta, 1e-4);
     let n = initial.features_len();
     let mut searches = ByPlayer::new(
         new_search(Array1::zeros(n), PlayerId::PlayerFirst, beta, delta),
         new_search(Array1::zeros(n), PlayerId::PlayerSecond, beta, delta),
     );
-    for i in 0..50_000i32 {
-        opts.deck.seed = Some(seed_gen.gen());
-        initial = opts.deck.get_standard_game(Some(SmallRng::from_seed(seed_gen.gen())))?;
-        let learning_rate = opts.base_learning_rate * 0.95f32.powi(i / opts.learning_rate_decay);
-        let debug = if i % 1000 == 0 {
+    for i in 0..=opts.max_iters {
+        deck.seed = Some(seed_gen.gen());
+        initial = deck.get_standard_game(Some(SmallRng::from_seed(seed_gen.gen())))?;
+        let learning_rate = opts.base_learning_rate * 0.95f32.powi((i as i32) / opts.learning_rate_decay);
+        let debug = if i % opts.log_iters == 0 {
             Some(CSVDebug {
                 index: i,
                 header_prefix: "iter, learning_rate, player_id",
@@ -200,6 +231,14 @@ fn main() -> Result<(), std::io::Error> {
         run_self_play(&initial, &mut searches, learning_rate, opts.temporal_rate, debug);
     }
     Ok(())
+}
+
+fn main() -> Result<(), std::io::Error> {
+    let opts = SelfPlayOpts::from_args();
+    match opts {
+        SelfPlayOpts::TDL { deck, tdl } => main_tdl(deck, tdl),
+        SelfPlayOpts::Policy { deck: _, policy: _ } => todo!(),
+    }
 }
 
 // Example weights
