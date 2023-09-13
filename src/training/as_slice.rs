@@ -1,8 +1,8 @@
-/// A fixed-size struct that can be accessed like a slice.
+/// A fixed-size struct that can be accessed like a slice of a particular element type and length.
 ///
 /// # Safety
-/// Can only be implemented for structs with all fields of SAME element type (`Self::Elem`) or AsSlice of SAME type
-pub(crate) unsafe trait AsSlice: Sized + Copy {
+/// Can only be implemented for structs with all fields of SAME element type (`Self::Elem`) or AsSlice of SAME type.
+pub unsafe trait AsSlice: Sized + Copy {
     type Elem: Sized + Copy;
     type Slice;
     const SIZE: usize = std::mem::size_of::<Self>();

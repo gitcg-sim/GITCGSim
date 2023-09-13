@@ -1,6 +1,7 @@
 use gitcg_sim::{
     mcts::{policy::EvalPolicy, MCTS},
     rand::{distributions::WeightedIndex, prelude::Distribution, thread_rng, Rng},
+    training::{as_slice::AsSlice, features::GameStateFeatures},
 };
 
 use ndarray::{Array1, Dim};
@@ -18,7 +19,7 @@ impl SelfPlayModel {
     pub const LOSE: f32 = 0.0;
     pub const WIN: f32 = 1.0;
     // Modify this variable until eval per unit of HP is around 10
-    pub const EVAL_SCALING: f32 = 75.0;
+    pub const EVAL_SCALING: f32 = 100.0 / 1.25;
 
     pub fn network(x: Var<Dim<[usize; 1]>>, w: VarDiff<Dim<[usize; 1]>>) -> VarDiff<Dim<[usize; 0]>> {
         (w.vv(x) / Self::EVAL_SCALING).sigmoid()
@@ -30,7 +31,8 @@ impl SelfPlayModel {
 
     pub fn evaluate<S: NondetState>(&self, game_state: &GameStateWrapper<S>, grad: bool) -> (f32, Option<Array1<f32>>) {
         let features = game_state.features();
-        let x = neuronika::from_ndarray(Array1::from_vec(features));
+        let slice = <GameStateFeatures<f32> as AsSlice>::as_slice(features);
+        let x = neuronika::from_ndarray(Array1::from_iter(slice));
         let w = neuronika::from_ndarray(self.weights.clone()).requires_grad();
         let y = Self::network(x, w.clone());
         y.forward();

@@ -419,9 +419,10 @@ name = "gitcg_sim_self_play"
 version = "0.1.0"
 dependencies = [
  "gitcg_sim",
- "itertools 0.8.2",
  "ndarray",
  "neuronika 0.2.0 (git+https://github.com/neuronika/neuronika)",
+ "serde",
+ "serde_json",
  "structopt",
 ]
 
@@ -476,15 +477,6 @@ dependencies = [
  "stdweb",
  "wasm-bindgen",
  "web-sys",
-]
-
-[[package]]
-name = "itertools"
-version = "0.8.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f56a2d0bc861f9165be4eb3442afd3c236d8a98afd426f65d92324ae1091a484"
-dependencies = [
- "either",
 ]
 
 [[package]]
@@ -659,7 +651,7 @@ version = "0.1.0"
 source = "git+https://github.com/neuronika/neuronika?rev=a5e37b21#a5e37b2144475574b88c2e4a5c72c6f8494ef007"
 dependencies = [
  "csv",
- "itertools 0.10.5",
+ "itertools",
  "ndarray",
  "rand",
  "serde",
@@ -671,7 +663,7 @@ version = "0.1.0"
 source = "git+https://github.com/neuronika/neuronika#a5e37b2144475574b88c2e4a5c72c6f8494ef007"
 dependencies = [
  "csv",
- "itertools 0.10.5",
+ "itertools",
  "ndarray",
  "rand",
  "serde",
@@ -724,7 +716,7 @@ name = "neuronika-variable"
 version = "0.1.0"
 source = "git+https://github.com/neuronika/neuronika?rev=a5e37b21#a5e37b2144475574b88c2e4a5c72c6f8494ef007"
 dependencies = [
- "itertools 0.10.5",
+ "itertools",
  "ndarray",
  "ndarray-rand",
  "neuronika-core 0.1.0 (git+https://github.com/neuronika/neuronika?rev=a5e37b21)",
@@ -739,7 +731,7 @@ name = "neuronika-variable"
 version = "0.1.0"
 source = "git+https://github.com/neuronika/neuronika#a5e37b2144475574b88c2e4a5c72c6f8494ef007"
 dependencies = [
- "itertools 0.10.5",
+ "itertools",
  "ndarray",
  "ndarray-rand",
  "neuronika-core 0.1.0 (git+https://github.com/neuronika/neuronika)",

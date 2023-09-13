@@ -1,89 +1,15 @@
 use crate::cards::ids::{CardId, GetCard, GetSkill};
 use crate::impl_as_slice;
-use crate::prelude::Input;
+use crate::prelude::*;
 use crate::status_impls::prelude::*;
 use crate::types::card_defs::CardType;
+use crate::types::game_state::*;
 use crate::types::input::PlayerAction;
-use crate::zobrist_hash::CHAR_COUNT;
-use crate::{
-    game_tree_search::GameStateWrapper,
-    types::{
-        dice_counter::{DiceCounter, ElementPriority},
-        game_state::*,
-        nondet::NondetState,
-    },
-};
+use crate::types::nondet::NondetState;
 use serde::{Deserialize, Serialize};
 
+/// Number of characters to be included in features.
 pub const N_CHARS: usize = 3;
-
-struct DiceSummary {
-    pub omni_count: u8,
-    pub active_count: u8,
-    pub important_count: u8,
-    pub off_count: u8,
-}
-
-impl DiceSummary {
-    #[inline(always)]
-    pub fn from_dice_counter(dice: &DiceCounter, ep: &ElementPriority) -> Self {
-        let omni_count = dice.omni;
-        let mut active_count = 0;
-        let mut important_count = 0;
-        let mut off_count = 0;
-        for e in Element::VALUES {
-            if Some(e) == ep.active_elem {
-                active_count += dice[Dice::Elem(e)];
-            } else if ep.important_elems.contains(e) {
-                important_count += dice[Dice::Elem(e)];
-            } else {
-                off_count += dice[Dice::Elem(e)];
-            }
-        }
-        Self {
-            omni_count,
-            active_count,
-            important_count,
-            off_count,
-        }
-    }
-}
-
-pub trait FeatureEntry: Copy {
-    type Output;
-    fn make_entry<F: Fn() -> String>(self, get_name: F, value: f32) -> Self::Output;
-}
-
-#[derive(Copy, Clone)]
-pub struct FeatureName;
-impl FeatureEntry for FeatureName {
-    type Output = String;
-
-    #[inline(always)]
-    fn make_entry<F: Fn() -> String>(self, get_name: F, _: f32) -> Self::Output {
-        get_name()
-    }
-}
-
-#[derive(Copy, Clone)]
-pub struct FeatureValue;
-impl FeatureEntry for FeatureValue {
-    type Output = f32;
-
-    #[inline(always)]
-    fn make_entry<F: Fn() -> String>(self, _: F, value: f32) -> Self::Output {
-        value
-    }
-}
-
-#[derive(Copy, Clone)]
-pub struct FeatureUnit;
-impl FeatureEntry for FeatureUnit {
-    type Output = ();
-
-    #[inline(always)]
-    fn make_entry<F: Fn() -> String>(self, _: F, _: f32) -> Self::Output {}
-}
 
 #[repr(C)]
 #[derive(Default, Copy, Clone, Serialize, Deserialize)]
@@ -121,6 +47,7 @@ pub struct CharFeatures<T> {
     pub is_alive: T,
     pub hp: T,
     pub energy: T,
+    pub applied_count: T,
     pub status: CharStatusFeatures<T>,
 }
 
@@ -141,7 +68,7 @@ pub struct PlayerStateFeatures<T> {
     pub dice: DiceFeatures<T>,
     pub hand_count: T,
     pub team: TeamStatusFeatures<T>,
-    pub chars: [CharFeatures<T>; CHAR_COUNT],
+    pub chars: [CharFeatures<T>; N_CHARS],
 }
 
 #[repr(C)]
@@ -188,7 +115,8 @@ impl PlayerState {
             is_active: (self.active_char_index == char_idx).bv(),
             is_alive: true.bv(),
             hp: char_state.get_hp() as f32,
-            energy: char_state.get_hp() as f32,
+            energy: char_state.get_energy() as f32,
+            applied_count: char_state.applied.len() as f32,
             status: self.char_status_features(char_idx),
         }
     }
@@ -207,9 +135,10 @@ impl PlayerState {
         let off_count: u8 = Element::VALUES
             .iter()
             .copied()
-            .filter(|&e| es.contains(e))
+            .filter(|&e| !es.contains(e))
             .map(|e| dice_counter[Dice::Elem(e)])
             .sum();
+        debug_assert!(off_count <= dice_counter.total());
         let on_count = dice_counter.total() - off_count;
         DiceFeatures {
             on_count: on_count as f32,
@@ -243,7 +172,7 @@ impl GameState {
 
     fn player_state_features(&self, player_id: PlayerId) -> PlayerStateFeatures<f32> {
         let player_state = self.players.get(player_id);
-        let switch_is_fast_action = (0u8..(CHAR_COUNT as u8))
+        let switch_is_fast_action = (0u8..(N_CHARS as u8))
             .into_iter()
             .any(|char_idx| self.check_switch_is_fast_action(player_id, char_idx))
             .bv();
@@ -253,7 +182,7 @@ impl GameState {
             opp_ended_round: self.phase.opponent_ended_round(player_id).bv(),
         };
 
-        let mut chars: [CharFeatures<f32>; CHAR_COUNT] = Default::default();
+        let mut chars: [CharFeatures<f32>; N_CHARS] = Default::default();
         for (char_idx, c) in chars.iter_mut().enumerate() {
             *c = player_state.char_features(char_idx as u8);
         }
@@ -275,125 +204,11 @@ impl GameState {
             p2: self.player_state_features(PlayerId::PlayerSecond),
         }
     }
-
-    pub fn features_vec<F: FeatureEntry<Output = V>, V>(&self, v: &mut Vec<V>, f: F) {
-        const ENERGY: bool = true;
-        const STATUSES: bool = true;
-        const IS_ALIVE: bool = true;
-        const IS_ACTIVE: bool = true;
-        const COMPLEX_DICE: bool = false;
-        const PER_ELEMENT: bool = false;
-        macro_rules! entry {
-            ($str: expr, $val: expr) => {
-                f.make_entry((|| $str), $val as f32)
-            };
-        }
-
-        for player_id in [PlayerId::PlayerFirst, PlayerId::PlayerSecond] {
-            let player_state = &self.players[player_id];
-            let status_collection = &player_state.status_collection;
-
-            if COMPLEX_DICE {
-                let d = DiceSummary::from_dice_counter(&player_state.dice, &player_state.get_element_priority());
-                v.push(entry!(format!("{player_id}.Dice.OmniCount"), d.omni_count));
-                v.push(entry!(format!("{player_id}.Dice.ActiveCount"), d.active_count));
-                v.push(entry!(format!("{player_id}.Dice.ImportantCount"), d.important_count));
-                v.push(entry!(format!("{player_id}.Dice.OffCount"), d.off_count));
-            } else {
-                v.push(entry!(format!("{player_id}.DiceCount"), player_state.dice.total()));
-            }
-            v.push(entry!(format!("{player_id}.HandCount"), player_state.hand.len() as f32));
-            if STATUSES {
-                let team_status_count = status_collection
-                    .iter_entries()
-                    .filter(|e| matches!(e.key, StatusKey::Team(..)))
-                    .count();
-                let summon_count = status_collection
-                    .iter_entries()
-                    .filter(|e| matches!(e.key, StatusKey::Summon(..)))
-                    .count();
-                let support_count = status_collection
-                    .iter_entries()
-                    .filter(|e| matches!(e.key, StatusKey::Support(..)))
-                    .count();
-                v.push(entry!(format!("{player_id}.TeamStatusCount"), team_status_count));
-                v.push(entry!(format!("{player_id}.SummonCount"), summon_count));
-                v.push(entry!(format!("{player_id}.SupportCount"), support_count));
-            }
-
-            let active_char_idx = player_state.active_char_index as usize;
-            for (ci, char_state) in player_state.char_states.iter().enumerate() {
-                let prefix = format!("{player_id}.{:?}", char_state.char_id);
-                v.push(entry!(format!("{prefix}.HP"), char_state.get_hp() as f32));
-
-                if IS_ALIVE {
-                    v.push(entry!(
-                        format!("{prefix}.IsAlive"),
-                        if char_state.get_hp() > 0 { 1.0 } else { 0.0 }
-                    ));
-                }
-
-                if ENERGY {
-                    v.push(entry!(format!("{prefix}.Energy"), char_state.get_energy() as f32));
-                }
-
-                if IS_ACTIVE {
-                    v.push(entry!(
-                        format!("{prefix}.IsActive"),
-                        if active_char_idx == ci { 1.0 } else { 0.0 }
-                    ));
-                }
-
-                if STATUSES {
-                    let equip_count = status_collection
-                        .iter_entries()
-                        .filter(|e| e.key.char_idx().is_some() && e.key.is_equipment())
-                        .count();
-                    let char_status_count = status_collection
-                        .iter_entries()
-                        .filter(|e| e.key.char_idx().is_some() && !e.key.is_equipment())
-                        .count();
-                    v.push(entry!(format!("{prefix}.EquipCount"), equip_count as f32));
-                    v.push(entry!(format!("{prefix}.StatusCount"), char_status_count as f32));
-                }
-
-                let applied = char_state.applied;
-                if PER_ELEMENT {
-                    for e in Element::VALUES {
-                        v.push(entry!(
-                            format!("{prefix}.Elem.{e:?}"),
-                            if applied.contains(e) { 1.0 } else { 0.0 }
-                        ));
-                    }
-                } else {
-                    v.push(entry!(format!("{prefix}.AppliedCount"), applied.len() as f32));
-                }
-            }
-        }
-    }
 }
 
-impl<S: NondetState> GameStateWrapper<S> {
-    pub fn features_vec<F: FeatureEntry<Output = V>, V>(&self, v: &mut Vec<V>, f: F) {
-        self.game_state.features_vec(v, f);
-    }
-
-    pub fn features_headers(&self) -> Vec<String> {
-        let mut v = Vec::with_capacity(32);
-        self.features_vec(&mut v, FeatureName);
-        v
-    }
-
-    pub fn features(&self) -> Vec<f32> {
-        let mut v = Vec::with_capacity(32);
-        self.features_vec(&mut v, FeatureValue);
-        v
-    }
-
-    pub fn features_len(&self) -> usize {
-        let mut v = Vec::with_capacity(32);
-        self.features_vec(&mut v, FeatureUnit);
-        v.len()
+impl<S: NondetState> crate::game_tree_search::GameStateWrapper<S> {
+    pub fn features(&self) -> GameStateFeatures<f32> {
+        self.game_state.features()
     }
 }
 

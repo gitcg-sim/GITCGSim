@@ -1,8 +1,11 @@
 use std::fmt::Debug;
 
-use gitcg_sim::rand::{rngs::SmallRng, thread_rng, Rng, SeedableRng};
+use gitcg_sim::{
+    rand::{rngs::SmallRng, thread_rng, Rng, SeedableRng},
+    training::{as_slice::*, features::GameStateFeatures},
+};
 // use gitcg_sim::mcts::{MCTSConfig, MCTS}
-use itertools::Itertools;
+use serde::Serialize;
 use structopt::StructOpt;
 
 use ndarray::Array1;
@@ -97,12 +100,6 @@ fn run_playout<T: GameTreeSearch<GameStateWrapper<S>> + GetSelfPlayModel, S: Non
     Ok(states)
 }
 
-struct CSVDebug<'a, F: Fn(PlayerId) -> String> {
-    pub index: u32,
-    pub header_prefix: &'a str,
-    pub row_prefix: F,
-}
-
 fn winner_eval(winner: PlayerId, player_id: PlayerId) -> (f32, Option<Array1<f32>>) {
     (
         if winner == player_id {
@@ -114,12 +111,25 @@ fn winner_eval(winner: PlayerId, player_id: PlayerId) -> (f32, Option<Array1<f32
     )
 }
 
-fn run_self_play<T: GameTreeSearch<GameStateWrapper<S>> + GetSelfPlayModel, S: NondetState>(
+#[derive(Serialize)]
+struct DebugEntry {
+    pub iter: u32,
+    pub learning_rate: f32,
+    pub player_id: PlayerId,
+    #[serde(flatten)]
+    pub game_state: GameStateFeatures<f32>,
+}
+
+fn run_self_play<
+    T: GameTreeSearch<GameStateWrapper<S>> + GetSelfPlayModel,
+    S: NondetState,
+    F: Fn(PlayerId, GameStateFeatures<f32>) -> DebugEntry,
+>(
     initial: &GameStateWrapper<S>,
     searches: &mut ByPlayer<T>,
     learning_rate: f32,
     temporal_rate: f32,
-    debug: Option<CSVDebug<impl Fn(PlayerId) -> String>>,
+    make_debug_entry: Option<F>,
 ) {
     let states = run_playout(initial, searches, 300).unwrap();
     let evals = [PlayerId::PlayerFirst, PlayerId::PlayerSecond]
@@ -141,20 +151,18 @@ fn run_self_play<T: GameTreeSearch<GameStateWrapper<S>> + GetSelfPlayModel, S: N
 
     let evals = ByPlayer::new(evals[0].clone(), evals[1].clone());
 
-    if let Some(debug) = debug {
-        if debug.index == 0 {
-            let headers = Array1::from(states[0].features_headers());
-            println!("{}, {}", debug.header_prefix, headers.into_iter().join(", "));
-        } else {
-            for player_id in [PlayerId::PlayerFirst, PlayerId::PlayerSecond] {
-                let model = searches[player_id].get_self_play_model();
-                let weights = model.weights.as_slice().unwrap();
-                println!(
-                    "{}, {}",
-                    (debug.row_prefix)(player_id),
-                    weights.iter().map(|x| format!("{:.8}", x)).join(", ")
-                );
+    if let Some(make_debug_entry) = make_debug_entry {
+        for player_id in [PlayerId::PlayerFirst, PlayerId::PlayerSecond] {
+            let model = searches[player_id].get_self_play_model();
+            let weights = model.weights.as_slice().unwrap();
+            const N: usize = <GameStateFeatures<f32> as AsSlice>::LENGTH;
+            if weights.len() != N {
+                panic!();
             }
+            let mut slice: <GameStateFeatures<f32> as AsSlice>::Slice = [0f32; N];
+            slice[..weights.len()].copy_from_slice(weights);
+            let entry = make_debug_entry(player_id, <GameStateFeatures<f32> as AsSlice>::from_slice(slice));
+            println!("{}", serde_json::to_string(&entry).unwrap_or_default());
         }
     }
 
@@ -208,22 +216,22 @@ fn new_search<S: NondetState>(
 
 fn main_tdl(mut deck: DeckOpts, opts: TDLOpts) -> Result<(), std::io::Error> {
     let mut seed_gen = thread_rng();
-    let mut initial = deck.get_standard_game(Some(SmallRng::from_seed(seed_gen.gen())))?;
     let (beta, delta) = (opts.beta, 1e-4);
-    let n = initial.features_len();
+    const N: usize = <GameStateFeatures<f32> as AsSlice>::LENGTH;
     let mut searches = ByPlayer::new(
-        new_search(Array1::zeros(n), PlayerId::PlayerFirst, beta, delta),
-        new_search(Array1::zeros(n), PlayerId::PlayerSecond, beta, delta),
+        new_search(Array1::zeros(N), PlayerId::PlayerFirst, beta, delta),
+        new_search(Array1::zeros(N), PlayerId::PlayerSecond, beta, delta),
     );
     for i in 0..=opts.max_iters {
         deck.seed = Some(seed_gen.gen());
-        initial = deck.get_standard_game(Some(SmallRng::from_seed(seed_gen.gen())))?;
+        let initial = deck.get_standard_game(Some(SmallRng::from_seed(seed_gen.gen())))?;
         let learning_rate = opts.base_learning_rate * 0.95f32.powi((i as i32) / opts.learning_rate_decay);
         let debug = if i % opts.log_iters == 0 {
-            Some(CSVDebug {
-                index: i,
-                header_prefix: "iter, learning_rate, player_id",
-                row_prefix: |player_id| format!("{i}, {learning_rate}, {player_id}"),
+            Some(|player_id, game_state| DebugEntry {
+                iter: i,
+                learning_rate,
+                player_id,
+                game_state,
             })
         } else {
             None
