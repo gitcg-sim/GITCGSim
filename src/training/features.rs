@@ -4,6 +4,7 @@ use crate::prelude::Input;
 use crate::status_impls::prelude::*;
 use crate::types::card_defs::CardType;
 use crate::types::input::PlayerAction;
+use crate::zobrist_hash::CHAR_COUNT;
 use crate::{
     game_tree_search::GameStateWrapper,
     types::{
@@ -12,17 +13,18 @@ use crate::{
         nondet::NondetState,
     },
 };
+use serde::{Deserialize, Serialize};
 
 pub const N_CHARS: usize = 3;
 
-struct DiceFeatures {
+struct DiceSummary {
     pub omni_count: u8,
     pub active_count: u8,
     pub important_count: u8,
     pub off_count: u8,
 }
 
-impl DiceFeatures {
+impl DiceSummary {
     #[inline(always)]
     pub fn from_dice_counter(dice: &DiceCounter, ep: &ElementPriority) -> Self {
         let omni_count = dice.omni;
@@ -83,7 +85,197 @@ impl FeatureEntry for FeatureUnit {
     fn make_entry<F: Fn() -> String>(self, _: F, _: f32) -> Self::Output {}
 }
 
+#[repr(C)]
+#[derive(Default, Copy, Clone, Serialize, Deserialize)]
+pub struct TurnFeatures<T> {
+    pub own_turn: T,
+    pub opp_ended_round: T,
+}
+
+#[repr(C)]
+#[derive(Default, Copy, Clone, Serialize, Deserialize)]
+pub struct DiceFeatures<T> {
+    pub on_count: T,
+    pub off_count: T,
+}
+
+#[repr(C)]
+#[derive(Default, Copy, Clone, Serialize, Deserialize)]
+pub struct TeamStatusFeatures<T> {
+    pub status_count: T,
+    pub summon_count: T,
+    pub support_count: T,
+}
+
+#[repr(C)]
+#[derive(Default, Copy, Clone, Serialize, Deserialize)]
+pub struct CharStatusFeatures<T> {
+    pub equip_count: T,
+    pub status_count: T,
+}
+
+#[repr(C)]
+#[derive(Default, Copy, Clone, Serialize, Deserialize)]
+pub struct CharFeatures<T> {
+    pub is_active: T,
+    pub is_alive: T,
+    pub hp: T,
+    pub energy: T,
+    pub status: CharStatusFeatures<T>,
+}
+
+#[repr(C)]
+#[derive(Default, Copy, Clone, Serialize, Deserialize)]
+pub struct CanPerformFeatures<T> {
+    pub switch: T,
+    pub card: T,
+    pub skill: T,
+}
+
+#[repr(C)]
+#[derive(Default, Copy, Clone, Serialize, Deserialize)]
+pub struct PlayerStateFeatures<T> {
+    pub can_perform: CanPerformFeatures<T>,
+    pub turn: TurnFeatures<T>,
+    pub switch_is_fast_action: T,
+    pub dice: DiceFeatures<T>,
+    pub hand_count: T,
+    pub team: TeamStatusFeatures<T>,
+    pub chars: [CharFeatures<T>; CHAR_COUNT],
+}
+
+#[repr(C)]
+#[derive(Default, Copy, Clone, Serialize, Deserialize)]
+pub struct GameStateFeatures<T> {
+    pub p1: PlayerStateFeatures<T>,
+    pub p2: PlayerStateFeatures<T>,
+}
+
+impl_as_slice!(PlayerStateFeatures<f32>, f32);
+impl_as_slice!(GameStateFeatures<f32>, f32);
+
+trait BoolValue {
+    fn bv(self) -> f32;
+}
+
+impl BoolValue for bool {
+    #[inline(always)]
+    fn bv(self) -> f32 {
+        if self {
+            1.0
+        } else {
+            0.0
+        }
+    }
+}
+
+impl PlayerState {
+    fn char_status_features(&self, char_idx: u8) -> CharStatusFeatures<f32> {
+        let sc = &self.status_collection;
+        CharStatusFeatures {
+            equip_count: sc.equipment_count(char_idx) as f32,
+            status_count: sc.character_status_count(char_idx) as f32,
+        }
+    }
+
+    fn char_features(&self, char_idx: u8) -> CharFeatures<f32> {
+        if !self.is_valid_char_index(char_idx) {
+            return Default::default();
+        }
+
+        let char_state = &self.char_states[char_idx as usize];
+        CharFeatures {
+            is_active: (self.active_char_index == char_idx).bv(),
+            is_alive: true.bv(),
+            hp: char_state.get_hp() as f32,
+            energy: char_state.get_hp() as f32,
+            status: self.char_status_features(char_idx),
+        }
+    }
+    fn team_features(&self) -> TeamStatusFeatures<f32> {
+        let sc = &self.status_collection;
+        TeamStatusFeatures {
+            status_count: sc.team_status_count() as f32,
+            summon_count: sc.summon_count() as f32,
+            support_count: sc.support_count() as f32,
+        }
+    }
+
+    fn dice_features(&self) -> DiceFeatures<f32> {
+        let dice_counter = &self.dice;
+        let es = self.get_element_priority().elems();
+        let off_count: u8 = Element::VALUES
+            .iter()
+            .copied()
+            .filter(|&e| es.contains(e))
+            .map(|e| dice_counter[Dice::Elem(e)])
+            .sum();
+        let on_count = dice_counter.total() - off_count;
+        DiceFeatures {
+            on_count: on_count as f32,
+            off_count: off_count as f32,
+        }
+    }
+}
+
 impl GameState {
+    fn can_perform_features(&self, player_id: PlayerId) -> CanPerformFeatures<f32> {
+        if self.to_move_player() != Some(player_id) {
+            return Default::default();
+        }
+
+        let actions = self.available_actions();
+        CanPerformFeatures {
+            switch: actions
+                .iter()
+                .any(|a| matches!(a, Input::FromPlayer(_, PlayerAction::SwitchCharacter(..))))
+                .bv(),
+            card: actions
+                .iter()
+                .any(|a| matches!(a, Input::FromPlayer(_, PlayerAction::PlayCard(..))))
+                .bv(),
+            skill: actions
+                .iter()
+                .any(|a| matches!(a, Input::FromPlayer(_, PlayerAction::CastSkill(..))))
+                .bv(),
+        }
+    }
+
+    fn player_state_features(&self, player_id: PlayerId) -> PlayerStateFeatures<f32> {
+        let player_state = self.players.get(player_id);
+        let switch_is_fast_action = (0u8..(CHAR_COUNT as u8))
+            .into_iter()
+            .any(|char_idx| self.check_switch_is_fast_action(player_id, char_idx))
+            .bv();
+
+        let turn = TurnFeatures {
+            own_turn: (self.to_move_player() == Some(player_id)).bv(),
+            opp_ended_round: self.phase.opponent_ended_round(player_id).bv(),
+        };
+
+        let mut chars: [CharFeatures<f32>; CHAR_COUNT] = Default::default();
+        for (char_idx, c) in chars.iter_mut().enumerate() {
+            *c = player_state.char_features(char_idx as u8);
+        }
+
+        PlayerStateFeatures {
+            can_perform: self.can_perform_features(player_id),
+            turn,
+            switch_is_fast_action,
+            dice: player_state.dice_features(),
+            hand_count: player_state.hand.len() as f32,
+            team: player_state.team_features(),
+            chars,
+        }
+    }
+
+    pub fn features(&self) -> GameStateFeatures<f32> {
+        GameStateFeatures {
+            p1: self.player_state_features(PlayerId::PlayerFirst),
+            p2: self.player_state_features(PlayerId::PlayerSecond),
+        }
+    }
+
     pub fn features_vec<F: FeatureEntry<Output = V>, V>(&self, v: &mut Vec<V>, f: F) {
         const ENERGY: bool = true;
         const STATUSES: bool = true;
@@ -102,7 +294,7 @@ impl GameState {
             let status_collection = &player_state.status_collection;
 
             if COMPLEX_DICE {
-                let d = DiceFeatures::from_dice_counter(&player_state.dice, &player_state.get_element_priority());
+                let d = DiceSummary::from_dice_counter(&player_state.dice, &player_state.get_element_priority());
                 v.push(entry!(format!("{player_id}.Dice.OmniCount"), d.omni_count));
                 v.push(entry!(format!("{player_id}.Dice.ActiveCount"), d.active_count));
                 v.push(entry!(format!("{player_id}.Dice.ImportantCount"), d.important_count));

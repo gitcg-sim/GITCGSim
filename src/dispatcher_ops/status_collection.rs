@@ -208,10 +208,34 @@ impl StatusCollection {
     }
 
     #[inline]
+    pub fn team_status_count(&self) -> usize {
+        self._status_entries
+            .iter()
+            .filter(|e| matches!(e.key, StatusKey::Team(..)))
+            .count()
+    }
+
+    #[inline]
     pub fn status_count(&self) -> usize {
         self._status_entries
             .iter()
             .filter(|e| matches!(e.key, StatusKey::Character(..) | StatusKey::Team(..)))
+            .count()
+    }
+
+    #[inline]
+    pub fn equipment_count(&self, char_idx: u8) -> usize {
+        self._status_entries
+            .iter()
+            .filter(|e| matches!(e.key, StatusKey::Equipment(i, _, _) if i == char_idx))
+            .count()
+    }
+
+    #[inline]
+    pub fn character_status_count(&self, char_idx: u8) -> usize {
+        self._status_entries
+            .iter()
+            .filter(|e| matches!(e.key, StatusKey::Character(i, _) if i == char_idx))
             .count()
     }
 
