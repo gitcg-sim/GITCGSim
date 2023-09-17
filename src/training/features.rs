@@ -239,6 +239,8 @@ pub struct InputFeatures<T> {
 
 impl_as_slice!(InputFeatures<f32>, f32);
 
+impl_as_slice!(InputFeatures<GameStateFeatures<f32>>, f32);
+
 macro_rules! vf {
     ($T: ident, $f: ident : $value: expr) => {
         $T {
@@ -322,11 +324,12 @@ mod tests {
 
     use crate::training::as_slice::AsSlice;
 
-    type Slice = <InputFeatures<f32> as AsSlice>::Slice;
+    type Slice = <InputFeatures<f32> as AsSlice<f32>>::Slice;
+
     proptest! {
         #[test]
         fn test_input_features_as_slice_roundtrip(slice in any::<Slice>()) {
-            let input_features = InputFeatures::from_slice(slice);
+            let input_features = <InputFeatures<f32> as AsSlice<f32>>::from_slice(slice);
             let slice1 = input_features.as_slice();
             assert_eq!(slice1, slice);
         }

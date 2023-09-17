@@ -2,11 +2,10 @@
 ///
 /// # Safety
 /// Can only be implemented for structs with all fields of SAME element type (`Self::Elem`) or AsSlice of SAME type.
-pub unsafe trait AsSlice: Sized + Copy {
-    type Elem: Sized + Copy;
-    type Slice;
+pub unsafe trait AsSlice<Elem: Sized + Copy>: Sized + Copy {
+    type Slice: Sized + Copy;
     const SIZE: usize = std::mem::size_of::<Self>();
-    const LENGTH: usize = Self::SIZE / std::mem::size_of::<Self::Elem>();
+    const LENGTH: usize = Self::SIZE / std::mem::size_of::<Elem>();
 
     fn as_slice(self) -> Self::Slice;
     fn as_slice_ref(&self) -> &Self::Slice;
@@ -17,8 +16,7 @@ pub unsafe trait AsSlice: Sized + Copy {
 #[macro_export]
 macro_rules! impl_as_slice {
     ($type: ty, $elem: ty) => {
-        unsafe impl $crate::training::as_slice::AsSlice for $type {
-            type Elem = f32;
+        unsafe impl $crate::training::as_slice::AsSlice<$elem> for $type {
             type Slice = [f32; std::mem::size_of::<$type>() / std::mem::size_of::<$elem>()];
 
             fn as_slice(self) -> Self::Slice {

@@ -31,7 +31,7 @@ impl SelfPlayModel {
 
     pub fn evaluate<S: NondetState>(&self, game_state: &GameStateWrapper<S>, grad: bool) -> (f32, Option<Array1<f32>>) {
         let features = game_state.features();
-        let slice = <GameStateFeatures<f32> as AsSlice>::as_slice(features);
+        let slice = <GameStateFeatures<f32> as AsSlice<f32>>::as_slice(features);
         let x = neuronika::from_ndarray(Array1::from_iter(slice));
         let w = neuronika::from_ndarray(self.weights.clone()).requires_grad();
         let y = Self::network(x, w.clone());

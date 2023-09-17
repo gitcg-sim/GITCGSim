@@ -59,7 +59,12 @@ pub struct TDLOpts {
 }
 
 #[derive(Debug, StructOpt, Clone)]
-pub struct PolicyOpts {}
+pub struct PolicyOpts {
+    #[structopt(default_value = "250", long = "--mcts-time-limit-ms")]
+    pub mcts_time_limit_ms: f32,
+    #[structopt(default_value = "4", long = "--min-depth")]
+    pub mcts_min_depth: u8,
+}
 
 #[derive(Debug, StructOpt, Clone)]
 #[structopt(about = "Genius Invokation TCG simulator - self-play")]
@@ -80,10 +85,15 @@ pub enum SelfPlayOpts {
     },
 }
 
-fn run_playout<T: GameTreeSearch<GameStateWrapper<S>> + GetSelfPlayModel, S: NondetState>(
+fn run_playout<
+    T: GameTreeSearch<GameStateWrapper<S>> + GetSelfPlayModel,
+    S: NondetState,
+    C: FnMut(&ByPlayer<T>, &GameStateWrapper<S>, Input) -> ControlFlow<()>,
+>(
     initial: &GameStateWrapper<S>,
     models: &mut ByPlayer<T>,
     max_iters: usize,
+    mut on_step: C,
 ) -> Result<Vec<GameStateWrapper<S>>, DispatchError> {
     let mut game_state = initial.clone();
     let mut states: Vec<GameStateWrapper<S>> = Vec::with_capacity(16);
@@ -101,6 +111,10 @@ fn run_playout<T: GameTreeSearch<GameStateWrapper<S>> + GetSelfPlayModel, S: Non
             res.pv.head().unwrap()
         };
         game_state.advance(input)?;
+        match on_step(models, &game_state, input) {
+            ControlFlow::Continue(_) => {}
+            ControlFlow::Break(_) => break,
+        }
     }
     Ok(states)
 }
@@ -136,7 +150,7 @@ fn run_self_play<
     temporal_rate: f32,
     make_debug_entry: Option<F>,
 ) {
-    let states = run_playout(initial, searches, 300).unwrap();
+    let states = run_playout(initial, searches, 300, |_, _, _| ControlFlow::Continue(())).unwrap();
     let evals = [PlayerId::PlayerFirst, PlayerId::PlayerSecond]
         .iter()
         .copied()
@@ -160,13 +174,13 @@ fn run_self_play<
         for player_id in [PlayerId::PlayerFirst, PlayerId::PlayerSecond] {
             let model = searches[player_id].get_self_play_model();
             let weights = model.weights.as_slice().unwrap();
-            const N: usize = <GameStateFeatures<f32> as AsSlice>::LENGTH;
+            const N: usize = <GameStateFeatures<f32> as AsSlice<f32>>::LENGTH;
             if weights.len() != N {
                 panic!();
             }
-            let mut slice: <GameStateFeatures<f32> as AsSlice>::Slice = [0f32; N];
+            let mut slice: <GameStateFeatures<f32> as AsSlice<f32>>::Slice = [0f32; N];
             slice[..weights.len()].copy_from_slice(weights);
-            let entry = make_debug_entry(player_id, <GameStateFeatures<f32> as AsSlice>::from_slice(slice));
+            let entry = make_debug_entry(player_id, <GameStateFeatures<f32> as AsSlice<f32>>::from_slice(slice));
             println!("{}", serde_json::to_string(&entry).unwrap_or_default());
         }
     }
@@ -193,35 +207,10 @@ fn new_search(init_weights: Array1<f32>, player_id: PlayerId, beta: f32, delta: 
     SelfPlaySearch::new(init_weights, player_id, beta, delta)
 }
 
-#[cfg(any())]
-fn new_search<S: NondetState>(
-    init_weights: Array1<f32>,
-    player_id: PlayerId,
-    beta: f32,
-    delta: f32,
-) -> MCTS<GameStateWrapper<S>, SelfPlayModel> {
-    let model = SelfPlayModel::new(init_weights, player_id);
-    let config = MCTSConfig {
-        c: 2.0,
-        b: None,
-        tt_size_mb: 0,
-        parallel: true,
-        random_playout_iters: 100,
-        random_playout_cutoff: 50,
-        random_playout_bias: Some(0.5),
-        debug: false,
-        limits: Some(SearchLimits {
-            max_time_ms: Some(100),
-            max_positions: None,
-        }),
-    };
-    MCTS::new_with_eval_policy(config, model)
-}
-
 fn main_tdl(mut deck: DeckOpts, opts: TDLOpts) -> Result<(), std::io::Error> {
     let mut seed_gen = thread_rng();
     let (beta, delta) = (opts.beta, 1e-4);
-    const N: usize = <GameStateFeatures<f32> as AsSlice>::LENGTH;
+    const N: usize = <GameStateFeatures<f32> as AsSlice<f32>>::LENGTH;
     let mut searches = ByPlayer::new(
         new_search(Array1::zeros(N), PlayerId::PlayerFirst, beta, delta),
         new_search(Array1::zeros(N), PlayerId::PlayerSecond, beta, delta),
@@ -245,18 +234,124 @@ fn main_tdl(mut deck: DeckOpts, opts: TDLOpts) -> Result<(), std::io::Error> {
     Ok(())
 }
 
+const H: usize = 8;
+const N: usize = <GameStateFeatures<f32> as AsSlice<f32>>::LENGTH;
+const K: usize = <InputFeatures<f32> as AsSlice<f32>>::LENGTH;
+type Model = (Linear<N, H>, Sigmoid, Linear<H, K>, Sigmoid);
+
+fn main_policy(deck: DeckOpts, opts: PolicyOpts) -> Result<(), std::io::Error> {
+    let mut seed_gen = thread_rng();
+    const BATCH_SIZE: usize = 512;
+    let config = MCTSConfig {
+        c: 2.0,
+        b: None,
+        random_playout_iters: 10,
+        random_playout_bias: Some(50.0),
+        random_playout_cutoff: 20,
+        tt_size_mb: 32,
+        limits: Some(SearchLimits {
+            max_time_ms: Some(opts.mcts_time_limit_ms as u128),
+            max_positions: None,
+        }),
+        debug: false,
+        parallel: true,
+    };
+
+    let dev: Cpu = Default::default();
+    let mut model = dev.build_module::<Model, f32>();
+    let mut grads = model.alloc_grads();
+    let mut opt = Sgd::new(&model, Default::default());
+    for iter in 0..250 {
+        let mut searches = ByPlayer::new(MCTS::new(config), MCTS::new(config));
+        let initial = deck.get_standard_game(Some(SmallRng::from_seed(seed_gen.gen())))?;
+        let mut data_points: Vec<(GameStateFeatures<f32>, InputFeatures<f32>, u8)> = vec![];
+        while data_points.len() < BATCH_SIZE {
+            run_playout(&initial, &mut searches, 300, |searches, _game_state, _input| {
+                let player_id = PlayerId::PlayerFirst;
+                let mcts = &searches[player_id];
+                let mut vec = vec![];
+                mcts.get_self_play_data_points(player_id, opts.mcts_min_depth, &mut vec);
+                for (gs, input, depth) in vec {
+                    if input.player() != Some(PlayerId::PlayerFirst) {
+                        continue;
+                    }
+                    let features = gs.features();
+                    let input_features = input.features(1f32);
+                    #[cfg(any())]
+                    println!(
+                        "{{\"depth\": {depth}, \"game_state\": {}, \"input\": {}}}",
+                        serde_json::to_string(&features).unwrap(),
+                        serde_json::to_string(&input_features).unwrap()
+                    );
+                    if data_points.len() >= BATCH_SIZE {
+                        return ControlFlow::Break(());
+                    }
+                    data_points.push((features, input_features, depth));
+                }
+                ControlFlow::Continue(())
+            })
+            .unwrap();
+        }
+
+        // let rows = data_points.len();
+        let input_data = {
+            let inputs = data_points
+                .iter()
+                .take(BATCH_SIZE)
+                .flat_map(|(x, _, _)| x.as_slice())
+                .collect::<Vec<f32>>();
+            Array2::from_shape_vec((N, BATCH_SIZE), inputs).unwrap().t().to_owned()
+        };
+        let output_data = {
+            let inputs = data_points
+                .iter()
+                .take(BATCH_SIZE)
+                .flat_map(|(_, y, _)| y.as_slice())
+                .collect::<Vec<f32>>();
+            Array2::from_shape_vec((K, BATCH_SIZE), inputs).unwrap().t().to_owned()
+        };
+
+        let mut x: Tensor<Rank2<BATCH_SIZE, N>, f32, _> = dev.zeros();
+        x.copy_from(input_data.into_shape((BATCH_SIZE * N,)).unwrap().as_slice().unwrap());
+        let y = model.forward_mut(x.traced(grads));
+        let mut y0: Tensor<Rank2<BATCH_SIZE, K>, f32, _> = dev.zeros();
+        y0.copy_from(output_data.into_shape((BATCH_SIZE * K,)).unwrap().as_slice().unwrap());
+        let loss = (y - y0).square().mean();
+        let loss_value = loss.array();
+        grads = loss.backward();
+        opt.update(&mut model, &grads).unwrap();
+        println!(
+            "{}",
+            json!({
+                "loss": loss_value,
+                "iter": iter
+            })
+        );
+        #[cfg(any())]
+        {
+            let policy_matrix_struct = {
+                let flattened: [f32; N * K] = unsafe { std::mem::transmute(model.0.weight.array()) };
+                <InputFeatures<GameStateFeatures<f32>> as AsSlice>::from_slice(flattened)
+            };
+            let policy_bias_struct = <InputFeatures<f32> as AsSlice>::from_slice(model.0.bias.array());
+            let log_entry = json!({
+                "policy": {
+                    "matrix": policy_matrix_struct,
+                    "bias": policy_bias_struct
+                },
+                "iter": iter,
+                "loss": loss_value
+            });
+            println!("{}", log_entry);
+        }
+    }
+    Ok(())
+}
+
 fn main() -> Result<(), std::io::Error> {
     let opts = SelfPlayOpts::from_args();
     match opts {
         SelfPlayOpts::TDL { deck, tdl } => main_tdl(deck, tdl),
-        SelfPlayOpts::Policy { deck: _, policy: _ } => todo!(),
+        SelfPlayOpts::Policy { deck, policy } => main_policy(deck, policy),
     }
 }
-
-// Example weights
-// Scaling = 50.0, Func = Sigmoid: 1/(1+exp(-x))
-// [DiceCount, HandCount, HP1,      HP2,       HP3,        ...]
-// [3.4637372, 1.6737967, 9.720985, 11.761544, 11.649802, -3.455161, -1.6909992, -9.88536, -11.7617235, -11.677683], shape=[10], strides=[1], layout=CFcf (0xf), const ndim=1
-
-// [DiceCount, HandCount, TeamStatusCount, SupportCount, HP1,      Energy1,  EquipCount1, StatusCount1,  AppliedCount1 ...]
-// [4.0515056, 2.2079182, 4.771029,        0.771916,     8.263139, 3.609968, 2.789354,      2.6406562,   -1.2930163,   11.0483055, 2.9116597, 2.789354, 2.6406562, -2.5112936, 11.050083, 2.9868865, 2.789354, 2.6406562, -1.8632847, -4.051341, -2.2481544, -5.64001, -5.6321597, -8.598182, -2.6582355, -0.67318016, -2.8170075, 0.3311558, -11.066774, -2.8941412, -0.67318016, -2.8170075, 2.4254704, -11.093114, -2.8895025, -0.67318016, -2.8170075, 2.3620028]
