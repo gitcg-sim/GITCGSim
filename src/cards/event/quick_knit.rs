@@ -15,7 +15,7 @@ pub const I: QuickKnit = QuickKnit();
 impl CardImpl for QuickKnit {
     fn can_be_played(&self, cic: &CardImplContext) -> CanBePlayedResult {
         let Some(CardSelection::OwnSummon(summon_id)) = cic.selection else {
-            return CanBePlayedResult::InvalidSelection
+            return CanBePlayedResult::InvalidSelection;
         };
 
         if summon_id.get_status().usages.is_some() {

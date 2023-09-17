@@ -28,7 +28,7 @@ pub mod dendro_core {
 
         fn outgoing_dmg(&self, _: &StatusImplContext<DMGInfo>, dmg: &mut DealDMG) -> Option<AppliedEffectResult> {
             let DealDMGType::Elemental(Element::Pyro | Element::Electro) = dmg.dmg_type else {
-                return None
+                return None;
             };
             dmg.dmg += 2;
             Some(AppliedEffectResult::ConsumeUsage)
@@ -49,7 +49,7 @@ pub mod catalyzing_field {
 
         fn outgoing_dmg(&self, _: &StatusImplContext<DMGInfo>, dmg: &mut DealDMG) -> Option<AppliedEffectResult> {
             let DealDMGType::Elemental(Element::Dendro | Element::Electro) = dmg.dmg_type else {
-                return None
+                return None;
             };
             dmg.dmg += 1;
             Some(AppliedEffectResult::ConsumeUsage)
@@ -74,7 +74,7 @@ pub mod frozen {
 
         fn incoming_dmg(&self, _: &StatusImplContext, dmg: &mut DealDMG) -> Option<AppliedEffectResult> {
             let (DealDMGType::Physical | DealDMGType::Elemental(Element::Pyro)) = dmg.dmg_type else {
-                return None
+                return None;
             };
             dmg.dmg += 2;
             Some(AppliedEffectResult::DeleteSelf)

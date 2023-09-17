@@ -27,7 +27,9 @@ impl StatusImpl for LiuSu {
 
     fn trigger_event(&self, e: &mut TriggerEventContext) -> Option<AppliedEffectResult> {
         let EventId::Switched = e.event_id else { return None };
-        let CommandSource::Switch { dst_char_idx, .. } = e.c.ctx.src else { return None };
+        let CommandSource::Switch { dst_char_idx, .. } = e.c.ctx.src else {
+            return None;
+        };
         let char_state = &e.c.src_player_state.char_states[dst_char_idx as usize];
         if char_state.get_energy() < char_state.char_id.get_char_card().max_energy {
             e.add_cmd(Command::AddEnergy(1));

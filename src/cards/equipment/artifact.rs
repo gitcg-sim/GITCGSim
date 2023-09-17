@@ -242,7 +242,9 @@ pub mod exiles_circlet {
         }
 
         fn trigger_xevent(&self, e: &mut TriggerEventContext<XEvent>) -> Option<AppliedEffectResult> {
-            let SkillType::ElementalBurst = e.get_event_skill_ensuring_attached_character()?.skill_type() else { return None };
+            let SkillType::ElementalBurst = e.get_event_skill_ensuring_attached_character()?.skill_type() else {
+                return None;
+            };
             for char_idx in 0..(e.c.src_player_state.char_states.len() as u8) {
                 if char_idx == e.active_char_idx() {
                     continue;
@@ -272,8 +274,12 @@ pub mod ornate_kabuto {
         }
 
         fn trigger_xevent(&self, e: &mut TriggerEventContext<XEvent>) -> Option<AppliedEffectResult> {
-            let SkillType::ElementalBurst = e.get_event_skill_ensuring_own_player()?.skill_type() else { return None };
-            let Some(own_char_idx) = e.c.status_key.char_idx() else { return None };
+            let SkillType::ElementalBurst = e.get_event_skill_ensuring_own_player()?.skill_type() else {
+                return None;
+            };
+            let Some(own_char_idx) = e.c.status_key.char_idx() else {
+                return None;
+            };
             if Some(own_char_idx) == e.c.ctx.src.char_idx() {
                 return None;
             }

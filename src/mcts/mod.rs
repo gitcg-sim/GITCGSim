@@ -105,7 +105,7 @@ impl<G: Game> Node<G> {
     #[inline]
     fn rave_adjusted_ratio(&self, is_maximize: bool, action: G::Action, n: u32, ratio: f32, b: f32) -> Option<f32> {
         let Some((q_amaf, n_amaf)) = self.amaf.get(&action).copied() else {
-            return None
+            return None;
         };
 
         let deno = (n + n_amaf) as f32 + (4f32 * b * b) * ((n * n_amaf) as f32);
@@ -122,7 +122,7 @@ impl<G: Game> Node<G> {
     #[inline]
     fn lookup_tt(&self, tt: &CacheTable<TTKey, TTValue>, tt_hits: Rc<RefCell<u64>>) -> Option<(u32, u32)> {
         let Some(res) = tt.get(&TTKey(self.state.zobrist_hash())) else {
-            return None
+            return None;
         };
         *tt_hits.borrow_mut() += 1;
         Some(res)
@@ -212,7 +212,7 @@ impl<G: Game, E: EvalPolicy<G>> MCTS<G, E> {
 
     fn expand(&mut self, token: Token) -> Result<u64, Option<PlayerId>> {
         let Some(current) = self.tree.get(token).map(|x| &x.data.state) else {
-            return Err(None)
+            return Err(None);
         };
         if let Some(winner) = current.winner() {
             return Err(Some(winner));
@@ -240,7 +240,7 @@ impl<G: Game, E: EvalPolicy<G>> MCTS<G, E> {
         let n_parent = node.data.n;
         let uct_log = ((n_parent + 1) as f32).ln_1p();
         let action = node.data.action;
-        let best = node.children(&self.tree).into_iter().max_by_key(move |&child| {
+        let best = node.children(&self.tree).max_by_key(move |&child| {
             let child_node = &child.data;
             let (ratio, n_with_tt) = child_node.ratio_with_transposition(is_maximize, &self.tt, tt_hits.clone());
             let ratio = if let (Some(action), Some(b)) = (action, b) {
@@ -277,7 +277,7 @@ impl<G: Game, E: EvalPolicy<G>> MCTS<G, E> {
         is_maximize: bool,
         tt_hits: Rc<RefCell<u64>>,
     ) -> Option<&atree::Node<Node<G>>> {
-        node.children(&self.tree).into_iter().max_by_key(|child_node| {
+        node.children(&self.tree).max_by_key(|child_node| {
             let ratio = child_node
                 .data
                 .ratio_with_transposition(is_maximize, &self.tt, tt_hits.clone())
@@ -309,7 +309,7 @@ impl<G: Game, E: EvalPolicy<G>> MCTS<G, E> {
             .get_best_child(node, is_maximize, tt_hits.clone())
             .expect("get_best_child: Must be non-empty");
         let Some(best) = best_node.data.action else {
-            return linked_list![]
+            return linked_list![];
         };
         #[cfg(any())]
         {
@@ -394,9 +394,7 @@ impl<G: Game, E: EvalPolicy<G>> MCTS<G, E> {
             #[allow(clippy::needless_range_loop)]
             for i_child in i..(n as usize) {
                 let child = &mut tree.get_mut(path[i_child]).unwrap().data;
-                let Some(a) = child.action else {
-                    continue
-                };
+                let Some(a) = child.action else { continue };
                 if touched.contains(&a) {
                     continue;
                 }
@@ -448,7 +446,6 @@ impl<G: Game, E: EvalPolicy<G>> MCTS<G, E> {
             }
         } else {
             (0..random_playout_iters)
-                .into_iter()
                 .map(|_| {
                     let mut rng = thread_rng();
                     let (count, win) = self.random_playout(next, &mut rng);
@@ -473,7 +470,7 @@ impl<G: Game, E: EvalPolicy<G>> MCTS<G, E> {
         }
 
         let Some(node) = self.tree.get(token) else {
-            return Default::default()
+            return Default::default();
         };
 
         let children_count = node.children(&self.tree).count();
@@ -481,7 +478,6 @@ impl<G: Game, E: EvalPolicy<G>> MCTS<G, E> {
         let max_depth_1 = max_depth - 1;
         let children = node
             .children(&self.tree)
-            .into_iter()
             .map(|child| Rc::new(self.dump_tree(child.token(), max_depth_1, describe_action)))
             .filter(|child| !(child.children.is_empty() && child.value.is_empty()))
             .collect();
@@ -559,17 +555,13 @@ impl<G: Game, E: EvalPolicy<G>> MCTS<G, E> {
             depth
         }
 
-        let Some((_, root)) = self.root else {
-            return
-        };
+        let Some((_, root)) = self.root else { return };
         traverse(&self.tree, root, &mut |token, depth| {
             if depth < min_depth {
                 return;
             }
 
-            let Some(node) = self.tree.get(token) else {
-                return
-            };
+            let Some(node) = self.tree.get(token) else { return };
             let is_maximize = node.data.is_maximize(maximize_player);
             if let Some(best_move) = self
                 .get_best_child(node, is_maximize, Default::default())

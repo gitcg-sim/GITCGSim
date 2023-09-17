@@ -57,7 +57,9 @@ pub mod searing_onslaught_counter {
             if !e.has_talent_equipped() {
                 return None;
             }
-            let CostType::Skill(SkillId::SearingOnslaught) = cost_type else { return None };
+            let CostType::Skill(SkillId::SearingOnslaught) = cost_type else {
+                return None;
+            };
             let 1 = e.eff_state.get_counter() else { return None };
             if cost.try_reduce_elemental_cost(1, Element::Pyro) {
                 Some(AppliedEffectResult::NoChange)
@@ -67,7 +69,9 @@ pub mod searing_onslaught_counter {
         }
 
         fn outgoing_dmg(&self, e: &StatusImplContext<DMGInfo>, dmg: &mut DealDMG) -> Option<AppliedEffectResult> {
-            let Some(SkillId::SearingOnslaught) = e.skill_id() else { return None };
+            let Some(SkillId::SearingOnslaught) = e.skill_id() else {
+                return None;
+            };
             let counter = e.eff_state.get_counter();
             match counter.cmp(&2) {
                 Ordering::Less => Some(AppliedEffectResult::SetCounter(counter + 1)),
@@ -93,7 +97,9 @@ pub mod pyro_infusion {
         }
 
         fn outgoing_dmg(&self, e: &StatusImplContext<DMGInfo>, dmg: &mut DealDMG) -> Option<AppliedEffectResult> {
-            let Some(SkillId::TemperedSword) = e.ctx.src.skill_id() else { return None };
+            let Some(SkillId::TemperedSword) = e.ctx.src.skill_id() else {
+                return None;
+            };
             if dmg.infuse(DealDMGType::Elemental(Element::Pyro)) {
                 Some(AppliedEffectResult::NoChange)
             } else {

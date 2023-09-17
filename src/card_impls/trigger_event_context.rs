@@ -125,7 +125,9 @@ impl<'a, 'b, 'c, 'd, 'v> TriggerEventContext<'a, 'b, 'c, 'd, 'v, XEvent> {
 
     #[inline]
     pub fn get_event_skill_ensuring_own_player(&self) -> Option<XEventSkill> {
-        let XEvent::Skill(evt_skill) = self.event_id else { return None };
+        let XEvent::Skill(evt_skill) = self.event_id else {
+            return None;
+        };
         let src_player_id = self.ctx_for_dmg.src_player_id;
         if evt_skill.src_player_id == src_player_id {
             Some(evt_skill)
@@ -136,7 +138,9 @@ impl<'a, 'b, 'c, 'd, 'v> TriggerEventContext<'a, 'b, 'c, 'd, 'v, XEvent> {
 
     #[inline]
     pub fn get_event_skill_ensuring_opponent_player(&self) -> Option<XEventSkill> {
-        let XEvent::Skill(evt_skill) = self.event_id else { return None };
+        let XEvent::Skill(evt_skill) = self.event_id else {
+            return None;
+        };
         let src_player_id = self.ctx_for_dmg.src_player_id;
         if evt_skill.src_player_id == src_player_id.opposite() {
             Some(evt_skill)
@@ -147,7 +151,9 @@ impl<'a, 'b, 'c, 'd, 'v> TriggerEventContext<'a, 'b, 'c, 'd, 'v, XEvent> {
 
     #[inline]
     pub fn get_event_skill_ensuring_attached_character(&self) -> Option<XEventSkill> {
-        let XEvent::Skill(evt_skill) = self.event_id else { return None };
+        let XEvent::Skill(evt_skill) = self.event_id else {
+            return None;
+        };
         let src_player_id = self.ctx_for_dmg.src_player_id;
         let char_idx = self.status_key.char_idx().expect("Must be character/equipment status");
         let src_char_idx = self.ctx_for_dmg.src.char_idx()?;

@@ -81,14 +81,16 @@ struct SearchContext<'b, G: Game> {
 impl<'b, G: Game> SearchContext<'b, G> {
     #[inline]
     pub fn lazy_smp_finished(&self) -> bool {
-        let Some((_, lazy_smp)) = self.lazy_smp_index else { return false };
+        let Some((_, lazy_smp)) = self.lazy_smp_index else {
+            return false;
+        };
         lazy_smp.finished.load(Ordering::SeqCst)
     }
 
     #[inline]
     pub fn should_terminate(&self) -> bool {
         let Some(limits) = &self.config.limits else {
-            return false
+            return false;
         };
 
         let positions_searched = if let Some((_, lazy_smp)) = self.lazy_smp_index {
@@ -110,7 +112,9 @@ impl<'b, G: Game> SearchContext<'b, G> {
     #[inline]
     pub fn should_shuffle_actions(&self, depth: u8, dts: DepthTransitionState) -> bool {
         let DepthTransitionState::Full = dts else { return false };
-        let Some((_, lazy_smp)) = self.lazy_smp_index else { return false };
+        let Some((_, lazy_smp)) = self.lazy_smp_index else {
+            return false;
+        };
         lazy_smp.top_depth == depth
     }
 }
@@ -353,7 +357,7 @@ fn static_search<G: Game>(game: &G, maximize_player: PlayerId, target_round: u8,
             break;
         }
         let Some(action) = game.static_search_action(maximize_player) else {
-            break
+            break;
         };
         if game.round_number() >= target_round {
             break;
@@ -634,7 +638,7 @@ fn minimax_iterative_deepening_aspiration_windows<G: Game>(
             pv = pv1.clone();
         }
         if config.debug {
-            let pv_vec: Vec<_> = pv.clone().into_iter().collect();
+            let pv_vec: Vec<_> = pv.clone().collect();
             println!(" - Depth {current_depth:2}: Eval={eval:?}, PV={pv_vec:?}");
         }
     }

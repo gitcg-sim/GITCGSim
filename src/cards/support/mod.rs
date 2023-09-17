@@ -65,7 +65,7 @@ impl CardImpl for SupportImpl {
     ) {
         let Some(slot) = cic.get_next_available_suport_slot() else {
             // TODO support replacing
-            return
+            return;
         };
         for eff in cic.card.effects.to_vec() {
             commands.push((*ctx, eff))
@@ -111,7 +111,7 @@ impl StatusImpl for CardCostReductionSupport {
 
     fn update_cost(&self, e: &StatusImplContext, cost: &mut Cost, cost_type: CostType) -> Option<AppliedEffectResult> {
         let CostType::Card(card_id) = cost_type else {
-            return None
+            return None;
         };
 
         if !e.eff_state.can_use_once_per_round() {
@@ -132,9 +132,7 @@ impl StatusImpl for CardCostReductionSupport {
     }
 
     fn trigger_event(&self, e: &mut TriggerEventContext) -> Option<AppliedEffectResult> {
-        let EventId::EndPhase = e.event_id else {
-            return None
-        };
+        let EventId::EndPhase = e.event_id else { return None };
 
         let counter = e.c.eff_state.get_counter();
         Some(AppliedEffectResult::SetCounter(counter + self.end_phase_counter_gain))

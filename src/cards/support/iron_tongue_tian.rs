@@ -32,11 +32,15 @@ impl StatusImpl for IronTongueTian {
             return Some(AppliedEffectResult::ConsumeUsage);
         }
 
-        let Some((i, _)) = e.c.src_player_state.char_states.iter()
-            .enumerate()
-            .find(|(_, c)| !c.is_invalid() && c.get_energy() < c.char_id.get_char_card().max_energy) else {
-                return None
-            };
+        let Some((i, _)) =
+            e.c.src_player_state
+                .char_states
+                .iter()
+                .enumerate()
+                .find(|(_, c)| !c.is_invalid() && c.get_energy() < c.char_id.get_char_card().max_energy)
+        else {
+            return None;
+        };
         // TODO
         e.add_cmd(Command::AddEnergyToCharacter(1, i as u8));
         None

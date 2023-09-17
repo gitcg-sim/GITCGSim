@@ -58,17 +58,17 @@ path = "benchmark/main.rs"
 atree = { version = "0.5.*" }
 bitfield = { version = "0.14.*" }
 enum-map = { version = "2.4.*" }
-enum-map-derive = { version = "*" }
+enum-map-derive = { version = "0.3.*" }
 enumset = { version = "1.0.*", features = ["serde"] }
 flurry = { version = "0.4.*" }
 getrandom = { version = "0.2" }
 instant = { version = "0.1" }
 lazy_static = { version = "1.4.*" }
 rand = { version = "0.8.*", features = ["small_rng", "serde", "serde1"] }
-rayon = { version = "1.6.*" }
+rayon = { version = "^1.7.0" }
 rustc-hash = { version = "1.1.*" }
 ndarray = { version = "*", optional = true }
-neuronika = { git = "https://github.com/neuronika/neuronika", rev = "a5e37b21", optional = true }
+neuronika = { git = "https://github.com/neuronika/neuronika", rev = "a5e37b21", features = ["serialize"], optional = true }
 serde = { version = "1.0", features = ["derive", "rc"] }
 smallvec = { version = "1.10.*", features = ["serde"] }
 structopt = { version = "0.3.*" }

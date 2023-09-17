@@ -55,7 +55,9 @@ pub mod eye_of_stormy_judgment {
         }
 
         fn outgoing_dmg(&self, e: &StatusImplContext<DMGInfo>, dmg: &mut DealDMG) -> Option<AppliedEffectResult> {
-            let Some(SkillType::ElementalBurst) = e.skill_type() else { return None };
+            let Some(SkillType::ElementalBurst) = e.skill_type() else {
+                return None;
+            };
             dmg.dmg += 1;
             Some(AppliedEffectResult::NoChange)
         }
@@ -89,7 +91,9 @@ pub mod chakra_desiderata {
         }
 
         fn outgoing_dmg(&self, e: &StatusImplContext<DMGInfo>, dmg: &mut DealDMG) -> Option<AppliedEffectResult> {
-            let Some(SkillId::SecretArtMusouShinsetsu) = e.skill_id() else { return None };
+            let Some(SkillId::SecretArtMusouShinsetsu) = e.skill_id() else {
+                return None;
+            };
             let c = e.eff_state.get_counter();
             if c == 0 {
                 return None;
@@ -100,7 +104,7 @@ pub mod chakra_desiderata {
 
         fn trigger_xevent(&self, e: &mut TriggerEventContext<XEvent>) -> Option<AppliedEffectResult> {
             let SkillType::ElementalBurst = e.get_event_skill_ensuring_own_player()?.skill_type() else {
-                return None
+                return None;
             };
 
             let char_idx_raiden_shogun = e.find_chararacter_for(|c| c.char_id == CharId::RaidenShogun);

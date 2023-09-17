@@ -8,7 +8,7 @@ impl CardImpl for FoodCardImpl {
 
     fn can_be_played(&self, cic: &CardImplContext) -> CanBePlayedResult {
         let Some(CardSelection::OwnCharacter(char_idx)) = cic.selection else {
-            return CanBePlayedResult::InvalidSelection
+            return CanBePlayedResult::InvalidSelection;
         };
         let player = cic.game_state.get_player(cic.active_player_id);
         if player

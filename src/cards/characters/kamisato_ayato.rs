@@ -47,7 +47,9 @@ pub mod takimeguri_kanka {
         }
 
         fn outgoing_dmg(&self, e: &StatusImplContext<DMGInfo>, dmg: &mut DealDMG) -> Option<AppliedEffectResult> {
-            let Some(SkillType::NormalAttack) = e.skill_type() else { return None };
+            let Some(SkillType::NormalAttack) = e.skill_type() else {
+                return None;
+            };
             if e.has_talent_equipped() && e.dmg.target_hp <= 6 {
                 dmg.dmg += 2;
             } else {
@@ -73,7 +75,9 @@ pub mod garden_of_purity {
         }
 
         fn outgoing_dmg(&self, e: &StatusImplContext<DMGInfo>, dmg: &mut DealDMG) -> Option<AppliedEffectResult> {
-            let Some(SkillType::NormalAttack) = e.skill_type() else { return None };
+            let Some(SkillType::NormalAttack) = e.skill_type() else {
+                return None;
+            };
             dmg.dmg += 1;
             Some(AppliedEffectResult::NoChange)
         }

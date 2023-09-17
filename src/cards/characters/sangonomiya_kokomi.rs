@@ -62,14 +62,16 @@ pub mod ceremonial_garment {
         }
 
         fn outgoing_dmg(&self, e: &StatusImplContext<DMGInfo>, dmg: &mut DealDMG) -> Option<AppliedEffectResult> {
-            let Some(SkillType::NormalAttack) = e.skill_type() else { return None };
+            let Some(SkillType::NormalAttack) = e.skill_type() else {
+                return None;
+            };
             dmg.dmg += 1;
             Some(AppliedEffectResult::NoChange)
         }
 
         fn trigger_xevent(&self, e: &mut TriggerEventContext<XEvent>) -> Option<AppliedEffectResult> {
             let SkillType::NormalAttack = e.get_event_skill_ensuring_attached_character()?.skill_type() else {
-                return None
+                return None;
             };
             e.out_cmds.push((*e.ctx_for_dmg, Command::HealAll(1)));
             Some(AppliedEffectResult::NoChange)

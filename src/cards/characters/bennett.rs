@@ -47,7 +47,7 @@ pub mod inspiration_field {
 
         fn outgoing_dmg(&self, e: &StatusImplContext<DMGInfo>, dmg: &mut DealDMG) -> Option<AppliedEffectResult> {
             let Some(cs) = e.get_src_character_state() else {
-                return None
+                return None;
             };
             if e.has_talent_equipped() || cs.get_hp() >= 7 {
                 dmg.dmg += 2;
@@ -62,7 +62,7 @@ pub mod inspiration_field {
     impl OwnCharacterSkillEvent for InspirationFieldEvent {
         fn invoke(e: &mut TriggerEventContext<XEvent>, _: XEventSkill) -> Option<AppliedEffectResult> {
             let Some(cs) = e.c.get_src_character_state() else {
-                return None
+                return None;
             };
             if cs.get_hp() <= 6 {
                 e.out_cmds.push((*e.ctx_for_dmg, Command::Heal(2)));

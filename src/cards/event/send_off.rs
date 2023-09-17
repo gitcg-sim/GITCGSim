@@ -15,7 +15,7 @@ pub const I: SendOff = SendOff();
 impl CardImpl for SendOff {
     fn can_be_played(&self, cic: &CardImplContext) -> CanBePlayedResult {
         let Some(CardSelection::OpponentSummon(..)) = cic.selection else {
-            return CanBePlayedResult::InvalidSelection
+            return CanBePlayedResult::InvalidSelection;
         };
 
         CanBePlayedResult::CanBePlayed

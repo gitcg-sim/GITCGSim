@@ -199,7 +199,9 @@ mod tests {
             cost: &mut Cost,
             cost_type: CostType,
         ) -> Option<AppliedEffectResult> {
-            let SkillType::NormalAttack = cost_type.get_skill()?.skill_type else { return None };
+            let SkillType::NormalAttack = cost_type.get_skill()?.skill_type else {
+                return None;
+            };
             if cost.try_reduce_unaligned_cost(1) {
                 Some(AppliedEffectResult::NoChange)
             } else {
@@ -208,8 +210,12 @@ mod tests {
         }
 
         fn trigger_xevent(&self, e: &mut TriggerEventContext<XEvent>) -> Option<AppliedEffectResult> {
-            let XEvent::Skill(XEventSkill { skill_id, .. }) = e.event_id else { return None };
-            let SkillType::ElementalBurst = skill_id.get_skill().skill_type else { return None };
+            let XEvent::Skill(XEventSkill { skill_id, .. }) = e.event_id else {
+                return None;
+            };
+            let SkillType::ElementalBurst = skill_id.get_skill().skill_type else {
+                return None;
+            };
             e.add_cmd(Command::AddDice(DiceCounter::omni(1)));
             Some(AppliedEffectResult::NoChange)
         }

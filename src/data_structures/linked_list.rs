@@ -24,7 +24,7 @@ impl<T: Clone> LinkedList<T> {
     }
 
     pub fn len(&self) -> usize {
-        self.clone().into_iter().fold(0, |c, _| c + 1)
+        self.clone().fold(0, |c, _| c + 1)
     }
 
     pub fn head(&self) -> Option<T> {

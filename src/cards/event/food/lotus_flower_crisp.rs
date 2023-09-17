@@ -32,9 +32,7 @@ impl StatusImpl for LotusFlowerCrisp {
     }
 
     fn trigger_event(&self, e: &mut TriggerEventContext) -> Option<AppliedEffectResult> {
-        let EventId::EndOfTurn = e.event_id else {
-            return None
-        };
+        let EventId::EndOfTurn = e.event_id else { return None };
         Some(AppliedEffectResult::DeleteSelf)
     }
 }

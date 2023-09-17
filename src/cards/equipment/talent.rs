@@ -234,7 +234,7 @@ pub mod cold_blooded_strike {
 
         fn trigger_xevent(&self, e: &mut TriggerEventContext<XEvent>) -> Option<AppliedEffectResult> {
             let SkillId::Frostgnaw = e.get_event_skill_ensuring_attached_character()?.skill_id else {
-                return None
+                return None;
             };
             if !e.c.eff_state.can_use_once_per_round() {
                 return None;
@@ -264,7 +264,9 @@ pub mod undivided_heart {
             if !e.src_player_state.flags.contains(PlayerFlag::SkillCastedThisMatch) {
                 return None;
             }
-            let Some(SkillId::FrostflakeArrow) = e.skill_id() else { return None };
+            let Some(SkillId::FrostflakeArrow) = e.skill_id() else {
+                return None;
+            };
             dmg.dmg += 1;
             dmg.piercing_dmg_to_standby = 3;
             Some(AppliedEffectResult::NoChange)

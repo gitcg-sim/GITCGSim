@@ -98,7 +98,7 @@ pub mod riptide {
 
         fn incoming_dmg(&self, e: &StatusImplContext, dmg: &mut DealDMG) -> Option<AppliedEffectResult> {
             let Some(CharId::Tartaglia) = e.src_char_id() else {
-                return None
+                return None;
             };
             dmg.dmg += 2;
             Some(AppliedEffectResult::NoChange)

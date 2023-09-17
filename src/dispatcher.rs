@@ -241,7 +241,7 @@ impl GameState {
     ) -> Result<Option<DispatchResult>, DispatchError> {
         let card = card_id.get_card();
         let Some(active_player_id) = self.phase.active_player() else {
-            return Err(DispatchError::UnableToPlayCard)
+            return Err(DispatchError::UnableToPlayCard);
         };
 
         if !self
@@ -303,7 +303,7 @@ impl GameState {
 
     fn can_perform_elemental_tuning(&self, card_id: CardId) -> bool {
         let Some(active_player_id) = self.phase.active_player() else {
-            return false
+            return false;
         };
         let player = self.get_player(active_player_id);
         let ep = player.get_element_priority();
@@ -319,7 +319,7 @@ impl GameState {
         let char_card = player.get_active_character().char_id.get_char_card();
         let ep = player.get_element_priority();
         let Some(elem_to_remove) = player.dice.select_for_elemental_tuning(&ep) else {
-            return Err(DispatchError::UnableToPayCost)
+            return Err(DispatchError::UnableToPayCost);
         };
 
         if !player.try_remove_card_from_hand(phc!(self, player_id), card_id) {
@@ -332,10 +332,10 @@ impl GameState {
 
     fn available_card_selections(&self, card_id: CardId) -> SmallVec<[Option<CardSelection>; 4]> {
         let Some(player_id) = self.phase.active_player() else {
-            return smallvec![None]
+            return smallvec![None];
         };
         let Some(ci) = card_id.get_card_impl() else {
-            return smallvec![None]
+            return smallvec![None];
         };
 
         ci.selection()
@@ -354,7 +354,7 @@ impl GameState {
     pub fn action_info(&self, input: Input) -> (Cost, bool) {
         const NONE: (Cost, bool) = (Cost::ZERO, true);
         let Some(active_player_id) = self.phase.active_player() else {
-            return NONE
+            return NONE;
         };
         match input {
             Input::NoAction => NONE,
@@ -368,22 +368,16 @@ impl GameState {
                 let player = self.get_player(player_id);
                 let mut is_fast_action = true;
                 let Some((mut cost, cost_type)) = (match action {
-                    PlayerAction::PlayCard(card_id, _) => {
-                        Some((card_id.get_card().cost, CostType::Card(card_id)))
-                    },
+                    PlayerAction::PlayCard(card_id, _) => Some((card_id.get_card().cost, CostType::Card(card_id))),
                     PlayerAction::CastSkill(skill_id) => {
                         is_fast_action = false;
                         Some((skill_id.get_skill().cost, CostType::Skill(skill_id)))
-                    },
+                    }
                     PlayerAction::SwitchCharacter(_) => {
-                        is_fast_action = self.check_switch_is_fast_action(
-                            active_player_id, player.active_char_index
-                        );
+                        is_fast_action = self.check_switch_is_fast_action(active_player_id, player.active_char_index);
                         Some((Cost::ONE, CostType::Switching))
-                    },
-                    PlayerAction::EndRound => {
-                        return (Cost::ZERO, false)
-                    },
+                    }
+                    PlayerAction::EndRound => return (Cost::ZERO, false),
                     _ => None,
                 }) else {
                     return NONE;
@@ -619,10 +613,15 @@ impl GameState {
                 Input::NoAction => {
                     if self.round_number == 1 {
                         self.apply_passives();
-                        let None = self.exec_commands(&cmd_list![
+                        let None = self
+                            .exec_commands(&cmd_list![
                                 Self::trigger_switch_cmd(PlayerId::PlayerFirst, 0, 0),
                                 Self::trigger_switch_cmd(PlayerId::PlayerSecond, 0, 0),
-                            ]).unwrap() else { unreachable!() };
+                            ])
+                            .unwrap()
+                        else {
+                            unreachable!()
+                        };
                     }
                     let log = &mut self.log;
                     log.log(Event::Round(self.round_number, active_player));
@@ -683,8 +682,11 @@ impl GameState {
     ) -> Option<Result<DispatchResult, DispatchError>> {
         let player = self.players.get(active_player_id);
         let active_char_index = player.active_char_index;
-        let Some((skill_id, key, turns_remaining)) = player.status_collection.find_preparing_skill_with_status_key_and_turns_remaining() else {
-            return None
+        let Some((skill_id, key, turns_remaining)) = player
+            .status_collection
+            .find_preparing_skill_with_status_key_and_turns_remaining()
+        else {
+            return None;
         };
         let Input::NoAction = input else {
             return Some(Err(DispatchError::InvalidInput("Preparing skill".to_string())));

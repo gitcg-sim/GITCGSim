@@ -1,8 +1,8 @@
 use enumset::EnumSetType;
 use serde::{Deserialize, Serialize};
 
-#[allow(clippy::derive_hash_xor_eq)]
-#[derive(Debug, Ord, PartialOrd, EnumSetType, Hash, Serialize, Deserialize)]
+#[allow(clippy::derived_hash_with_manual_eq)]
+#[derive(Debug, PartialOrd, Ord, Hash, Serialize, Deserialize, EnumSetType)]
 pub enum Element {
     Pyro = 0,
     Hydro = 1,
@@ -37,8 +37,8 @@ impl Element {
     }
 }
 
-#[allow(clippy::derive_hash_xor_eq)]
-#[derive(Debug, Ord, PartialOrd, EnumSetType, Hash, Serialize, Deserialize)]
+#[allow(clippy::derived_hash_with_manual_eq)]
+#[derive(Debug, PartialOrd, Ord, Hash, Serialize, Deserialize, EnumSetType)]
 pub enum Reaction {
     Bloom,
     Burning,
@@ -88,7 +88,8 @@ impl Dice {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
+#[allow(clippy::derived_hash_with_manual_eq)]
+#[derive(Debug, PartialOrd, Ord, Hash, Serialize, Deserialize, EnumSetType)]
 pub enum WeaponType {
     Other,
     Bow,
@@ -98,7 +99,8 @@ pub enum WeaponType {
     Sword,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
+#[allow(clippy::derived_hash_with_manual_eq)]
+#[derive(Debug, PartialOrd, Ord, Hash, Serialize, Deserialize, EnumSetType)]
 pub enum Faction {
     Mondstadt,
     Liyue,
@@ -110,7 +112,8 @@ pub enum Faction {
     Kairagi,
 }
 
-#[derive(Debug, PartialOrd, Ord, EnumSetType, Default, Serialize, Deserialize)]
+#[allow(clippy::derived_hash_with_manual_eq)]
+#[derive(Debug, Default, PartialOrd, Ord, Hash, Serialize, Deserialize, EnumSetType)]
 pub enum SkillType {
     #[default]
     NormalAttack,
@@ -118,7 +121,8 @@ pub enum SkillType {
     ElementalBurst,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[allow(clippy::derived_hash_with_manual_eq)]
+#[derive(Debug, PartialOrd, Ord, Hash, Serialize, Deserialize, EnumSetType)]
 pub enum StatusAttachMode {
     Character,
     Team,
@@ -126,7 +130,8 @@ pub enum StatusAttachMode {
     Support,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[allow(clippy::derived_hash_with_manual_eq)]
+#[derive(Debug, PartialOrd, Ord, Hash, Serialize, Deserialize, EnumSetType)]
 pub enum EquipSlot {
     Artifact,
     Weapon,

@@ -94,7 +94,7 @@ pub mod pactsworn_pathclearer {
 
         fn trigger_xevent(&self, e: &mut TriggerEventContext<XEvent>) -> Option<AppliedEffectResult> {
             let SkillId::SacredRiteWolfsSwiftness = e.get_event_skill_ensuring_attached_character()?.skill_id else {
-                return None
+                return None;
             };
             let level = e.c.eff_state.get_counter();
             Some(AppliedEffectResult::SetCounter(increase_indwelling_level(level, 2)))

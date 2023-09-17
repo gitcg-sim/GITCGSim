@@ -50,7 +50,9 @@ pub mod paramita_papilio {
         }
 
         fn outgoing_dmg(&self, e: &StatusImplContext<DMGInfo>, dmg: &mut DealDMG) -> Option<AppliedEffectResult> {
-            let Some(SkillType::NormalAttack) = e.skill_type() else { return None };
+            let Some(SkillType::NormalAttack) = e.skill_type() else {
+                return None;
+            };
             if !dmg.infuse(DealDMGType::PYRO) {
                 return None;
             }
@@ -63,7 +65,7 @@ pub mod paramita_papilio {
 
         fn trigger_xevent(&self, e: &mut TriggerEventContext<XEvent>) -> Option<AppliedEffectResult> {
             let SkillType::NormalAttack = e.get_event_skill_ensuring_attached_character()?.skill_type() else {
-                return None
+                return None;
             };
             if !e.c.is_charged_attack() {
                 return None;

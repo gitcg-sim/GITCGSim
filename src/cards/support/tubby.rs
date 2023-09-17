@@ -22,7 +22,7 @@ impl StatusImpl for Tubby {
 
     fn update_cost(&self, e: &StatusImplContext, cost: &mut Cost, cost_type: CostType) -> Option<AppliedEffectResult> {
         let CostType::Card(card_id) = cost_type else {
-            return None
+            return None;
         };
 
         if !e.eff_state.can_use_once_per_round() {

@@ -83,7 +83,7 @@ pub mod ushi {
                 return None;
             };
             let Some((char_idx, _)) = e.find_chararacter_for(|c| c.char_id == CharId::AratakiItto) else {
-                return None
+                return None;
             };
             e.add_cmd(Command::ApplyStatusToCharacter(
                 StatusId::SuperlativeSuperstrength,
@@ -140,7 +140,9 @@ pub mod raging_oni_king {
         }
 
         fn outgoing_dmg(&self, e: &StatusImplContext<DMGInfo>, dmg: &mut DealDMG) -> Option<AppliedEffectResult> {
-            let Some(SkillType::NormalAttack) = e.skill_type() else { return None };
+            let Some(SkillType::NormalAttack) = e.skill_type() else {
+                return None;
+            };
             dmg.dmg += 2;
             dmg.infuse(DealDMGType::GEO);
             Some(AppliedEffectResult::NoChange)

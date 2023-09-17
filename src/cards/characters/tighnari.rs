@@ -72,7 +72,7 @@ pub mod vijnana_suffusion {
             }
 
             let CostType::Skill(SkillId::KhandaBarrierBuster) = cost_type else {
-                return None
+                return None;
             };
 
             if cost.try_reduce_unaligned_cost(1) {

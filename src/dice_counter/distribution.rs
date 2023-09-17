@@ -154,9 +154,7 @@ impl DiceCounter {
         let desired_elems = priority.elems();
         for _ in 0..rerolls {
             for d in es.iter_mut() {
-                let Dice::Elem(e) = *d else {
-                    continue
-                };
+                let Dice::Elem(e) = *d else { continue };
 
                 if desired_elems.contains(e) {
                     continue;

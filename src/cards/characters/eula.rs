@@ -70,7 +70,9 @@ pub mod grimheart {
         }
 
         fn outgoing_dmg(&self, e: &StatusImplContext<DMGInfo>, dmg: &mut DealDMG) -> Option<AppliedEffectResult> {
-            let Some(SkillId::IcetideVortex) = e.skill_id() else { return None };
+            let Some(SkillId::IcetideVortex) = e.skill_id() else {
+                return None;
+            };
             dmg.dmg += 2;
             Some(AppliedEffectResult::DeleteSelf)
         }
@@ -103,7 +105,7 @@ pub mod lightfall_sword {
 
         fn gains_energy(&self, _: &StatusImplContext, ctx_for_skill: &CommandContext, gains_energy: &mut bool) -> bool {
             let Some(SkillId::FavoniusBladeworkEdel | SkillId::IcetideVortex) = ctx_for_skill.src.skill_id() else {
-                return false
+                return false;
             };
             *gains_energy = false;
             true
@@ -118,8 +120,10 @@ pub mod lightfall_sword {
         }
 
         fn trigger_xevent(&self, e: &mut TriggerEventContext<XEvent>) -> Option<AppliedEffectResult> {
-            let (SkillId::FavoniusBladeworkEdel | SkillId::IcetideVortex) = e.get_event_skill_ensuring_own_player()?.skill_id else {
-                return None
+            let (SkillId::FavoniusBladeworkEdel | SkillId::IcetideVortex) =
+                e.get_event_skill_ensuring_own_player()?.skill_id
+            else {
+                return None;
             };
             let stacks = e.c.eff_state.get_counter();
             let new_stacks = min(AppliedEffectState::MAX_COUNTER, stacks + 2);

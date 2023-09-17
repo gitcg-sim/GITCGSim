@@ -63,9 +63,7 @@ pub mod melody_loop {
                 return None;
             }
 
-            let CostType::Switching = cost_type else {
-                return None
-            };
+            let CostType::Switching = cost_type else { return None };
 
             if !e.eff_state.can_use_once_per_round() {
                 return None;

@@ -198,16 +198,14 @@ impl StatusImpl for SacrificialWeapon {
 
     fn trigger_xevent(&self, e: &mut TriggerEventContext<XEvent>) -> Option<AppliedEffectResult> {
         let SkillType::ElementalSkill = e.get_event_skill_ensuring_attached_character()?.skill_type() else {
-            return None
+            return None;
         };
 
         if !e.c.eff_state.can_use_once_per_round() {
             return None;
         }
 
-        let Some(c) = e.c.src_char_card() else {
-            return None
-        };
+        let Some(c) = e.c.src_char_card() else { return None };
         e.out_cmds
             .push((*e.ctx_for_dmg, Command::AddDice(DiceCounter::elem(c.elem, 1))));
         Some(AppliedEffectResult::ConsumeOncePerRound)
@@ -238,7 +236,7 @@ impl StatusImpl for FavoniusWeapon {
 
     fn trigger_xevent(&self, e: &mut TriggerEventContext<XEvent>) -> Option<AppliedEffectResult> {
         let SkillType::ElementalSkill = e.get_event_skill_ensuring_attached_character()?.skill_type() else {
-            return None
+            return None;
         };
         e.add_cmd(Command::AddEnergy(1));
         Some(AppliedEffectResult::NoChange)
@@ -258,9 +256,7 @@ impl StatusImpl for SkywardWeapon {
     }
 
     fn outgoing_dmg(&self, e: &StatusImplContext<DMGInfo>, dmg: &mut DealDMG) -> Option<AppliedEffectResult> {
-        let Some(skill) = e.skill() else {
-            return None
-        };
+        let Some(skill) = e.skill() else { return None };
         dmg.dmg += 1;
         if e.eff_state.can_use_once_per_round() && SkillType::NormalAttack == skill.skill_type {
             dmg.dmg += 1;
@@ -285,12 +281,12 @@ impl CardImpl for Talent {
         };
 
         let Some(CardSelection::OwnCharacter(char_idx)) = cic.selection else {
-            return CanBePlayedResult::InvalidSelection
+            return CanBePlayedResult::InvalidSelection;
         };
 
         let player = cic.game_state.players.get(cic.active_player_id);
         let Some(char_state) = player.try_get_character(char_idx) else {
-            return CanBePlayedResult::InvalidSelection
+            return CanBePlayedResult::InvalidSelection;
         };
 
         // To be able to play talent card, the target must be the expected character

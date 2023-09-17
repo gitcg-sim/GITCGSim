@@ -34,7 +34,7 @@ impl<K: Eq + Copy + Into<usize>, V: Sized + Clone> CacheTable<K, V> {
         let bucket_count = bytes / bytes_per_bucket;
         let number_of_entries = bucket_count * ENTRIES_PER_BUCKET;
         let bucket_count = number_of_entries / ENTRIES_PER_BUCKET;
-        let buckets = (0..bucket_count).into_iter().map(|_| Default::default()).collect();
+        let buckets = (0..bucket_count).map(|_| Default::default()).collect();
         Self {
             megabytes,
             number_of_entries,
@@ -86,11 +86,9 @@ impl<K: Eq + Copy + Into<usize>, V: Sized + Clone> CacheTable<K, V> {
         }
         let (bi, ei) = self.decompose(k);
         let Ok(bucket) = self.buckets[bi].read() else {
-            return None
+            return None;
         };
-        let Some((k1, v)) = &bucket[ei] else {
-            return None
-        };
+        let Some((k1, v)) = &bucket[ei] else { return None };
         if k1 == k {
             Some(v.clone())
         } else {
@@ -104,7 +102,7 @@ impl<K: Eq + Copy + Into<usize>, V: Sized + Clone> CacheTable<K, V> {
         }
         let (bi, ei) = self.decompose(k);
         let Ok(mut bucket) = self.buckets[bi].write() else {
-            return
+            return;
         };
         bucket[ei] = Some((*k, v));
     }
@@ -115,13 +113,13 @@ impl<K: Eq + Copy + Into<usize>, V: Sized + Clone> CacheTable<K, V> {
         }
         let (bi, ei) = self.decompose(k);
         let Ok(mut bucket) = self.buckets[bi].write() else {
-            return false
+            return false;
         };
         let entry_ref = &mut bucket[ei];
         let Some((k0, v0)) = entry_ref else {
             // Case 1: already empty
             *entry_ref = Some((*k, v));
-            return true
+            return true;
         };
 
         if !should_replace(v0) {

@@ -63,7 +63,7 @@ pub mod jade_screen {
                     return None;
                 }
                 let Some(Element::Geo) = dmg.dmg_type.element() else {
-                    return None
+                    return None;
                 };
                 dmg.dmg += 2;
                 Some(AppliedEffectResult::NoChange)

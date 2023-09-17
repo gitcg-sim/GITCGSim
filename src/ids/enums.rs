@@ -312,7 +312,7 @@ pub enum StatusId {
     RightOfFinalInterpretation,
 }
 
-#[allow(clippy::derive_hash_xor_eq)]
+#[allow(clippy::derived_hash_with_manual_eq)]
 #[derive(Debug, PartialOrd, Ord, Hash, Enum, Serialize, Deserialize, EnumSetType)]
 #[enumset(repr = "u32")]
 pub enum SummonId {

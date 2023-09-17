@@ -240,7 +240,7 @@ impl SummonRandomSpec {
                 break;
             }
             let Some(randomly_selected) = to_remove.iter().nth(r.gen_range(0..to_remove.len())) else {
-                break
+                break;
             };
             to_summon.remove(randomly_selected);
         }

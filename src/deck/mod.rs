@@ -123,7 +123,7 @@ impl DeckState {
         let i = rng.gen_range(0..self.count);
         let n = self.deck.len() as u8;
         let mask = self.mask;
-        let Some(k) = (0..n).into_iter().filter(|j| mask & (1 << j) != 0).nth(i as usize) else {
+        let Some(k) = (0..n).filter(|j| mask & (1 << j) != 0).nth(i as usize) else {
             return None;
         };
         self.mask ^= 1 << k;

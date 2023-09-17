@@ -48,7 +48,9 @@ pub mod dandelion_field {
         }
 
         fn outgoing_dmg(&self, e: &StatusImplContext<DMGInfo>, dmg: &mut DealDMG) -> Option<AppliedEffectResult> {
-            let Some(Element::Anemo) = dmg.dmg_type.element() else { return None };
+            let Some(Element::Anemo) = dmg.dmg_type.element() else {
+                return None;
+            };
             if !e
                 .src_player_state
                 .char_states

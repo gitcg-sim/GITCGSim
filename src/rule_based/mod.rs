@@ -49,10 +49,10 @@ impl Default for RuleBasedSearchConfig {
 impl GameState {
     pub fn has_outgoing_reaction(&self, player_id: PlayerId, src_char_idx: u8, tgt_char_idx: u8) -> bool {
         let Some(src_char) = self.get_player(player_id).try_get_character(src_char_idx) else {
-            return false
+            return false;
         };
         let Some(tgt_char) = self.get_player(player_id.opposite()).try_get_character(tgt_char_idx) else {
-            return false
+            return false;
         };
         let src_elem = src_char.char_id.get_char_card().elem;
         tgt_char
@@ -107,7 +107,9 @@ impl RuleBasedSearchConfig {
         let mut scores = own_char_idxs
             .into_iter()
             .map(|src_char_idx| {
-                let Some(src_char) = src_player.try_get_character(src_char_idx) else { return 0 };
+                let Some(src_char) = src_player.try_get_character(src_char_idx) else {
+                    return 0;
+                };
                 let has_outgoing_reaction = game_state.has_outgoing_reaction(player_id, src_char_idx, tgt_char_idx);
                 let has_incoming_reaction =
                     game_state.has_outgoing_reaction(player_id.opposite(), tgt_char_idx, src_char_idx);
@@ -197,8 +199,8 @@ impl RuleBasedSearchConfig {
             .iter()
             .map(|&input| {
                 let Input::FromPlayer(_, action) = input else {
-                return (input, 0)
-            };
+                    return (input, 0);
+                };
                 let score = match action {
                     PlayerAction::EndRound => self.end_round_score,
                     PlayerAction::PlayCard(card_id, _) => self.play_card_score(position, player_id, card_id),

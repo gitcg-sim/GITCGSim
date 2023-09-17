@@ -69,7 +69,9 @@ pub mod crowfeather_cover {
         }
 
         fn outgoing_dmg(&self, e: &StatusImplContext<DMGInfo>, dmg: &mut DealDMG) -> Option<AppliedEffectResult> {
-            let Some(SkillType::ElementalSkill | SkillType::ElementalBurst) = e.skill_type() else { return None };
+            let Some(SkillType::ElementalSkill | SkillType::ElementalBurst) = e.skill_type() else {
+                return None;
+            };
             dmg.dmg += 1;
             Some(AppliedEffectResult::ConsumeUsage)
         }

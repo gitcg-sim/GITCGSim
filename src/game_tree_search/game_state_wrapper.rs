@@ -181,13 +181,10 @@ impl<S: NondetState> Game for GameStateWrapper<S> {
     }
 
     fn move_ordering(&self, pv: &PV<Self>, actions: &mut Self::Actions) {
-        let Some(player_id) = self.to_move() else {
-            return
-        };
+        let Some(player_id) = self.to_move() else { return };
         const LOOKAHEAD: usize = 4;
         let move_chain = pv
             .clone()
-            .into_iter()
             .take(LOOKAHEAD)
             .filter(|a| a.player() == Some(player_id))
             .collect::<smallvec::SmallVec<[_; LOOKAHEAD]>>();
@@ -230,7 +227,9 @@ impl<S: NondetState> Game for GameStateWrapper<S> {
     }
 
     fn action_weights(&self, actions: &Self::Actions) -> Vec<(Self::Action, f32)> {
-        let Some(player_id) = self.to_move() else { return Default::default() };
+        let Some(player_id) = self.to_move() else {
+            return Default::default();
+        };
         let scores = RuleBasedSearchConfig::DEFAULT
             .action_scores(self, actions, player_id)
             .iter()

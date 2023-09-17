@@ -171,7 +171,9 @@ impl Cost {
                 return true;
             }
         }
-        let Some((_, cost)) = &mut self.elem_cost else { return false };
+        let Some((_, cost)) = &mut self.elem_cost else {
+            return false;
+        };
         if *cost == 0 {
             return false;
         }
@@ -202,7 +204,9 @@ impl Cost {
             return true;
         }
 
-        let Some((e, cost)) = &mut self.elem_cost else { return false };
+        let Some((e, cost)) = &mut self.elem_cost else {
+            return false;
+        };
         if *e == elem && *cost >= value {
             *cost -= value;
             true

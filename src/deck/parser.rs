@@ -16,7 +16,7 @@ pub fn read_decklist_from_file(file: File) -> Result<Decklist, io::Error> {
 
 impl CharId {
     pub fn from_name(name: &str) -> Option<Self> {
-        (0..Self::LENGTH).into_iter().find_map(|i| {
+        (0..Self::LENGTH).find_map(|i| {
             let char_id = Self::from_usize(i);
             if char_id.get_char_card().name == name {
                 Some(char_id)
@@ -29,7 +29,7 @@ impl CharId {
 
 impl CardId {
     pub fn from_name(name: &str) -> Option<Self> {
-        (0..Self::LENGTH).into_iter().find_map(|i| {
+        (0..Self::LENGTH).find_map(|i| {
             let card_id = Self::from_usize(i);
             if card_id.get_card().name == name {
                 Some(card_id)
@@ -53,10 +53,14 @@ impl Decklist {
             }
 
             if blank {
-                let Some(card_id) = CardId::from_name(line) else { continue };
+                let Some(card_id) = CardId::from_name(line) else {
+                    continue;
+                };
                 cards.push(card_id);
             } else {
-                let Some(char_id) = CharId::from_name(line) else { continue };
+                let Some(char_id) = CharId::from_name(line) else {
+                    continue;
+                };
                 characters.push(char_id);
             }
         }

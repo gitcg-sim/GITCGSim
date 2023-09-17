@@ -62,7 +62,6 @@ impl CardSelectionSpec {
             Self::OwnCharacter => {
                 let player = players.get(player_id);
                 (0..player.char_states.len() as u8)
-                    .into_iter()
                     .filter_map(|i| {
                         if player.is_valid_char_index(i) {
                             Some(CardSelection::OwnCharacter(i))

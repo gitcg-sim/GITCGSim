@@ -46,7 +46,9 @@ pub mod icy_quill {
         }
 
         fn late_outgoing_dmg(&self, e: &StatusImplContext<DMGInfo>, dmg: &mut DealDMG) -> Option<AppliedEffectResult> {
-            let Some(Element::Cryo) = dmg.dmg_type.element() else { return None };
+            let Some(Element::Cryo) = dmg.dmg_type.element() else {
+                return None;
+            };
             dmg.dmg += 1;
             if e.has_talent_equipped()
                 && e.skill_type() == Some(SkillType::NormalAttack)
@@ -72,7 +74,9 @@ pub mod talisman_spirit {
         }
 
         fn late_outgoing_dmg(&self, _: &StatusImplContext<DMGInfo>, dmg: &mut DealDMG) -> Option<AppliedEffectResult> {
-            let (DealDMGType::Physical | DealDMGType::Elemental(Element::Cryo)) = dmg.dmg_type else { return None };
+            let (DealDMGType::Physical | DealDMGType::Elemental(Element::Cryo)) = dmg.dmg_type else {
+                return None;
+            };
             dmg.dmg += 1;
             Some(AppliedEffectResult::ConsumeUsage)
         }

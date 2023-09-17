@@ -48,13 +48,13 @@ pub mod chonghua_frost_field {
 
         fn outgoing_dmg(&self, e: &StatusImplContext<DMGInfo>, dmg: &mut DealDMG) -> Option<AppliedEffectResult> {
             let Some(SkillType::NormalAttack) = e.skill_type() else {
-                return None
+                return None;
             };
 
-            let Some(
-                WeaponType::Claymore | WeaponType::Polearm | WeaponType::Sword
-            ) = e.src_char_card().map(|c| c.weapon) else {
-                return None
+            let Some(WeaponType::Claymore | WeaponType::Polearm | WeaponType::Sword) =
+                e.src_char_card().map(|c| c.weapon)
+            else {
+                return None;
             };
 
             if e.has_talent_equipped() {

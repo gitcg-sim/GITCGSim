@@ -25,7 +25,9 @@ impl StatusImpl for Tenshukaku {
     }
 
     fn trigger_event(&self, e: &mut TriggerEventContext<EventId>) -> Option<AppliedEffectResult> {
-        let EventId::StartOfActionPhase = e.event_id else { return None };
+        let EventId::StartOfActionPhase = e.event_id else {
+            return None;
+        };
         if e.c.src_player_state.dice.distinct_count() < 5 {
             return None;
         }

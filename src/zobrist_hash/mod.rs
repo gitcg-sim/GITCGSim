@@ -15,20 +15,20 @@
 ///
 /// Then the equality for `T` can be defined into:
 ///
-/// ```ignore
+/// ```text
 /// eq(a: T, b:T) := features(a) == features(b)
 /// ```
 ///
 /// Then the Zobrist hash for `T` is:
 ///
-/// ```ignore
+/// ```text
 /// hash(a: T) := xor( { hash_element(e) | e in to_set(a) })
 /// ```
 ///
 /// ## Multisets
 /// For a collection of values where the order does not matter but
 /// multiplicity (number of copies of an element) matters:
-/// ```ignore
+/// ```text
 /// features(xs: List<F>): Set<(F, number)> := { (e, xs.multiplicity(e)) | e in xs }
 /// ```
 ///
@@ -36,13 +36,13 @@
 ///
 /// ## Ordered lists
 /// For a list where the order of elements matter:
-/// ```ignore
+/// ```text
 /// features(xs: List<F>): Set<(F, number)> := { (e, index) | (index, e) in enumerate(xs) }
 /// ```
 ///
 /// ## Structs and enums
 /// The features are tupled with the path to the struct/enum item.
-/// ```ignore
+/// ```text
 /// // Sum type (enums)
 /// features(xs: A + B + ...): Set<(F, number)> = { (a, 0) | a in features(A) } union { (b, 1) b in features(B) } union ...
 /// // Product type (structs and tuples)
@@ -78,7 +78,7 @@ pub type HashValue = u64;
 /// The `GameState` is hash coherent if and only if the incrementally-updated hash is
 /// identical to the recomputed hash.
 ///
-/// ```ignore
+/// ```text
 /// let incremental_hash = game_state.zobrist_hash();
 /// let recomputed_hash = { game_state.rehash(); game_state.zobrist_hash() };
 /// assert_eq!(incremental_hash, recomputed_hash);

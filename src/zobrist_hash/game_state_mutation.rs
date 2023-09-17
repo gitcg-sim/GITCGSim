@@ -44,7 +44,7 @@ impl PlayerState {
     #[inline]
     pub fn try_remove_card_from_hand(&mut self, c: PlayerHashContext, card_id: CardId) -> bool {
         let Some(i) = self.hand.iter().position(|&x| x == card_id) else {
-            return false
+            return false;
         };
         self.remove_card_from_hand_by_index(c, i);
         true

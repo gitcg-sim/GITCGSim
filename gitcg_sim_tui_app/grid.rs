@@ -55,7 +55,9 @@ impl GridConstraint {
                 if remain == 0 {
                     break;
                 }
-                let (GridConstraint::Fr(..) | GridConstraint::Percent(..)) = gc else { continue };
+                let (GridConstraint::Fr(..) | GridConstraint::Percent(..)) = gc else {
+                    continue;
+                };
                 let Constraint::Length(len) = c else { continue };
                 *len += 1;
                 remain -= 1;

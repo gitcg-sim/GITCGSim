@@ -374,7 +374,9 @@ impl StatusCollection {
         shifts_to_next_active: &mut SmallVec<A>,
     ) {
         self._status_entries.retain(|e| {
-            let StatusKey::Character(status_char_idx, status_id) = e.key else { return true };
+            let StatusKey::Character(status_char_idx, status_id) = e.key else {
+                return true;
+            };
             if status_char_idx != char_idx {
                 return true;
             }
@@ -414,7 +416,9 @@ impl StatusCollection {
         }
 
         for e in &self._status_entries {
-            let StatusKey::Character(_, status_id) = e.key else { continue };
+            let StatusKey::Character(_, status_id) = e.key else {
+                continue;
+            };
             let si: StaticStatusImpl = status_id.into();
             if !si.responds_to().contains(RespondsTo::PreparingSkill) {
                 continue;
@@ -436,7 +440,9 @@ impl StatusCollection {
         }
 
         for e in &self._status_entries {
-            let StatusKey::Character(_, status_id) = e.key else { continue };
+            let StatusKey::Character(_, status_id) = e.key else {
+                continue;
+            };
             let si: StaticStatusImpl = status_id.into();
             if !si.responds_to().contains(RespondsTo::PreparingSkill) {
                 continue;
@@ -454,7 +460,9 @@ impl StatusCollection {
         }
 
         for e in &mut self._status_entries {
-            let StatusKey::Character(_, status_id) = e.key else { continue };
+            let StatusKey::Character(_, status_id) = e.key else {
+                continue;
+            };
             let si: StaticStatusImpl = status_id.into();
             if !si.responds_to().contains(RespondsTo::PreparingSkill) {
                 continue;

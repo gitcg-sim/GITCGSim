@@ -46,7 +46,9 @@ pub mod niwabi_enshou {
         }
 
         fn outgoing_dmg(&self, e: &StatusImplContext<DMGInfo>, dmg: &mut DealDMG) -> Option<AppliedEffectResult> {
-            let Some(SkillId::FireworkFlareUp) = e.skill_id() else { return None };
+            let Some(SkillId::FireworkFlareUp) = e.skill_id() else {
+                return None;
+            };
             dmg.infuse(DealDMGType::PYRO);
             dmg.dmg += if e.has_talent_equipped() { 2 } else { 1 };
             Some(AppliedEffectResult::ConsumeUsage)

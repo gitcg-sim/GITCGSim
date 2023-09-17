@@ -81,7 +81,7 @@ pub mod explosive_spark {
             }
 
             let CostType::Skill(SkillId::Kaboom) = cost_type else {
-                return None
+                return None;
             };
 
             if cost.try_reduce_elemental_cost(1, Element::Pyro) {

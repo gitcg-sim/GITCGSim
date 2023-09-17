@@ -1,14 +1,19 @@
-use std::fmt::Debug;
+use std::{fmt::Debug, ops::ControlFlow};
 
+use dfdx::{optim::Sgd, prelude::*, tensor::*};
 use gitcg_sim::{
+    mcts::{MCTSConfig, MCTS},
     rand::{rngs::SmallRng, thread_rng, Rng, SeedableRng},
-    training::{as_slice::*, features::GameStateFeatures},
+    training::{
+        as_slice::*,
+        features::{GameStateFeatures, InputFeatures},
+    },
 };
-// use gitcg_sim::mcts::{MCTSConfig, MCTS}
 use serde::Serialize;
+use serde_json::json;
 use structopt::StructOpt;
 
-use ndarray::Array1;
+use ndarray::{Array1, Array2};
 
 use gitcg_sim::{
     deck::cli_args::DeckOpts,
@@ -174,7 +179,6 @@ fn run_self_play<
         for t in 0..(n_states - 1) {
             let Some(grad) = &evals[t].1 else { continue };
             let sum_td: f32 = (t..(n_states - 1))
-                .into_iter()
                 .map(|j| {
                     let temporal_diff = evals[j + 1].0 - evals[j].0;
                     temporal_rate.powi((j - t) as i32) * temporal_diff

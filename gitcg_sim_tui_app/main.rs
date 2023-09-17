@@ -748,10 +748,10 @@ fn add_logs(
             let src_player_id = dst_player_id.opposite();
             let src_char_idx = game_state.get_player(src_player_id).active_char_index;
             let Some(src) = rects.get(&(src_player_id, RectKey::Character(src_char_idx))) else {
-                continue
+                continue;
             };
             let Some(dst) = rects.get(&(dst_player_id, RectKey::Character(dst_char_idx))) else {
-                continue
+                continue;
             };
             anim.push_back(Animation::DealDMG(deal_dmg, *src, *dst));
             continue;

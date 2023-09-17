@@ -31,7 +31,7 @@ impl GameState {
 
         let log = &mut self.log;
         let Some(active_player_id) = self.phase.active_player() else {
-            return Err(DispatchError::UnableToPayCost)
+            return Err(DispatchError::UnableToPayCost);
         };
         let player = self.players.get_mut(active_player_id);
         let mut cost = *cost;
@@ -41,7 +41,7 @@ impl GameState {
             let ec = cost.energy_cost;
             let active_char_index = player.active_char_index;
             let Some(active_char) = player.try_get_character_mut(active_char_index) else {
-                return Err(DispatchError::UnableToPayCost)
+                return Err(DispatchError::UnableToPayCost);
             };
             let e = active_char.get_energy();
             if e < ec {
@@ -242,7 +242,7 @@ impl GameState {
 
     fn switch_relative(&mut self, ctx: &CommandContext, switch_type: RelativeSwitchType) -> ExecResult {
         let Some(char_idx) = self.players[ctx.src_player_id].relative_switch_char_idx(switch_type) else {
-            return ExecResult::Success
+            return ExecResult::Success;
         };
         self.do_switch_character(ctx, char_idx)
     }
@@ -256,7 +256,7 @@ impl GameState {
 
         let src_player = self.players.get_mut(ctx.src_player_id);
         let Some(src_char) = src_player.try_get_character_mut(char_idx) else {
-            return ExecResult::Success
+            return ExecResult::Success;
         };
 
         let c = chc!(self, ctx.src_player_id, char_idx);
@@ -269,7 +269,11 @@ impl GameState {
     }
 
     fn deal_dmg(&mut self, ctx: &CommandContext, dmg: DealDMG) -> ExecResult {
-        let Some(CommandTarget { char_idx: tgt_char_idx, player_id: tgt_player_id }) = ctx.tgt else {
+        let Some(CommandTarget {
+            char_idx: tgt_char_idx,
+            player_id: tgt_player_id,
+        }) = ctx.tgt
+        else {
             panic!("deal_dmg: No dst_char for ctx");
         };
 
@@ -531,7 +535,7 @@ impl GameState {
 
     fn take_dmg(&mut self, ctx: &CommandContext, dmg: DealDMG) -> ExecResult {
         let Some(char_idx) = ctx.src.char_idx() else {
-            return ExecResult::Success
+            return ExecResult::Success;
         };
         let ctx = CommandContext::new(
             ctx.src_player_id.opposite(),
@@ -700,7 +704,7 @@ impl GameState {
         let p = self.players.get_mut(ctx.src_player_id);
         for char_idx in 0..(p.char_states.len() as u8) {
             let Some(character) = p.try_get_character_mut(char_idx) else {
-                continue
+                continue;
             };
             character.heal_hashed(chc!(self, ctx.src_player_id, char_idx), hp);
             if self.log.enabled {

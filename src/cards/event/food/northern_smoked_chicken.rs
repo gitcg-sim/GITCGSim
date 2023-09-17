@@ -20,7 +20,7 @@ impl StatusImpl for NorthernSmokedChicken {
 
     fn update_cost(&self, _: &StatusImplContext, cost: &mut Cost, cost_type: CostType) -> Option<AppliedEffectResult> {
         let Some(SkillType::NormalAttack) = cost_type.get_skill().map(|s| s.skill_type) else {
-            return None
+            return None;
         };
 
         if cost.try_reduce_unaligned_cost(1) {

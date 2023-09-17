@@ -173,7 +173,6 @@ impl GameState {
     fn player_state_features(&self, player_id: PlayerId) -> PlayerStateFeatures<f32> {
         let player_state = self.players.get(player_id);
         let switch_is_fast_action = (0u8..(N_CHARS as u8))
-            .into_iter()
             .any(|char_idx| self.check_switch_is_fast_action(player_id, char_idx))
             .bv();
 
@@ -213,7 +212,7 @@ impl<S: NondetState> crate::game_tree_search::GameStateWrapper<S> {
 }
 
 #[repr(C)]
-#[derive(Default, Copy, Clone)]
+#[derive(Default, Copy, Clone, Serialize, Deserialize)]
 pub struct PlayCardFeatures<T> {
     pub event_or_other: T,
     pub support: T,
@@ -221,7 +220,7 @@ pub struct PlayCardFeatures<T> {
 }
 
 #[repr(C)]
-#[derive(Default, Copy, Clone)]
+#[derive(Default, Copy, Clone, Serialize, Deserialize)]
 pub struct CastSkillFeatures<T> {
     pub normal_attack: T,
     pub elemental_skill: T,
@@ -229,7 +228,7 @@ pub struct CastSkillFeatures<T> {
 }
 
 #[repr(C)]
-#[derive(Default, Copy, Clone)]
+#[derive(Default, Copy, Clone, Serialize, Deserialize)]
 pub struct InputFeatures<T> {
     pub end_round: T,
     pub switch: [T; N_CHARS],

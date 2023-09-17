@@ -20,7 +20,7 @@ impl StatusImpl for AdeptusTemptation {
 
     fn outgoing_dmg(&self, e: &StatusImplContext<DMGInfo>, dmg: &mut DealDMG) -> Option<AppliedEffectResult> {
         let Some(SkillType::ElementalBurst) = e.skill_type() else {
-            return None
+            return None;
         };
 
         dmg.dmg += 3;

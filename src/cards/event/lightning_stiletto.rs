@@ -36,9 +36,13 @@ impl CardImpl for LightningStiletto {
         commands: &mut CommandList<(CommandContext, Command)>,
     ) {
         let player = cic.game_state.get_player(cic.active_player_id);
-        let Some((ci, _)) = player.char_states.iter().enumerate()
-            .find(|(ci, c)| player.is_valid_char_index(*ci as u8) && c.char_id == CharId::Keqing) else {
-            return
+        let Some((ci, _)) = player
+            .char_states
+            .iter()
+            .enumerate()
+            .find(|(ci, c)| player.is_valid_char_index(*ci as u8) && c.char_id == CharId::Keqing)
+        else {
+            return;
         };
         commands.push((*ctx, Command::SwitchCharacter(ci as u8)));
         commands.append(&mut get_cast_skill_cmds(player, ctx, SkillId::StellarRestoration));

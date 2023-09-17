@@ -77,7 +77,9 @@ pub mod cryo_elemental_infusion {
         }
 
         fn outgoing_dmg(&self, e: &StatusImplContext<DMGInfo>, dmg: &mut DealDMG) -> Option<AppliedEffectResult> {
-            let Some(SkillId::KamisatoArtKabuki) = e.skill_id() else { return None };
+            let Some(SkillId::KamisatoArtKabuki) = e.skill_id() else {
+                return None;
+            };
             if dmg.infuse(DealDMGType::CRYO) {
                 if e.has_talent_equipped() && e.eff_state.can_use_once_per_round() {
                     dmg.dmg += 1;
