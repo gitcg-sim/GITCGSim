@@ -4,3 +4,7 @@ perf.data.old
 
 node_modules/
 dist/
+
+*.npz
+output*.txt
+

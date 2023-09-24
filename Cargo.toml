@@ -37,6 +37,7 @@ no_static_status_impl = []
 no_parallel = []
 training = [
     "dep:neuronika",
+    "dep:dfdx",
     "dep:ndarray"
 ]
 
@@ -57,6 +58,7 @@ path = "benchmark/main.rs"
 [dependencies]
 atree = { version = "0.5.*" }
 bitfield = { version = "0.14.*" }
+dfdx = { version = "0.13.0", features = ["numpy"], optional = true }
 enum-map = { version = "2.4.*" }
 enum-map-derive = { version = "0.3.*" }
 enumset = { version = "1.0.*", features = ["serde"] }

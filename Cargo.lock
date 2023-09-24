@@ -572,6 +572,7 @@ dependencies = [
  "atree",
  "bincode",
  "bitfield",
+ "dfdx",
  "enum-map",
  "enum-map-derive 0.3.0",
  "enumset",

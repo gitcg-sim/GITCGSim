@@ -23,11 +23,9 @@ use gitcg_sim::{
     deck::cli_args::DeckOpts,
     game_tree_search::*,
     prelude::*,
+    training::eval::*,
     types::{by_player::ByPlayer, nondet::NondetState},
 };
-
-pub mod model;
-use model::*;
 
 #[derive(Debug, StructOpt, Clone)]
 pub struct TDLOpts {

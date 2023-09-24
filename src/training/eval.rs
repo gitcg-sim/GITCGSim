@@ -1,13 +1,16 @@
-use gitcg_sim::{
+use crate::{
+    game_tree_search::*,
+    linked_list,
     mcts::{policy::EvalPolicy, MCTS},
+    minimax::Eval,
+    prelude::*,
     rand::{distributions::WeightedIndex, prelude::Distribution, thread_rng, Rng},
     training::{as_slice::AsSlice, features::GameStateFeatures},
+    types::nondet::NondetState,
 };
 
 use ndarray::{Array1, Dim};
 use neuronika::{Var, VarDiff};
-
-use gitcg_sim::{game_tree_search::*, linked_list, minimax::Eval, prelude::*, types::nondet::NondetState};
 
 #[derive(Default, Clone)]
 pub struct SelfPlayModel {
