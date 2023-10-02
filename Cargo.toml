@@ -36,7 +36,6 @@ wasm = [
 no_static_status_impl = []
 no_parallel = []
 training = [
-    "dep:neuronika",
     "dep:dfdx",
     "dep:ndarray"
 ]
@@ -70,7 +69,6 @@ rand = { version = "0.8.*", features = ["small_rng", "serde", "serde1"] }
 rayon = { version = "^1.7.0" }
 rustc-hash = { version = "1.1.*" }
 ndarray = { version = "*", optional = true }
-neuronika = { git = "https://github.com/neuronika/neuronika", rev = "a5e37b21", features = ["serialize"], optional = true }
 serde = { version = "1.0", features = ["derive", "rc"] }
 smallvec = { version = "1.10.*", features = ["serde"] }
 structopt = { version = "0.3.*" }

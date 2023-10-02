@@ -231,27 +231,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7a81dae078cea95a014a339291cec439d2f232ebe854a9d672b796c6afafa9b7"
 
 [[package]]
-name = "csv"
-version = "1.2.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "626ae34994d3d8d668f4269922248239db4ae42d538b14c398b74a52208e8086"
-dependencies = [
- "csv-core",
- "itoa",
- "ryu",
- "serde",
-]
-
-[[package]]
-name = "csv-core"
-version = "0.1.10"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2b2466559f260f48ad25fe6317b3c8dac77b5bdb5763ac7d9d6103530663bc90"
-dependencies = [
- "memchr",
-]
-
-[[package]]
 name = "cudarc"
 version = "0.9.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -581,7 +560,6 @@ dependencies = [
  "instant",
  "lazy_static",
  "ndarray",
- "neuronika",
  "proptest",
  "rand",
  "rayon",
@@ -600,7 +578,6 @@ dependencies = [
  "dfdx",
  "gitcg_sim",
  "ndarray",
- "neuronika",
  "serde",
  "serde_json",
  "structopt",
@@ -671,15 +648,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "itertools"
-version = "0.10.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b0fd2260e829bddf4cb6ea802289de2f86d6a7a690192fbe91b3f46e0f2c8473"
-dependencies = [
- "either",
-]
-
-[[package]]
 name = "itoa"
 version = "1.0.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -745,12 +713,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "memchr"
-version = "2.6.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8f232d6ef707e1956a43342693d2a31e72989554d58299d7a88738cc95b0d35c"
-
-[[package]]
 name = "memoffset"
 version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -782,87 +744,6 @@ dependencies = [
  "num-integer",
  "num-traits",
  "rawpointer",
- "rayon",
- "serde",
-]
-
-[[package]]
-name = "ndarray-rand"
-version = "0.14.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "65608f937acc725f5b164dcf40f4f0bc5d67dc268ab8a649d3002606718c4588"
-dependencies = [
- "ndarray",
- "rand",
- "rand_distr",
-]
-
-[[package]]
-name = "neuronika"
-version = "0.2.0"
-source = "git+https://github.com/neuronika/neuronika?rev=a5e37b21#a5e37b2144475574b88c2e4a5c72c6f8494ef007"
-dependencies = [
- "neuronika-core",
- "neuronika-data",
- "neuronika-nn",
- "neuronika-optim",
- "neuronika-variable",
-]
-
-[[package]]
-name = "neuronika-core"
-version = "0.1.0"
-source = "git+https://github.com/neuronika/neuronika?rev=a5e37b21#a5e37b2144475574b88c2e4a5c72c6f8494ef007"
-dependencies = [
- "ndarray",
-]
-
-[[package]]
-name = "neuronika-data"
-version = "0.1.0"
-source = "git+https://github.com/neuronika/neuronika?rev=a5e37b21#a5e37b2144475574b88c2e4a5c72c6f8494ef007"
-dependencies = [
- "csv",
- "itertools",
- "ndarray",
- "rand",
- "serde",
-]
-
-[[package]]
-name = "neuronika-nn"
-version = "0.1.0"
-source = "git+https://github.com/neuronika/neuronika?rev=a5e37b21#a5e37b2144475574b88c2e4a5c72c6f8494ef007"
-dependencies = [
- "ndarray",
- "neuronika-core",
- "neuronika-variable",
- "rand",
- "rand_distr",
-]
-
-[[package]]
-name = "neuronika-optim"
-version = "0.1.0"
-source = "git+https://github.com/neuronika/neuronika?rev=a5e37b21#a5e37b2144475574b88c2e4a5c72c6f8494ef007"
-dependencies = [
- "ndarray",
- "neuronika-variable",
-]
-
-[[package]]
-name = "neuronika-variable"
-version = "0.1.0"
-source = "git+https://github.com/neuronika/neuronika?rev=a5e37b21#a5e37b2144475574b88c2e4a5c72c6f8494ef007"
-dependencies = [
- "itertools",
- "ndarray",
- "ndarray-rand",
- "neuronika-core",
- "rand",
- "rand_distr",
- "rayon",
- "serde",
 ]
 
 [[package]]

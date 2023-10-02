@@ -1,17 +1,13 @@
 use std::{
     fmt::Debug,
-    ops::{ControlFlow, Mul}
+    ops::{ControlFlow, Mul},
 };
 
 use dfdx::{optim::Sgd, prelude::*};
 use gitcg_sim::{
     mcts::{MCTSConfig, MCTS},
     rand::{rngs::SmallRng, thread_rng, Rng, SeedableRng},
-    training::{
-        as_slice::*,
-        policy::*,
-        features::*,
-    },
+    training::{as_slice::*, features::*, policy::*},
 };
 use serde::Serialize;
 use serde_json::json;
@@ -127,14 +123,15 @@ fn run_playout<
     Ok(states)
 }
 
-fn winner_eval(winner: PlayerId, player_id: PlayerId) -> (f32, Option<Array1<f32>>) {
+const N: usize = <GameStateFeatures<f32> as AsSlice<f32>>::LENGTH;
+fn winner_eval(winner: PlayerId, player_id: PlayerId) -> (f32, GameStateFeatures<f32>) {
     (
         if winner == player_id {
             SelfPlayModel::WIN
         } else {
             SelfPlayModel::LOSE
         },
-        None,
+        Default::default(),
     )
 }
 
@@ -169,7 +166,7 @@ fn run_self_play<
                     if let Some(winner) = game_state.winner() {
                         winner_eval(winner, player_id)
                     } else {
-                        searches.get(player_id).get_self_play_model().evaluate(game_state, true)
+                        searches.get(player_id).get_self_play_model().evaluate(game_state)
                     }
                 })
                 .collect::<Vec<_>>()
@@ -181,47 +178,43 @@ fn run_self_play<
     if let Some(make_debug_entry) = make_debug_entry {
         for player_id in [PlayerId::PlayerFirst, PlayerId::PlayerSecond] {
             let model = searches[player_id].get_self_play_model();
-            let weights = model.weights.as_slice().unwrap();
-            const N: usize = <GameStateFeatures<f32> as AsSlice<f32>>::LENGTH;
-            if weights.len() != N {
-                panic!();
-            }
-            let mut slice: <GameStateFeatures<f32> as AsSlice<f32>>::Slice = [0f32; N];
-            slice[..weights.len()].copy_from_slice(weights);
-            let entry = make_debug_entry(player_id, <GameStateFeatures<f32> as AsSlice<f32>>::from_slice(slice));
+            let entry = make_debug_entry(player_id, model.weights);
             println!("{}", serde_json::to_string(&entry).unwrap_or_default());
         }
     }
 
     for player_id in [PlayerId::PlayerFirst, PlayerId::PlayerSecond] {
         let model = searches[player_id].get_self_play_model_mut();
-        let weights = &mut model.weights;
+        let weights = model.weights.as_slice_mut();
         let n_states = states.len();
         let evals = &evals[player_id];
         for t in 0..(n_states - 1) {
-            let Some(grad) = &evals[t].1 else { continue };
+            let grad = evals[t].1.as_slice_ref();
             let sum_td: f32 = (t..(n_states - 1))
                 .map(|j| {
                     let temporal_diff = evals[j + 1].0 - evals[j].0;
                     temporal_rate.powi((j - t) as i32) * temporal_diff
                 })
                 .sum();
-            weights.scaled_add(sum_td * learning_rate, grad);
+
+            let a = sum_td * learning_rate;
+            for (wi, gi) in weights.iter_mut().zip(grad.iter().copied()) {
+                *wi += a * gi;
+            }
         }
     }
 }
 
-fn new_search(init_weights: Array1<f32>, player_id: PlayerId, beta: f32, delta: f32) -> SelfPlaySearch {
+fn new_search(init_weights: GameStateFeatures<f32>, player_id: PlayerId, beta: f32, delta: f32) -> SelfPlaySearch {
     SelfPlaySearch::new(init_weights, player_id, beta, delta)
 }
 
 fn main_tdl(mut deck: DeckOpts, opts: TDLOpts) -> Result<(), std::io::Error> {
     let mut seed_gen = thread_rng();
     let (beta, delta) = (opts.beta, 1e-4);
-    const N: usize = <GameStateFeatures<f32> as AsSlice<f32>>::LENGTH;
     let mut searches = ByPlayer::new(
-        new_search(Array1::zeros(N), PlayerId::PlayerFirst, beta, delta),
-        new_search(Array1::zeros(N), PlayerId::PlayerSecond, beta, delta),
+        new_search(GameStateFeatures::<f32>::default(), PlayerId::PlayerFirst, beta, delta),
+        new_search(GameStateFeatures::<f32>::default(), PlayerId::PlayerSecond, beta, delta),
     );
     for i in 0..=opts.max_iters {
         deck.seed = Some(seed_gen.gen());

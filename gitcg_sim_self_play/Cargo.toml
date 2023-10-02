@@ -4,9 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [features]
-default = [
-    "neuronika/serialize",
-]
+default = []
 
 [[bin]]
 name = "gitcg_sim_self_play"
@@ -16,7 +14,6 @@ path = "main.rs"
 gitcg_sim = { path = "..", features = ["training"] }
 dfdx = { version = "0.13.0", features = ["numpy"] }
 ndarray = { version = "*" }
-neuronika = { git = "https://github.com/neuronika/neuronika", rev = "a5e37b21", features = ["serialize"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = { version = "1.0.94" }
 structopt = { version = "0.3.*" }
