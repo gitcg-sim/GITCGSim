@@ -1,5 +1,5 @@
-use std::path::PathBuf;
 use dfdx::prelude::*;
+use std::path::PathBuf;
 
 use crate::training::{
     as_slice::*,

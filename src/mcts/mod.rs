@@ -1,5 +1,4 @@
 use instant::Instant;
-use rustc_hash::{FxHashMap, FxHashSet};
 use serde::{Deserialize, Serialize};
 use std::{cell::RefCell, rc::Rc};
 
@@ -40,15 +39,11 @@ fn format_ratio(q: u32, n: u32) -> String {
     format!("{q}/{n} = {:.2}% \u{b1} {:.2}%", 1e2 * r, 1e2 * 2.0 * sd)
 }
 
-#[allow(type_alias_bounds)]
-type AMAFMap<G: Game> = FxHashMap<G::Action, (u32, u32)>;
-
 pub struct Node<G: Game> {
     pub state: G,
     pub action: Option<G::Action>,
     pub q: u32,
     pub n: u32,
-    pub amaf: AMAFMap<G>,
     pub depth: u8,
 }
 
@@ -66,7 +61,6 @@ impl<G: Game> Node<G> {
             action,
             q: 0,
             n: 0,
-            amaf: FxHashMap::default(),
             depth: 0,
         }
     }
@@ -101,24 +95,6 @@ impl<G: Game> Node<G> {
         ((q as f32) / ((n + 2) as f32), n)
     }
 
-    #[allow(dead_code)]
-    #[inline]
-    fn rave_adjusted_ratio(&self, is_maximize: bool, action: G::Action, n: u32, ratio: f32, b: f32) -> Option<f32> {
-        let Some((q_amaf, n_amaf)) = self.amaf.get(&action).copied() else {
-            return None;
-        };
-
-        let deno = (n + n_amaf) as f32 + (4f32 * b * b) * ((n * n_amaf) as f32);
-        let beta = (n_amaf as f32) / (deno + 1.0);
-        let nr = n_amaf + 2;
-        let ratio_amaf = if is_maximize {
-            ((q_amaf + 1) as f32) / (nr as f32)
-        } else {
-            ((nr - (q_amaf + 1)) as f32) / (nr as f32)
-        };
-        Some((1f32 - beta) * ratio + beta * ratio_amaf)
-    }
-
     #[inline]
     fn lookup_tt(&self, tt: &CacheTable<TTKey, TTValue>, tt_hits: Rc<RefCell<u64>>) -> Option<(u32, u32)> {
         let Some(res) = tt.get(&TTKey(self.state.zobrist_hash())) else {
@@ -149,8 +125,6 @@ impl<G: Game> Node<G> {
 pub struct MCTSConfig {
     /// UCB constant
     pub c: f32,
-    /// RAVE constant, None to disable RAVE
-    pub b: Option<f32>,
     pub tt_size_mb: u32,
     pub parallel: bool,
     pub random_playout_iters: u32,
@@ -159,13 +133,6 @@ pub struct MCTSConfig {
     pub random_playout_bias: Option<f32>,
     pub debug: bool,
     pub limits: Option<SearchLimits>,
-}
-
-impl MCTSConfig {
-    #[inline]
-    fn is_rave_enabled(&self) -> bool {
-        self.b.is_some()
-    }
 }
 
 #[derive(Debug)]
@@ -236,22 +203,11 @@ impl<G: Game, E: EvalPolicy<G>> MCTS<G, E> {
         node.data.state.to_move()?;
         let is_maximize = node.data.is_maximize(self.maximize_player);
         let c = self.config.c;
-        let b = self.config.b;
         let n_parent = node.data.n;
         let uct_log = ((n_parent + 1) as f32).ln_1p();
-        let action = node.data.action;
         let best = node.children(&self.tree).max_by_key(move |&child| {
             let child_node = &child.data;
-            let (ratio, n_with_tt) = child_node.ratio_with_transposition(is_maximize, &self.tt, tt_hits.clone());
-            let ratio = if let (Some(action), Some(b)) = (action, b) {
-                child
-                    .data
-                    .rave_adjusted_ratio(is_maximize, action, n_with_tt, ratio, b)
-                    .unwrap_or(ratio)
-            } else {
-                ratio
-            };
-
+            let (ratio, _) = child_node.ratio_with_transposition(is_maximize, &self.tt, tt_hits.clone());
             // + 1 to avoid division by zero
             let n_child = child_node.n + 1;
             let uct = (uct_log / (n_child as f32)).sqrt();
@@ -375,8 +331,7 @@ impl<G: Game, E: EvalPolicy<G>> MCTS<G, E> {
         let tree = &mut self.tree;
         let n = path.len() as u8;
         let mut d = n;
-        for i in 0..(n as usize) {
-            let token = path[i];
+        for token in path.iter().copied() {
             let data = &mut tree.get_mut(token).unwrap().data;
             let key = TTKey(data.state.zobrist_hash());
             data.q += dq;
@@ -385,25 +340,6 @@ impl<G: Game, E: EvalPolicy<G>> MCTS<G, E> {
             d -= 1;
             let (q0, n0) = self.tt.get(&key).unwrap_or_default();
             self.tt.replace_if(&key, (q0 + dq, n0 + dn), |(_, nt)| *nt <= n0);
-
-            if !self.config.is_rave_enabled() {
-                continue;
-            }
-
-            let mut touched = FxHashSet::default();
-            #[allow(clippy::needless_range_loop)]
-            for i_child in i..(n as usize) {
-                let child = &mut tree.get_mut(path[i_child]).unwrap().data;
-                let Some(a) = child.action else { continue };
-                if touched.contains(&a) {
-                    continue;
-                }
-
-                touched.insert(a);
-                let amaf = &mut child.amaf;
-                let (q0, n0) = amaf.get(&a).copied().unwrap_or_default();
-                amaf.insert(a, (q0 + dq, n0 + dn));
-            }
         }
     }
 
@@ -641,7 +577,6 @@ mod tests {
 
     const CONFIG: MCTSConfig = MCTSConfig {
         c: 2.0,
-        b: None,
         tt_size_mb: 0,
         parallel: false,
         random_playout_iters: 10,

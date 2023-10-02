@@ -273,7 +273,6 @@ fn main_policy(deck: DeckOpts, opts: PolicyOpts) -> Result<(), std::io::Error> {
     const BATCH_SIZE: usize = 512;
     let config = MCTSConfig {
         c: 2.0,
-        b: None,
         random_playout_iters: 10,
         random_playout_bias: Some(50.0),
         random_playout_cutoff: 20,

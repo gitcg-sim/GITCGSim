@@ -162,7 +162,6 @@ fn standard_search_opts(algorithm: Option<SearchAlgorithm>, standard_time_limit_
     SearchConfig {
         algorithm,
         mcts_c: Some(2.0),
-        mcts_b: None,
         mcts_random_playout_iters: Some(10),
         mcts_random_playout_max_steps: Some(20),
         mcts_random_playout_bias: Some(50.0),

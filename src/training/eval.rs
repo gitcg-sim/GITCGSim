@@ -15,7 +15,11 @@ use crate::{
 pub fn sigmoid_dot<const N: usize>(x: &[f32; N], w: &[f32; N], a: f32) -> (f32, [f32; N]) {
     // Let $f(x; w) = sigmoid(a * (x.w))$
     // $df/dx_i = (d[sigmoid(a * (x.w))] / d[a * (x.w)]) (d[a * (x.w)] / dx_i) = a * sigmoid'(x . w) * w_i$
-    let dot: f32 = a * x.iter().copied().zip(w.iter().copied()).fold(0f32, |s, (xi, wi)| s + xi * wi);
+    let dot: f32 = a * x
+        .iter()
+        .copied()
+        .zip(w.iter().copied())
+        .fold(0f32, |s, (xi, wi)| s + xi * wi);
     let exp = dot.neg().exp();
     let y = 1f32 / (1f32 + exp);
     let exp1 = exp + 1f32;
