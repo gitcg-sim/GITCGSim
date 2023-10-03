@@ -17,7 +17,10 @@ use self::policy::{DefaultEvalPolicy, EvalPolicy};
 
 pub mod policy;
 
-type TTValue = (u32, u32);
+pub mod proportion;
+use proportion::*;
+
+type TTValue = Proportion;
 
 #[derive(Debug, Default, Serialize, Deserialize)]
 pub struct TreeDump<T> {
@@ -33,23 +36,24 @@ impl<T> TreeDump<T> {
     }
 }
 
-fn format_ratio(q: u32, n: u32) -> String {
-    let r = ((q + 1) as f32) / ((n + 2) as f32);
-    let sd = f32::sqrt(r * (1.0 - r)) / f32::sqrt(n as f32);
-    format!("{q}/{n} = {:.2}% \u{b1} {:.2}%", 1e2 * r, 1e2 * 2.0 * sd)
+fn format_ratio(p: Proportion) -> String {
+    let r = p.ratio();
+    format!("{p} = {:.2}% \u{b1} {:.2}%", 1e2 * r, 1e2 * 2.0 * p.sd())
 }
 
 pub struct Node<G: Game> {
     pub state: G,
     pub action: Option<G::Action>,
-    pub q: u32,
-    pub n: u32,
+    pub prop: Proportion,
     pub depth: u8,
 }
 
 impl<G: Game> std::fmt::Debug for Node<G> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("Node").field("q", &self.q).field("n", &self.n).finish()
+        f.debug_struct("Node")
+            .field("q", &self.prop.q)
+            .field("n", &self.prop.n)
+            .finish()
     }
 }
 
@@ -59,8 +63,7 @@ impl<G: Game> Node<G> {
         Self {
             state,
             action,
-            q: 0,
-            n: 0,
+            prop: Default::default(),
             depth: 0,
         }
     }
@@ -72,9 +75,11 @@ impl<G: Game> Node<G> {
 
     #[inline]
     fn ratio(&self, is_maximize: bool) -> f32 {
-        let n = self.n + 2;
-        let q = if is_maximize { self.q + 1 } else { n - (self.q + 1) };
-        (q as f32) / (n as f32)
+        if is_maximize {
+            self.prop.ratio()
+        } else {
+            self.prop.complement().ratio()
+        }
     }
 
     #[inline]
@@ -84,19 +89,14 @@ impl<G: Game> Node<G> {
         tt: &CacheTable<TTKey, TTValue>,
         tt_hits: Rc<RefCell<u64>>,
     ) -> (f32, u32) {
-        let n = self.n;
-        let (q1, n1) = self.lookup_tt(tt, tt_hits).unwrap_or_default();
-        let n = n + n1;
-        let q = if is_maximize {
-            self.q + q1 + 1
-        } else {
-            (n + 2) - (self.q + q1 + 1)
-        };
-        ((q as f32) / ((n + 2) as f32), n)
+        let p0 = self.prop;
+        let p1 = self.lookup_tt(tt, tt_hits).unwrap_or_default();
+        let p = if is_maximize { p0 + p1 } else { (p0 + p1).complement() };
+        (p.ratio(), p.n)
     }
 
     #[inline]
-    fn lookup_tt(&self, tt: &CacheTable<TTKey, TTValue>, tt_hits: Rc<RefCell<u64>>) -> Option<(u32, u32)> {
+    fn lookup_tt(&self, tt: &CacheTable<TTKey, TTValue>, tt_hits: Rc<RefCell<u64>>) -> Option<Proportion> {
         let Some(res) = tt.get(&TTKey(self.state.zobrist_hash())) else {
             return None;
         };
@@ -114,7 +114,7 @@ impl<G: Game> Node<G> {
 
         format!(
             "{action_part} ({}), #children = {}, depth={}",
-            format_ratio(self.q, self.n),
+            format_ratio(self.prop),
             children_count,
             self.depth
         )
@@ -203,13 +203,13 @@ impl<G: Game, E: EvalPolicy<G>> MCTS<G, E> {
         node.data.state.to_move()?;
         let is_maximize = node.data.is_maximize(self.maximize_player);
         let c = self.config.c;
-        let n_parent = node.data.n;
+        let n_parent = node.data.prop.n;
         let uct_log = ((n_parent + 1) as f32).ln_1p();
         let best = node.children(&self.tree).max_by_key(move |&child| {
             let child_node = &child.data;
             let (ratio, _) = child_node.ratio_with_transposition(is_maximize, &self.tt, tt_hits.clone());
             // + 1 to avoid division by zero
-            let n_child = child_node.n + 1;
+            let n_child = child_node.prop.n + 1;
             let uct = (uct_log / (n_child as f32)).sqrt();
             let bandit = ratio + c * uct;
             (1e6 * bandit) as u32
@@ -327,19 +327,19 @@ impl<G: Game, E: EvalPolicy<G>> MCTS<G, E> {
         (count, winner == self.maximize_player)
     }
 
-    fn backpropagate(&mut self, path: Vec<Token>, dq: u32, dn: u32) {
+    fn backpropagate(&mut self, path: Vec<Token>, dprop: Proportion) {
         let tree = &mut self.tree;
         let n = path.len() as u8;
         let mut d = n;
         for token in path.iter().copied() {
             let data = &mut tree.get_mut(token).unwrap().data;
             let key = TTKey(data.state.zobrist_hash());
-            data.q += dq;
-            data.n += dn;
+            data.prop += dprop;
             data.depth = d;
             d -= 1;
-            let (q0, n0) = self.tt.get(&key).unwrap_or_default();
-            self.tt.replace_if(&key, (q0 + dq, n0 + dn), |(_, nt)| *nt <= n0);
+            let prop0: Proportion = self.tt.get(&key).unwrap_or_default();
+            let n0 = prop0.n;
+            self.tt.replace_if(&key, prop0 + dprop, |pt| pt.n <= n0);
         }
     }
 
@@ -389,7 +389,7 @@ impl<G: Game, E: EvalPolicy<G>> MCTS<G, E> {
                 })
                 .fold((0, 0), |(a, b), (c, d)| (a + c, b + d))
         };
-        self.backpropagate(path, wins, random_playout_iters);
+        self.backpropagate(path, (wins, random_playout_iters).into());
 
         let counter = 1 + expand_states_visited + states_visited;
         Some(counter)
@@ -446,7 +446,7 @@ impl<G: Game, E: EvalPolicy<G>> MCTS<G, E> {
             .data
             .debug_description(node.children(&self.tree).count(), &|a| format!("{a:?}"));
         println!("{}{}", indent_prefix(depth), node_part);
-        let (mut omitted_q, mut omitted_n) = (0, 0);
+        let mut omitted_prop = Proportion::default();
         let mut omitted = 0;
         let mut found = false;
         let mut children: SmallVec<[_; 16]> = node.children(&self.tree).collect();
@@ -454,14 +454,14 @@ impl<G: Game, E: EvalPolicy<G>> MCTS<G, E> {
         children.sort_by_cached_key(|c| (-1e6 * c.data.ratio(is_maximize)) as i32);
         let c = children.len();
         for (i, child) in children.iter().copied().enumerate() {
-            let Node { n, q, .. } = child.data;
+            let Node { prop, .. } = child.data;
+            let n = prop.n;
             if n != 0 && (c <= 1 || depth == 0 || n >= min_n || i == 0) {
                 found = depth < max_depth;
                 self.print_tree(child.token(), depth + 1, max_depth, min_n);
             } else {
                 omitted += 1;
-                omitted_q += q;
-                omitted_n += n;
+                omitted_prop += prop;
             }
         }
 
@@ -469,7 +469,7 @@ impl<G: Game, E: EvalPolicy<G>> MCTS<G, E> {
             println!(
                 "{}...[{omitted} omitted] ({})",
                 indent_prefix(depth + 1),
-                format_ratio(omitted_q, omitted_n)
+                format_ratio(omitted_prop)
             );
         }
     }
