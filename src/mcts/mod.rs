@@ -13,7 +13,7 @@ use rand::{distributions::WeightedIndex, prelude::Distribution, thread_rng, Rng}
 use rayon::prelude::*;
 use smallvec::SmallVec;
 
-use self::policy::{DefaultEvalPolicy, EvalPolicy};
+use self::policy::{DefaultEvalPolicy, EvalPolicy, SelectionPolicy, UCB1};
 
 pub mod policy;
 
@@ -136,16 +136,17 @@ pub struct MCTSConfig {
 }
 
 #[derive(Debug)]
-pub struct MCTS<G: Game, E: EvalPolicy<G> = DefaultEvalPolicy> {
+pub struct MCTS<G: Game, E: EvalPolicy<G> = DefaultEvalPolicy, S: SelectionPolicy<G> = UCB1> {
     pub config: MCTSConfig,
     pub maximize_player: PlayerId,
     pub tree: Arena<Node<G>>,
     pub tt: CacheTable<TTKey, TTValue>,
     pub root: Option<(HashValue, Token)>,
     pub eval_policy: E,
+    pub selection_policy: S,
 }
 
-impl<G: Game, E: EvalPolicy<G>> MCTS<G, E> {
+impl<G: Game, E: EvalPolicy<G>, S: SelectionPolicy<G> + Default> MCTS<G, E, S> {
     pub fn new_with_eval_policy(config: MCTSConfig, eval_policy: E) -> Self {
         let tree = Arena::<Node<G>>::new();
         Self {
@@ -155,6 +156,22 @@ impl<G: Game, E: EvalPolicy<G>> MCTS<G, E> {
             tt: CacheTable::new(config.tt_size_mb as usize),
             root: None,
             eval_policy,
+            selection_policy: Default::default(),
+        }
+    }
+}
+
+impl<G: Game, E: EvalPolicy<G>, S: SelectionPolicy<G>> MCTS<G, E, S> {
+    pub fn new_with_eval_policy_and_selection_policy(config: MCTSConfig, eval_policy: E, selection_policy: S) -> Self {
+        let tree = Arena::<Node<G>>::new();
+        Self {
+            config,
+            tree,
+            maximize_player: PlayerId::PlayerFirst,
+            tt: CacheTable::new(config.tt_size_mb as usize),
+            root: None,
+            eval_policy,
+            selection_policy,
         }
     }
 }
@@ -202,18 +219,19 @@ impl<G: Game, E: EvalPolicy<G>> MCTS<G, E> {
         let node = self.tree.get(token)?;
         node.data.state.to_move()?;
         let is_maximize = node.data.is_maximize(self.maximize_player);
-        let c = self.config.c;
-        let n_parent = node.data.prop.n;
-        let uct_log = ((n_parent + 1) as f32).ln_1p();
-        let best = node.children(&self.tree).max_by_key(move |&child| {
-            let child_node = &child.data;
-            let (ratio, _) = child_node.ratio_with_transposition(is_maximize, &self.tt, tt_hits.clone());
-            // + 1 to avoid division by zero
-            let n_child = child_node.prop.n + 1;
-            let uct = (uct_log / (n_child as f32)).sqrt();
-            let bandit = ratio + c * uct;
-            (1e6 * bandit) as u32
-        });
+        let policy = &self.selection_policy;
+        let best = {
+            let Self { config, tt, tree, .. } = &self;
+            let parent = &node.data;
+            let parent_factor = policy.uct_parent_factor(config, parent);
+            node.children(tree).max_by_key(move |&child| {
+                let child_node = &child.data;
+                let (ratio, _) = child_node.ratio_with_transposition(is_maximize, tt, tt_hits.clone());
+                let uct = policy.uct_child_factor(config, parent, child_node, parent_factor);
+                let bandit = ratio + uct;
+                (1e6 * bandit) as u32
+            })
+        };
 
         best.and_then(|b| b.data.action.map(|a| (a, b.token())))
     }
