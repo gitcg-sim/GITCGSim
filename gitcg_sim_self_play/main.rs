@@ -23,6 +23,14 @@ use gitcg_sim::{
     types::{by_player::ByPlayer, nondet::NondetState},
 };
 
+#[derive(Debug, StructOpt, Copy, Clone)]
+pub struct Regularization {
+    #[structopt(long = "--l1-regularization", help = "L1 regularization coefficient")]
+    pub l1: Option<f32>,
+    #[structopt(long = "--l2-regularization", help = "L2 regularization coefficient")]
+    pub l2: Option<f32>,
+}
+
 #[derive(Debug, StructOpt, Clone)]
 pub struct TDLOpts {
     #[structopt(short = "N", long = "--max-iters", help = "Max. Iterations", default_value = "10000")]
@@ -54,6 +62,8 @@ pub struct TDLOpts {
         default_value = "1"
     )]
     pub beta: f32,
+    #[structopt(flatten)]
+    pub regularization: Regularization,
 }
 
 #[derive(Debug, StructOpt, Clone)]
@@ -153,6 +163,7 @@ fn run_self_play<
     searches: &mut ByPlayer<T>,
     learning_rate: f32,
     temporal_rate: f32,
+    regularization: &Regularization,
     make_debug_entry: Option<F>,
 ) {
     let states = run_playout(initial, searches, 300, |_, _, _| ControlFlow::Continue(())).unwrap();
@@ -201,6 +212,18 @@ fn run_self_play<
             for (wi, gi) in weights.iter_mut().zip(grad.iter().copied()) {
                 *wi += a * gi;
             }
+
+            if let Some(a) = regularization.l1 {
+                for (wi, gi) in weights.iter_mut().zip(grad.iter().copied()) {
+                    *wi += a * gi.abs();
+                }
+            }
+
+            if let Some(a) = regularization.l2 {
+                for (wi, gi) in weights.iter_mut().zip(grad.iter().copied()) {
+                    *wi += 2f32 * a * gi;
+                }
+            }
         }
     }
 }
@@ -230,7 +253,14 @@ fn main_tdl(mut deck: DeckOpts, opts: TDLOpts) -> Result<(), std::io::Error> {
         } else {
             None
         };
-        run_self_play(&initial, &mut searches, learning_rate, opts.temporal_rate, debug);
+        run_self_play(
+            &initial,
+            &mut searches,
+            learning_rate,
+            opts.temporal_rate,
+            &opts.regularization,
+            debug,
+        );
     }
     Ok(())
 }
