@@ -96,14 +96,14 @@ pub struct SearchConfig {
 }
 
 #[derive(Debug, StructOpt, Clone)]
-pub struct DeckOpts {
+pub struct DeckGen {
     #[structopt(
         parse(from_os_str),
         short = "a",
         long = "--player1-deck",
         help = "Path to the deck for Player 1."
     )]
-    pub player1_deck: PathBuf,
+    pub player1_deck: Option<PathBuf>,
 
     #[structopt(
         parse(from_os_str),
@@ -111,7 +111,7 @@ pub struct DeckOpts {
         long = "--player2-deck",
         help = "Path to the deck for Player 2."
     )]
-    pub player2_deck: PathBuf,
+    pub player2_deck: Option<PathBuf>,
 
     #[structopt(
         short = "R",
@@ -119,6 +119,12 @@ pub struct DeckOpts {
         help = "Randomize both players characters and decks"
     )]
     pub random_decks: bool,
+}
+
+#[derive(Debug, StructOpt, Clone)]
+pub struct DeckOpts {
+    #[structopt(flatten)]
+    pub deck: DeckGen,
 
     #[structopt(short = "s", long = "--steps", help = "Benchmark max steps to play out")]
     pub steps: Option<u32>,
@@ -134,15 +140,30 @@ pub struct DeckOpts {
     pub search: SearchConfig,
 }
 
+impl DeckGen {
+    pub fn get_decks<R: Rng>(&self, rng: &mut R) -> Result<(Decklist, Decklist), std::io::Error> {
+        let mut get_deck = |path: &Option<PathBuf>| -> Result<Decklist, std::io::Error> {
+            match path {
+                None => {
+                    if self.random_decks {
+                        Ok(random_decklist(rng))
+                    } else {
+                        panic!("Must provide a deck or set --random-deck")
+                    }
+                }
+                Some(path) => File::open(path).and_then(read_decklist_from_file),
+            }
+        };
+        let deck1 = get_deck(&self.player1_deck)?;
+        let deck2 = get_deck(&self.player2_deck)?;
+        Ok((deck1, deck2))
+    }
+}
+
 impl DeckOpts {
     pub fn get_decks(&self) -> Result<(Decklist, Decklist), std::io::Error> {
-        if self.random_decks {
-            let mut r = SmallRng::seed_from_u64(self.seed.unwrap_or(100));
-            r.gen_bool(0.5);
-            Ok((random_decklist(&mut r), random_decklist(&mut r)))
-        } else {
-            Ok((self.get_player1_deck()?, self.get_player2_deck()?))
-        }
+        let mut r = SmallRng::seed_from_u64(self.seed.unwrap_or(100));
+        self.deck.get_decks(&mut r)
     }
 
     pub fn get_standard_game(&self, rng: Option<SmallRng>) -> Result<GameStateWrapper, std::io::Error> {
@@ -244,16 +265,6 @@ impl SearchConfig {
 }
 
 impl DeckOpts {
-    pub fn get_player1_deck(&self) -> Result<Decklist, std::io::Error> {
-        let f = File::open(&self.player1_deck)?;
-        read_decklist_from_file(f)
-    }
-
-    pub fn get_player2_deck(&self) -> Result<Decklist, std::io::Error> {
-        let f = File::open(&self.player2_deck)?;
-        read_decklist_from_file(f)
-    }
-
     pub fn make_search<S: NondetState>(&self, parallel: bool, limits: Option<SearchLimits>) -> GenericSearch<S> {
         self.search.make_search(parallel, limits)
     }

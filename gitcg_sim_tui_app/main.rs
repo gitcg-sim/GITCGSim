@@ -982,10 +982,9 @@ pub fn main() -> Result<(), io::Error> {
     let mut deck_opts = DeckOpts::from_args();
     // Ignore debug flag
     deck_opts.search.debug = false;
-    let rand1 = SmallRng::seed_from_u64(deck_opts.seed.unwrap_or(100));
-    let decklist1 = deck_opts.get_player1_deck()?;
-    let decklist2 = deck_opts.get_player2_deck()?;
+    let (decklist1, decklist2) = deck_opts.get_decks()?;
     {
+        let rand1 = SmallRng::seed_from_u64(deck_opts.seed.unwrap_or(100));
         let mut game = new_standard_game(&decklist1, &decklist2, rand1);
         if deck_opts.tactical {
             game.convert_to_tactical_search();
