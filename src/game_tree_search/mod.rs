@@ -134,6 +134,13 @@ impl<G: Game> SearchResult<G> {
 
 pub trait GameTreeSearch<G: Game> {
     fn search(&mut self, position: &G, maximize_player: PlayerId) -> SearchResult<G>;
+
+    /// Perform search on the position with hidden information taken into account.
+    fn search_hidden(&mut self, position: &G, maximize_player: PlayerId) -> SearchResult<G> {
+        let mut position1 = position.clone();
+        position1.hide_private_information(maximize_player.opposite());
+        self.search(&position1, maximize_player)
+    }
 }
 
 #[derive(Debug, Default, Copy, Clone, Serialize, Deserialize)]

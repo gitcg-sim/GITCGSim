@@ -1,4 +1,5 @@
 use std::{
+    cell::RefCell,
     fmt::Debug,
     ops::{ControlFlow, Mul},
 };
@@ -6,6 +7,7 @@ use std::{
 use dfdx::{optim::Sgd, prelude::*};
 use gitcg_sim::{
     mcts::{MCTSConfig, MCTS},
+    playout::Playout,
     rand::{rngs::SmallRng, thread_rng, Rng, SeedableRng},
     training::{as_slice::*, features::*, policy::*},
 };
@@ -105,32 +107,22 @@ fn run_playout<
     C: FnMut(&ByPlayer<T>, &GameStateWrapper<S>, Input) -> ControlFlow<()>,
 >(
     initial: &GameStateWrapper<S>,
-    models: &mut ByPlayer<T>,
+    models: &RefCell<ByPlayer<T>>,
     max_iters: usize,
     mut on_step: C,
-) -> Result<Vec<GameStateWrapper<S>>, DispatchError> {
-    let mut game_state = initial.clone();
+) -> Vec<GameStateWrapper<S>> {
     let mut states: Vec<GameStateWrapper<S>> = Vec::with_capacity(16);
-    for _ in 0..max_iters {
+    states.push(initial.clone());
+    let it = Playout::new(max_iters, initial.clone(), models);
+    for res in it.iter_playout() {
+        let (input, game_state, models) = res.unwrap();
         states.push(game_state.clone());
-        if game_state.winner().is_some() {
-            break;
-        }
-        let player_id = game_state.to_move().unwrap();
-        let model = models.get_mut(player_id);
-        let input = {
-            let mut gs1 = game_state.clone();
-            gs1.hide_private_information(player_id.opposite());
-            let res = model.search(&gs1, player_id);
-            res.pv.head().unwrap()
-        };
-        game_state.advance(input)?;
-        match on_step(models, &game_state, input) {
+        match on_step(&models.borrow(), &game_state, input) {
             ControlFlow::Continue(_) => {}
             ControlFlow::Break(_) => break,
         }
     }
-    Ok(states)
+    states
 }
 
 const N: usize = <GameStateFeatures<f32> as AsSlice<f32>>::LENGTH;
@@ -160,27 +152,26 @@ fn run_self_play<
     F: Fn(PlayerId, GameStateFeatures<f32>) -> DebugEntry,
 >(
     initial: &GameStateWrapper<S>,
-    searches: &mut ByPlayer<T>,
+    searches: &RefCell<ByPlayer<T>>,
     learning_rate: f32,
     temporal_rate: f32,
     regularization: &Regularization,
     make_debug_entry: Option<F>,
 ) {
-    let states = run_playout(initial, searches, 300, |_, _, _| ControlFlow::Continue(())).unwrap();
+    let states = run_playout(initial, searches, 300, |_, _, _| ControlFlow::Continue(()));
+    let mut searches = searches.borrow_mut();
     let evals = [PlayerId::PlayerFirst, PlayerId::PlayerSecond]
         .iter()
         .copied()
         .map(|player_id| {
-            states
-                .iter()
-                .map(|game_state| {
-                    if let Some(winner) = game_state.winner() {
-                        winner_eval(winner, player_id)
-                    } else {
-                        searches.get(player_id).get_self_play_model().evaluate(game_state)
-                    }
-                })
-                .collect::<Vec<_>>()
+            let eval_game_state = |game_state: &GameStateWrapper<S>| {
+                if let Some(winner) = game_state.winner() {
+                    winner_eval(winner, player_id)
+                } else {
+                    searches.get(player_id).get_self_play_model().evaluate(game_state)
+                }
+            };
+            states.iter().map(eval_game_state).collect::<Vec<_>>()
         })
         .collect::<Vec<_>>();
 
@@ -235,10 +226,10 @@ fn new_search(init_weights: GameStateFeatures<f32>, player_id: PlayerId, beta: f
 fn main_tdl(mut deck: SearchOpts, opts: TDLOpts) -> Result<(), std::io::Error> {
     let mut seed_gen = thread_rng();
     let (beta, delta) = (opts.beta, 1e-4);
-    let mut searches = ByPlayer::new(
+    let searches = RefCell::new(ByPlayer::new(
         new_search(GameStateFeatures::<f32>::default(), PlayerId::PlayerFirst, beta, delta),
         new_search(GameStateFeatures::<f32>::default(), PlayerId::PlayerSecond, beta, delta),
-    );
+    ));
     for i in 0..=opts.max_iters {
         deck.seed = Some(seed_gen.gen());
         let initial = deck.get_standard_game(Some(SmallRng::from_seed(seed_gen.gen())))?;
@@ -255,7 +246,7 @@ fn main_tdl(mut deck: SearchOpts, opts: TDLOpts) -> Result<(), std::io::Error> {
         };
         run_self_play(
             &initial,
-            &mut searches,
+            &searches,
             learning_rate,
             opts.temporal_rate,
             &opts.regularization,
@@ -268,7 +259,7 @@ fn main_tdl(mut deck: SearchOpts, opts: TDLOpts) -> Result<(), std::io::Error> {
 fn generate_batch<S: NondetState>(
     initial: &GameStateWrapper<S>,
     data_points: &mut Vec<(GameStateFeatures<f32>, InputFeatures<f32>, u8)>,
-    searches: &mut ByPlayer<MCTS<GameStateWrapper<S>>>,
+    searches: &RefCell<ByPlayer<MCTS<GameStateWrapper<S>>>>,
     mcts_min_depth: u8,
     batch_size: usize,
 ) -> bool {
@@ -276,7 +267,7 @@ fn generate_batch<S: NondetState>(
     while data_points.len() < batch_size {
         run_playout(initial, searches, 300, |searches, _game_state, _input| {
             let player_id = PlayerId::PlayerFirst;
-            let mcts = &searches[player_id];
+            let mcts: &MCTS<GameStateWrapper<S>> = searches.get(player_id);
             let mut vec = vec![];
             mcts.get_self_play_data_points(player_id, mcts_min_depth, &mut vec);
             for (gs, input, depth) in vec {
@@ -291,8 +282,7 @@ fn generate_batch<S: NondetState>(
                 data_points.push((features, input_features, depth));
             }
             ControlFlow::Continue(())
-        })
-        .unwrap();
+        });
         batch_generated = true;
     }
     batch_generated
@@ -338,15 +328,9 @@ fn main_policy(deck: SearchOpts, opts: PolicyOpts) -> Result<(), std::io::Error>
     );
     let mut data_points: Vec<(GameStateFeatures<f32>, InputFeatures<f32>, u8)> = vec![];
     for iter in 0..250 {
-        let mut searches = ByPlayer::new(make_search(), make_search());
+        let searches = RefCell::new(ByPlayer::new(make_search(), make_search()));
         let initial = deck.get_standard_game(Some(SmallRng::from_seed(seed_gen.gen())))?;
-        let batch_generated = generate_batch(
-            &initial,
-            &mut data_points,
-            &mut searches,
-            opts.mcts_min_depth,
-            BATCH_SIZE,
-        );
+        let batch_generated = generate_batch(&initial, &mut data_points, &searches, opts.mcts_min_depth, BATCH_SIZE);
         let batch = (0..BATCH_SIZE).map(|_| data_points.pop().unwrap()).collect::<Vec<_>>();
         let (inputs, outputs): (Vec<_>, Vec<_>) = batch
             .iter()

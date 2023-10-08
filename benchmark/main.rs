@@ -1,4 +1,4 @@
-use gitcg_sim::deck::cli_args::{GenericSearch, SearchAlgorithm, SearchConfig};
+use gitcg_sim::deck::cli_args::{SearchAlgorithm, SearchConfig};
 use gitcg_sim::types::by_player::ByPlayer;
 use gitcg_sim::types::game_state::PlayerId;
 use gitcg_sim::types::nondet::NondetState;
@@ -7,6 +7,7 @@ use lazy_static::__Deref;
 use rand::rngs::SmallRng;
 use rand::SeedableRng;
 use rayon::prelude::{IntoParallelIterator, ParallelIterator};
+use std::cell::RefCell;
 use std::ops::Add;
 use std::rc::Rc;
 use std::time::Instant;
@@ -70,10 +71,10 @@ impl BenchmarkOpts {
     }
 }
 
-fn trace_search<S: NondetState>(
+fn trace_search<S: NondetState, T: GameTreeSearch<GameStateWrapper<S>>>(
     game: &GameStateWrapper<S>,
     steps: u32,
-    search: &mut GenericSearch<S>,
+    searches: &RefCell<ByPlayer<T>>,
 ) -> (u128, SearchCounter) {
     let mut game = game.clone();
     let mut total_counter = SearchCounter::default();
@@ -85,20 +86,17 @@ fn trace_search<S: NondetState>(
             break;
         }
         let p = game.to_move().unwrap();
-        let mut game1 = game.clone();
-        game1.hide_private_information(p.opposite());
+        let mut searches = searches.borrow_mut();
+        let search = searches.get_mut(p);
         let SearchResult {
             pv,
             eval: v,
             counter: c,
-        } = search.search(&game1, p);
+        } = search.search_hidden(&game, p);
         total_counter.add_in_place(&c);
+        let input = pv.head().expect("PV is empty");
         let dt_ns = t1.elapsed().as_nanos();
         total_time += dt_ns;
-        if pv.is_empty() {
-            panic!("PV is empty.");
-        }
-        let input = pv.head().unwrap();
         match game.advance(input) {
             Err(e) => {
                 println!("DispatchError (to_move_player={:?}, input={input:?}):", game.to_move());
@@ -117,9 +115,9 @@ fn trace_search<S: NondetState>(
     (total_time, total_counter)
 }
 
-fn match_round<S: NondetState>(
+fn match_round<S: NondetState, T: GameTreeSearch<GameStateWrapper<S>>>(
     mut game: GameStateWrapper<S>,
-    search: &mut ByPlayer<GenericSearch<S>>,
+    search: &mut ByPlayer<T>,
     steps: u32,
 ) -> (Option<PlayerId>, Duration, SearchCounter) {
     let t0 = Instant::now();
@@ -130,14 +128,12 @@ fn match_round<S: NondetState>(
         }
 
         let p = game.to_move().unwrap();
-        let mut game1 = game.clone();
-        game1.hide_private_information(p.opposite());
         let search = &mut search[p];
         let SearchResult {
             pv,
             eval: _,
             counter: c,
-        } = search.search(&game1, p);
+        } = search.search_hidden(&game, p);
         total_counter.add_in_place(&c);
         if pv.is_empty() {
             println!("perform_match: PV is empty.");
@@ -183,9 +179,10 @@ fn main() -> Result<(), std::io::Error> {
         let bf = move |n: f64| n.powf(1_f64 / (depth as f64));
         let game = Rc::new(deck_opts.get_standard_game(None)?);
         let benchmark = move |parallel: bool, steps: u32| {
-            let mut search = deck_opts.make_search(parallel, deck_opts.get_limits());
+            let f = || deck_opts.make_search(parallel, deck_opts.get_limits());
+            let searches = RefCell::new(ByPlayer::new(f(), f()));
             let game = game.deref();
-            let (dt_ns, c) = trace_search(game, steps, &mut search);
+            let (dt_ns, c) = trace_search(game, steps, &searches);
             (dt_ns, c)
         };
         (bf, benchmark)

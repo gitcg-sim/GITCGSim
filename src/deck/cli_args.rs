@@ -198,8 +198,8 @@ fn random_search<S: NondetState>(position: &GameStateWrapper<S>) -> SearchResult
     }
 }
 
-impl<S: NondetState> GenericSearch<S> {
-    pub fn search(
+impl<S: NondetState> GameTreeSearch<GameStateWrapper<S>> for GenericSearch<S> {
+    fn search(
         &mut self,
         position: &GameStateWrapper<S>,
         maximize_player: PlayerId,

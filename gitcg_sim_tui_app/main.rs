@@ -142,9 +142,8 @@ impl<B: Backend> App<B> {
                 PlayerId::PlayerSecond => {
                     self.actions = action_list![];
                     self.status = "Opponent moving...".to_string();
-                    let mut game = self.game.clone();
-                    game.hide_private_information(PlayerId::PlayerFirst);
-                    let pv = self.search.search(&game, PlayerId::PlayerSecond).pv;
+                    let res = self.search.search_hidden(&self.game, PlayerId::PlayerSecond);
+                    let pv = res.pv;
                     let input = pv.head().unwrap();
                     advance_and_add_logs(input, &mut self.game, &mut self.anim, &self.rects);
                     true
