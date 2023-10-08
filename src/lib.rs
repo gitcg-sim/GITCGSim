@@ -76,6 +76,8 @@ pub mod prelude {
     pub use crate::types::input::Input;
 }
 
+pub mod playout;
+
 #[cfg(feature = "training")]
 pub mod training;
 
