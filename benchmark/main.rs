@@ -12,7 +12,7 @@ use std::rc::Rc;
 use std::time::Instant;
 use structopt::StructOpt;
 
-use gitcg_sim::deck::cli_args::DeckOpts;
+use gitcg_sim::deck::cli_args::SearchOpts;
 use gitcg_sim::game_tree_search::*;
 
 #[derive(Debug, StructOpt, Clone)]
@@ -21,21 +21,21 @@ pub enum BenchmarkOpts {
     #[structopt(help = "Run a game in parallel execution then in sequential execution, and compare speedups.")]
     Speedup {
         #[structopt(flatten)]
-        deck: DeckOpts,
+        search: SearchOpts,
     },
     #[structopt(help = "Run a game in parallel or sequential execution.")]
     Benchmark {
         #[structopt(long)]
         parallel: bool,
         #[structopt(flatten)]
-        deck: DeckOpts,
+        search: SearchOpts,
     },
     #[structopt(help = "Evaluate the first move of a position.")]
     Evaluate {
         #[structopt(long)]
         parallel: bool,
         #[structopt(flatten)]
-        deck: DeckOpts,
+        search: SearchOpts,
     },
     #[structopt(help = "Measure win rate against a standarized opponent.")]
     Match {
@@ -49,7 +49,7 @@ pub enum BenchmarkOpts {
         rounds: Option<u32>,
 
         #[structopt(flatten)]
-        deck: DeckOpts,
+        search: SearchOpts,
 
         #[structopt(long)]
         standard_algorithm: Option<SearchAlgorithm>,
@@ -60,12 +60,12 @@ pub enum BenchmarkOpts {
 }
 
 impl BenchmarkOpts {
-    fn deck(&self) -> &DeckOpts {
+    fn deck(&self) -> &SearchOpts {
         match self {
-            BenchmarkOpts::Speedup { deck, .. } => deck,
-            BenchmarkOpts::Benchmark { deck, .. } => deck,
-            BenchmarkOpts::Evaluate { deck, .. } => deck,
-            BenchmarkOpts::Match { deck, .. } => deck,
+            BenchmarkOpts::Speedup { search: deck, .. } => deck,
+            BenchmarkOpts::Benchmark { search: deck, .. } => deck,
+            BenchmarkOpts::Evaluate { search: deck, .. } => deck,
+            BenchmarkOpts::Match { search: deck, .. } => deck,
         }
     }
 }
@@ -177,7 +177,7 @@ fn main() -> Result<(), std::io::Error> {
     let opts = BenchmarkOpts::from_args();
     let steps: u32 = opts.deck().steps.unwrap_or(200);
     let (bf, benchmark) = {
-        let deck_opts: &DeckOpts = opts.deck();
+        let deck_opts: &SearchOpts = opts.deck();
         let search_opts = &deck_opts.search;
         let depth: u8 = search_opts.search_depth.unwrap_or(8);
         let bf = move |n: f64| n.powf(1_f64 / (depth as f64));

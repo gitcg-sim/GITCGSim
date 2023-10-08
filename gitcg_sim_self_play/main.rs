@@ -16,7 +16,7 @@ use structopt::StructOpt;
 use ndarray::{Array1, Array2};
 
 use gitcg_sim::{
-    deck::cli_args::DeckOpts,
+    deck::cli_args::SearchOpts,
     game_tree_search::*,
     prelude::*,
     training::eval::*,
@@ -86,14 +86,14 @@ pub enum SelfPlayOpts {
     #[structopt(help = "Run temporal different learning")]
     TDL {
         #[structopt(flatten)]
-        deck: DeckOpts,
+        search: SearchOpts,
         #[structopt(flatten)]
         tdl: TDLOpts,
     },
     #[structopt(help = "Run policy learning")]
     Policy {
         #[structopt(flatten)]
-        deck: DeckOpts,
+        search: SearchOpts,
         #[structopt(flatten)]
         policy: PolicyOpts,
     },
@@ -232,7 +232,7 @@ fn new_search(init_weights: GameStateFeatures<f32>, player_id: PlayerId, beta: f
     SelfPlaySearch::new(init_weights, player_id, beta, delta)
 }
 
-fn main_tdl(mut deck: DeckOpts, opts: TDLOpts) -> Result<(), std::io::Error> {
+fn main_tdl(mut deck: SearchOpts, opts: TDLOpts) -> Result<(), std::io::Error> {
     let mut seed_gen = thread_rng();
     let (beta, delta) = (opts.beta, 1e-4);
     let mut searches = ByPlayer::new(
@@ -298,7 +298,7 @@ fn generate_batch<S: NondetState>(
     batch_generated
 }
 
-fn main_policy(deck: DeckOpts, opts: PolicyOpts) -> Result<(), std::io::Error> {
+fn main_policy(deck: SearchOpts, opts: PolicyOpts) -> Result<(), std::io::Error> {
     let mut seed_gen = thread_rng();
     const BATCH_SIZE: usize = 512;
     let config = MCTSConfig {
@@ -405,7 +405,7 @@ fn main_policy(deck: DeckOpts, opts: PolicyOpts) -> Result<(), std::io::Error> {
 fn main() -> Result<(), std::io::Error> {
     let opts = SelfPlayOpts::from_args();
     match opts {
-        SelfPlayOpts::TDL { deck, tdl } => main_tdl(deck, tdl),
-        SelfPlayOpts::Policy { deck, policy } => main_policy(deck, policy),
+        SelfPlayOpts::TDL { search: deck, tdl } => main_tdl(deck, tdl),
+        SelfPlayOpts::Policy { search: deck, policy } => main_policy(deck, policy),
     }
 }

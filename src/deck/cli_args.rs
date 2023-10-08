@@ -122,7 +122,7 @@ pub struct DeckGen {
 }
 
 #[derive(Debug, StructOpt, Clone)]
-pub struct DeckOpts {
+pub struct SearchOpts {
     #[structopt(flatten)]
     pub deck: DeckGen,
 
@@ -160,7 +160,7 @@ impl DeckGen {
     }
 }
 
-impl DeckOpts {
+impl SearchOpts {
     pub fn get_decks(&self) -> Result<(Decklist, Decklist), std::io::Error> {
         let mut r = SmallRng::seed_from_u64(self.seed.unwrap_or(100));
         self.deck.get_decks(&mut r)
@@ -264,7 +264,7 @@ impl SearchConfig {
     }
 }
 
-impl DeckOpts {
+impl SearchOpts {
     pub fn make_search<S: NondetState>(&self, parallel: bool, limits: Option<SearchLimits>) -> GenericSearch<S> {
         self.search.make_search(parallel, limits)
     }
