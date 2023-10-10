@@ -1,8 +1,4 @@
-use std::{
-    cell::RefCell,
-    fmt::Debug,
-    ops::{ControlFlow, Mul},
-};
+use std::{cell::RefCell, ops::ControlFlow};
 
 use dfdx::{optim::Sgd, prelude::*};
 use gitcg_sim::{
@@ -74,8 +70,8 @@ pub struct PolicyOpts {
     pub mcts_time_limit_ms: f32,
     #[structopt(default_value = "4", long = "--min-depth")]
     pub mcts_min_depth: u8,
-    #[structopt(long = "--l1-regularization")]
-    pub l1_regularization: Option<f32>,
+    #[structopt(long = "--l2-regularization", help = "L2 regularization coefficient")]
+    pub l2_regularization: Option<f64>,
     #[structopt(long = "--save-npz")]
     pub save_npz: Option<std::path::PathBuf>,
     #[structopt(long = "--load-npz")]
@@ -323,6 +319,7 @@ fn main_policy(deck: SearchOpts, opts: PolicyOpts) -> Result<(), std::io::Error>
         &model.model,
         SgdConfig {
             lr: 1e-1,
+            weight_decay: opts.l2_regularization.map(WeightDecay::L2),
             ..Default::default()
         },
     );
@@ -360,12 +357,7 @@ fn main_policy(deck: SearchOpts, opts: PolicyOpts) -> Result<(), std::io::Error>
         let y = model.model.forward_mut(x.traced(grads));
         let mut y0: Tensor<Rank2<BATCH_SIZE, K>, f32, _> = dev.zeros();
         y0.copy_from(output_data.as_slice().unwrap());
-        let error = (y - y0).square().mean();
-        let loss = if let Some(l1) = opts.l1_regularization {
-            error + (/* model.0.bias.clone().abs().sum() + */model.model.0.weight.clone().abs().sum()).mul(l1)
-        } else {
-            error
-        };
+        let loss = (y - y0).square().mean();
         let loss_value = loss.array();
         grads = loss.backward();
         opt.update(&mut model.model, &grads).unwrap();
