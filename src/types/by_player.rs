@@ -58,6 +58,11 @@ impl<T> ByPlayer<T> {
             PlayerId::PlayerSecond => (&mut self.1, &mut self.0),
         }
     }
+
+    #[inline]
+    pub fn map<A, F: FnMut(T) -> A>(self, mut f: F) -> ByPlayer<A> {
+        ByPlayer::<A>::new(f(self.0), f(self.1))
+    }
 }
 
 impl<T> Index<PlayerId> for ByPlayer<T> {

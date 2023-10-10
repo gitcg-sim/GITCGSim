@@ -14,7 +14,7 @@ mod command_context;
 
 // TODO refactor away EventId way of triggering events
 #[allow(clippy::upper_case_acronyms)]
-mod xevent {
+pub mod xevent {
     use enumset::EnumSet;
 
     use crate::tcg_model::{

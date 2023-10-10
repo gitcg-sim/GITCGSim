@@ -49,6 +49,8 @@ pub mod types;
 
 pub(crate) mod zobrist_hash;
 
+pub mod builder;
+
 /// Re-exports the `smallvec` create.
 pub mod smallvec {
     pub use smallvec::*;
@@ -69,11 +71,26 @@ pub mod enumset {
     pub use enumset::*;
 }
 
+pub mod game_state_types {
+    pub use crate::types::game_state::{
+        PlayerId,
+        GameState,
+        Phase,
+        PlayerState,
+        CharState,
+        StatusCollection,
+        PlayerFlag,
+    };
+    pub use crate::types::status_impl::RespondsTo;
+    pub use crate::types::dice_counter::DiceCounter;
+    pub use crate::types::logging::EventLog;
+}
+
 pub mod prelude {
-    pub use crate::dispatcher_ops::types::DispatchError;
-    pub use crate::types::game_state::GameState;
-    pub use crate::types::game_state::PlayerId;
     pub use crate::types::input::Input;
+    pub use crate::dispatcher_ops::types::DispatchError;
+    pub use crate::builder::*;
+    pub use crate::game_state_types::*;
 }
 
 pub mod playout;
