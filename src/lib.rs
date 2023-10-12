@@ -72,25 +72,19 @@ pub mod enumset {
 }
 
 pub mod game_state_types {
-    pub use crate::types::game_state::{
-        PlayerId,
-        GameState,
-        Phase,
-        PlayerState,
-        CharState,
-        StatusCollection,
-        PlayerFlag,
-    };
-    pub use crate::types::status_impl::RespondsTo;
     pub use crate::types::dice_counter::DiceCounter;
+    pub use crate::types::game_state::{
+        CharState, GameState, Phase, PlayerFlag, PlayerId, PlayerState, StatusCollection,
+    };
     pub use crate::types::logging::EventLog;
+    pub use crate::types::status_impl::RespondsTo;
 }
 
 pub mod prelude {
-    pub use crate::types::input::Input;
-    pub use crate::dispatcher_ops::types::DispatchError;
     pub use crate::builder::*;
+    pub use crate::dispatcher_ops::types::DispatchError;
     pub use crate::game_state_types::*;
+    pub use crate::types::input::Input;
 }
 
 pub mod playout;
