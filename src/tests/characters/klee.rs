@@ -2,11 +2,9 @@ use super::*;
 
 #[test]
 fn test_charged_attack_affected_by_explosive_spark() {
-    let mut gs = {
-        GameStateBuilder::new_roll_phase_1(vector![CharId::Klee], vector![CharId::Fischl])
-            .with_enable_log(true)
-            .build()
-    };
+    let mut gs = GameStateBuilder::new_roll_phase_1(vector![CharId::Klee], vector![CharId::Fischl])
+        .with_enable_log(true)
+        .build();
 
     gs.advance_roll_phase_no_dice();
     gs.players.0.dice.add_in_place(&DiceCounter::omni(9));
@@ -28,11 +26,9 @@ fn test_charged_attack_affected_by_explosive_spark() {
 
 #[test]
 fn test_normal_attack_not_affected_by_explosive_spark() {
-    let mut gs = {
-        GameStateBuilder::new_roll_phase_1(vector![CharId::Klee], vector![CharId::Fischl])
-            .with_enable_log(true)
-            .build()
-    };
+    let mut gs = GameStateBuilder::new_roll_phase_1(vector![CharId::Klee], vector![CharId::Fischl])
+        .with_enable_log(true)
+        .build();
 
     gs.advance_roll_phase_no_dice();
     gs.players.0.dice.add_in_place(&DiceCounter::omni(8));
@@ -62,11 +58,9 @@ fn test_normal_attack_not_affected_by_explosive_spark() {
 
 #[test]
 fn test_talent_card_increases_explosive_spark_usages() {
-    let mut gs = {
-        GameStateBuilder::new_roll_phase_1(vector![CharId::Klee], vector![CharId::Fischl])
-            .with_enable_log(true)
-            .build()
-    };
+    let mut gs = GameStateBuilder::new_roll_phase_1(vector![CharId::Klee], vector![CharId::Fischl])
+        .with_enable_log(true)
+        .build();
 
     gs.advance_roll_phase_no_dice();
     gs.players.0.hand.push(CardId::PoundingSurprise);
@@ -88,11 +82,9 @@ fn test_talent_card_increases_explosive_spark_usages() {
 
 #[test]
 fn test_klee_take_damage() {
-    let mut gs = {
-        GameStateBuilder::new_roll_phase_1(vector![CharId::Klee], vector![CharId::Fischl, CharId::Kaeya])
-            .with_enable_log(true)
-            .build()
-    };
+    let mut gs = GameStateBuilder::new_roll_phase_1(vector![CharId::Klee], vector![CharId::Fischl, CharId::Kaeya])
+        .with_enable_log(true)
+        .build();
     gs.ignore_costs = true;
 
     gs.advance_roll_phase_no_dice();

@@ -2,11 +2,9 @@ use super::*;
 
 #[test]
 fn test_elemental_resonance_sprawling_greenery_does_not_increase_non_reaction_dmg() {
-    let mut gs = {
-        GameStateBuilder::new_roll_phase_1(vector![CharId::Fischl], vector![CharId::Yoimiya])
-            .with_enable_log(true)
-            .build()
-    };
+    let mut gs = GameStateBuilder::new_roll_phase_1(vector![CharId::Fischl], vector![CharId::Yoimiya])
+        .with_enable_log(true)
+        .build();
     gs.ignore_costs = false;
     gs.players.0.dice.add_in_place(&DiceCounter::omni(8));
     gs.players.1.dice.add_in_place(&DiceCounter::omni(8));
@@ -33,11 +31,9 @@ fn test_elemental_resonance_sprawling_greenery_does_not_increase_non_reaction_dm
 
 #[test]
 fn test_elemental_resonance_sprawling_greenery_increases_reaction_dmg() {
-    let mut gs = {
-        GameStateBuilder::new_roll_phase_1(vector![CharId::Fischl], vector![CharId::Yoimiya])
-            .with_enable_log(true)
-            .build()
-    };
+    let mut gs = GameStateBuilder::new_roll_phase_1(vector![CharId::Fischl], vector![CharId::Yoimiya])
+        .with_enable_log(true)
+        .build();
     gs.ignore_costs = false;
     gs.players.0.dice.add_in_place(&DiceCounter::omni(8));
     gs.players.1.dice.add_in_place(&DiceCounter::omni(8));
@@ -70,11 +66,9 @@ fn test_elemental_resonance_sprawling_greenery_increases_reaction_dmg() {
 
 #[test]
 fn test_elemental_resonance_sprawling_greenery_increases_usages_of_catalyzing_field() {
-    let mut gs = {
-        GameStateBuilder::new_roll_phase_1(vector![CharId::Fischl, CharId::Collei], vector![CharId::Yoimiya])
-            .with_enable_log(true)
-            .build()
-    };
+    let mut gs = GameStateBuilder::new_roll_phase_1(vector![CharId::Fischl, CharId::Collei], vector![CharId::Yoimiya])
+        .with_enable_log(true)
+        .build();
     gs.ignore_costs = true;
     gs.players.0.hand.push(CardId::ElementalResonanceSprawlingGreenery);
     gs.advance_roll_phase_no_dice();

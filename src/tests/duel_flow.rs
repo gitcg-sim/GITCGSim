@@ -4,11 +4,9 @@ use super::*;
 
 #[test]
 fn test_first_phase_is_roll_phase() {
-    let gs = {
-        GameStateBuilder::new_roll_phase_1(vector![CharId::Kaeya, CharId::Fischl], vector![CharId::KamisatoAyaka])
-            .with_enable_log(true)
-            .build()
-    };
+    let gs = GameStateBuilder::new_roll_phase_1(vector![CharId::Kaeya, CharId::Fischl], vector![CharId::KamisatoAyaka])
+        .with_enable_log(true)
+        .build();
     assert_eq!(1, gs.round_number);
     assert_eq!(
         Phase::RollPhase {
@@ -21,11 +19,10 @@ fn test_first_phase_is_roll_phase() {
 
 #[test]
 fn test_action_phase_and_first_player_to_end_round() {
-    let mut gs = {
+    let mut gs =
         GameStateBuilder::new_roll_phase_1(vector![CharId::Kaeya, CharId::Fischl], vector![CharId::KamisatoAyaka])
             .with_enable_log(true)
-            .build()
-    };
+            .build();
     gs.advance_roll_phase_no_dice();
     assert_eq!(
         Phase::ActionPhase {
@@ -74,14 +71,12 @@ fn test_action_phase_and_first_player_to_end_round() {
 
 #[test]
 fn test_post_death_switch() {
-    let mut gs = {
-        GameStateBuilder::new_roll_phase_1(
-            vector![CharId::Fischl],
-            vector![CharId::Kaeya, CharId::Ganyu, CharId::Yoimiya],
-        )
-        .with_enable_log(true)
-        .build()
-    };
+    let mut gs = GameStateBuilder::new_roll_phase_1(
+        vector![CharId::Fischl],
+        vector![CharId::Kaeya, CharId::Ganyu, CharId::Yoimiya],
+    )
+    .with_enable_log(true)
+    .build();
     gs.ignore_costs = true;
     {
         let p1 = &mut gs.players.1;
@@ -102,14 +97,12 @@ fn test_post_death_switch() {
 
 #[test]
 fn test_piercing_dmg_victory() {
-    let mut gs = {
-        GameStateBuilder::new_roll_phase_1(
-            vector![CharId::Ganyu],
-            vector![CharId::Kaeya, CharId::Ganyu, CharId::Yoimiya],
-        )
-        .with_enable_log(true)
-        .build()
-    };
+    let mut gs = GameStateBuilder::new_roll_phase_1(
+        vector![CharId::Ganyu],
+        vector![CharId::Kaeya, CharId::Ganyu, CharId::Yoimiya],
+    )
+    .with_enable_log(true)
+    .build();
     gs.ignore_costs = true;
     {
         let p1 = &mut gs.players.1;
@@ -132,14 +125,12 @@ fn test_piercing_dmg_victory() {
 
 #[test]
 fn test_piercing_dmg_causing_post_death_switch() {
-    let mut gs = {
-        GameStateBuilder::new_roll_phase_1(
-            vector![CharId::Ganyu],
-            vector![CharId::Kaeya, CharId::Ganyu, CharId::Yoimiya],
-        )
-        .with_enable_log(true)
-        .build()
-    };
+    let mut gs = GameStateBuilder::new_roll_phase_1(
+        vector![CharId::Ganyu],
+        vector![CharId::Kaeya, CharId::Ganyu, CharId::Yoimiya],
+    )
+    .with_enable_log(true)
+    .build();
     gs.ignore_costs = true;
     {
         let p1 = &mut gs.players.1;
@@ -156,11 +147,9 @@ fn test_piercing_dmg_causing_post_death_switch() {
 
 #[test]
 fn test_trigger_effects_after_post_death_switch() {
-    let mut gs = {
-        GameStateBuilder::new_roll_phase_1(vector![CharId::Fischl], vector![CharId::Kaeya, CharId::Yoimiya])
-            .with_enable_log(true)
-            .build()
-    };
+    let mut gs = GameStateBuilder::new_roll_phase_1(vector![CharId::Fischl], vector![CharId::Kaeya, CharId::Yoimiya])
+        .with_enable_log(true)
+        .build();
     gs.ignore_costs = true;
     {
         let p1 = &mut gs.players.1;
@@ -180,14 +169,12 @@ fn test_trigger_effects_after_post_death_switch() {
 
 #[test]
 fn test_end_phase_post_death_switch() {
-    let mut gs = {
-        GameStateBuilder::new_roll_phase_1(
-            vector![CharId::Yoimiya, CharId::Ganyu],
-            vector![CharId::Fischl, CharId::KamisatoAyaka, CharId::Collei],
-        )
-        .with_enable_log(true)
-        .build()
-    };
+    let mut gs = GameStateBuilder::new_roll_phase_1(
+        vector![CharId::Yoimiya, CharId::Ganyu],
+        vector![CharId::Fischl, CharId::KamisatoAyaka, CharId::Collei],
+    )
+    .with_enable_log(true)
+    .build();
     gs.ignore_costs = true;
     {
         let yoimiya = &mut gs.players.1.char_states[0];
@@ -214,14 +201,12 @@ fn test_end_phase_post_death_switch() {
 
 #[test]
 fn test_end_phase_winner_decided() {
-    let mut gs = {
-        GameStateBuilder::new_roll_phase_1(
-            vector![CharId::Yoimiya],
-            vector![CharId::Fischl, CharId::KamisatoAyaka, CharId::Collei],
-        )
-        .with_enable_log(true)
-        .build()
-    };
+    let mut gs = GameStateBuilder::new_roll_phase_1(
+        vector![CharId::Yoimiya],
+        vector![CharId::Fischl, CharId::KamisatoAyaka, CharId::Collei],
+    )
+    .with_enable_log(true)
+    .build();
     gs.ignore_costs = true;
     {
         let yoimiya = &mut gs.players.1.char_states[0];
@@ -251,14 +236,12 @@ fn test_end_phase_winner_decided() {
 
 #[test]
 fn test_play_card() {
-    let mut gs = {
-        GameStateBuilder::new_roll_phase_1(
-            vector![CharId::Yoimiya],
-            vector![CharId::Fischl, CharId::KamisatoAyaka, CharId::Collei],
-        )
-        .with_enable_log(true)
-        .build()
-    };
+    let mut gs = GameStateBuilder::new_roll_phase_1(
+        vector![CharId::Yoimiya],
+        vector![CharId::Fischl, CharId::KamisatoAyaka, CharId::Collei],
+    )
+    .with_enable_log(true)
+    .build();
     gs.advance_roll_phase_no_dice();
     gs.players.0.hand = vector![CardId::BlankCard, CardId::Starsigns, CardId::TheBestestTravelCompanion];
     gs.players.0.dice[Dice::PYRO] = 1;
@@ -280,11 +263,9 @@ fn test_play_card() {
 
 #[test]
 fn test_elemental_tuning() {
-    let mut gs = {
-        GameStateBuilder::new_roll_phase_1(vector![CharId::Yoimiya], vector![CharId::Fischl])
-            .with_enable_log(true)
-            .build()
-    };
+    let mut gs = GameStateBuilder::new_roll_phase_1(vector![CharId::Yoimiya], vector![CharId::Fischl])
+        .with_enable_log(true)
+        .build();
     gs.advance_roll_phase_no_dice();
     gs.players.0.dice[Dice::DENDRO] = 1;
     gs.players.0.hand = vector![
@@ -303,11 +284,9 @@ fn test_elemental_tuning() {
 
 #[test]
 fn test_artifact_equip_replace() {
-    let mut gs = {
-        GameStateBuilder::new_roll_phase_1(vector![CharId::Yoimiya], vector![CharId::Fischl])
-            .with_enable_log(true)
-            .build()
-    };
+    let mut gs = GameStateBuilder::new_roll_phase_1(vector![CharId::Yoimiya], vector![CharId::Fischl])
+        .with_enable_log(true)
+        .build();
     gs.ignore_costs = true;
     gs.advance_roll_phase_no_dice();
     gs.players.0.hand = vector![CardId::WitchsScorchingHat, CardId::BrokenRimesEcho];
@@ -340,11 +319,9 @@ fn test_artifact_equip_replace() {
 
 #[test]
 fn test_weapon_equip_replace() {
-    let mut gs = {
-        GameStateBuilder::new_roll_phase_1(vector![CharId::Yoimiya], vector![CharId::Fischl])
-            .with_enable_log(true)
-            .build()
-    };
+    let mut gs = GameStateBuilder::new_roll_phase_1(vector![CharId::Yoimiya], vector![CharId::Fischl])
+        .with_enable_log(true)
+        .build();
     gs.ignore_costs = true;
     gs.advance_roll_phase_no_dice();
     gs.players.0.hand = vector![CardId::SkywardHarp, CardId::SacrificialBow];
@@ -377,14 +354,12 @@ fn test_weapon_equip_replace() {
 
 #[test]
 fn test_skill_cast_tracker() {
-    let mut gs = {
-        GameStateBuilder::new_roll_phase_1(
-            vector![CharId::Ganyu, CharId::Yoimiya],
-            vector![CharId::Fischl, CharId::Noelle],
-        )
-        .with_enable_log(true)
-        .build()
-    };
+    let mut gs = GameStateBuilder::new_roll_phase_1(
+        vector![CharId::Ganyu, CharId::Yoimiya],
+        vector![CharId::Fischl, CharId::Noelle],
+    )
+    .with_enable_log(true)
+    .build();
     gs.ignore_costs = true;
 
     gs.advance_roll_phase_no_dice();

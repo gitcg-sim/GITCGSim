@@ -2,11 +2,9 @@ use super::*;
 
 #[test]
 fn test_searing_onslaught_increases_dmg_every_3rd_use_per_round() {
-    let mut gs = {
-        GameStateBuilder::new_roll_phase_1(vector![CharId::Diluc], vector![CharId::Kaeya])
-            .with_enable_log(true)
-            .build()
-    };
+    let mut gs = GameStateBuilder::new_roll_phase_1(vector![CharId::Diluc], vector![CharId::Kaeya])
+        .with_enable_log(true)
+        .build();
     gs.ignore_costs = true;
     gs.advance_roll_phase_no_dice();
     for r in 2..=3 {
@@ -49,11 +47,9 @@ fn test_searing_onslaught_increases_dmg_every_3rd_use_per_round() {
 
 #[test]
 fn test_dawn_grants_pyro_infusion() {
-    let mut gs = {
-        GameStateBuilder::new_roll_phase_1(vector![CharId::Diluc], vector![CharId::Kaeya, CharId::Fischl])
-            .with_enable_log(true)
-            .build()
-    };
+    let mut gs = GameStateBuilder::new_roll_phase_1(vector![CharId::Diluc], vector![CharId::Kaeya, CharId::Fischl])
+        .with_enable_log(true)
+        .build();
     gs.ignore_costs = true;
     gs.advance_roll_phase_no_dice();
     gs.advance_multiple(&vec![

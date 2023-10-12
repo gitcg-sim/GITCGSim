@@ -17,14 +17,12 @@ fn iter<F: Fn()>(f: F) {
 }
 
 fn get_game_state() -> GameState {
-    let mut gs = {
-        GameStateBuilder::new_roll_phase_1(
-            vector![CharId::Yoimiya, CharId::KamisatoAyaka, CharId::Xingqiu],
-            vector![CharId::Fischl, CharId::Ningguang, CharId::Noelle],
-        )
-        .with_enable_log(false)
-        .build()
-    };
+    let mut gs = GameStateBuilder::new_roll_phase_1(
+        vector![CharId::Yoimiya, CharId::KamisatoAyaka, CharId::Xingqiu],
+        vector![CharId::Fischl, CharId::Ningguang, CharId::Noelle],
+    )
+    .with_enable_log(false)
+    .build();
 
     gs.advance_roll_phase_no_dice();
     gs.players.0.dice.add_in_place(&DiceCounter::omni(8));

@@ -7,14 +7,12 @@ use super::*;
 
 #[test]
 fn test_switch_character_validation() {
-    let mut gs = {
-        GameStateBuilder::new_roll_phase_1(
-            vector![CharId::Yoimiya, CharId::Xingqiu, CharId::Ganyu],
-            vector![CharId::Yoimiya, CharId::Xingqiu, CharId::Ganyu],
-        )
-        .with_enable_log(true)
-        .build()
-    };
+    let mut gs = GameStateBuilder::new_roll_phase_1(
+        vector![CharId::Yoimiya, CharId::Xingqiu, CharId::Ganyu],
+        vector![CharId::Yoimiya, CharId::Xingqiu, CharId::Ganyu],
+    )
+    .with_enable_log(true)
+    .build();
     gs.ignore_costs = true;
     gs.advance_roll_phase_no_dice();
 
@@ -57,14 +55,12 @@ fn test_switch_character_validation() {
 
 #[test]
 fn test_cast_skill_validation() {
-    let mut gs = {
-        GameStateBuilder::new_roll_phase_1(
-            vector![CharId::Yoimiya, CharId::Xingqiu, CharId::Ganyu],
-            vector![CharId::Yoimiya, CharId::Xingqiu, CharId::Ganyu],
-        )
-        .with_enable_log(true)
-        .build()
-    };
+    let mut gs = GameStateBuilder::new_roll_phase_1(
+        vector![CharId::Yoimiya, CharId::Xingqiu, CharId::Ganyu],
+        vector![CharId::Yoimiya, CharId::Xingqiu, CharId::Ganyu],
+    )
+    .with_enable_log(true)
+    .build();
     gs.ignore_costs = true;
     gs.advance_roll_phase_no_dice();
 
@@ -93,14 +89,12 @@ fn test_cast_skill_validation() {
 
 #[test]
 fn test_cast_skill_cost_validation() {
-    let mut gs = {
-        GameStateBuilder::new_roll_phase_1(
-            vector![CharId::Yoimiya, CharId::Xingqiu, CharId::Ganyu],
-            vector![CharId::Yoimiya, CharId::Xingqiu, CharId::Ganyu],
-        )
-        .with_enable_log(true)
-        .build()
-    };
+    let mut gs = GameStateBuilder::new_roll_phase_1(
+        vector![CharId::Yoimiya, CharId::Xingqiu, CharId::Ganyu],
+        vector![CharId::Yoimiya, CharId::Xingqiu, CharId::Ganyu],
+    )
+    .with_enable_log(true)
+    .build();
     gs.advance_roll_phase_no_dice();
 
     gs.players.0.dice = DiceCounter::new(&vec![]);
@@ -123,11 +117,9 @@ fn test_cast_skill_cost_validation() {
 
 #[test]
 fn test_weapon_equip_validation() {
-    let mut gs = {
-        GameStateBuilder::new_roll_phase_1(vector![CharId::Yoimiya, CharId::Keqing], vector![CharId::Fischl])
-            .with_enable_log(true)
-            .build()
-    };
+    let mut gs = GameStateBuilder::new_roll_phase_1(vector![CharId::Yoimiya, CharId::Keqing], vector![CharId::Fischl])
+        .with_enable_log(true)
+        .build();
     gs.ignore_costs = true;
     gs.advance_roll_phase_no_dice();
     gs.get_player_mut(PlayerId::PlayerFirst).hand =
@@ -185,11 +177,9 @@ fn test_weapon_equip_validation() {
 
 #[test]
 fn test_artifact_equip_validation() {
-    let mut gs = {
-        GameStateBuilder::new_roll_phase_1(vector![CharId::Yoimiya, CharId::Ganyu], vector![CharId::Fischl])
-            .with_enable_log(true)
-            .build()
-    };
+    let mut gs = GameStateBuilder::new_roll_phase_1(vector![CharId::Yoimiya, CharId::Ganyu], vector![CharId::Fischl])
+        .with_enable_log(true)
+        .build();
     gs.ignore_costs = true;
     gs.advance_roll_phase_no_dice();
     gs.players.0.hand = vector![CardId::WitchsScorchingHat, CardId::BrokenRimesEcho];

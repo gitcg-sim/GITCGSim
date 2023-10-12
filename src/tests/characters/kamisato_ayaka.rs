@@ -2,14 +2,12 @@ use super::*;
 
 #[test]
 fn test_cryo_infusion() {
-    let mut gs = {
-        GameStateBuilder::new_roll_phase_1(
-            vector![CharId::Yoimiya, CharId::KamisatoAyaka],
-            vector![CharId::Fischl, CharId::Ganyu],
-        )
-        .with_enable_log(true)
-        .build()
-    };
+    let mut gs = GameStateBuilder::new_roll_phase_1(
+        vector![CharId::Yoimiya, CharId::KamisatoAyaka],
+        vector![CharId::Fischl, CharId::Ganyu],
+    )
+    .with_enable_log(true)
+    .build();
     gs.ignore_costs = true;
     gs.advance_roll_phase_no_dice();
     gs.advance_multiple(&vec![
@@ -58,11 +56,9 @@ fn test_cryo_infusion() {
 
 #[test]
 fn test_cryo_infusion_at_duel_start() {
-    let mut gs = {
-        GameStateBuilder::new_roll_phase_1(vector![CharId::KamisatoAyaka], vector![CharId::Fischl])
-            .with_enable_log(true)
-            .build()
-    };
+    let mut gs = GameStateBuilder::new_roll_phase_1(vector![CharId::KamisatoAyaka], vector![CharId::Fischl])
+        .with_enable_log(true)
+        .build();
     gs.ignore_costs = true;
     gs.advance_roll_phase_no_dice();
     gs.advance_multiple(&vec![Input::FromPlayer(
@@ -78,11 +74,9 @@ fn test_cryo_infusion_at_duel_start() {
 
 #[test]
 fn test_kamisato_art_soumetsu_summon() {
-    let mut gs = {
-        GameStateBuilder::new_roll_phase_1(vector![CharId::KamisatoAyaka], vector![CharId::Fischl])
-            .with_enable_log(true)
-            .build()
-    };
+    let mut gs = GameStateBuilder::new_roll_phase_1(vector![CharId::KamisatoAyaka], vector![CharId::Fischl])
+        .with_enable_log(true)
+        .build();
     gs.ignore_costs = true;
     gs.advance_roll_phase_no_dice();
 
@@ -138,14 +132,12 @@ fn test_kamisato_art_soumetsu_summon() {
 
 #[test]
 fn test_cryo_infusion_under_talent_card() {
-    let mut gs = {
-        GameStateBuilder::new_roll_phase_1(
-            vector![CharId::Yoimiya, CharId::KamisatoAyaka],
-            vector![CharId::Fischl, CharId::Ganyu],
-        )
-        .with_enable_log(true)
-        .build()
-    };
+    let mut gs = GameStateBuilder::new_roll_phase_1(
+        vector![CharId::Yoimiya, CharId::KamisatoAyaka],
+        vector![CharId::Fischl, CharId::Ganyu],
+    )
+    .with_enable_log(true)
+    .build();
     gs.ignore_costs = true;
     gs.advance_roll_phase_no_dice();
     gs.players.0.hand.push(CardId::KantenSenmyouBlessing);

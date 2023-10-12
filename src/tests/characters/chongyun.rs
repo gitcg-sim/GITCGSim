@@ -2,14 +2,12 @@ use super::*;
 
 #[test]
 fn test_chonghuas_frost_field_infusion_applies_to_swords() {
-    let mut gs = {
-        GameStateBuilder::new_roll_phase_1(
-            vector![CharId::Chongyun, CharId::Xingqiu],
-            vector![CharId::Fischl, CharId::Kaeya],
-        )
-        .with_enable_log(true)
-        .build()
-    };
+    let mut gs = GameStateBuilder::new_roll_phase_1(
+        vector![CharId::Chongyun, CharId::Xingqiu],
+        vector![CharId::Fischl, CharId::Kaeya],
+    )
+    .with_enable_log(true)
+    .build();
     gs.ignore_costs = true;
 
     gs.advance_roll_phase_no_dice();
@@ -28,14 +26,12 @@ fn test_chonghuas_frost_field_infusion_applies_to_swords() {
 
 #[test]
 fn test_chonghuas_frost_field_infusion_applies_to_polarms() {
-    let mut gs = {
-        GameStateBuilder::new_roll_phase_1(
-            vector![CharId::Chongyun, CharId::Xiangling],
-            vector![CharId::Fischl, CharId::Kaeya],
-        )
-        .with_enable_log(true)
-        .build()
-    };
+    let mut gs = GameStateBuilder::new_roll_phase_1(
+        vector![CharId::Chongyun, CharId::Xiangling],
+        vector![CharId::Fischl, CharId::Kaeya],
+    )
+    .with_enable_log(true)
+    .build();
     gs.ignore_costs = true;
 
     gs.advance_roll_phase_no_dice();
@@ -54,14 +50,12 @@ fn test_chonghuas_frost_field_infusion_applies_to_polarms() {
 
 #[test]
 fn test_chonghuas_frost_field_infusion_applies_to_claymores() {
-    let mut gs = {
-        GameStateBuilder::new_roll_phase_1(
-            vector![CharId::Chongyun, CharId::Noelle],
-            vector![CharId::Fischl, CharId::Kaeya],
-        )
-        .with_enable_log(true)
-        .build()
-    };
+    let mut gs = GameStateBuilder::new_roll_phase_1(
+        vector![CharId::Chongyun, CharId::Noelle],
+        vector![CharId::Fischl, CharId::Kaeya],
+    )
+    .with_enable_log(true)
+    .build();
     gs.ignore_costs = true;
 
     gs.advance_roll_phase_no_dice();
@@ -84,14 +78,12 @@ fn test_chonghuas_frost_field_infusion_applies_to_claymores() {
 
 #[test]
 fn test_chonghuas_frost_field_infusion_does_not_apply_to_bows() {
-    let mut gs = {
-        GameStateBuilder::new_roll_phase_1(
-            vector![CharId::Chongyun, CharId::Yoimiya],
-            vector![CharId::Fischl, CharId::Kaeya],
-        )
-        .with_enable_log(true)
-        .build()
-    };
+    let mut gs = GameStateBuilder::new_roll_phase_1(
+        vector![CharId::Chongyun, CharId::Yoimiya],
+        vector![CharId::Fischl, CharId::Kaeya],
+    )
+    .with_enable_log(true)
+    .build();
     gs.ignore_costs = true;
 
     gs.advance_roll_phase_no_dice();
@@ -110,14 +102,12 @@ fn test_chonghuas_frost_field_infusion_does_not_apply_to_bows() {
 
 #[test]
 fn test_chonghuas_frost_field_infusion_does_not_apply_to_catalysts() {
-    let mut gs = {
-        GameStateBuilder::new_roll_phase_1(
-            vector![CharId::Chongyun, CharId::Ningguang],
-            vector![CharId::Fischl, CharId::Kaeya],
-        )
-        .with_enable_log(true)
-        .build()
-    };
+    let mut gs = GameStateBuilder::new_roll_phase_1(
+        vector![CharId::Chongyun, CharId::Ningguang],
+        vector![CharId::Fischl, CharId::Kaeya],
+    )
+    .with_enable_log(true)
+    .build();
     gs.ignore_costs = true;
 
     gs.advance_roll_phase_no_dice();
@@ -139,14 +129,12 @@ fn test_chonghuas_frost_field_infusion_does_not_apply_to_catalysts() {
 
 #[test]
 fn test_chonghuas_frost_field_infusion_does_not_apply_to_others() {
-    let mut gs = {
-        GameStateBuilder::new_roll_phase_1(
-            vector![CharId::Chongyun, CharId::FatuiPyroAgent],
-            vector![CharId::Fischl, CharId::Kaeya],
-        )
-        .with_enable_log(true)
-        .build()
-    };
+    let mut gs = GameStateBuilder::new_roll_phase_1(
+        vector![CharId::Chongyun, CharId::FatuiPyroAgent],
+        vector![CharId::Fischl, CharId::Kaeya],
+    )
+    .with_enable_log(true)
+    .build();
     gs.ignore_costs = true;
 
     gs.advance_roll_phase_no_dice();
@@ -165,14 +153,12 @@ fn test_chonghuas_frost_field_infusion_does_not_apply_to_others() {
 
 #[test]
 fn test_talent_card_affects_chonghuas_frost_field() {
-    let mut gs = {
-        GameStateBuilder::new_roll_phase_1(
-            vector![CharId::Chongyun, CharId::Noelle],
-            vector![CharId::Fischl, CharId::Kaeya],
-        )
-        .with_enable_log(true)
-        .build()
-    };
+    let mut gs = GameStateBuilder::new_roll_phase_1(
+        vector![CharId::Chongyun, CharId::Noelle],
+        vector![CharId::Fischl, CharId::Kaeya],
+    )
+    .with_enable_log(true)
+    .build();
     gs.ignore_costs = true;
 
     gs.advance_roll_phase_no_dice();
@@ -205,14 +191,12 @@ fn test_talent_card_affects_chonghuas_frost_field() {
 
 #[test]
 fn test_talent_card_on_different_character_doesnt_affect_chonghuas_frost_field() {
-    let mut gs = {
-        GameStateBuilder::new_roll_phase_1(
-            vector![CharId::Noelle, CharId::Chongyun],
-            vector![CharId::Fischl, CharId::Kaeya],
-        )
-        .with_enable_log(true)
-        .build()
-    };
+    let mut gs = GameStateBuilder::new_roll_phase_1(
+        vector![CharId::Noelle, CharId::Chongyun],
+        vector![CharId::Fischl, CharId::Kaeya],
+    )
+    .with_enable_log(true)
+    .build();
     gs.ignore_costs = true;
 
     gs.advance_roll_phase_no_dice();

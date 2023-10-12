@@ -2,11 +2,9 @@ use super::*;
 
 #[test]
 fn test_niwabi_fire_dance_status() {
-    let mut gs = {
-        GameStateBuilder::new_roll_phase_1(vector![CharId::Yoimiya], vector![CharId::Ganyu])
-            .with_enable_log(true)
-            .build()
-    };
+    let mut gs = GameStateBuilder::new_roll_phase_1(vector![CharId::Yoimiya], vector![CharId::Ganyu])
+        .with_enable_log(true)
+        .build();
     gs.ignore_costs = true;
 
     gs.advance_roll_phase_no_dice();
@@ -57,14 +55,12 @@ fn test_niwabi_fire_dance_status() {
 
 #[test]
 fn test_ryuukin_saxifrage_trigger_duration() {
-    let mut gs = {
-        GameStateBuilder::new_roll_phase_1(
-            vector![CharId::Yoimiya, CharId::Fischl],
-            vector![CharId::Ganyu, CharId::Kaeya],
-        )
-        .with_enable_log(true)
-        .build()
-    };
+    let mut gs = GameStateBuilder::new_roll_phase_1(
+        vector![CharId::Yoimiya, CharId::Fischl],
+        vector![CharId::Ganyu, CharId::Kaeya],
+    )
+    .with_enable_log(true)
+    .build();
     gs.ignore_costs = true;
     gs.advance_roll_phase_no_dice();
     gs.advance_multiple(&vec![Input::FromPlayer(
@@ -100,14 +96,12 @@ fn test_ryuukin_saxifrage_trigger_duration() {
 
 #[test]
 fn test_talent_card_costs_niwabi_enshou_and_increases_dmg() {
-    let mut gs = {
-        GameStateBuilder::new_roll_phase_1(
-            vector![CharId::Yoimiya, CharId::Fischl],
-            vector![CharId::Ganyu, CharId::Kaeya],
-        )
-        .with_enable_log(true)
-        .build()
-    };
+    let mut gs = GameStateBuilder::new_roll_phase_1(
+        vector![CharId::Yoimiya, CharId::Fischl],
+        vector![CharId::Ganyu, CharId::Kaeya],
+    )
+    .with_enable_log(true)
+    .build();
     gs.ignore_costs = true;
     gs.players.0.hand.push(CardId::NaganoharaMeteorSwarm);
     gs.advance_roll_phase_no_dice();
