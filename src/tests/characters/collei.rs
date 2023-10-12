@@ -2,7 +2,11 @@ use super::*;
 
 #[test]
 fn test_talent_card() {
-    let mut gs = GameState::new(&vector![CharId::Collei, CharId::Fischl], &vector![CharId::Ganyu], true);
+    let mut gs = {
+        GameStateBuilder::new_roll_phase_1(vector![CharId::Collei, CharId::Fischl], vector![CharId::Ganyu])
+            .with_enable_log(true)
+            .build()
+    };
     gs.ignore_costs = true;
 
     gs.players.0.hand.push(CardId::FloralSidewinder);
@@ -28,7 +32,11 @@ fn test_talent_card() {
 
 #[test]
 fn test_talent_card_immediate_reaction() {
-    let mut gs = GameState::new(&vector![CharId::Collei, CharId::Fischl], &vector![CharId::Ganyu], true);
+    let mut gs = {
+        GameStateBuilder::new_roll_phase_1(vector![CharId::Collei, CharId::Fischl], vector![CharId::Ganyu])
+            .with_enable_log(true)
+            .build()
+    };
     gs.ignore_costs = true;
 
     gs.players.0.hand.push(CardId::FloralSidewinder);
@@ -49,7 +57,11 @@ fn test_talent_card_immediate_reaction() {
 
 #[test]
 fn test_talent_card_does_not_trigger_on_incoming_dendro_reaction() {
-    let mut gs = GameState::new(&vector![CharId::Collei, CharId::Fischl], &vector![CharId::Collei], true);
+    let mut gs = {
+        GameStateBuilder::new_roll_phase_1(vector![CharId::Collei, CharId::Fischl], vector![CharId::Collei])
+            .with_enable_log(true)
+            .build()
+    };
     gs.ignore_costs = true;
 
     gs.players.0.hand.push(CardId::FloralSidewinder);

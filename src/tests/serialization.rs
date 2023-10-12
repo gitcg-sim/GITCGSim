@@ -9,11 +9,14 @@ use crate::{
 use super::*;
 
 fn _initial_gs() -> GameState {
-    let mut gs = GameState::new(
-        &vector![CharId::KamisatoAyaka, CharId::Yoimiya, CharId::Collei],
-        &vector![CharId::Diona, CharId::Ningguang, CharId::Noelle],
-        false,
-    );
+    let mut gs = {
+        GameStateBuilder::new_roll_phase_1(
+            vector![CharId::KamisatoAyaka, CharId::Yoimiya, CharId::Collei],
+            vector![CharId::Diona, CharId::Ningguang, CharId::Noelle],
+        )
+        .with_enable_log(false)
+        .build()
+    };
     gs.advance_multiple(&vec![
         Input::NoAction,
         Input::NondetResult(NondetResult::ProvideCards(
@@ -42,11 +45,14 @@ fn _initial_gs() -> GameState {
 fn _initial_gs_wrapper() -> GameStateWrapper<StandardNondetHandlerState> {
     let decklist1 = Decklist::new(Default::default(), sample_deck());
     let decklist2 = Decklist::new(Default::default(), sample_deck());
-    let gs = GameState::new(
-        &vector![CharId::Klee, CharId::Xingqiu, CharId::KamisatoAyaka],
-        &vector![CharId::Noelle, CharId::Ningguang, CharId::Fischl],
-        false,
-    );
+    let gs = {
+        GameStateBuilder::new_roll_phase_1(
+            vector![CharId::Klee, CharId::Xingqiu, CharId::KamisatoAyaka],
+            vector![CharId::Noelle, CharId::Ningguang, CharId::Fischl],
+        )
+        .with_enable_log(false)
+        .build()
+    };
     let state = StandardNondetHandlerState::new(&decklist1, &decklist2, SmallRng::seed_from_u64(100).into());
     let nd = NondetProvider::new(state);
     let mut gsw = GameStateWrapper::new(gs, nd);

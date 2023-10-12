@@ -2,11 +2,14 @@ use super::*;
 
 #[test]
 fn test_seed_of_skandha_receive_pd() {
-    let mut gs = GameState::new(
-        &vector![CharId::Nahida, CharId::Mona],
-        &vector![CharId::Ganyu, CharId::Fischl, CharId::Kaeya, CharId::Noelle],
-        true,
-    );
+    let mut gs = {
+        GameStateBuilder::new_roll_phase_1(
+            vector![CharId::Nahida, CharId::Mona],
+            vector![CharId::Ganyu, CharId::Fischl, CharId::Kaeya, CharId::Noelle],
+        )
+        .with_enable_log(true)
+        .build()
+    };
     gs.ignore_costs = true;
 
     gs.advance_roll_phase_no_dice();
@@ -51,11 +54,14 @@ fn test_seed_of_skandha_receive_pd() {
 
 #[test]
 fn test_shrine_of_maya_increases_outgoing_reaction_dmg() {
-    let mut gs = GameState::new(
-        &vector![CharId::Nahida, CharId::Mona],
-        &vector![CharId::Ganyu, CharId::Fischl, CharId::Kaeya, CharId::Noelle],
-        true,
-    );
+    let mut gs = {
+        GameStateBuilder::new_roll_phase_1(
+            vector![CharId::Nahida, CharId::Mona],
+            vector![CharId::Ganyu, CharId::Fischl, CharId::Kaeya, CharId::Noelle],
+        )
+        .with_enable_log(true)
+        .build()
+    };
     gs.ignore_costs = true;
 
     gs.advance_roll_phase_no_dice();

@@ -2,7 +2,11 @@ use super::*;
 
 #[test]
 fn test_passive_switch_character_away_is_fast_action_once_per_round() {
-    let mut gs = GameState::new(&vector![CharId::Mona, CharId::Kaeya], &vector![CharId::Fischl], true);
+    let mut gs = {
+        GameStateBuilder::new_roll_phase_1(vector![CharId::Mona, CharId::Kaeya], vector![CharId::Fischl])
+            .with_enable_log(true)
+            .build()
+    };
     gs.ignore_costs = true;
     gs.advance_roll_phase_no_dice();
     gs.advance_multiple(&vec![
@@ -38,7 +42,11 @@ fn test_passive_switch_character_away_is_fast_action_once_per_round() {
 
 #[test]
 fn test_reflection_expires_without_usage_being_consumed() {
-    let mut gs = GameState::new(&vector![CharId::Mona], &vector![CharId::Fischl], true);
+    let mut gs = {
+        GameStateBuilder::new_roll_phase_1(vector![CharId::Mona], vector![CharId::Fischl])
+            .with_enable_log(true)
+            .build()
+    };
     gs.ignore_costs = true;
 
     gs.advance_roll_phase_no_dice();
@@ -61,7 +69,11 @@ fn test_reflection_expires_without_usage_being_consumed() {
 
 #[test]
 fn test_reflection_reduces_dmg_and_remains_until_end_phase() {
-    let mut gs = GameState::new(&vector![CharId::Mona], &vector![CharId::Fischl], true);
+    let mut gs = {
+        GameStateBuilder::new_roll_phase_1(vector![CharId::Mona], vector![CharId::Fischl])
+            .with_enable_log(true)
+            .build()
+    };
     gs.ignore_costs = true;
 
     gs.advance_roll_phase_no_dice();
@@ -107,11 +119,14 @@ fn test_reflection_reduces_dmg_and_remains_until_end_phase() {
 // TODO do reaction DMG bonuses apply before or after doubling? (after currently)
 #[test]
 fn test_stellaris_phantasm_doubles_dmg() {
-    let mut gs = GameState::new(
-        &vector![CharId::Mona, CharId::Xingqiu],
-        &vector![CharId::Fischl, CharId::Barbara],
-        true,
-    );
+    let mut gs = {
+        GameStateBuilder::new_roll_phase_1(
+            vector![CharId::Mona, CharId::Xingqiu],
+            vector![CharId::Fischl, CharId::Barbara],
+        )
+        .with_enable_log(true)
+        .build()
+    };
     gs.advance_roll_phase_no_dice();
     gs.ignore_costs = true;
     gs.get_player_mut(PlayerId::PlayerFirst)
@@ -146,11 +161,14 @@ fn test_stellaris_phantasm_doubles_dmg() {
 
 #[test]
 fn test_stellaris_phantasm_doubles_dmg_for_reaction_post_reaction_bonus() {
-    let mut gs = GameState::new(
-        &vector![CharId::Mona, CharId::Bennett],
-        &vector![CharId::Fischl, CharId::Barbara],
-        true,
-    );
+    let mut gs = {
+        GameStateBuilder::new_roll_phase_1(
+            vector![CharId::Mona, CharId::Bennett],
+            vector![CharId::Fischl, CharId::Barbara],
+        )
+        .with_enable_log(true)
+        .build()
+    };
     gs.advance_roll_phase_no_dice();
     gs.ignore_costs = true;
     gs.get_player_mut(PlayerId::PlayerSecond).char_states[1]
@@ -174,11 +192,14 @@ fn test_stellaris_phantasm_doubles_dmg_for_reaction_post_reaction_bonus() {
 
 #[test]
 fn test_stellaris_phantasm_does_not_double_summon_dmg() {
-    let mut gs = GameState::new(
-        &vector![CharId::Xiangling, CharId::Mona],
-        &vector![CharId::Fischl, CharId::Barbara, CharId::Kaeya],
-        true,
-    );
+    let mut gs = {
+        GameStateBuilder::new_roll_phase_1(
+            vector![CharId::Xiangling, CharId::Mona],
+            vector![CharId::Fischl, CharId::Barbara, CharId::Kaeya],
+        )
+        .with_enable_log(true)
+        .build()
+    };
     gs.advance_roll_phase_no_dice();
     gs.ignore_costs = true;
     gs.advance_multiple(&vec![

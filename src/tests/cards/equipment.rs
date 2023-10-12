@@ -1,11 +1,11 @@
 use super::*;
 
 fn game_state_for_artifacts(card_id: CardId) -> GameState {
-    let mut gs = GameState::new(
-        &vector![CharId::KamisatoAyaka, CharId::Yoimiya],
-        &vector![CharId::Fischl],
-        true,
-    );
+    let mut gs = {
+        GameStateBuilder::new_roll_phase_1(vector![CharId::KamisatoAyaka, CharId::Yoimiya], vector![CharId::Fischl])
+            .with_enable_log(true)
+            .build()
+    };
     gs.advance_roll_phase_no_dice();
     gs.players.0.dice.add_in_place(&DiceCounter::omni(8));
     gs.players.0.hand.push(card_id);
@@ -103,11 +103,11 @@ fn test_artifact_3_dice_guarantee() {
 
 #[test]
 fn test_talent_equip_must_be_on_matching_and_active_character() {
-    let mut gs = GameState::new(
-        &vector![CharId::Xingqiu, CharId::Yoimiya],
-        &vector![CharId::Fischl],
-        true,
-    );
+    let mut gs = {
+        GameStateBuilder::new_roll_phase_1(vector![CharId::Xingqiu, CharId::Yoimiya], vector![CharId::Fischl])
+            .with_enable_log(true)
+            .build()
+    };
     gs.ignore_costs = true;
     gs.advance_roll_phase_no_dice();
     gs.players.0.hand.push(CardId::NaganoharaMeteorSwarm);
@@ -144,11 +144,11 @@ fn test_talent_equip_must_be_on_matching_and_active_character() {
 
 #[test]
 fn test_talent_equip_without_skill_must_be_on_matching_character() {
-    let mut gs = GameState::new(
-        &vector![CharId::Xingqiu, CharId::KamisatoAyaka],
-        &vector![CharId::Fischl],
-        true,
-    );
+    let mut gs = {
+        GameStateBuilder::new_roll_phase_1(vector![CharId::Xingqiu, CharId::KamisatoAyaka], vector![CharId::Fischl])
+            .with_enable_log(true)
+            .build()
+    };
     gs.ignore_costs = true;
     gs.advance_roll_phase_no_dice();
     gs.players.0.hand.push(CardId::KantenSenmyouBlessing);
@@ -163,11 +163,14 @@ fn test_talent_equip_without_skill_must_be_on_matching_character() {
 
 #[test]
 fn test_gamblers_earrings_triggers_on_skill_defeat() {
-    let mut gs = GameState::new(
-        &vector![CharId::Fischl, CharId::Kaeya],
-        &vector![CharId::Ganyu, CharId::Xingqiu],
-        true,
-    );
+    let mut gs = {
+        GameStateBuilder::new_roll_phase_1(
+            vector![CharId::Fischl, CharId::Kaeya],
+            vector![CharId::Ganyu, CharId::Xingqiu],
+        )
+        .with_enable_log(true)
+        .build()
+    };
     gs.ignore_costs = true;
     gs.advance_roll_phase_no_dice();
     gs.players.1.char_states[0].set_hp(1);
@@ -186,11 +189,14 @@ fn test_gamblers_earrings_triggers_on_skill_defeat() {
 
 #[test]
 fn test_gamblers_earrings_triggers_on_summon_defeat() {
-    let mut gs = GameState::new(
-        &vector![CharId::Fischl, CharId::Kaeya],
-        &vector![CharId::Ganyu, CharId::Xingqiu],
-        true,
-    );
+    let mut gs = {
+        GameStateBuilder::new_roll_phase_1(
+            vector![CharId::Fischl, CharId::Kaeya],
+            vector![CharId::Ganyu, CharId::Xingqiu],
+        )
+        .with_enable_log(true)
+        .build()
+    };
     gs.ignore_costs = true;
     gs.advance_roll_phase_no_dice();
     gs.players.1.char_states[0].set_hp(2);
@@ -215,11 +221,14 @@ fn test_gamblers_earrings_triggers_on_summon_defeat() {
 
 #[test]
 fn test_gamblers_earrings_does_not_trigger_on_non_active_defeat() {
-    let mut gs = GameState::new(
-        &vector![CharId::Fischl, CharId::Kaeya],
-        &vector![CharId::Ganyu, CharId::Xingqiu],
-        true,
-    );
+    let mut gs = {
+        GameStateBuilder::new_roll_phase_1(
+            vector![CharId::Fischl, CharId::Kaeya],
+            vector![CharId::Ganyu, CharId::Xingqiu],
+        )
+        .with_enable_log(true)
+        .build()
+    };
     gs.ignore_costs = true;
     gs.advance_roll_phase_no_dice();
     gs.players.1.char_states[0].set_hp(2);
@@ -242,11 +251,14 @@ fn test_gamblers_earrings_does_not_trigger_on_non_active_defeat() {
 
 #[test]
 fn test_gamblers_earrings_does_not_trigger_on_non_active_summon_defeat() {
-    let mut gs = GameState::new(
-        &vector![CharId::Fischl, CharId::Kaeya],
-        &vector![CharId::Ganyu, CharId::Xingqiu],
-        true,
-    );
+    let mut gs = {
+        GameStateBuilder::new_roll_phase_1(
+            vector![CharId::Fischl, CharId::Kaeya],
+            vector![CharId::Ganyu, CharId::Xingqiu],
+        )
+        .with_enable_log(true)
+        .build()
+    };
     gs.ignore_costs = true;
     gs.advance_roll_phase_no_dice();
     gs.players.1.char_states[0].set_hp(2);
@@ -272,11 +284,14 @@ fn test_gamblers_earrings_does_not_trigger_on_non_active_summon_defeat() {
 
 #[test]
 fn test_lithic_spear_grants_shield_points() {
-    let mut gs = GameState::new(
-        &vector![CharId::Xiangling, CharId::Yoimiya, CharId::Xingqiu],
-        &vector![CharId::Fischl],
-        true,
-    );
+    let mut gs = {
+        GameStateBuilder::new_roll_phase_1(
+            vector![CharId::Xiangling, CharId::Yoimiya, CharId::Xingqiu],
+            vector![CharId::Fischl],
+        )
+        .with_enable_log(true)
+        .build()
+    };
     gs.ignore_costs = true;
     gs.advance_roll_phase_no_dice();
     gs.players.0.hand.push(CardId::LithicSpear);
@@ -318,11 +333,14 @@ mod lucky_dogs_silver_circlet {
     use super::*;
 
     fn get_game_state() -> GameState {
-        let mut gs = GameState::new(
-            &vector![CharId::Xiangling, CharId::Yoimiya, CharId::Xingqiu],
-            &vector![CharId::Fischl],
-            true,
-        );
+        let mut gs = {
+            GameStateBuilder::new_roll_phase_1(
+                vector![CharId::Xiangling, CharId::Yoimiya, CharId::Xingqiu],
+                vector![CharId::Fischl],
+            )
+            .with_enable_log(true)
+            .build()
+        };
         gs.ignore_costs = true;
         gs.advance_roll_phase_no_dice();
         {
@@ -410,11 +428,11 @@ mod ornate_kabuto {
 
     #[test]
     fn test_does_not_proc_on_own_burst() {
-        let mut gs = GameState::new(
-            &vector![CharId::Xingqiu, CharId::Yoimiya],
-            &vector![CharId::Fischl],
-            true,
-        );
+        let mut gs = {
+            GameStateBuilder::new_roll_phase_1(vector![CharId::Xingqiu, CharId::Yoimiya], vector![CharId::Fischl])
+                .with_enable_log(true)
+                .build()
+        };
         gs.ignore_costs = true;
         gs.advance_roll_phase_no_dice();
         gs.players.0.hand.push(CardId::OrnateKabuto);
@@ -430,11 +448,11 @@ mod ornate_kabuto {
 
     #[test]
     fn test_increases_energy_on_teammate_burst() {
-        let mut gs = GameState::new(
-            &vector![CharId::Xingqiu, CharId::Yoimiya],
-            &vector![CharId::Fischl],
-            true,
-        );
+        let mut gs = {
+            GameStateBuilder::new_roll_phase_1(vector![CharId::Xingqiu, CharId::Yoimiya], vector![CharId::Fischl])
+                .with_enable_log(true)
+                .build()
+        };
         gs.ignore_costs = true;
         gs.advance_roll_phase_no_dice();
         gs.players.0.hand.push(CardId::OrnateKabuto);
@@ -456,11 +474,11 @@ mod favonius_sword {
 
     #[test]
     fn test_does_not_proc_on_normal_attack() {
-        let mut gs = GameState::new(
-            &vector![CharId::Xingqiu, CharId::Yoimiya],
-            &vector![CharId::Fischl],
-            true,
-        );
+        let mut gs = {
+            GameStateBuilder::new_roll_phase_1(vector![CharId::Xingqiu, CharId::Yoimiya], vector![CharId::Fischl])
+                .with_enable_log(true)
+                .build()
+        };
         gs.ignore_costs = true;
         gs.advance_roll_phase_no_dice();
         gs.players.0.hand.push(CardId::FavoniusSword);
@@ -478,11 +496,11 @@ mod favonius_sword {
 
     #[test]
     fn test_adds_energy_after_casting_skill() {
-        let mut gs = GameState::new(
-            &vector![CharId::Xingqiu, CharId::Yoimiya],
-            &vector![CharId::Fischl],
-            true,
-        );
+        let mut gs = {
+            GameStateBuilder::new_roll_phase_1(vector![CharId::Xingqiu, CharId::Yoimiya], vector![CharId::Fischl])
+                .with_enable_log(true)
+                .build()
+        };
         gs.ignore_costs = true;
         gs.advance_roll_phase_no_dice();
         gs.players.0.hand.push(CardId::FavoniusSword);
@@ -498,11 +516,11 @@ mod favonius_sword {
 
     #[test]
     fn test_does_not_proc_with_non_active_character_skill() {
-        let mut gs = GameState::new(
-            &vector![CharId::Yoimiya, CharId::Xingqiu],
-            &vector![CharId::Fischl],
-            true,
-        );
+        let mut gs = {
+            GameStateBuilder::new_roll_phase_1(vector![CharId::Yoimiya, CharId::Xingqiu], vector![CharId::Fischl])
+                .with_enable_log(true)
+                .build()
+        };
         gs.ignore_costs = true;
         gs.advance_roll_phase_no_dice();
         gs.players.0.hand.push(CardId::FavoniusSword);
@@ -521,11 +539,14 @@ mod aquila_favonia {
     use super::*;
 
     fn init_game_state() -> GameState {
-        let mut gs = GameState::new(
-            &vector![CharId::Bennett, CharId::Fischl],
-            &vector![CharId::Yoimiya, CharId::Ganyu],
-            true,
-        );
+        let mut gs = {
+            GameStateBuilder::new_roll_phase_1(
+                vector![CharId::Bennett, CharId::Fischl],
+                vector![CharId::Yoimiya, CharId::Ganyu],
+            )
+            .with_enable_log(true)
+            .build()
+        };
         gs.ignore_costs = true;
         gs.advance_roll_phase_no_dice();
         {

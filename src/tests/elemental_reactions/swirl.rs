@@ -3,11 +3,14 @@ use super::*;
 #[test]
 fn test_swirl_deals_swirl_dmg_and_applies_element() {
     for e in [Element::Pyro, Element::Hydro, Element::Electro, Element::Cryo] {
-        let mut gs = GameState::new(
-            &vector![CharId::Sucrose],
-            &vector![CharId::Yoimiya, CharId::Fischl, CharId::Ganyu],
-            true,
-        );
+        let mut gs = {
+            GameStateBuilder::new_roll_phase_1(
+                vector![CharId::Sucrose],
+                vector![CharId::Yoimiya, CharId::Fischl, CharId::Ganyu],
+            )
+            .with_enable_log(true)
+            .build()
+        };
         gs.ignore_costs = true;
         gs.get_player_mut(PlayerId::PlayerSecond).char_states[0]
             .applied
@@ -31,11 +34,14 @@ fn test_swirl_deals_swirl_dmg_and_applies_element() {
 
 #[test]
 fn test_swirl_triggers_secondary_reactions_melt_vaporize() {
-    let mut gs = GameState::new(
-        &vector![CharId::Sucrose],
-        &vector![CharId::Yoimiya, CharId::Fischl, CharId::Ganyu],
-        true,
-    );
+    let mut gs = {
+        GameStateBuilder::new_roll_phase_1(
+            vector![CharId::Sucrose],
+            vector![CharId::Yoimiya, CharId::Fischl, CharId::Ganyu],
+        )
+        .with_enable_log(true)
+        .build()
+    };
     gs.ignore_costs = true;
     {
         let player = gs.get_player_mut(PlayerId::PlayerSecond);
@@ -63,11 +69,14 @@ fn test_swirl_triggers_secondary_reactions_melt_vaporize() {
 #[test]
 fn test_swirl_triggers_secondary_reactions_electro_charged_superconduct() {
     for e in [Element::Hydro, Element::Cryo] {
-        let mut gs = GameState::new(
-            &vector![CharId::Sucrose],
-            &vector![CharId::Yoimiya, CharId::Fischl, CharId::Ganyu],
-            true,
-        );
+        let mut gs = {
+            GameStateBuilder::new_roll_phase_1(
+                vector![CharId::Sucrose],
+                vector![CharId::Yoimiya, CharId::Fischl, CharId::Ganyu],
+            )
+            .with_enable_log(true)
+            .build()
+        };
         gs.ignore_costs = true;
         {
             let player = gs.get_player_mut(PlayerId::PlayerSecond);
@@ -94,11 +103,14 @@ fn test_swirl_triggers_secondary_reactions_electro_charged_superconduct() {
 
 #[test]
 fn test_swirl_triggers_secondary_reactions_bloom_frozen() {
-    let mut gs = GameState::new(
-        &vector![CharId::Sucrose],
-        &vector![CharId::Yoimiya, CharId::Fischl, CharId::Ganyu],
-        true,
-    );
+    let mut gs = {
+        GameStateBuilder::new_roll_phase_1(
+            vector![CharId::Sucrose],
+            vector![CharId::Yoimiya, CharId::Fischl, CharId::Ganyu],
+        )
+        .with_enable_log(true)
+        .build()
+    };
     gs.ignore_costs = true;
     {
         let player = gs.get_player_mut(PlayerId::PlayerSecond);
@@ -130,11 +142,14 @@ fn test_swirl_triggers_secondary_reactions_bloom_frozen() {
 
 #[test]
 fn test_swirl_triggers_secondary_reactions_quicken() {
-    let mut gs = GameState::new(
-        &vector![CharId::Sucrose],
-        &vector![CharId::Yoimiya, CharId::Fischl, CharId::Ganyu],
-        true,
-    );
+    let mut gs = {
+        GameStateBuilder::new_roll_phase_1(
+            vector![CharId::Sucrose],
+            vector![CharId::Yoimiya, CharId::Fischl, CharId::Ganyu],
+        )
+        .with_enable_log(true)
+        .build()
+    };
     gs.ignore_costs = true;
     {
         let player = gs.get_player_mut(PlayerId::PlayerSecond);
@@ -160,11 +175,14 @@ fn test_swirl_triggers_secondary_reactions_quicken() {
 
 #[test]
 fn test_swirl_triggers_secondary_reactions_burning() {
-    let mut gs = GameState::new(
-        &vector![CharId::Sucrose],
-        &vector![CharId::Yoimiya, CharId::Fischl, CharId::Ganyu],
-        true,
-    );
+    let mut gs = {
+        GameStateBuilder::new_roll_phase_1(
+            vector![CharId::Sucrose],
+            vector![CharId::Yoimiya, CharId::Fischl, CharId::Ganyu],
+        )
+        .with_enable_log(true)
+        .build()
+    };
     gs.ignore_costs = true;
     {
         let player = gs.get_player_mut(PlayerId::PlayerSecond);
@@ -188,11 +206,14 @@ fn test_swirl_triggers_secondary_reactions_burning() {
 
 #[test]
 fn test_swirl_triggers_secondary_reactions_overloaded_no_forced_switch() {
-    let mut gs = GameState::new(
-        &vector![CharId::Sucrose],
-        &vector![CharId::Yoimiya, CharId::Fischl, CharId::Ganyu],
-        true,
-    );
+    let mut gs = {
+        GameStateBuilder::new_roll_phase_1(
+            vector![CharId::Sucrose],
+            vector![CharId::Yoimiya, CharId::Fischl, CharId::Ganyu],
+        )
+        .with_enable_log(true)
+        .build()
+    };
     gs.ignore_costs = true;
     {
         let player = gs.get_player_mut(PlayerId::PlayerSecond);

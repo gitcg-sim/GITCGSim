@@ -2,11 +2,14 @@ use super::*;
 
 #[test]
 fn test_tengu_juurai_ambush_applies_crowfeather_cover_end_phase() {
-    let mut gs = GameState::new(
-        &vector![CharId::KujouSara, CharId::Kaeya],
-        &vector![CharId::Ganyu, CharId::Xiangling],
-        true,
-    );
+    let mut gs = {
+        GameStateBuilder::new_roll_phase_1(
+            vector![CharId::KujouSara, CharId::Kaeya],
+            vector![CharId::Ganyu, CharId::Xiangling],
+        )
+        .with_enable_log(true)
+        .build()
+    };
     gs.ignore_costs = true;
 
     gs.advance_roll_phase_no_dice();

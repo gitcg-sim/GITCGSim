@@ -2,11 +2,14 @@ use super::*;
 
 #[test]
 fn test_frozen_cannot_perform_action() {
-    let mut gs = GameState::new(
-        &vector![CharId::Xingqiu, CharId::KamisatoAyaka, CharId::Yoimiya],
-        &vector![CharId::Yoimiya, CharId::Fischl],
-        true,
-    );
+    let mut gs = {
+        GameStateBuilder::new_roll_phase_1(
+            vector![CharId::Xingqiu, CharId::KamisatoAyaka, CharId::Yoimiya],
+            vector![CharId::Yoimiya, CharId::Fischl],
+        )
+        .with_enable_log(true)
+        .build()
+    };
     gs.ignore_costs = true;
     gs.advance_roll_phase_no_dice();
     gs.advance_multiple(&vec![
@@ -44,11 +47,14 @@ fn test_frozen_cannot_perform_action() {
 
 #[test]
 fn test_frozen_broken_by_pyro() {
-    let mut gs = GameState::new(
-        &vector![CharId::Xingqiu, CharId::KamisatoAyaka, CharId::Yoimiya],
-        &vector![CharId::Yoimiya],
-        true,
-    );
+    let mut gs = {
+        GameStateBuilder::new_roll_phase_1(
+            vector![CharId::Xingqiu, CharId::KamisatoAyaka, CharId::Yoimiya],
+            vector![CharId::Yoimiya],
+        )
+        .with_enable_log(true)
+        .build()
+    };
     gs.ignore_costs = true;
     gs.advance_roll_phase_no_dice();
     gs.advance_multiple(&vec![
@@ -85,11 +91,14 @@ fn test_frozen_broken_by_pyro() {
 
 #[test]
 fn test_frozen_broken_by_physical() {
-    let mut gs = GameState::new(
-        &vector![CharId::Xingqiu, CharId::KamisatoAyaka, CharId::Yoimiya],
-        &vector![CharId::Yoimiya],
-        true,
-    );
+    let mut gs = {
+        GameStateBuilder::new_roll_phase_1(
+            vector![CharId::Xingqiu, CharId::KamisatoAyaka, CharId::Yoimiya],
+            vector![CharId::Yoimiya],
+        )
+        .with_enable_log(true)
+        .build()
+    };
     gs.ignore_costs = true;
     gs.advance_roll_phase_no_dice();
     gs.advance_multiple(&vec![
@@ -124,11 +133,14 @@ fn test_frozen_broken_by_physical() {
 
 #[test]
 fn test_frozen_unapplied_end_of_turn() {
-    let mut gs = GameState::new(
-        &vector![CharId::Xingqiu, CharId::KamisatoAyaka, CharId::Yoimiya],
-        &vector![CharId::Yoimiya],
-        true,
-    );
+    let mut gs = {
+        GameStateBuilder::new_roll_phase_1(
+            vector![CharId::Xingqiu, CharId::KamisatoAyaka, CharId::Yoimiya],
+            vector![CharId::Yoimiya],
+        )
+        .with_enable_log(true)
+        .build()
+    };
     gs.ignore_costs = true;
     gs.advance_roll_phase_no_dice();
     gs.advance_multiple(&vec![
@@ -158,11 +170,14 @@ fn test_frozen_unapplied_end_of_turn() {
 
 #[test]
 fn test_frozen_unapplied_end_of_turn_non_active_character() {
-    let mut gs = GameState::new(
-        &vector![CharId::Xingqiu, CharId::KamisatoAyaka, CharId::Yoimiya],
-        &vector![CharId::Yoimiya, CharId::Kaeya],
-        true,
-    );
+    let mut gs = {
+        GameStateBuilder::new_roll_phase_1(
+            vector![CharId::Xingqiu, CharId::KamisatoAyaka, CharId::Yoimiya],
+            vector![CharId::Yoimiya, CharId::Kaeya],
+        )
+        .with_enable_log(true)
+        .build()
+    };
     gs.ignore_costs = true;
     gs.advance_roll_phase_no_dice();
     gs.advance_multiple(&vec![

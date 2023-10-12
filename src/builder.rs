@@ -121,6 +121,10 @@ impl GameStateBuilder<HasCharacters, HasStartingCondition> {
             .with_starting_condition(StartingCondition::new(StartingPhase::RollPhase))
     }
 
+    pub fn new_roll_phase_1<T: Into<Vector<CharId>>>(c1: T, c2: T) -> Self {
+        GameStateBuilder::<_, _>::new(c1, c2).with_starting_condition(StartingCondition::new(StartingPhase::RollPhase))
+    }
+
     #[inline(always)]
     fn empty_game_state() -> GameState {
         GameState {

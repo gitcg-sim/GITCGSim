@@ -2,11 +2,14 @@ use super::*;
 
 #[test]
 fn test_melody_loop_heals_and_applies_hydro_to_active_character() {
-    let mut gs = GameState::new(
-        &vector![CharId::Barbara, CharId::Noelle],
-        &vector![CharId::Fischl, CharId::Yoimiya],
-        true,
-    );
+    let mut gs = {
+        GameStateBuilder::new_roll_phase_1(
+            vector![CharId::Barbara, CharId::Noelle],
+            vector![CharId::Fischl, CharId::Yoimiya],
+        )
+        .with_enable_log(true)
+        .build()
+    };
     gs.ignore_costs = true;
 
     gs.advance_roll_phase_no_dice();

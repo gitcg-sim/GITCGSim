@@ -1,11 +1,14 @@
 use super::*;
 
 fn game_state_after_stellar_restoration() -> GameState {
-    let mut gs = GameState::new(
-        &vector![CharId::Keqing, CharId::Ganyu],
-        &vector![CharId::Fischl, CharId::Yoimiya],
-        true,
-    );
+    let mut gs = {
+        GameStateBuilder::new_roll_phase_1(
+            vector![CharId::Keqing, CharId::Ganyu],
+            vector![CharId::Fischl, CharId::Yoimiya],
+        )
+        .with_enable_log(true)
+        .build()
+    };
     gs.ignore_costs = true;
 
     gs.advance_roll_phase_no_dice();

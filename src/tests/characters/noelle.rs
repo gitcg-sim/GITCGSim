@@ -2,7 +2,11 @@ use super::*;
 
 #[test]
 fn test_breastplate_shield_points() {
-    let mut gs = GameState::new(&vector![CharId::Noelle], &vector![CharId::Ganyu], true);
+    let mut gs = {
+        GameStateBuilder::new_roll_phase_1(vector![CharId::Noelle], vector![CharId::Ganyu])
+            .with_enable_log(true)
+            .build()
+    };
     gs.ignore_costs = true;
 
     gs.advance_roll_phase_no_dice();
@@ -43,11 +47,14 @@ fn test_breastplate_shield_points() {
 
 #[test]
 fn test_talent_card_heals_all() {
-    let mut gs = GameState::new(
-        &vector![CharId::Noelle, CharId::Yoimiya, CharId::Ganyu],
-        &vector![CharId::Ganyu],
-        true,
-    );
+    let mut gs = {
+        GameStateBuilder::new_roll_phase_1(
+            vector![CharId::Noelle, CharId::Yoimiya, CharId::Ganyu],
+            vector![CharId::Ganyu],
+        )
+        .with_enable_log(true)
+        .build()
+    };
     gs.ignore_costs = true;
 
     gs.players.0.hand.push(CardId::IGotYourBack);
@@ -88,7 +95,11 @@ fn test_talent_card_heals_all() {
 
 #[test]
 fn test_sweeping_time_reduces_cost_for_na() {
-    let mut gs = GameState::new(&vector![CharId::Noelle], &vector![CharId::Ganyu], true);
+    let mut gs = {
+        GameStateBuilder::new_roll_phase_1(vector![CharId::Noelle], vector![CharId::Ganyu])
+            .with_enable_log(true)
+            .build()
+    };
     gs.advance_roll_phase_no_dice();
     {
         let p = gs.get_player_mut(PlayerId::PlayerFirst);

@@ -2,11 +2,11 @@ use super::*;
 
 #[test]
 fn test_foul_legacy_raging_tide_melee_stance_and_riptide_transfer() {
-    let mut gs = GameState::new(
-        &vector![CharId::Tartaglia],
-        &vector![CharId::Ganyu, CharId::Fischl],
-        true,
-    );
+    let mut gs = {
+        GameStateBuilder::new_roll_phase_1(vector![CharId::Tartaglia], vector![CharId::Ganyu, CharId::Fischl])
+            .with_enable_log(true)
+            .build()
+    };
     gs.ignore_costs = false;
 
     gs.advance_roll_phase_no_dice();

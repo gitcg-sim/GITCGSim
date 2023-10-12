@@ -2,11 +2,14 @@ use super::*;
 
 #[test]
 fn test_glacial_waltz_switch_trigger() {
-    let mut gs = GameState::new(
-        &vector![CharId::Kaeya, CharId::Fischl],
-        &vector![CharId::Xiangling, CharId::Yoimiya],
-        true,
-    );
+    let mut gs = {
+        GameStateBuilder::new_roll_phase_1(
+            vector![CharId::Kaeya, CharId::Fischl],
+            vector![CharId::Xiangling, CharId::Yoimiya],
+        )
+        .with_enable_log(true)
+        .build()
+    };
     gs.ignore_costs = true;
 
     gs.advance_roll_phase_no_dice();
@@ -24,11 +27,14 @@ fn test_glacial_waltz_switch_trigger() {
 
 #[test]
 fn test_talent_card() {
-    let mut gs = GameState::new(
-        &vector![CharId::Kaeya, CharId::Fischl],
-        &vector![CharId::Xiangling, CharId::Yoimiya],
-        true,
-    );
+    let mut gs = {
+        GameStateBuilder::new_roll_phase_1(
+            vector![CharId::Kaeya, CharId::Fischl],
+            vector![CharId::Xiangling, CharId::Yoimiya],
+        )
+        .with_enable_log(true)
+        .build()
+    };
     gs.ignore_costs = true;
     gs.players.0.hand.push(CardId::ColdBloodedStrike);
 

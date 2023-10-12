@@ -3,6 +3,7 @@ use enum_map::Enum;
 use proptest::prelude::*;
 use rand::{rngs::SmallRng, SeedableRng};
 
+use crate::builder::GameStateBuilder;
 use crate::cards::ids::{CardId, SummonId};
 use crate::types::input::{Input, PlayerAction};
 use crate::types::{game_state::*, nondet::*};
@@ -32,7 +33,7 @@ pub fn arb_char_ids() -> impl Strategy<Value = Vector<CharId>> {
 
 prop_compose! {
     pub fn arb_init_game_state()(p1_chars in arb_char_ids(), p2_chars in arb_char_ids()) -> GameState {
-        GameState::new(&p1_chars, &p2_chars, false)
+        GameStateBuilder::new_roll_phase_1(p1_chars, p2_chars).build()
     }
 }
 

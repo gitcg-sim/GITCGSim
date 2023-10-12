@@ -1,4 +1,3 @@
-use crate::builder::GameStateBuilder;
 use crate::cards::ids::lookup::GetStatus;
 use crate::cards::ids::{GetCharCard, SupportId};
 use crate::data_structures::Vector;
@@ -248,12 +247,6 @@ impl StatusCollection {
 }
 
 impl GameState {
-    pub fn new(p1_chars: &Vector<CharId>, p2_chars: &Vector<CharId>, log: bool) -> GameState {
-        GameStateBuilder::new_roll_phase(p1_chars, p2_chars)
-            .with_enable_log(log)
-            .build()
-    }
-
     #[inline]
     pub fn get_player(&self, player_id: PlayerId) -> &PlayerState {
         match player_id {

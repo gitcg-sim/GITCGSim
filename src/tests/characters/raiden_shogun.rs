@@ -2,11 +2,14 @@ use super::*;
 
 #[test]
 fn test_secret_art_musou_shinsetsu_increases_energy() {
-    let mut gs = GameState::new(
-        &vector![CharId::RaidenShogun, CharId::Noelle, CharId::Fischl],
-        &vector![CharId::Ganyu, CharId::Xiangling, CharId::Xingqiu],
-        true,
-    );
+    let mut gs = {
+        GameStateBuilder::new_roll_phase_1(
+            vector![CharId::RaidenShogun, CharId::Noelle, CharId::Fischl],
+            vector![CharId::Ganyu, CharId::Xiangling, CharId::Xingqiu],
+        )
+        .with_enable_log(true)
+        .build()
+    };
     gs.ignore_costs = true;
 
     gs.advance_roll_phase_no_dice();
@@ -34,11 +37,14 @@ fn test_secret_art_musou_shinsetsu_increases_energy() {
 
 #[test]
 fn test_eye_of_stormy_judgment_increases_burst_dmg() {
-    let mut gs = GameState::new(
-        &vector![CharId::RaidenShogun, CharId::Noelle, CharId::Fischl],
-        &vector![CharId::Ganyu, CharId::Xiangling, CharId::Xingqiu],
-        true,
-    );
+    let mut gs = {
+        GameStateBuilder::new_roll_phase_1(
+            vector![CharId::RaidenShogun, CharId::Noelle, CharId::Fischl],
+            vector![CharId::Ganyu, CharId::Xiangling, CharId::Xingqiu],
+        )
+        .with_enable_log(true)
+        .build()
+    };
     gs.ignore_costs = true;
 
     gs.advance_roll_phase_no_dice();
@@ -67,11 +73,14 @@ fn test_eye_of_stormy_judgment_increases_burst_dmg() {
 
 #[test]
 fn test_chakra_desiderata_buffs_burst() {
-    let mut gs = GameState::new(
-        &vector![CharId::Noelle, CharId::Fischl, CharId::RaidenShogun],
-        &vector![CharId::Ganyu, CharId::Xiangling, CharId::Xingqiu],
-        true,
-    );
+    let mut gs = {
+        GameStateBuilder::new_roll_phase_1(
+            vector![CharId::Noelle, CharId::Fischl, CharId::RaidenShogun],
+            vector![CharId::Ganyu, CharId::Xiangling, CharId::Xingqiu],
+        )
+        .with_enable_log(true)
+        .build()
+    };
     gs.ignore_costs = true;
 
     gs.advance_roll_phase_no_dice();
@@ -109,11 +118,14 @@ fn test_chakra_desiderata_buffs_burst() {
 
 #[test]
 fn test_chakra_desiderata_under_talent_card_buffs_burst_twice() {
-    let mut gs = GameState::new(
-        &vector![CharId::Noelle, CharId::Fischl, CharId::RaidenShogun],
-        &vector![CharId::Ganyu, CharId::Xiangling, CharId::Xingqiu],
-        true,
-    );
+    let mut gs = {
+        GameStateBuilder::new_roll_phase_1(
+            vector![CharId::Noelle, CharId::Fischl, CharId::RaidenShogun],
+            vector![CharId::Ganyu, CharId::Xiangling, CharId::Xingqiu],
+        )
+        .with_enable_log(true)
+        .build()
+    };
     gs.ignore_costs = true;
     gs.advance_roll_phase_no_dice();
     gs.get_player_mut(PlayerId::PlayerFirst)
@@ -145,7 +157,11 @@ fn test_chakra_desiderata_under_talent_card_buffs_burst_twice() {
 
 #[test]
 fn test_chakra_desiderata_counter_not_increased() {
-    let mut gs = GameState::new(&vector![CharId::RaidenShogun], &vector![CharId::Ganyu], true);
+    let mut gs = {
+        GameStateBuilder::new_roll_phase_1(vector![CharId::RaidenShogun], vector![CharId::Ganyu])
+            .with_enable_log(true)
+            .build()
+    };
     gs.ignore_costs = true;
 
     gs.advance_roll_phase_no_dice();

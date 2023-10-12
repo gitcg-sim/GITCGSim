@@ -2,11 +2,14 @@ use super::*;
 
 #[test]
 fn test_inspiration_field_dmg_bonus_and_no_heal_for_character_above_7hp() {
-    let mut gs = GameState::new(
-        &vector![CharId::Bennett, CharId::Ganyu],
-        &vector![CharId::Fischl, CharId::Noelle],
-        true,
-    );
+    let mut gs = {
+        GameStateBuilder::new_roll_phase_1(
+            vector![CharId::Bennett, CharId::Ganyu],
+            vector![CharId::Fischl, CharId::Noelle],
+        )
+        .with_enable_log(true)
+        .build()
+    };
     gs.ignore_costs = true;
     gs.advance_roll_phase_no_dice();
     gs.get_player_mut(PlayerId::PlayerFirst).char_states[1].set_hp(7);
@@ -22,11 +25,14 @@ fn test_inspiration_field_dmg_bonus_and_no_heal_for_character_above_7hp() {
 
 #[test]
 fn test_inspiration_field_no_dmg_bonus_and_heals_for_character_above_7hp() {
-    let mut gs = GameState::new(
-        &vector![CharId::Bennett, CharId::Ganyu],
-        &vector![CharId::Fischl, CharId::Noelle],
-        true,
-    );
+    let mut gs = {
+        GameStateBuilder::new_roll_phase_1(
+            vector![CharId::Bennett, CharId::Ganyu],
+            vector![CharId::Fischl, CharId::Noelle],
+        )
+        .with_enable_log(true)
+        .build()
+    };
     gs.ignore_costs = true;
     gs.advance_roll_phase_no_dice();
     gs.get_player_mut(PlayerId::PlayerFirst).char_states[1].set_hp(6);
@@ -42,11 +48,14 @@ fn test_inspiration_field_no_dmg_bonus_and_heals_for_character_above_7hp() {
 
 #[test]
 fn test_talent_card_has_dmg_bonus_and_no_heal_for_character_above_7hp() {
-    let mut gs = GameState::new(
-        &vector![CharId::Bennett, CharId::Ganyu],
-        &vector![CharId::Fischl, CharId::Noelle],
-        true,
-    );
+    let mut gs = {
+        GameStateBuilder::new_roll_phase_1(
+            vector![CharId::Bennett, CharId::Ganyu],
+            vector![CharId::Fischl, CharId::Noelle],
+        )
+        .with_enable_log(true)
+        .build()
+    };
     gs.ignore_costs = true;
     gs.advance_roll_phase_no_dice();
     {
@@ -69,11 +78,14 @@ fn test_talent_card_has_dmg_bonus_and_no_heal_for_character_above_7hp() {
 
 #[test]
 fn test_talent_card_has_dmg_bonus_and_heals_for_character_below_7hp() {
-    let mut gs = GameState::new(
-        &vector![CharId::Bennett, CharId::Ganyu],
-        &vector![CharId::Fischl, CharId::Noelle],
-        true,
-    );
+    let mut gs = {
+        GameStateBuilder::new_roll_phase_1(
+            vector![CharId::Bennett, CharId::Ganyu],
+            vector![CharId::Fischl, CharId::Noelle],
+        )
+        .with_enable_log(true)
+        .build()
+    };
     gs.ignore_costs = true;
     gs.advance_roll_phase_no_dice();
     {

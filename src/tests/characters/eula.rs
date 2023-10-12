@@ -2,7 +2,11 @@ use super::*;
 
 #[test]
 fn test_icetide_vortex() {
-    let mut gs = GameState::new(&vector![CharId::Eula], &vector![CharId::Yoimiya], true);
+    let mut gs = {
+        GameStateBuilder::new_roll_phase_1(vector![CharId::Eula], vector![CharId::Yoimiya])
+            .with_enable_log(true)
+            .build()
+    };
     gs.ignore_costs = true;
 
     gs.advance_roll_phase_no_dice();
@@ -28,11 +32,14 @@ fn test_icetide_vortex() {
 
 #[test]
 fn test_glacial_illumination_prevents_energy_gain_and_increments_counter_and_deals_physical_dmg() {
-    let mut gs = GameState::new(
-        &vector![CharId::Eula],
-        &vector![CharId::Xiangling, CharId::Fischl, CharId::Kaeya],
-        true,
-    );
+    let mut gs = {
+        GameStateBuilder::new_roll_phase_1(
+            vector![CharId::Eula],
+            vector![CharId::Xiangling, CharId::Fischl, CharId::Kaeya],
+        )
+        .with_enable_log(true)
+        .build()
+    };
     gs.ignore_costs = true;
 
     gs.advance_roll_phase_no_dice();
@@ -112,11 +119,11 @@ fn test_glacial_illumination_prevents_energy_gain_and_increments_counter_and_dea
 
 #[test]
 fn test_glacial_illumination_does_not_accumulate_counter_on_others() {
-    let mut gs = GameState::new(
-        &vector![CharId::Eula, CharId::Fischl],
-        &vector![CharId::Xiangling],
-        true,
-    );
+    let mut gs = {
+        GameStateBuilder::new_roll_phase_1(vector![CharId::Eula, CharId::Fischl], vector![CharId::Xiangling])
+            .with_enable_log(true)
+            .build()
+    };
     gs.ignore_costs = true;
 
     gs.advance_roll_phase_no_dice();

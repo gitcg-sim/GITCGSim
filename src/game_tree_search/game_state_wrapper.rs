@@ -7,6 +7,7 @@ use std::fmt::Debug;
 
 use super::*;
 use crate::{
+    builder::GameStateBuilder,
     data_structures::ActionList,
     deck::Decklist,
     dispatcher_ops::types::DispatchError,
@@ -51,7 +52,11 @@ pub fn new_standard_game(
     decklist2: &Decklist,
     rng: SmallRng,
 ) -> GameStateWrapper<StandardNondetHandlerState> {
-    let game_state = GameState::new(&decklist1.characters, &decklist2.characters, false);
+    let game_state = {
+        GameStateBuilder::new_roll_phase_1(decklist1.characters.clone(), decklist2.characters.clone())
+            .with_enable_log(false)
+            .build()
+    };
     let state = StandardNondetHandlerState::new(decklist1, decklist2, rng.into());
     GameStateWrapper::new(game_state, NondetProvider::new(state))
 }

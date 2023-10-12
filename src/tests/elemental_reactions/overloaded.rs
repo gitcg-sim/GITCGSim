@@ -2,11 +2,14 @@ use super::*;
 
 #[test]
 fn test_overloaded_force_switch() {
-    let mut gs = GameState::new(
-        &vector![CharId::Yoimiya, CharId::Fischl],
-        &vector![CharId::Yoimiya, CharId::Fischl],
-        true,
-    );
+    let mut gs = {
+        GameStateBuilder::new_roll_phase_1(
+            vector![CharId::Yoimiya, CharId::Fischl],
+            vector![CharId::Yoimiya, CharId::Fischl],
+        )
+        .with_enable_log(true)
+        .build()
+    };
     gs.ignore_costs = true;
     gs.advance_roll_phase_no_dice();
     gs.advance_multiple(&vec![
@@ -24,11 +27,14 @@ fn test_overloaded_force_switch() {
 
 #[test]
 fn test_overloaded_force_switch_no_alternatives() {
-    let mut gs = GameState::new(
-        &vector![CharId::Yoimiya, CharId::Fischl],
-        &vector![CharId::Yoimiya, CharId::Fischl],
-        true,
-    );
+    let mut gs = {
+        GameStateBuilder::new_roll_phase_1(
+            vector![CharId::Yoimiya, CharId::Fischl],
+            vector![CharId::Yoimiya, CharId::Fischl],
+        )
+        .with_enable_log(true)
+        .build()
+    };
     gs.ignore_costs = true;
     gs.players.1.char_states[1].set_hp(0);
     gs.advance_roll_phase_no_dice();
@@ -44,11 +50,14 @@ fn test_overloaded_force_switch_no_alternatives() {
 
 #[test]
 fn test_overloaded_force_switch_rotate() {
-    let mut gs = GameState::new(
-        &vector![CharId::Yoimiya, CharId::Fischl],
-        &vector![CharId::Yoimiya, CharId::Fischl, CharId::Ganyu],
-        true,
-    );
+    let mut gs = {
+        GameStateBuilder::new_roll_phase_1(
+            vector![CharId::Yoimiya, CharId::Fischl],
+            vector![CharId::Yoimiya, CharId::Fischl, CharId::Ganyu],
+        )
+        .with_enable_log(true)
+        .build()
+    };
     gs.ignore_costs = true;
     gs.players.1.char_states[0].set_hp(0);
     gs.players.1.active_char_index = 2;

@@ -2,7 +2,11 @@ use super::*;
 
 #[test]
 fn test_vijnana_phala_mine_charged_attack() {
-    let mut gs = GameState::new(&vector![CharId::Tighnari], &vector![CharId::Fischl], true);
+    let mut gs = {
+        GameStateBuilder::new_roll_phase_1(vector![CharId::Tighnari], vector![CharId::Fischl])
+            .with_enable_log(true)
+            .build()
+    };
     gs.ignore_costs = true;
     gs.advance_roll_phase_no_dice();
     gs.advance_multiple(&vec![
@@ -42,7 +46,11 @@ fn test_vijnana_phala_mine_charged_attack() {
 
 #[test]
 fn test_vijnana_phala_mine_non_charged_attack() {
-    let mut gs = GameState::new(&vector![CharId::Tighnari], &vector![CharId::Fischl], true);
+    let mut gs = {
+        GameStateBuilder::new_roll_phase_1(vector![CharId::Tighnari], vector![CharId::Fischl])
+            .with_enable_log(true)
+            .build()
+    };
     gs.ignore_costs = true;
     gs.advance_roll_phase_no_dice();
     gs.players
@@ -86,7 +94,11 @@ fn test_vijnana_phala_mine_non_charged_attack() {
 
 #[test]
 fn test_talent_card_charged_attack() {
-    let mut gs = GameState::new(&vector![CharId::Tighnari], &vector![CharId::Fischl], true);
+    let mut gs = {
+        GameStateBuilder::new_roll_phase_1(vector![CharId::Tighnari], vector![CharId::Fischl])
+            .with_enable_log(true)
+            .build()
+    };
     gs.ignore_costs = false;
     gs.advance_roll_phase_no_dice();
     {
