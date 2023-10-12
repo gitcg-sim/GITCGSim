@@ -9,8 +9,8 @@ fn test_quicken() {
         vector![CharId::Yoimiya, CharId::Fischl],
     )
     .with_enable_log(true)
+    .with_ignore_costs(true)
     .build();
-    gs.ignore_costs = true;
     gs.advance_roll_phase_no_dice();
     {
         let yoimiya = &mut gs.players.1.char_states[0];
@@ -65,8 +65,8 @@ fn test_quicken() {
 fn test_burning_max_2_stacks() {
     let mut gs = GameStateBuilder::new_roll_phase_1(vector![CharId::Collei], vector![CharId::Fischl])
         .with_enable_log(true)
+        .with_ignore_costs(true)
         .build();
-    gs.ignore_costs = true;
     gs.advance_roll_phase_no_dice();
     gs.get_player_mut(PlayerId::PlayerSecond).char_states[0]
         .applied
@@ -122,8 +122,8 @@ fn test_bloom_dendro_core_increases_summon_dmg() {
         vector![CharId::Yoimiya, CharId::Xingqiu],
     )
     .with_enable_log(true)
+    .with_ignore_costs(true)
     .build();
-    gs.ignore_costs = true;
     gs.advance_roll_phase_no_dice();
 
     gs.advance_multiple(&vec![

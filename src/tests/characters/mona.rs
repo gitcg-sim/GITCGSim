@@ -4,8 +4,8 @@ use super::*;
 fn test_passive_switch_character_away_is_fast_action_once_per_round() {
     let mut gs = GameStateBuilder::new_roll_phase_1(vector![CharId::Mona, CharId::Kaeya], vector![CharId::Fischl])
         .with_enable_log(true)
+        .with_ignore_costs(true)
         .build();
-    gs.ignore_costs = true;
     gs.advance_roll_phase_no_dice();
     gs.advance_multiple(&vec![
         // consumed
@@ -42,8 +42,8 @@ fn test_passive_switch_character_away_is_fast_action_once_per_round() {
 fn test_reflection_expires_without_usage_being_consumed() {
     let mut gs = GameStateBuilder::new_roll_phase_1(vector![CharId::Mona], vector![CharId::Fischl])
         .with_enable_log(true)
+        .with_ignore_costs(true)
         .build();
-    gs.ignore_costs = true;
 
     gs.advance_roll_phase_no_dice();
     gs.advance_multiple(&vec![Input::FromPlayer(
@@ -67,8 +67,8 @@ fn test_reflection_expires_without_usage_being_consumed() {
 fn test_reflection_reduces_dmg_and_remains_until_end_phase() {
     let mut gs = GameStateBuilder::new_roll_phase_1(vector![CharId::Mona], vector![CharId::Fischl])
         .with_enable_log(true)
+        .with_ignore_costs(true)
         .build();
-    gs.ignore_costs = true;
 
     gs.advance_roll_phase_no_dice();
     gs.advance_multiple(&vec![Input::FromPlayer(

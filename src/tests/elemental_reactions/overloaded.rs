@@ -7,8 +7,8 @@ fn test_overloaded_force_switch() {
         vector![CharId::Yoimiya, CharId::Fischl],
     )
     .with_enable_log(true)
+    .with_ignore_costs(true)
     .build();
-    gs.ignore_costs = true;
     gs.advance_roll_phase_no_dice();
     gs.advance_multiple(&vec![
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::NiwabiFireDance)),
@@ -30,8 +30,8 @@ fn test_overloaded_force_switch_no_alternatives() {
         vector![CharId::Yoimiya, CharId::Fischl],
     )
     .with_enable_log(true)
+    .with_ignore_costs(true)
     .build();
-    gs.ignore_costs = true;
     gs.players.1.char_states[1].set_hp(0);
     gs.advance_roll_phase_no_dice();
     gs.advance_multiple(&vec![
@@ -51,8 +51,8 @@ fn test_overloaded_force_switch_rotate() {
         vector![CharId::Yoimiya, CharId::Fischl, CharId::Ganyu],
     )
     .with_enable_log(true)
+    .with_ignore_costs(true)
     .build();
-    gs.ignore_costs = true;
     gs.players.1.char_states[0].set_hp(0);
     gs.players.1.active_char_index = 2;
     gs.advance_roll_phase_no_dice();

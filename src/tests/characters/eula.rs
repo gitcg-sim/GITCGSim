@@ -4,8 +4,8 @@ use super::*;
 fn test_icetide_vortex() {
     let mut gs = GameStateBuilder::new_roll_phase_1(vector![CharId::Eula], vector![CharId::Yoimiya])
         .with_enable_log(true)
+        .with_ignore_costs(true)
         .build();
-    gs.ignore_costs = true;
 
     gs.advance_roll_phase_no_dice();
     gs.advance_multiple(&vec![Input::FromPlayer(
@@ -35,8 +35,8 @@ fn test_glacial_illumination_prevents_energy_gain_and_increments_counter_and_dea
         vector![CharId::Xiangling, CharId::Fischl, CharId::Kaeya],
     )
     .with_enable_log(true)
+    .with_ignore_costs(true)
     .build();
-    gs.ignore_costs = true;
 
     gs.advance_roll_phase_no_dice();
     gs.advance_multiple(&vec![Input::FromPlayer(
@@ -117,8 +117,8 @@ fn test_glacial_illumination_prevents_energy_gain_and_increments_counter_and_dea
 fn test_glacial_illumination_does_not_accumulate_counter_on_others() {
     let mut gs = GameStateBuilder::new_roll_phase_1(vector![CharId::Eula, CharId::Fischl], vector![CharId::Xiangling])
         .with_enable_log(true)
+        .with_ignore_costs(true)
         .build();
-    gs.ignore_costs = true;
 
     gs.advance_roll_phase_no_dice();
     gs.advance_multiple(&vec![

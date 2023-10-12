@@ -43,8 +43,8 @@ fn test_indwelling_level_increase_at_end_phase() {
 fn test_indwelling_level_ge_2_electro_infusion() {
     let mut gs = GameStateBuilder::new_roll_phase_1(vector![CharId::Cyno], vector![CharId::Yoimiya])
         .with_enable_log(true)
+        .with_ignore_costs(true)
         .build();
-    gs.ignore_costs = true;
 
     gs.advance_roll_phase_no_dice();
     gs.advance_multiple(&vec![
@@ -80,8 +80,8 @@ fn test_indwelling_level_ge_2_electro_infusion() {
 fn test_indwelling_level_ge_4_increases_dmg_by_2() {
     let mut gs = GameStateBuilder::new_roll_phase_1(vector![CharId::Cyno], vector![CharId::Yoimiya])
         .with_enable_log(true)
+        .with_ignore_costs(true)
         .build();
-    gs.ignore_costs = true;
 
     gs.advance_roll_phase_no_dice();
     gs.advance_multiple(&vec![
@@ -119,8 +119,8 @@ fn test_indwelling_level_ge_4_increases_dmg_by_2() {
 fn test_sacred_rite_wolfs_swiftness_uses_indwelling_level_pre_increase_and_increases_indwelling_level_by_2() {
     let mut gs = GameStateBuilder::new_roll_phase_1(vector![CharId::Cyno], vector![CharId::Yoimiya])
         .with_enable_log(true)
+        .with_ignore_costs(true)
         .build();
-    gs.ignore_costs = true;
     gs.advance_roll_phase_no_dice();
 
     for level in 0..=5 {

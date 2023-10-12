@@ -4,8 +4,8 @@ use super::*;
 fn test_breastplate_shield_points() {
     let mut gs = GameStateBuilder::new_roll_phase_1(vector![CharId::Noelle], vector![CharId::Ganyu])
         .with_enable_log(true)
+        .with_ignore_costs(true)
         .build();
-    gs.ignore_costs = true;
 
     gs.advance_roll_phase_no_dice();
     gs.advance_multiple(&vec![
@@ -50,8 +50,8 @@ fn test_talent_card_heals_all() {
         vector![CharId::Ganyu],
     )
     .with_enable_log(true)
+    .with_ignore_costs(true)
     .build();
-    gs.ignore_costs = true;
 
     gs.players.0.hand.push(CardId::IGotYourBack);
     for c in gs.players.0.char_states.iter_mut() {

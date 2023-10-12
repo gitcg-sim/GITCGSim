@@ -7,8 +7,8 @@ fn test_glacial_waltz_switch_trigger() {
         vector![CharId::Xiangling, CharId::Yoimiya],
     )
     .with_enable_log(true)
+    .with_ignore_costs(true)
     .build();
-    gs.ignore_costs = true;
 
     gs.advance_roll_phase_no_dice();
     gs.advance_multiple(&vec![
@@ -30,8 +30,8 @@ fn test_talent_card() {
         vector![CharId::Xiangling, CharId::Yoimiya],
     )
     .with_enable_log(true)
+    .with_ignore_costs(true)
     .build();
-    gs.ignore_costs = true;
     gs.players.0.hand.push(CardId::ColdBloodedStrike);
 
     gs.players.0.char_states[0].set_hp(5);

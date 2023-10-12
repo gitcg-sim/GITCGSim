@@ -8,8 +8,8 @@ fn test_swirl_deals_swirl_dmg_and_applies_element() {
             vector![CharId::Yoimiya, CharId::Fischl, CharId::Ganyu],
         )
         .with_enable_log(true)
+        .with_ignore_costs(true)
         .build();
-        gs.ignore_costs = true;
         gs.get_player_mut(PlayerId::PlayerSecond).char_states[0]
             .applied
             .insert(e);
@@ -37,8 +37,8 @@ fn test_swirl_triggers_secondary_reactions_melt_vaporize() {
         vector![CharId::Yoimiya, CharId::Fischl, CharId::Ganyu],
     )
     .with_enable_log(true)
+    .with_ignore_costs(true)
     .build();
-    gs.ignore_costs = true;
     {
         let player = gs.get_player_mut(PlayerId::PlayerSecond);
         player.char_states[0].applied.insert(Element::Pyro);
@@ -70,8 +70,8 @@ fn test_swirl_triggers_secondary_reactions_electro_charged_superconduct() {
             vector![CharId::Yoimiya, CharId::Fischl, CharId::Ganyu],
         )
         .with_enable_log(true)
+        .with_ignore_costs(true)
         .build();
-        gs.ignore_costs = true;
         {
             let player = gs.get_player_mut(PlayerId::PlayerSecond);
             player.char_states[0].applied.insert(Element::Electro);
@@ -102,8 +102,8 @@ fn test_swirl_triggers_secondary_reactions_bloom_frozen() {
         vector![CharId::Yoimiya, CharId::Fischl, CharId::Ganyu],
     )
     .with_enable_log(true)
+    .with_ignore_costs(true)
     .build();
-    gs.ignore_costs = true;
     {
         let player = gs.get_player_mut(PlayerId::PlayerSecond);
         player.char_states[0].applied.insert(Element::Hydro);
@@ -139,8 +139,8 @@ fn test_swirl_triggers_secondary_reactions_quicken() {
         vector![CharId::Yoimiya, CharId::Fischl, CharId::Ganyu],
     )
     .with_enable_log(true)
+    .with_ignore_costs(true)
     .build();
-    gs.ignore_costs = true;
     {
         let player = gs.get_player_mut(PlayerId::PlayerSecond);
         player.char_states[0].applied.insert(Element::Electro);
@@ -170,8 +170,8 @@ fn test_swirl_triggers_secondary_reactions_burning() {
         vector![CharId::Yoimiya, CharId::Fischl, CharId::Ganyu],
     )
     .with_enable_log(true)
+    .with_ignore_costs(true)
     .build();
-    gs.ignore_costs = true;
     {
         let player = gs.get_player_mut(PlayerId::PlayerSecond);
         player.char_states[0].applied.insert(Element::Pyro);
@@ -199,8 +199,8 @@ fn test_swirl_triggers_secondary_reactions_overloaded_no_forced_switch() {
         vector![CharId::Yoimiya, CharId::Fischl, CharId::Ganyu],
     )
     .with_enable_log(true)
+    .with_ignore_costs(true)
     .build();
-    gs.ignore_costs = true;
     {
         let player = gs.get_player_mut(PlayerId::PlayerSecond);
         player.char_states[0].applied.insert(Element::Pyro);

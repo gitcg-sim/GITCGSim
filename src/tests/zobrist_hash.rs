@@ -12,8 +12,8 @@ use super::*;
 fn test_zobrist_hash() {
     let mut gs = GameStateBuilder::new_roll_phase_1(vector![CharId::Fischl], vector![CharId::Kaeya, CharId::Yoimiya])
         .with_enable_log(true)
+        .with_ignore_costs(true)
         .build();
-    gs.ignore_costs = true;
     gs.advance_roll_phase_no_dice();
     gs.advance_multiple(&vec![
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::BoltsOfDownfall)),

@@ -4,8 +4,8 @@ use super::*;
 fn test_tidecaller_prepared_skill_not_discarded_by_lost_shield_points() {
     let mut gs = GameStateBuilder::new_roll_phase_1(vector![CharId::Beidou, CharId::Noelle], vector![CharId::Fischl])
         .with_enable_log(true)
+        .with_ignore_costs(true)
         .build();
-    gs.ignore_costs = true;
 
     gs.advance_roll_phase_no_dice();
     gs.advance_multiple(&vec![Input::FromPlayer(
@@ -46,8 +46,8 @@ fn test_tidecaller_prepared_skill_not_discarded_by_lost_shield_points() {
 fn test_tidecaller_prepared_skill_interrupted_by_overload() {
     let mut gs = GameStateBuilder::new_roll_phase_1(vector![CharId::Beidou, CharId::Noelle], vector![CharId::Fischl])
         .with_enable_log(true)
+        .with_ignore_costs(true)
         .build();
-    gs.ignore_costs = true;
 
     gs.advance_roll_phase_no_dice();
     gs.advance_multiple(&vec![Input::FromPlayer(
@@ -89,8 +89,8 @@ fn test_tidecaller_prepared_skill_frozen() {
         vector![CharId::SangonomiyaKokomi],
     )
     .with_enable_log(true)
+    .with_ignore_costs(true)
     .build();
-    gs.ignore_costs = true;
 
     gs.advance_roll_phase_no_dice();
     gs.advance_multiple(&vec![Input::FromPlayer(

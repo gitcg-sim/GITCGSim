@@ -7,8 +7,8 @@ fn test_inspiration_field_dmg_bonus_and_no_heal_for_character_above_7hp() {
         vector![CharId::Fischl, CharId::Noelle],
     )
     .with_enable_log(true)
+    .with_ignore_costs(true)
     .build();
-    gs.ignore_costs = true;
     gs.advance_roll_phase_no_dice();
     gs.get_player_mut(PlayerId::PlayerFirst).char_states[1].set_hp(7);
     gs.advance_multiple(&vec![
@@ -28,8 +28,8 @@ fn test_inspiration_field_no_dmg_bonus_and_heals_for_character_above_7hp() {
         vector![CharId::Fischl, CharId::Noelle],
     )
     .with_enable_log(true)
+    .with_ignore_costs(true)
     .build();
-    gs.ignore_costs = true;
     gs.advance_roll_phase_no_dice();
     gs.get_player_mut(PlayerId::PlayerFirst).char_states[1].set_hp(6);
     gs.advance_multiple(&vec![
@@ -49,8 +49,8 @@ fn test_talent_card_has_dmg_bonus_and_no_heal_for_character_above_7hp() {
         vector![CharId::Fischl, CharId::Noelle],
     )
     .with_enable_log(true)
+    .with_ignore_costs(true)
     .build();
-    gs.ignore_costs = true;
     gs.advance_roll_phase_no_dice();
     {
         let p = gs.get_player_mut(PlayerId::PlayerFirst);
@@ -77,8 +77,8 @@ fn test_talent_card_has_dmg_bonus_and_heals_for_character_below_7hp() {
         vector![CharId::Fischl, CharId::Noelle],
     )
     .with_enable_log(true)
+    .with_ignore_costs(true)
     .build();
-    gs.ignore_costs = true;
     gs.advance_roll_phase_no_dice();
     {
         let p = gs.get_player_mut(PlayerId::PlayerFirst);

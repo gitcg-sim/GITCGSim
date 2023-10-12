@@ -4,8 +4,8 @@ use super::*;
 fn test_talent_card() {
     let mut gs = GameStateBuilder::new_roll_phase_1(vector![CharId::Collei, CharId::Fischl], vector![CharId::Ganyu])
         .with_enable_log(true)
+        .with_ignore_costs(true)
         .build();
-    gs.ignore_costs = true;
 
     gs.players.0.hand.push(CardId::FloralSidewinder);
     gs.advance_roll_phase_no_dice();
@@ -32,8 +32,8 @@ fn test_talent_card() {
 fn test_talent_card_immediate_reaction() {
     let mut gs = GameStateBuilder::new_roll_phase_1(vector![CharId::Collei, CharId::Fischl], vector![CharId::Ganyu])
         .with_enable_log(true)
+        .with_ignore_costs(true)
         .build();
-    gs.ignore_costs = true;
 
     gs.players.0.hand.push(CardId::FloralSidewinder);
     gs.players.1.char_states[0].applied |= Element::Electro;
@@ -55,8 +55,8 @@ fn test_talent_card_immediate_reaction() {
 fn test_talent_card_does_not_trigger_on_incoming_dendro_reaction() {
     let mut gs = GameStateBuilder::new_roll_phase_1(vector![CharId::Collei, CharId::Fischl], vector![CharId::Collei])
         .with_enable_log(true)
+        .with_ignore_costs(true)
         .build();
-    gs.ignore_costs = true;
 
     gs.players.0.hand.push(CardId::FloralSidewinder);
     gs.advance_roll_phase_no_dice();

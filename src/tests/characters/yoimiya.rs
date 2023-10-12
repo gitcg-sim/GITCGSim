@@ -4,8 +4,8 @@ use super::*;
 fn test_niwabi_fire_dance_status() {
     let mut gs = GameStateBuilder::new_roll_phase_1(vector![CharId::Yoimiya], vector![CharId::Ganyu])
         .with_enable_log(true)
+        .with_ignore_costs(true)
         .build();
-    gs.ignore_costs = true;
 
     gs.advance_roll_phase_no_dice();
     gs.advance_multiple(&vec![Input::FromPlayer(
@@ -60,8 +60,8 @@ fn test_ryuukin_saxifrage_trigger_duration() {
         vector![CharId::Ganyu, CharId::Kaeya],
     )
     .with_enable_log(true)
+    .with_ignore_costs(true)
     .build();
-    gs.ignore_costs = true;
     gs.advance_roll_phase_no_dice();
     gs.advance_multiple(&vec![Input::FromPlayer(
         PlayerId::PlayerFirst,
@@ -101,8 +101,8 @@ fn test_talent_card_costs_niwabi_enshou_and_increases_dmg() {
         vector![CharId::Ganyu, CharId::Kaeya],
     )
     .with_enable_log(true)
+    .with_ignore_costs(true)
     .build();
-    gs.ignore_costs = true;
     gs.players.0.hand.push(CardId::NaganoharaMeteorSwarm);
     gs.advance_roll_phase_no_dice();
     gs.advance_multiple(&vec![Input::FromPlayer(

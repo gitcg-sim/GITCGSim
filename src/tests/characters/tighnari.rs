@@ -4,8 +4,8 @@ use super::*;
 fn test_vijnana_phala_mine_charged_attack() {
     let mut gs = GameStateBuilder::new_roll_phase_1(vector![CharId::Tighnari], vector![CharId::Fischl])
         .with_enable_log(true)
+        .with_ignore_costs(true)
         .build();
-    gs.ignore_costs = true;
     gs.advance_roll_phase_no_dice();
     gs.advance_multiple(&vec![
         Input::FromPlayer(
@@ -46,8 +46,8 @@ fn test_vijnana_phala_mine_charged_attack() {
 fn test_vijnana_phala_mine_non_charged_attack() {
     let mut gs = GameStateBuilder::new_roll_phase_1(vector![CharId::Tighnari], vector![CharId::Fischl])
         .with_enable_log(true)
+        .with_ignore_costs(true)
         .build();
-    gs.ignore_costs = true;
     gs.advance_roll_phase_no_dice();
     gs.players
         .get_mut(PlayerId::PlayerFirst)
@@ -93,7 +93,7 @@ fn test_talent_card_charged_attack() {
     let mut gs = GameStateBuilder::new_roll_phase_1(vector![CharId::Tighnari], vector![CharId::Fischl])
         .with_enable_log(true)
         .build();
-    gs.ignore_costs = false;
+
     gs.advance_roll_phase_no_dice();
     {
         let dice = &mut gs.players.get_mut(PlayerId::PlayerFirst).dice;

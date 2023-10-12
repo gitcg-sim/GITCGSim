@@ -11,7 +11,7 @@ fn test_changing_shifts() {
     let mut gs =
         GameStateBuilder::new_roll_phase_1(vector![CharId::Kaeya, CharId::Fischl], vector![CharId::KamisatoAyaka])
             .build();
-    gs.ignore_costs = false;
+
     gs.advance_roll_phase_no_dice();
     assert_eq!(0, gs.players.0.dice.total());
     gs.players.0.hand.push(CardId::ChangingShifts);
@@ -30,7 +30,7 @@ fn test_changing_shifts_not_cleared() {
     let mut gs =
         GameStateBuilder::new_roll_phase_1(vector![CharId::Kaeya, CharId::Fischl], vector![CharId::KamisatoAyaka])
             .build();
-    gs.ignore_costs = false;
+
     gs.advance_roll_phase_no_dice();
     assert_eq!(0, gs.players.0.dice.total());
     gs.players.0.hand.push(CardId::ChangingShifts);
@@ -53,7 +53,7 @@ fn test_leave_it_to_me() {
     let mut gs =
         GameStateBuilder::new_roll_phase_1(vector![CharId::Kaeya, CharId::Fischl], vector![CharId::KamisatoAyaka])
             .build();
-    gs.ignore_costs = false;
+
     gs.advance_roll_phase_no_dice();
     gs.players.0.dice.omni += 2;
     gs.players.0.hand.push(CardId::LeaveItToMe);
@@ -78,7 +78,7 @@ fn test_food() {
         vector![CharId::KamisatoAyaka],
     )
     .build();
-    gs.ignore_costs = false;
+
     gs.advance_roll_phase_no_dice();
     gs.players.0.char_states[0].reduce_hp(5);
     gs.players.0.char_states[1].reduce_hp(5);
@@ -136,7 +136,7 @@ fn test_food() {
 fn test_i_havent_lost_yet_activation_condition() {
     let mut gs =
         GameStateBuilder::new_roll_phase_1(vector![CharId::Kaeya, CharId::Fischl], vector![CharId::Yoimiya]).build();
-    gs.ignore_costs = false;
+
     gs.players.0.dice.add_in_place(&DiceCounter::omni(8));
     gs.players.1.dice.add_in_place(&DiceCounter::omni(8));
     gs.players.0.hand.push(CardId::IHaventLostYet);
@@ -178,7 +178,7 @@ fn test_i_havent_lost_yet_activation_condition() {
 #[test]
 fn test_strategize() {
     let mut gs = GameStateBuilder::new_roll_phase_1(vector![CharId::Kaeya], vector![CharId::Yoimiya]).build();
-    gs.ignore_costs = false;
+
     gs.players.0.dice.add_in_place(&DiceCounter::omni(8));
     gs.players.1.dice.add_in_place(&DiceCounter::omni(8));
     gs.players.0.hand.push(CardId::IHaventLostYet);
@@ -198,8 +198,9 @@ fn test_strategize() {
 
 #[test]
 fn test_quick_knit() {
-    let mut gs = GameStateBuilder::new_roll_phase_1(vector![CharId::Fischl], vector![CharId::Yoimiya]).build();
-    gs.ignore_costs = true;
+    let mut gs = GameStateBuilder::new_roll_phase_1(vector![CharId::Fischl], vector![CharId::Yoimiya])
+        .with_ignore_costs(true)
+        .build();
     gs.players.0.hand.push(CardId::QuickKnit);
     gs.advance_roll_phase_no_dice();
     gs.advance_multiple(&vec![
@@ -223,8 +224,9 @@ fn test_quick_knit() {
 
 #[test]
 fn test_send_off() {
-    let mut gs = GameStateBuilder::new_roll_phase_1(vector![CharId::Yoimiya], vector![CharId::Fischl]).build();
-    gs.ignore_costs = true;
+    let mut gs = GameStateBuilder::new_roll_phase_1(vector![CharId::Yoimiya], vector![CharId::Fischl])
+        .with_ignore_costs(true)
+        .build();
     gs.players.0.hand.push(CardId::SendOff);
     gs.advance_roll_phase_no_dice();
     gs.advance_multiple(&vec![

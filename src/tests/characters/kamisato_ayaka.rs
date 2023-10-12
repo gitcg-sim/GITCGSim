@@ -7,8 +7,8 @@ fn test_cryo_infusion() {
         vector![CharId::Fischl, CharId::Ganyu],
     )
     .with_enable_log(true)
+    .with_ignore_costs(true)
     .build();
-    gs.ignore_costs = true;
     gs.advance_roll_phase_no_dice();
     gs.advance_multiple(&vec![
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::SwitchCharacter(1)),
@@ -58,8 +58,8 @@ fn test_cryo_infusion() {
 fn test_cryo_infusion_at_duel_start() {
     let mut gs = GameStateBuilder::new_roll_phase_1(vector![CharId::KamisatoAyaka], vector![CharId::Fischl])
         .with_enable_log(true)
+        .with_ignore_costs(true)
         .build();
-    gs.ignore_costs = true;
     gs.advance_roll_phase_no_dice();
     gs.advance_multiple(&vec![Input::FromPlayer(
         PlayerId::PlayerFirst,
@@ -76,8 +76,8 @@ fn test_cryo_infusion_at_duel_start() {
 fn test_kamisato_art_soumetsu_summon() {
     let mut gs = GameStateBuilder::new_roll_phase_1(vector![CharId::KamisatoAyaka], vector![CharId::Fischl])
         .with_enable_log(true)
+        .with_ignore_costs(true)
         .build();
-    gs.ignore_costs = true;
     gs.advance_roll_phase_no_dice();
 
     gs.advance_multiple(&vec![Input::FromPlayer(
@@ -137,8 +137,8 @@ fn test_cryo_infusion_under_talent_card() {
         vector![CharId::Fischl, CharId::Ganyu],
     )
     .with_enable_log(true)
+    .with_ignore_costs(true)
     .build();
-    gs.ignore_costs = true;
     gs.advance_roll_phase_no_dice();
     gs.players.0.hand.push(CardId::KantenSenmyouBlessing);
     gs.advance_multiple(&vec![

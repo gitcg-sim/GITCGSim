@@ -7,8 +7,8 @@ fn test_chonghuas_frost_field_infusion_applies_to_swords() {
         vector![CharId::Fischl, CharId::Kaeya],
     )
     .with_enable_log(true)
+    .with_ignore_costs(true)
     .build();
-    gs.ignore_costs = true;
 
     gs.advance_roll_phase_no_dice();
     gs.advance_multiple(&vec![
@@ -31,8 +31,8 @@ fn test_chonghuas_frost_field_infusion_applies_to_polarms() {
         vector![CharId::Fischl, CharId::Kaeya],
     )
     .with_enable_log(true)
+    .with_ignore_costs(true)
     .build();
-    gs.ignore_costs = true;
 
     gs.advance_roll_phase_no_dice();
     gs.advance_multiple(&vec![
@@ -55,8 +55,8 @@ fn test_chonghuas_frost_field_infusion_applies_to_claymores() {
         vector![CharId::Fischl, CharId::Kaeya],
     )
     .with_enable_log(true)
+    .with_ignore_costs(true)
     .build();
-    gs.ignore_costs = true;
 
     gs.advance_roll_phase_no_dice();
     gs.advance_multiple(&vec![
@@ -83,8 +83,8 @@ fn test_chonghuas_frost_field_infusion_does_not_apply_to_bows() {
         vector![CharId::Fischl, CharId::Kaeya],
     )
     .with_enable_log(true)
+    .with_ignore_costs(true)
     .build();
-    gs.ignore_costs = true;
 
     gs.advance_roll_phase_no_dice();
     gs.advance_multiple(&vec![
@@ -107,8 +107,8 @@ fn test_chonghuas_frost_field_infusion_does_not_apply_to_catalysts() {
         vector![CharId::Fischl, CharId::Kaeya],
     )
     .with_enable_log(true)
+    .with_ignore_costs(true)
     .build();
-    gs.ignore_costs = true;
 
     gs.advance_roll_phase_no_dice();
     gs.advance_multiple(&vec![
@@ -134,8 +134,8 @@ fn test_chonghuas_frost_field_infusion_does_not_apply_to_others() {
         vector![CharId::Fischl, CharId::Kaeya],
     )
     .with_enable_log(true)
+    .with_ignore_costs(true)
     .build();
-    gs.ignore_costs = true;
 
     gs.advance_roll_phase_no_dice();
     gs.advance_multiple(&vec![
@@ -158,8 +158,8 @@ fn test_talent_card_affects_chonghuas_frost_field() {
         vector![CharId::Fischl, CharId::Kaeya],
     )
     .with_enable_log(true)
+    .with_ignore_costs(true)
     .build();
-    gs.ignore_costs = true;
 
     gs.advance_roll_phase_no_dice();
     gs.players.0.hand.push(CardId::SteadyBreathing);
@@ -196,8 +196,8 @@ fn test_talent_card_on_different_character_doesnt_affect_chonghuas_frost_field()
         vector![CharId::Fischl, CharId::Kaeya],
     )
     .with_enable_log(true)
+    .with_ignore_costs(true)
     .build();
-    gs.ignore_costs = true;
 
     gs.advance_roll_phase_no_dice();
     gs.players.0.hand.push(CardId::IGotYourBack);

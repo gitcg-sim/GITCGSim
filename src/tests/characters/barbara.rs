@@ -7,8 +7,8 @@ fn test_melody_loop_heals_and_applies_hydro_to_active_character() {
         vector![CharId::Fischl, CharId::Yoimiya],
     )
     .with_enable_log(true)
+    .with_ignore_costs(true)
     .build();
-    gs.ignore_costs = true;
 
     gs.advance_roll_phase_no_dice();
     gs.advance_multiple(&vec![

@@ -7,8 +7,8 @@ fn test_seed_of_skandha_receive_pd() {
         vector![CharId::Ganyu, CharId::Fischl, CharId::Kaeya, CharId::Noelle],
     )
     .with_enable_log(true)
+    .with_ignore_costs(true)
     .build();
-    gs.ignore_costs = true;
 
     gs.advance_roll_phase_no_dice();
     gs.advance_multiple(&vec![
@@ -57,8 +57,8 @@ fn test_shrine_of_maya_increases_outgoing_reaction_dmg() {
         vector![CharId::Ganyu, CharId::Fischl, CharId::Kaeya, CharId::Noelle],
     )
     .with_enable_log(true)
+    .with_ignore_costs(true)
     .build();
-    gs.ignore_costs = true;
 
     gs.advance_roll_phase_no_dice();
     gs.advance_multiple(&vec![

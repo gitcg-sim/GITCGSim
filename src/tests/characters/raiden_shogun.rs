@@ -7,8 +7,8 @@ fn test_secret_art_musou_shinsetsu_increases_energy() {
         vector![CharId::Ganyu, CharId::Xiangling, CharId::Xingqiu],
     )
     .with_enable_log(true)
+    .with_ignore_costs(true)
     .build();
-    gs.ignore_costs = true;
 
     gs.advance_roll_phase_no_dice();
     gs.advance_multiple(&vec![Input::FromPlayer(
@@ -40,8 +40,8 @@ fn test_eye_of_stormy_judgment_increases_burst_dmg() {
         vector![CharId::Ganyu, CharId::Xiangling, CharId::Xingqiu],
     )
     .with_enable_log(true)
+    .with_ignore_costs(true)
     .build();
-    gs.ignore_costs = true;
 
     gs.advance_roll_phase_no_dice();
     gs.advance_multiple(&vec![
@@ -74,8 +74,8 @@ fn test_chakra_desiderata_buffs_burst() {
         vector![CharId::Ganyu, CharId::Xiangling, CharId::Xingqiu],
     )
     .with_enable_log(true)
+    .with_ignore_costs(true)
     .build();
-    gs.ignore_costs = true;
 
     gs.advance_roll_phase_no_dice();
     assert!(gs
@@ -117,8 +117,8 @@ fn test_chakra_desiderata_under_talent_card_buffs_burst_twice() {
         vector![CharId::Ganyu, CharId::Xiangling, CharId::Xingqiu],
     )
     .with_enable_log(true)
+    .with_ignore_costs(true)
     .build();
-    gs.ignore_costs = true;
     gs.advance_roll_phase_no_dice();
     gs.get_player_mut(PlayerId::PlayerFirst)
         .hand
@@ -151,8 +151,8 @@ fn test_chakra_desiderata_under_talent_card_buffs_burst_twice() {
 fn test_chakra_desiderata_counter_not_increased() {
     let mut gs = GameStateBuilder::new_roll_phase_1(vector![CharId::RaidenShogun], vector![CharId::Ganyu])
         .with_enable_log(true)
+        .with_ignore_costs(true)
         .build();
-    gs.ignore_costs = true;
 
     gs.advance_roll_phase_no_dice();
     assert!(gs
