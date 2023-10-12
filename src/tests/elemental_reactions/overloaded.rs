@@ -6,7 +6,6 @@ fn test_overloaded_force_switch() {
         vector![CharId::Yoimiya, CharId::Fischl],
         vector![CharId::Yoimiya, CharId::Fischl],
     )
-    .with_enable_log(true)
     .with_ignore_costs(true)
     .build();
     gs.advance_roll_phase_no_dice();
@@ -29,7 +28,6 @@ fn test_overloaded_force_switch_no_alternatives() {
         vector![CharId::Yoimiya, CharId::Fischl],
         vector![CharId::Yoimiya, CharId::Fischl],
     )
-    .with_enable_log(true)
     .with_ignore_costs(true)
     .build();
     gs.players.1.char_states[1].set_hp(0);
@@ -50,7 +48,6 @@ fn test_overloaded_force_switch_rotate() {
         vector![CharId::Yoimiya, CharId::Fischl],
         vector![CharId::Yoimiya, CharId::Fischl, CharId::Ganyu],
     )
-    .with_enable_log(true)
     .with_ignore_costs(true)
     .build();
     gs.players.1.char_states[0].set_hp(0);

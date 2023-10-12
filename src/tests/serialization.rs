@@ -13,7 +13,6 @@ fn _initial_gs() -> GameState {
         vector![CharId::KamisatoAyaka, CharId::Yoimiya, CharId::Collei],
         vector![CharId::Diona, CharId::Ningguang, CharId::Noelle],
     )
-    .with_enable_log(false)
     .build();
     gs.advance_multiple(&vec![
         Input::NoAction,
@@ -47,7 +46,6 @@ fn _initial_gs_wrapper() -> GameStateWrapper<StandardNondetHandlerState> {
         vector![CharId::Klee, CharId::Xingqiu, CharId::KamisatoAyaka],
         vector![CharId::Noelle, CharId::Ningguang, CharId::Fischl],
     )
-    .with_enable_log(false)
     .build();
     let state = StandardNondetHandlerState::new(&decklist1, &decklist2, SmallRng::seed_from_u64(100).into());
     let nd = NondetProvider::new(state);

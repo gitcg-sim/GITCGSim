@@ -21,7 +21,6 @@ fn get_game_state() -> GameState {
         vector![CharId::Yoimiya, CharId::KamisatoAyaka, CharId::Xingqiu],
         vector![CharId::Fischl, CharId::Ningguang, CharId::Noelle],
     )
-    .with_enable_log(false)
     .build();
 
     gs.advance_roll_phase_no_dice();

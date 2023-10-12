@@ -11,7 +11,6 @@ fn test_switch_character_validation() {
         vector![CharId::Yoimiya, CharId::Xingqiu, CharId::Ganyu],
         vector![CharId::Yoimiya, CharId::Xingqiu, CharId::Ganyu],
     )
-    .with_enable_log(true)
     .with_ignore_costs(true)
     .build();
     gs.advance_roll_phase_no_dice();
@@ -59,7 +58,6 @@ fn test_cast_skill_validation() {
         vector![CharId::Yoimiya, CharId::Xingqiu, CharId::Ganyu],
         vector![CharId::Yoimiya, CharId::Xingqiu, CharId::Ganyu],
     )
-    .with_enable_log(true)
     .with_ignore_costs(true)
     .build();
     gs.advance_roll_phase_no_dice();
@@ -93,7 +91,6 @@ fn test_cast_skill_cost_validation() {
         vector![CharId::Yoimiya, CharId::Xingqiu, CharId::Ganyu],
         vector![CharId::Yoimiya, CharId::Xingqiu, CharId::Ganyu],
     )
-    .with_enable_log(true)
     .build();
     gs.advance_roll_phase_no_dice();
 
@@ -119,7 +116,6 @@ fn test_cast_skill_cost_validation() {
 fn test_weapon_equip_validation() {
     let mut gs =
         GameStateBuilder::new_skip_to_roll_phase(vector![CharId::Yoimiya, CharId::Keqing], vector![CharId::Fischl])
-            .with_enable_log(true)
             .with_ignore_costs(true)
             .build();
     gs.advance_roll_phase_no_dice();
@@ -180,7 +176,6 @@ fn test_weapon_equip_validation() {
 fn test_artifact_equip_validation() {
     let mut gs =
         GameStateBuilder::new_skip_to_roll_phase(vector![CharId::Yoimiya, CharId::Ganyu], vector![CharId::Fischl])
-            .with_enable_log(true)
             .with_ignore_costs(true)
             .build();
     gs.advance_roll_phase_no_dice();

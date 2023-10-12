@@ -12,7 +12,6 @@ use super::*;
 fn test_zobrist_hash() {
     let mut gs =
         GameStateBuilder::new_skip_to_roll_phase(vector![CharId::Fischl], vector![CharId::Kaeya, CharId::Yoimiya])
-            .with_enable_log(true)
             .with_ignore_costs(true)
             .build();
     gs.advance_roll_phase_no_dice();
@@ -45,7 +44,6 @@ fn test_zobrist_hash_random_steps_1() {
         vector![CharId::Keqing, CharId::Yoimiya, CharId::Cyno],
         vector![CharId::Klee, CharId::Xingqiu, CharId::Mona],
     )
-    .with_enable_log(false)
     .build();
     _test_zobrist_hash_random_steps(gs, 200);
 }
@@ -56,7 +54,6 @@ fn test_zobrist_hash_random_steps_2() {
         vector![CharId::KamisatoAyaka, CharId::Yoimiya, CharId::Collei],
         vector![CharId::Diona, CharId::Ningguang, CharId::Noelle],
     )
-    .with_enable_log(false)
     .build();
     _test_zobrist_hash_random_steps(gs, 200);
 }
@@ -67,7 +64,6 @@ fn test_zobrist_hash_random_steps_3() {
         vector![CharId::Barbara, CharId::Fischl, CharId::Collei],
         vector![CharId::Mona, CharId::Ganyu, CharId::Kaeya],
     )
-    .with_enable_log(false)
     .build();
     _test_zobrist_hash_random_steps(gs, 200);
 }
@@ -78,7 +74,6 @@ fn test_zobrist_hash_random_steps_4() {
         vector![CharId::KujouSara, CharId::Keqing, CharId::SangonomiyaKokomi],
         vector![CharId::Mona, CharId::Cyno, CharId::Eula],
     )
-    .with_enable_log(false)
     .build();
     _test_zobrist_hash_random_steps(gs, 200);
 }
@@ -89,7 +84,6 @@ fn test_zobrist_hash_random_steps_5() {
         vector![CharId::Eula, CharId::Fischl, CharId::Diona],
         vector![CharId::KamisatoAyaka, CharId::Ganyu, CharId::Xingqiu],
     )
-    .with_enable_log(false)
     .build();
     _test_zobrist_hash_random_steps(gs, 200);
 }
