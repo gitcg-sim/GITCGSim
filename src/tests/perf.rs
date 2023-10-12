@@ -17,7 +17,7 @@ fn iter<F: Fn()>(f: F) {
 }
 
 fn get_game_state() -> GameState {
-    let mut gs = GameStateBuilder::new_roll_phase_1(
+    let mut gs = GameStateBuilder::new_skip_to_roll_phase(
         vector![CharId::Yoimiya, CharId::KamisatoAyaka, CharId::Xingqiu],
         vector![CharId::Fischl, CharId::Ningguang, CharId::Noelle],
     )

@@ -2,7 +2,7 @@ use super::*;
 
 #[test]
 fn test_niwabi_fire_dance_status() {
-    let mut gs = GameStateBuilder::new_roll_phase_1(vector![CharId::Yoimiya], vector![CharId::Ganyu])
+    let mut gs = GameStateBuilder::new_skip_to_roll_phase(vector![CharId::Yoimiya], vector![CharId::Ganyu])
         .with_enable_log(true)
         .with_ignore_costs(true)
         .build();
@@ -55,7 +55,7 @@ fn test_niwabi_fire_dance_status() {
 
 #[test]
 fn test_ryuukin_saxifrage_trigger_duration() {
-    let mut gs = GameStateBuilder::new_roll_phase_1(
+    let mut gs = GameStateBuilder::new_skip_to_roll_phase(
         vector![CharId::Yoimiya, CharId::Fischl],
         vector![CharId::Ganyu, CharId::Kaeya],
     )
@@ -96,7 +96,7 @@ fn test_ryuukin_saxifrage_trigger_duration() {
 
 #[test]
 fn test_talent_card_costs_niwabi_enshou_and_increases_dmg() {
-    let mut gs = GameStateBuilder::new_roll_phase_1(
+    let mut gs = GameStateBuilder::new_skip_to_roll_phase(
         vector![CharId::Yoimiya, CharId::Fischl],
         vector![CharId::Ganyu, CharId::Kaeya],
     )

@@ -33,7 +33,7 @@ pub fn arb_char_ids() -> impl Strategy<Value = Vector<CharId>> {
 
 prop_compose! {
     pub fn arb_init_game_state()(p1_chars in arb_char_ids(), p2_chars in arb_char_ids()) -> GameState {
-        GameStateBuilder::new_roll_phase_1(p1_chars, p2_chars).build()
+        GameStateBuilder::new_skip_to_roll_phase(p1_chars, p2_chars).build()
     }
 }
 

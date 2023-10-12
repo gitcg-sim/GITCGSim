@@ -2,7 +2,7 @@ use super::*;
 
 #[test]
 fn test_secret_art_musou_shinsetsu_increases_energy() {
-    let mut gs = GameStateBuilder::new_roll_phase_1(
+    let mut gs = GameStateBuilder::new_skip_to_roll_phase(
         vector![CharId::RaidenShogun, CharId::Noelle, CharId::Fischl],
         vector![CharId::Ganyu, CharId::Xiangling, CharId::Xingqiu],
     )
@@ -35,7 +35,7 @@ fn test_secret_art_musou_shinsetsu_increases_energy() {
 
 #[test]
 fn test_eye_of_stormy_judgment_increases_burst_dmg() {
-    let mut gs = GameStateBuilder::new_roll_phase_1(
+    let mut gs = GameStateBuilder::new_skip_to_roll_phase(
         vector![CharId::RaidenShogun, CharId::Noelle, CharId::Fischl],
         vector![CharId::Ganyu, CharId::Xiangling, CharId::Xingqiu],
     )
@@ -69,7 +69,7 @@ fn test_eye_of_stormy_judgment_increases_burst_dmg() {
 
 #[test]
 fn test_chakra_desiderata_buffs_burst() {
-    let mut gs = GameStateBuilder::new_roll_phase_1(
+    let mut gs = GameStateBuilder::new_skip_to_roll_phase(
         vector![CharId::Noelle, CharId::Fischl, CharId::RaidenShogun],
         vector![CharId::Ganyu, CharId::Xiangling, CharId::Xingqiu],
     )
@@ -112,7 +112,7 @@ fn test_chakra_desiderata_buffs_burst() {
 
 #[test]
 fn test_chakra_desiderata_under_talent_card_buffs_burst_twice() {
-    let mut gs = GameStateBuilder::new_roll_phase_1(
+    let mut gs = GameStateBuilder::new_skip_to_roll_phase(
         vector![CharId::Noelle, CharId::Fischl, CharId::RaidenShogun],
         vector![CharId::Ganyu, CharId::Xiangling, CharId::Xingqiu],
     )
@@ -149,7 +149,7 @@ fn test_chakra_desiderata_under_talent_card_buffs_burst_twice() {
 
 #[test]
 fn test_chakra_desiderata_counter_not_increased() {
-    let mut gs = GameStateBuilder::new_roll_phase_1(vector![CharId::RaidenShogun], vector![CharId::Ganyu])
+    let mut gs = GameStateBuilder::new_skip_to_roll_phase(vector![CharId::RaidenShogun], vector![CharId::Ganyu])
         .with_enable_log(true)
         .with_ignore_costs(true)
         .build();

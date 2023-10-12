@@ -2,7 +2,7 @@ use super::*;
 
 #[test]
 fn test_breastplate_shield_points() {
-    let mut gs = GameStateBuilder::new_roll_phase_1(vector![CharId::Noelle], vector![CharId::Ganyu])
+    let mut gs = GameStateBuilder::new_skip_to_roll_phase(vector![CharId::Noelle], vector![CharId::Ganyu])
         .with_enable_log(true)
         .with_ignore_costs(true)
         .build();
@@ -45,7 +45,7 @@ fn test_breastplate_shield_points() {
 
 #[test]
 fn test_talent_card_heals_all() {
-    let mut gs = GameStateBuilder::new_roll_phase_1(
+    let mut gs = GameStateBuilder::new_skip_to_roll_phase(
         vector![CharId::Noelle, CharId::Yoimiya, CharId::Ganyu],
         vector![CharId::Ganyu],
     )
@@ -91,7 +91,7 @@ fn test_talent_card_heals_all() {
 
 #[test]
 fn test_sweeping_time_reduces_cost_for_na() {
-    let mut gs = GameStateBuilder::new_roll_phase_1(vector![CharId::Noelle], vector![CharId::Ganyu])
+    let mut gs = GameStateBuilder::new_skip_to_roll_phase(vector![CharId::Noelle], vector![CharId::Ganyu])
         .with_enable_log(true)
         .build();
     gs.advance_roll_phase_no_dice();

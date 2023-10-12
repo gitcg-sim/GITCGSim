@@ -116,12 +116,7 @@ impl<C: CharactersState, S: StartingConditionState> GameStateBuilder<C, S> {
 }
 
 impl GameStateBuilder<HasCharacters, HasStartingCondition> {
-    pub fn new_roll_phase(c1: &Vector<CharId>, c2: &Vector<CharId>) -> Self {
-        GameStateBuilder::<_, _>::new(c1.clone(), c2.clone())
-            .with_starting_condition(StartingCondition::new(StartingPhase::RollPhase))
-    }
-
-    pub fn new_roll_phase_1<T: Into<Vector<CharId>>>(c1: T, c2: T) -> Self {
+    pub fn new_skip_to_roll_phase<T: Into<Vector<CharId>>>(c1: T, c2: T) -> Self {
         GameStateBuilder::<_, _>::new(c1, c2).with_starting_condition(StartingCondition::new(StartingPhase::RollPhase))
     }
 

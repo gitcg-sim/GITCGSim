@@ -9,7 +9,7 @@ use crate::{
 use super::*;
 
 fn _initial_gs() -> GameState {
-    let mut gs = GameStateBuilder::new_roll_phase_1(
+    let mut gs = GameStateBuilder::new_skip_to_roll_phase(
         vector![CharId::KamisatoAyaka, CharId::Yoimiya, CharId::Collei],
         vector![CharId::Diona, CharId::Ningguang, CharId::Noelle],
     )
@@ -43,7 +43,7 @@ fn _initial_gs() -> GameState {
 fn _initial_gs_wrapper() -> GameStateWrapper<StandardNondetHandlerState> {
     let decklist1 = Decklist::new(Default::default(), sample_deck());
     let decklist2 = Decklist::new(Default::default(), sample_deck());
-    let gs = GameStateBuilder::new_roll_phase_1(
+    let gs = GameStateBuilder::new_skip_to_roll_phase(
         vector![CharId::Klee, CharId::Xingqiu, CharId::KamisatoAyaka],
         vector![CharId::Noelle, CharId::Ningguang, CharId::Fischl],
     )

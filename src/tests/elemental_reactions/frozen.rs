@@ -2,7 +2,7 @@ use super::*;
 
 #[test]
 fn test_frozen_cannot_perform_action() {
-    let mut gs = GameStateBuilder::new_roll_phase_1(
+    let mut gs = GameStateBuilder::new_skip_to_roll_phase(
         vector![CharId::Xingqiu, CharId::KamisatoAyaka, CharId::Yoimiya],
         vector![CharId::Yoimiya, CharId::Fischl],
     )
@@ -45,7 +45,7 @@ fn test_frozen_cannot_perform_action() {
 
 #[test]
 fn test_frozen_broken_by_pyro() {
-    let mut gs = GameStateBuilder::new_roll_phase_1(
+    let mut gs = GameStateBuilder::new_skip_to_roll_phase(
         vector![CharId::Xingqiu, CharId::KamisatoAyaka, CharId::Yoimiya],
         vector![CharId::Yoimiya],
     )
@@ -87,7 +87,7 @@ fn test_frozen_broken_by_pyro() {
 
 #[test]
 fn test_frozen_broken_by_physical() {
-    let mut gs = GameStateBuilder::new_roll_phase_1(
+    let mut gs = GameStateBuilder::new_skip_to_roll_phase(
         vector![CharId::Xingqiu, CharId::KamisatoAyaka, CharId::Yoimiya],
         vector![CharId::Yoimiya],
     )
@@ -127,7 +127,7 @@ fn test_frozen_broken_by_physical() {
 
 #[test]
 fn test_frozen_unapplied_end_of_turn() {
-    let mut gs = GameStateBuilder::new_roll_phase_1(
+    let mut gs = GameStateBuilder::new_skip_to_roll_phase(
         vector![CharId::Xingqiu, CharId::KamisatoAyaka, CharId::Yoimiya],
         vector![CharId::Yoimiya],
     )
@@ -162,7 +162,7 @@ fn test_frozen_unapplied_end_of_turn() {
 
 #[test]
 fn test_frozen_unapplied_end_of_turn_non_active_character() {
-    let mut gs = GameStateBuilder::new_roll_phase_1(
+    let mut gs = GameStateBuilder::new_skip_to_roll_phase(
         vector![CharId::Xingqiu, CharId::KamisatoAyaka, CharId::Yoimiya],
         vector![CharId::Yoimiya, CharId::Kaeya],
     )

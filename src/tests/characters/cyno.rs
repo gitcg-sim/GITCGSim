@@ -2,7 +2,7 @@ use super::*;
 
 #[test]
 fn test_indwelling_level_increase_at_end_phase() {
-    let mut gs = GameStateBuilder::new_roll_phase_1(vector![CharId::Cyno], vector![CharId::Yoimiya])
+    let mut gs = GameStateBuilder::new_skip_to_roll_phase(vector![CharId::Cyno], vector![CharId::Yoimiya])
         .with_enable_log(true)
         .build();
     macro_rules! assert_counter {
@@ -41,7 +41,7 @@ fn test_indwelling_level_increase_at_end_phase() {
 
 #[test]
 fn test_indwelling_level_ge_2_electro_infusion() {
-    let mut gs = GameStateBuilder::new_roll_phase_1(vector![CharId::Cyno], vector![CharId::Yoimiya])
+    let mut gs = GameStateBuilder::new_skip_to_roll_phase(vector![CharId::Cyno], vector![CharId::Yoimiya])
         .with_enable_log(true)
         .with_ignore_costs(true)
         .build();
@@ -78,7 +78,7 @@ fn test_indwelling_level_ge_2_electro_infusion() {
 
 #[test]
 fn test_indwelling_level_ge_4_increases_dmg_by_2() {
-    let mut gs = GameStateBuilder::new_roll_phase_1(vector![CharId::Cyno], vector![CharId::Yoimiya])
+    let mut gs = GameStateBuilder::new_skip_to_roll_phase(vector![CharId::Cyno], vector![CharId::Yoimiya])
         .with_enable_log(true)
         .with_ignore_costs(true)
         .build();
@@ -117,7 +117,7 @@ fn test_indwelling_level_ge_4_increases_dmg_by_2() {
 
 #[test]
 fn test_sacred_rite_wolfs_swiftness_uses_indwelling_level_pre_increase_and_increases_indwelling_level_by_2() {
-    let mut gs = GameStateBuilder::new_roll_phase_1(vector![CharId::Cyno], vector![CharId::Yoimiya])
+    let mut gs = GameStateBuilder::new_skip_to_roll_phase(vector![CharId::Cyno], vector![CharId::Yoimiya])
         .with_enable_log(true)
         .with_ignore_costs(true)
         .build();

@@ -2,10 +2,11 @@ use super::*;
 
 #[test]
 fn test_tidecaller_prepared_skill_not_discarded_by_lost_shield_points() {
-    let mut gs = GameStateBuilder::new_roll_phase_1(vector![CharId::Beidou, CharId::Noelle], vector![CharId::Fischl])
-        .with_enable_log(true)
-        .with_ignore_costs(true)
-        .build();
+    let mut gs =
+        GameStateBuilder::new_skip_to_roll_phase(vector![CharId::Beidou, CharId::Noelle], vector![CharId::Fischl])
+            .with_enable_log(true)
+            .with_ignore_costs(true)
+            .build();
 
     gs.advance_roll_phase_no_dice();
     gs.advance_multiple(&vec![Input::FromPlayer(
@@ -44,10 +45,11 @@ fn test_tidecaller_prepared_skill_not_discarded_by_lost_shield_points() {
 
 #[test]
 fn test_tidecaller_prepared_skill_interrupted_by_overload() {
-    let mut gs = GameStateBuilder::new_roll_phase_1(vector![CharId::Beidou, CharId::Noelle], vector![CharId::Fischl])
-        .with_enable_log(true)
-        .with_ignore_costs(true)
-        .build();
+    let mut gs =
+        GameStateBuilder::new_skip_to_roll_phase(vector![CharId::Beidou, CharId::Noelle], vector![CharId::Fischl])
+            .with_enable_log(true)
+            .with_ignore_costs(true)
+            .build();
 
     gs.advance_roll_phase_no_dice();
     gs.advance_multiple(&vec![Input::FromPlayer(
@@ -84,7 +86,7 @@ fn test_tidecaller_prepared_skill_interrupted_by_overload() {
 // TOOD don't know the actual interaction between prepare skill and frozen
 #[test]
 fn test_tidecaller_prepared_skill_frozen() {
-    let mut gs = GameStateBuilder::new_roll_phase_1(
+    let mut gs = GameStateBuilder::new_skip_to_roll_phase(
         vector![CharId::Beidou, CharId::Noelle],
         vector![CharId::SangonomiyaKokomi],
     )

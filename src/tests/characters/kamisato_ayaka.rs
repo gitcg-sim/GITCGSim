@@ -2,7 +2,7 @@ use super::*;
 
 #[test]
 fn test_cryo_infusion() {
-    let mut gs = GameStateBuilder::new_roll_phase_1(
+    let mut gs = GameStateBuilder::new_skip_to_roll_phase(
         vector![CharId::Yoimiya, CharId::KamisatoAyaka],
         vector![CharId::Fischl, CharId::Ganyu],
     )
@@ -56,7 +56,7 @@ fn test_cryo_infusion() {
 
 #[test]
 fn test_cryo_infusion_at_duel_start() {
-    let mut gs = GameStateBuilder::new_roll_phase_1(vector![CharId::KamisatoAyaka], vector![CharId::Fischl])
+    let mut gs = GameStateBuilder::new_skip_to_roll_phase(vector![CharId::KamisatoAyaka], vector![CharId::Fischl])
         .with_enable_log(true)
         .with_ignore_costs(true)
         .build();
@@ -74,7 +74,7 @@ fn test_cryo_infusion_at_duel_start() {
 
 #[test]
 fn test_kamisato_art_soumetsu_summon() {
-    let mut gs = GameStateBuilder::new_roll_phase_1(vector![CharId::KamisatoAyaka], vector![CharId::Fischl])
+    let mut gs = GameStateBuilder::new_skip_to_roll_phase(vector![CharId::KamisatoAyaka], vector![CharId::Fischl])
         .with_enable_log(true)
         .with_ignore_costs(true)
         .build();
@@ -132,7 +132,7 @@ fn test_kamisato_art_soumetsu_summon() {
 
 #[test]
 fn test_cryo_infusion_under_talent_card() {
-    let mut gs = GameStateBuilder::new_roll_phase_1(
+    let mut gs = GameStateBuilder::new_skip_to_roll_phase(
         vector![CharId::Yoimiya, CharId::KamisatoAyaka],
         vector![CharId::Fischl, CharId::Ganyu],
     )

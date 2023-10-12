@@ -2,7 +2,7 @@ use super::*;
 
 #[test]
 fn test_glacial_waltz_switch_trigger() {
-    let mut gs = GameStateBuilder::new_roll_phase_1(
+    let mut gs = GameStateBuilder::new_skip_to_roll_phase(
         vector![CharId::Kaeya, CharId::Fischl],
         vector![CharId::Xiangling, CharId::Yoimiya],
     )
@@ -25,7 +25,7 @@ fn test_glacial_waltz_switch_trigger() {
 
 #[test]
 fn test_talent_card() {
-    let mut gs = GameStateBuilder::new_roll_phase_1(
+    let mut gs = GameStateBuilder::new_skip_to_roll_phase(
         vector![CharId::Kaeya, CharId::Fischl],
         vector![CharId::Xiangling, CharId::Yoimiya],
     )

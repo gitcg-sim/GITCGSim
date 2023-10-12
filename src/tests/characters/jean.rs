@@ -2,7 +2,7 @@ use super::*;
 
 #[test]
 fn test_gale_blade_forces_switch_1_character() {
-    let mut gs = GameStateBuilder::new_roll_phase_1(vector![CharId::Jean], vector![CharId::Ganyu])
+    let mut gs = GameStateBuilder::new_skip_to_roll_phase(vector![CharId::Jean], vector![CharId::Ganyu])
         .with_enable_log(true)
         .with_ignore_costs(true)
         .build();
@@ -21,7 +21,7 @@ fn test_gale_blade_forces_switch_1_character() {
 
 #[test]
 fn test_gale_blade_forces_switch_to_prev() {
-    let mut gs = GameStateBuilder::new_roll_phase_1(
+    let mut gs = GameStateBuilder::new_skip_to_roll_phase(
         vector![CharId::Jean],
         vector![CharId::Ganyu, CharId::Yoimiya, CharId::Fischl],
     )
@@ -48,7 +48,7 @@ fn test_gale_blade_forces_switch_to_prev() {
 
 #[test]
 fn test_dandelion_breeze_heals_all_and_summons_dandelion_field() {
-    let mut gs = GameStateBuilder::new_roll_phase_1(
+    let mut gs = GameStateBuilder::new_skip_to_roll_phase(
         vector![CharId::Jean, CharId::Ningguang, CharId::FatuiPyroAgent],
         vector![CharId::Ganyu, CharId::Yoimiya, CharId::Fischl],
     )

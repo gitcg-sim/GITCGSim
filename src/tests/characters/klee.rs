@@ -2,7 +2,7 @@ use super::*;
 
 #[test]
 fn test_charged_attack_affected_by_explosive_spark() {
-    let mut gs = GameStateBuilder::new_roll_phase_1(vector![CharId::Klee], vector![CharId::Fischl])
+    let mut gs = GameStateBuilder::new_skip_to_roll_phase(vector![CharId::Klee], vector![CharId::Fischl])
         .with_enable_log(true)
         .build();
 
@@ -26,7 +26,7 @@ fn test_charged_attack_affected_by_explosive_spark() {
 
 #[test]
 fn test_normal_attack_not_affected_by_explosive_spark() {
-    let mut gs = GameStateBuilder::new_roll_phase_1(vector![CharId::Klee], vector![CharId::Fischl])
+    let mut gs = GameStateBuilder::new_skip_to_roll_phase(vector![CharId::Klee], vector![CharId::Fischl])
         .with_enable_log(true)
         .build();
 
@@ -58,7 +58,7 @@ fn test_normal_attack_not_affected_by_explosive_spark() {
 
 #[test]
 fn test_talent_card_increases_explosive_spark_usages() {
-    let mut gs = GameStateBuilder::new_roll_phase_1(vector![CharId::Klee], vector![CharId::Fischl])
+    let mut gs = GameStateBuilder::new_skip_to_roll_phase(vector![CharId::Klee], vector![CharId::Fischl])
         .with_enable_log(true)
         .build();
 
@@ -82,10 +82,11 @@ fn test_talent_card_increases_explosive_spark_usages() {
 
 #[test]
 fn test_klee_take_damage() {
-    let mut gs = GameStateBuilder::new_roll_phase_1(vector![CharId::Klee], vector![CharId::Fischl, CharId::Kaeya])
-        .with_enable_log(true)
-        .with_ignore_costs(true)
-        .build();
+    let mut gs =
+        GameStateBuilder::new_skip_to_roll_phase(vector![CharId::Klee], vector![CharId::Fischl, CharId::Kaeya])
+            .with_enable_log(true)
+            .with_ignore_costs(true)
+            .build();
 
     gs.advance_roll_phase_no_dice();
     gs.advance_multiple(&vec![Input::FromPlayer(
