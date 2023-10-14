@@ -6,27 +6,29 @@ use crate::types::card_defs::CardType;
 use crate::types::game_state::*;
 use crate::types::input::PlayerAction;
 use crate::types::nondet::NondetState;
-use serde::{Deserialize, Serialize};
 
 /// Number of characters to be included in features.
 pub const N_CHARS: usize = 3;
 
 #[repr(C)]
-#[derive(Default, Copy, Clone, Serialize, Deserialize)]
+#[derive(Default, Copy, Clone)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct TurnFeatures<T> {
     pub own_turn: T,
     pub opp_ended_round: T,
 }
 
 #[repr(C)]
-#[derive(Default, Copy, Clone, Serialize, Deserialize)]
+#[derive(Default, Copy, Clone)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct DiceFeatures<T> {
     pub on_count: T,
     pub off_count: T,
 }
 
 #[repr(C)]
-#[derive(Default, Copy, Clone, Serialize, Deserialize)]
+#[derive(Default, Copy, Clone)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct TeamStatusFeatures<T> {
     pub status_count: T,
     pub summon_count: T,
@@ -34,14 +36,16 @@ pub struct TeamStatusFeatures<T> {
 }
 
 #[repr(C)]
-#[derive(Default, Copy, Clone, Serialize, Deserialize)]
+#[derive(Default, Copy, Clone)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct CharStatusFeatures<T> {
     pub equip_count: T,
     pub status_count: T,
 }
 
 #[repr(C)]
-#[derive(Default, Copy, Clone, Serialize, Deserialize)]
+#[derive(Default, Copy, Clone)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct CharFeatures<T> {
     pub is_active: T,
     pub is_alive: T,
@@ -52,7 +56,8 @@ pub struct CharFeatures<T> {
 }
 
 #[repr(C)]
-#[derive(Default, Copy, Clone, Serialize, Deserialize)]
+#[derive(Default, Copy, Clone)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct CanPerformFeatures<T> {
     pub switch: T,
     pub card: T,
@@ -60,7 +65,8 @@ pub struct CanPerformFeatures<T> {
 }
 
 #[repr(C)]
-#[derive(Default, Copy, Clone, Serialize, Deserialize)]
+#[derive(Default, Copy, Clone)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct PlayerStateFeatures<T> {
     pub can_perform: CanPerformFeatures<T>,
     pub turn: TurnFeatures<T>,
@@ -72,7 +78,8 @@ pub struct PlayerStateFeatures<T> {
 }
 
 #[repr(C)]
-#[derive(Default, Copy, Clone, Serialize, Deserialize)]
+#[derive(Default, Copy, Clone)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct GameStateFeatures<T> {
     pub p1: PlayerStateFeatures<T>,
     pub p2: PlayerStateFeatures<T>,
@@ -212,7 +219,8 @@ impl<S: NondetState> crate::game_tree_search::GameStateWrapper<S> {
 }
 
 #[repr(C)]
-#[derive(Default, Copy, Clone, Serialize, Deserialize)]
+#[derive(Default, Copy, Clone)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct PlayCardFeatures<T> {
     pub event_or_other: T,
     pub support: T,
@@ -220,7 +228,8 @@ pub struct PlayCardFeatures<T> {
 }
 
 #[repr(C)]
-#[derive(Default, Copy, Clone, Serialize, Deserialize)]
+#[derive(Default, Copy, Clone)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct CastSkillFeatures<T> {
     pub normal_attack: T,
     pub elemental_skill: T,
@@ -228,7 +237,8 @@ pub struct CastSkillFeatures<T> {
 }
 
 #[repr(C)]
-#[derive(Default, Copy, Clone, Serialize, Deserialize)]
+#[derive(Default, Copy, Clone)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct InputFeatures<T> {
     pub end_round: T,
     pub switch: [T; N_CHARS],

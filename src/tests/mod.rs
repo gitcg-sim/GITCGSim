@@ -18,6 +18,7 @@ pub mod zobrist_hash;
 
 pub mod perf;
 
+#[cfg(feature = "serde")]
 pub mod serialization;
 
 pub mod prop_tests;

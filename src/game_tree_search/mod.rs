@@ -6,7 +6,6 @@ pub use game_trait::*;
 
 mod game_state_wrapper;
 pub use game_state_wrapper::*;
-use serde::{Deserialize, Serialize};
 
 use crate::{data_structures::LinkedList, linked_list, types::game_state::PlayerId};
 
@@ -14,7 +13,8 @@ use crate::{data_structures::LinkedList, linked_list, types::game_state::PlayerI
 #[allow(type_alias_bounds)]
 pub type PV<G: Game> = LinkedList<G::Action>;
 
-#[derive(Debug, Default, Clone, Copy, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Copy)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct SearchCounter {
     /// Number of states visited through game state advancements.
     pub states_visited: u64,
@@ -112,7 +112,8 @@ impl Add for SearchCounter {
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct SearchResult<G: Game> {
     pub pv: PV<G>,
     pub eval: G::Eval,
@@ -143,7 +144,8 @@ pub trait GameTreeSearch<G: Game> {
     }
 }
 
-#[derive(Debug, Default, Copy, Clone, Serialize, Deserialize)]
+#[derive(Debug, Default, Copy, Clone)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct SearchLimits {
     pub max_time_ms: Option<u128>,
     pub max_positions: Option<u64>,

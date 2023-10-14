@@ -18,4 +18,5 @@ pub mod state_evolution;
 
 pub mod zobrist_hash;
 
+#[cfg(feature = "serde")]
 pub mod serialization;

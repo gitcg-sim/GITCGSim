@@ -8,7 +8,7 @@ use std::{
 use enumset::{enum_set, EnumSet, EnumSetType};
 use rand::{Rng, RngCore};
 use rustc_hash::FxHasher;
-use serde::{Deserialize, Serialize};
+
 use smallvec::SmallVec;
 
 use crate::{
@@ -39,7 +39,8 @@ pub trait NondetState: ZobristHashable + Clone + Send + Sync {
 }
 
 /// Provides no cards and no dice.
-#[derive(Clone, Copy, Serialize, Deserialize)]
+#[derive(Clone, Copy)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct EmptyNondetState();
 
 impl NondetState for EmptyNondetState {
@@ -59,7 +60,8 @@ impl ZobristHashable for EmptyNondetState {
     }
 }
 
-#[derive(Debug, PartialOrd, Ord, EnumSetType, Serialize, Deserialize)]
+#[derive(Debug, PartialOrd, Ord, EnumSetType)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[enumset(repr = "u8")]
 pub enum StandardNondetHandlerFlags {
     PlayerFirstPrivate,
@@ -68,7 +70,8 @@ pub enum StandardNondetHandlerFlags {
     PlayerSecondFuture,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct StandardNondetHandlerState {
     pub decks: (DeckState, DeckState),
     pub rng: RngState,
@@ -183,7 +186,8 @@ impl NondetState for StandardNondetHandlerState {
     }
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct NondetProvider<S: NondetState = StandardNondetHandlerState> {
     pub state: S,
 }

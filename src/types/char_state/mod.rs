@@ -2,14 +2,14 @@
 use std::fmt::Debug;
 
 use enumset::{enum_set, EnumSet, EnumSetType};
-use serde::{Deserialize, Serialize};
 
 use crate::cards::ids::*;
 
 pub use crate::types::applied_effect_state::AppliedEffectState;
 use crate::types::ElementSet;
 
-#[derive(Debug, EnumSetType, Serialize, Deserialize)]
+#[derive(Debug, EnumSetType)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[enumset(repr = "u8")]
 pub enum CharFlag {
     TalentEquipped,
@@ -23,7 +23,8 @@ impl CharFlag {
     pub const RETAIN: EnumSet<Self> = enum_set![Self::TalentEquipped];
 }
 
-#[derive(Copy, Clone, Serialize, Deserialize)]
+#[derive(Copy, Clone)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct CharState {
     pub char_id: CharId,
     _hp_and_energy: u8,
@@ -43,7 +44,8 @@ impl Debug for CharState {
     }
 }
 
-#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct StatusState {
     pub status_id: StatusId,
     pub eff_state: AppliedEffectState,

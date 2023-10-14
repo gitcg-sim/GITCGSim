@@ -1,7 +1,5 @@
 use std::cmp::min;
 
-use serde::{Deserialize, Serialize};
-
 use crate::{
     cards::ids::*,
     data_structures::{CommandList, List8},
@@ -63,13 +61,15 @@ pub struct CharCard {
     pub passive: Option<Passive>,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum SupportType {
     Companion,
     Location,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum CardType {
     Event,
     Food,
@@ -93,7 +93,8 @@ pub struct Card {
     pub card_impl: Option<&'static dyn CardImpl>,
 }
 
-#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Cost {
     pub elem_cost: Option<(Element, u8)>,
     pub unaligned_cost: u8,

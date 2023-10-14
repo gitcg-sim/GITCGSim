@@ -6,7 +6,6 @@ use std::{
 use {rayon::prelude::*, std::ops::Add};
 
 use rand::thread_rng;
-use serde::{Deserialize, Serialize};
 
 use crate::{
     cons,
@@ -645,7 +644,8 @@ fn minimax_iterative_deepening_aspiration_windows<G: Game>(
     SearchResult::new(pv, eval, ctx0.counter)
 }
 
-#[derive(Default, Copy, Clone, Serialize, Deserialize)]
+#[derive(Default, Copy, Clone)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct MinimaxConfig {
     pub depth: u8,
     pub tactical_depth: u8,

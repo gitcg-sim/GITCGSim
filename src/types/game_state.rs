@@ -3,7 +3,7 @@ use std::fmt::{Debug, Display};
 
 use enum_map::Enum;
 use enumset::{enum_set, EnumSet, EnumSetType};
-use serde::{Deserialize, Serialize};
+
 use smallvec::SmallVec;
 
 use crate::cards::ids::lookup::GetStatus;
@@ -31,7 +31,8 @@ pub use crate::types::card_selection::*;
 pub use crate::types::char_state::*;
 
 /// The deterministic and perfect information portion of the Genius Invokation TCG game state.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct GameState {
     /// When game state is suspended while executing commands
     pub pending_cmds: Option<Box<PendingCommands>>,
@@ -49,13 +50,15 @@ pub struct GameState {
     pub _hash: ZobristHasher,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct PendingCommands {
     pub suspended_state: SuspendedState,
     pub pending_cmds: CommandList<(CommandContext, Command)>,
 }
 
-#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum SuspendedState {
     PostDeathSwitch {
         player_id: PlayerId,
@@ -74,7 +77,8 @@ impl SuspendedState {
     }
 }
 
-#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Hash, Enum, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Hash, Enum)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum PlayerId {
     #[default]
     PlayerFirst = 0,
@@ -116,14 +120,16 @@ impl PlayerId {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum RollPhaseState {
     Start,
     Drawing,
     Rolling,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum Phase {
     RollPhase {
         first_active_player: PlayerId,
@@ -178,7 +184,8 @@ impl Phase {
     }
 }
 
-#[derive(Debug, PartialOrd, Ord, EnumSetType, Serialize, Deserialize)]
+#[derive(Debug, PartialOrd, Ord, EnumSetType)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[enumset(repr = "u8")]
 pub enum PlayerFlag {
     ChargedAttack,
@@ -191,7 +198,8 @@ impl PlayerFlag {
     pub const END_OF_TURN_CLEAR: EnumSet<Self> = enum_set![Self::DiedThisRound];
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct PlayerState {
     pub active_char_index: u8,
     pub dice: DiceCounter,
@@ -232,7 +240,8 @@ pub struct PlayerStateView<'a> {
     pub affected_by: SmallVec<[StatusKey; 4]>,
 }
 
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 /// A player's summons and applied statuses (team/characters)
 pub struct StatusCollection {
     pub responds_to: EnumSet<RespondsTo>,
@@ -270,7 +279,8 @@ impl From<Option<u8>> for CharacterIndexSelector {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Enum, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Enum)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum SupportSlot {
     Slot0 = 0,
     Slot1 = 1,
@@ -282,7 +292,8 @@ impl SupportSlot {
     pub const VALUES: [Self; 4] = [Self::Slot0, Self::Slot1, Self::Slot2, Self::Slot3];
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum StatusKey {
     Team(StatusId),
     Character(u8, StatusId),
@@ -398,7 +409,8 @@ impl StatusKey {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct StatusEntry {
     pub key: StatusKey,
     pub state: AppliedEffectState,

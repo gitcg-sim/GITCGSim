@@ -1,8 +1,8 @@
 use enumset::EnumSetType;
-use serde::{Deserialize, Serialize};
 
 #[allow(clippy::derived_hash_with_manual_eq)]
-#[derive(Debug, PartialOrd, Ord, Hash, Serialize, Deserialize, EnumSetType)]
+#[derive(Debug, PartialOrd, Ord, Hash, EnumSetType)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum Element {
     Pyro = 0,
     Hydro = 1,
@@ -38,7 +38,8 @@ impl Element {
 }
 
 #[allow(clippy::derived_hash_with_manual_eq)]
-#[derive(Debug, PartialOrd, Ord, Hash, Serialize, Deserialize, EnumSetType)]
+#[derive(Debug, PartialOrd, Ord, Hash, EnumSetType)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum Reaction {
     Bloom,
     Burning,
@@ -53,7 +54,8 @@ pub enum Reaction {
     Vaporize,
 }
 
-#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum Dice {
     // Omni can be used to pay any 1 dice cost
     Omni,
@@ -89,7 +91,8 @@ impl Dice {
 }
 
 #[allow(clippy::derived_hash_with_manual_eq)]
-#[derive(Debug, PartialOrd, Ord, Hash, Serialize, Deserialize, EnumSetType)]
+#[derive(Debug, PartialOrd, Ord, Hash, EnumSetType)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum WeaponType {
     Other,
     Bow,
@@ -100,7 +103,8 @@ pub enum WeaponType {
 }
 
 #[allow(clippy::derived_hash_with_manual_eq)]
-#[derive(Debug, PartialOrd, Ord, Hash, Serialize, Deserialize, EnumSetType)]
+#[derive(Debug, PartialOrd, Ord, Hash, EnumSetType)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum Faction {
     Mondstadt,
     Liyue,
@@ -113,7 +117,8 @@ pub enum Faction {
 }
 
 #[allow(clippy::derived_hash_with_manual_eq)]
-#[derive(Debug, Default, PartialOrd, Ord, Hash, Serialize, Deserialize, EnumSetType)]
+#[derive(Debug, Default, PartialOrd, Ord, Hash, EnumSetType)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum SkillType {
     #[default]
     NormalAttack,
@@ -122,7 +127,8 @@ pub enum SkillType {
 }
 
 #[allow(clippy::derived_hash_with_manual_eq)]
-#[derive(Debug, PartialOrd, Ord, Hash, Serialize, Deserialize, EnumSetType)]
+#[derive(Debug, PartialOrd, Ord, Hash, EnumSetType)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum StatusAttachMode {
     Character,
     Team,
@@ -131,7 +137,8 @@ pub enum StatusAttachMode {
 }
 
 #[allow(clippy::derived_hash_with_manual_eq)]
-#[derive(Debug, PartialOrd, Ord, Hash, Serialize, Deserialize, EnumSetType)]
+#[derive(Debug, PartialOrd, Ord, Hash, EnumSetType)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum EquipSlot {
     Artifact,
     Weapon,

@@ -1,5 +1,4 @@
 use enumset::{EnumSet, EnumSetType};
-use serde::{Deserialize, Serialize};
 
 use crate::ids::SkillId;
 use crate::status_impl_trait_decl;
@@ -14,7 +13,8 @@ use super::{
     StatusSpecModifier,
 };
 
-#[derive(Debug, PartialOrd, Ord, EnumSetType, Serialize, Deserialize)]
+#[derive(Debug, PartialOrd, Ord, EnumSetType)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[enumset(repr = "u16")]
 pub enum RespondsTo {
     UpdateCost,

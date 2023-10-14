@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use enum_map::Enum;
 use rand::Rng;
-use serde::{Deserialize, Serialize};
+
 use smallvec::{smallvec, SmallVec};
 
 use crate::cards::ids::*;
@@ -14,7 +14,8 @@ pub use parser::*;
 
 pub mod cli_args;
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Decklist {
     pub characters: SmallVec<[CharId; 4]>,
     pub cards: DeckVec<CardId>,
@@ -99,7 +100,8 @@ pub fn random_decklist<R: Rng>(rand: &mut R) -> Decklist {
     Decklist::new(random_chars(rand), random_deck(rand))
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[derive(Debug, Clone)]
 pub struct DeckState {
     pub deck: Arc<DeckVec<CardId>>,
     pub mask: u64,

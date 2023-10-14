@@ -1,7 +1,7 @@
 use crate::tcg_model::enums::Element;
-use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum DealDMGType {
     Piercing,
     Physical,
@@ -32,7 +32,8 @@ impl DealDMGType {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct DealDMG {
     pub dmg_type: DealDMGType,
     pub dmg: u8,

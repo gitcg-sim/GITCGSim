@@ -1,10 +1,9 @@
-use serde::{Deserialize, Serialize};
-
 use super::game_state::PlayerId;
 use std::ops::{Index, IndexMut};
 
 // TODO refactor rest of the code to use this struct
-#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct ByPlayer<T>(pub T, pub T);
 
 impl<T> From<(T, T)> for ByPlayer<T> {

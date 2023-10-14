@@ -1,12 +1,14 @@
 use super::*;
 
-#[derive(Default, Debug, Clone, Copy, Serialize, Deserialize)]
+#[derive(Default, Debug, Clone, Copy)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct DMGInfo {
     pub target_hp: u8,
     pub target_affected_by_riptide: bool,
 }
 
-#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum CommandSource {
     /// The command is dispatched by game mechanics.
     #[default]
@@ -60,7 +62,8 @@ impl CommandSource {
     }
 }
 
-#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct CommandTarget {
     pub player_id: PlayerId,
     pub char_idx: u8,
@@ -77,7 +80,8 @@ impl CommandTarget {
 /// A command is always performed by a player (`src_player_id`) with a specific source (`src`)
 /// under the source player's context. The target (`tgt`) is always defined under the opponent
 /// of the source player's context.
-#[derive(Debug, Clone, Copy, Default, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, Default)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct CommandContext {
     pub src_player_id: PlayerId,
     pub src: CommandSource,

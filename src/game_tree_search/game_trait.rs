@@ -1,28 +1,26 @@
 use std::{fmt::Debug, ops::Neg};
 
 use rand::rngs::ThreadRng;
-use serde::{Deserialize, Serialize};
 
 use crate::{types::game_state::PlayerId, zobrist_hash::HashValue};
 
 use super::PV;
 
+pub trait ValueTrait: Sized + Send + Sync + Debug + Clone + Copy + PartialEq + Eq {}
+
+#[cfg(feature = "serde")]
 pub trait EvalTrait:
-    Sized
-    + Send
-    + Sync
-    + Debug
-    + Default
-    + Clone
-    + Copy
-    + PartialEq
-    + Eq
-    + PartialOrd
-    + Ord
-    + Neg<Output = Self>
-    + Serialize
-    + for<'de> Deserialize<'de>
+    ValueTrait + Default + PartialOrd + Ord + Neg<Output = Self> + serde::Serialize + for<'de> serde::Deserialize<'de>
 {
+    const MIN: Self;
+    const MAX: Self;
+    fn plus_one_step(self) -> Self {
+        self
+    }
+}
+
+#[cfg(not(feature = "serde"))]
+pub trait EvalTrait: ValueTrait + Default + PartialOrd + Ord + Neg<Output = Self> {
     const MIN: Self;
     const MAX: Self;
     fn plus_one_step(self) -> Self {
@@ -45,16 +43,10 @@ pub trait ZobristHashable {
 }
 
 pub trait Game: ZobristHashable + Debug + Clone + Send + Sync {
-    type Action: Copy
-        + Clone
-        + Send
-        + Sync
-        + Debug
-        + PartialEq
-        + Eq
-        + std::hash::Hash
-        + Serialize
-        + for<'de> Deserialize<'de>;
+    #[cfg(feature = "serde")]
+    type Action: ValueTrait + std::hash::Hash + serde::Serialize + for<'de> serde::Deserialize<'de>;
+    #[cfg(not(feature = "serde"))]
+    type Action: ValueTrait + std::hash::Hash;
     type Actions: IntoIterator<Item = Self::Action>;
     type Error: Debug;
     type Eval: Windowable + EvalTrait;

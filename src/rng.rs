@@ -1,11 +1,11 @@
 use rand::prelude::*;
-use serde::{Deserialize, Serialize};
 
 /// Seedable RNG that can be serialized and deserialized.
 #[repr(transparent)]
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(from = "RngBytes")]
-#[serde(into = "RngBytes")]
+#[derive(Debug, Clone)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(from = "RngBytes"))]
+#[cfg_attr(feature = "serde", serde(into = "RngBytes"))]
 pub struct RngState(pub SmallRng);
 
 impl RngCore for RngState {
@@ -72,6 +72,7 @@ impl From<SmallRng> for RngState {
     }
 }
 
+#[cfg(feature = "serde")]
 #[cfg(test)]
 mod tests {
     use bincode;

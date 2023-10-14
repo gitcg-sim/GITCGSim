@@ -22,20 +22,32 @@ codegen-units = 1
 lto = true
 
 [features]
+test = [
+    "serde"
+]
 default = [
-    # TODO disable this
-    "training"
+    # "training",
+    # "serde"
+]
+serde = [
+    "dep:serde",
+    "enumset/serde",
+    "rand/serde",
+    "rand/serde1",
+    "smallvec/serde"
 ]
 wasm = [
     "no_parallel",
     "instant/stdweb",
     "instant/wasm-bindgen",
     "getrandom/js",
-    "dep:wasm-bindgen"
+    "dep:wasm-bindgen",
+    "serde"
 ]
 no_static_status_impl = []
 no_parallel = []
 training = [
+    "serde",
     "dep:dfdx",
     "dep:ndarray"
 ]
@@ -60,18 +72,18 @@ bitfield = { version = "0.14.*" }
 dfdx = { version = "0.13.0", features = ["numpy"], optional = true }
 enum-map = { version = "2.4.*" }
 enum-map-derive = { version = "0.3.*" }
-enumset = { version = "1.0.*", features = ["serde"] }
+enumset = { version = "1.0.*", features = [] }
 flurry = { version = "0.4.*" }
 getrandom = { version = "0.2" }
 instant = { version = "0.1" }
 itertools = { version = "0.11.*" }
 lazy_static = { version = "1.4.*" }
-rand = { version = "0.8.*", features = ["small_rng", "serde", "serde1"] }
+rand = { version = "0.8.*", features = ["small_rng"] }
 rayon = { version = "^1.7.0" }
 rustc-hash = { version = "1.1.*" }
 ndarray = { version = "*", optional = true }
-serde = { version = "1.0", features = ["derive", "rc"] }
-smallvec = { version = "1.10.*", features = ["serde"] }
+serde = { version = "1.0", features = ["derive", "rc"], optional = true }
+smallvec = { version = "1.10.*", features = [] }
 structopt = { version = "0.3.*" }
 wasm-bindgen = { version = "0.2.*", optional = true }
 

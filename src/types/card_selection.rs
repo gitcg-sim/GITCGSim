@@ -1,4 +1,3 @@
-use serde::{Deserialize, Serialize};
 use smallvec::SmallVec;
 
 use crate::cards::ids::SummonId;
@@ -8,14 +7,16 @@ use super::{
     game_state::{PlayerId, PlayerState},
 };
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum CardSelectionSpec {
     OwnCharacter,
     OwnSummon,
     OpponentSummon,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum CardSelection {
     OwnCharacter(u8),
     OwnSummon(SummonId),

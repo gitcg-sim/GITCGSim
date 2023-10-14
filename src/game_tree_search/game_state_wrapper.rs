@@ -2,7 +2,7 @@ use rand::{
     rngs::{SmallRng, ThreadRng},
     seq::SliceRandom,
 };
-use serde::{Deserialize, Serialize};
+
 use std::fmt::Debug;
 
 use super::*;
@@ -15,7 +15,8 @@ use crate::{
     types::{game_state::*, input::*, nondet::*},
 };
 
-#[derive(Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[derive(Clone)]
 pub struct GameStateWrapper<S: NondetState = StandardNondetHandlerState> {
     pub game_state: GameState,
     pub nd: NondetProvider<S>,
@@ -68,6 +69,7 @@ impl<S: NondetState> ZobristHashable for GameStateWrapper<S> {
     }
 }
 
+impl ValueTrait for Input {}
 impl<S: NondetState> Game for GameStateWrapper<S> {
     type Action = Input;
 

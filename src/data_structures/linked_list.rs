@@ -1,11 +1,11 @@
 use std::sync::Arc;
 
-use serde::{Deserialize, Serialize};
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Cons<T: Clone>(pub T, pub LinkedList<T>);
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct LinkedList<T: Clone>(pub Option<Arc<Cons<T>>>);
 
 impl<T: Clone> Default for LinkedList<T> {

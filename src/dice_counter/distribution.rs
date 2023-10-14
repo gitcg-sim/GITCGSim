@@ -1,7 +1,5 @@
 use std::cmp::min;
 
-use serde::{Deserialize, Serialize};
-
 use rand::prelude::*;
 
 use super::*;
@@ -14,7 +12,8 @@ use super::*;
 ///  - Only non-preferred and non-fixed dice are rerolled.
 ///
 /// This type is used for implementing smart dice selection and fully automated dice reroll.
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct DiceDistribution {
     /// Number of dice
     pub count: u8,

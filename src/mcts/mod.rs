@@ -1,5 +1,5 @@
 use instant::Instant;
-use serde::{Deserialize, Serialize};
+
 use std::{cell::RefCell, rc::Rc};
 
 use crate::{
@@ -22,11 +22,12 @@ use proportion::*;
 
 type TTValue = Proportion;
 
-#[derive(Debug, Default, Serialize, Deserialize)]
+#[derive(Debug, Default)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct TreeDump<T> {
-    #[serde(rename = "_")]
+    #[cfg_attr(feature = "serde", serde(rename = "_"))]
     pub value: T,
-    #[serde(rename = "children")]
+    #[cfg_attr(feature = "serde", serde(rename = "children"))]
     pub children: Vec<Rc<TreeDump<T>>>,
 }
 
@@ -121,7 +122,8 @@ impl<G: Game> Node<G> {
     }
 }
 
-#[derive(Debug, Copy, Clone, Serialize, Deserialize)]
+#[derive(Debug, Copy, Clone)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct MCTSConfig {
     /// UCB constant
     pub c: f32,
@@ -585,6 +587,7 @@ impl<G: Game, E: EvalPolicy<G>> GameTreeSearch<G> for MCTS<G, E> {
     }
 }
 
+#[cfg(feature = "serde")]
 #[cfg(test)]
 mod tests {
     use crate::{

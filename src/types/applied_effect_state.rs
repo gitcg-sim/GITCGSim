@@ -1,9 +1,8 @@
 use std::cmp::{max, min};
 
-use serde::{Deserialize, Serialize};
-
 /// State variable for an applied effect (status or summon).
-#[derive(Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Default, PartialEq, Eq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct AppliedEffectState {
     _repr: u8,
 }

@@ -8,7 +8,6 @@ use crate::cards::ids::*;
 use crate::data_structures::capped_list::CappedLengthList8;
 use crate::data_structures::CommandList;
 use enumset::{EnumSet, EnumSetType};
-use serde::{Deserialize, Serialize};
 
 mod command_context;
 
@@ -24,7 +23,8 @@ pub mod xevent {
 
     use super::*;
 
-    #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+    #[derive(Debug, Clone, Copy)]
+    #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
     pub struct XEventDMG {
         pub src_player_id: PlayerId,
         pub tgt_char_idx: u8,
@@ -35,7 +35,8 @@ pub mod xevent {
         pub defeated: bool,
     }
 
-    #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+    #[derive(Debug, Clone, Copy)]
+    #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
     pub struct XEventSkill {
         pub src_player_id: PlayerId,
         pub src_char_idx: u8,
@@ -112,7 +113,8 @@ pub mod xevent {
         }
     }
 
-    #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+    #[derive(Debug, Clone, Copy)]
+    #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
     pub enum XEvent {
         DMG(XEventDMG),
         Skill(XEventSkill),
@@ -201,7 +203,8 @@ pub use command_context::*;
 
 pub use xevent::*;
 
-#[derive(Debug, PartialOrd, Ord, EnumSetType, Serialize, Deserialize)]
+#[derive(Debug, PartialOrd, Ord, EnumSetType)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[enumset(repr = "u8")]
 pub enum EventId {
     EndPhase,
@@ -284,7 +287,8 @@ impl<'a, 'c, 'v, D: Copy> StatusImplContextBuilder<'a, 'c, 'v, D> {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum CostType {
     Switching,
     Card(CardId),
@@ -309,7 +313,8 @@ impl CostType {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct SummonRandomSpec {
     pub summon_ids: CappedLengthList8<SummonId>,
     pub existing_summon_ids: EnumSet<SummonId>,
@@ -339,7 +344,8 @@ impl SummonRandomSpec {
 /// When a command refers to "active character", it is the source player's active character
 /// OR the character chosen by the player by card's targeting.
 /// See also: `CommandContext`.
-#[derive(Debug, Clone, Copy, Default, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, Default)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum Command {
     #[default]
     Nop,

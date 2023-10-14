@@ -57,8 +57,6 @@ use enumset::EnumSet;
 use lazy_static::lazy_static;
 use smallvec::SmallVec;
 
-use serde::{Deserialize, Serialize};
-
 use crate::cards::ids::*;
 
 use crate::tcg_model::enums::{Dice, Element};
@@ -89,7 +87,8 @@ pub(crate) mod hash_provider;
 
 pub(crate) use hash_provider::*;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct ZobristHasher(pub HashValue);
 
 impl ZobristHasher {

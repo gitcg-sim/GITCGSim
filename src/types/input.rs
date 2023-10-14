@@ -1,11 +1,10 @@
-use serde::{Deserialize, Serialize};
-
 use super::dice_counter::DiceCounter;
 use super::game_state::{CardSelection, CharSelection, PlayerId};
 use crate::cards::ids::*;
 use crate::data_structures::List8;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum PlayerAction {
     EndRound,
     PlayCard(CardId, Option<CardSelection>),
@@ -16,14 +15,16 @@ pub enum PlayerAction {
 }
 
 /// A non-deterministic action
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum NondetResult {
     ProvideDice(DiceCounter, DiceCounter),
     ProvideCards(List8<CardId>, List8<CardId>),
     ProvideSummonIds(List8<SummonId>),
 }
 
-#[derive(Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum Input {
     NoAction,
     NondetResult(NondetResult),

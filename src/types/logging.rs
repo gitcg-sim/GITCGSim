@@ -1,7 +1,5 @@
 use std::fmt::Display;
 
-use serde::{Deserialize, Serialize};
-
 use crate::vector;
 
 use crate::data_structures::Vector;
@@ -19,13 +17,15 @@ use super::{
     game_state::*,
 };
 
-#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum DMGSource {
     Summon(PlayerId, SummonId),
     Character(PlayerId, (u8, CharId)),
 }
 
-#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum Event {
     Round(u8, PlayerId),
     Phase(Phase),
@@ -118,7 +118,8 @@ impl Display for Event {
     }
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct EventLog {
     pub enabled: bool,
     pub events: Vector<Event>,

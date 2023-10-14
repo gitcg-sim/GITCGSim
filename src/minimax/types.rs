@@ -1,7 +1,5 @@
 use std::{cmp::min, ops::Neg};
 
-use serde::{Deserialize, Serialize};
-
 use super::*;
 
 /// Heuristic value
@@ -12,7 +10,8 @@ pub const MAX_WINNER_STEPS: HV = 8;
 pub const MAX_WINNER_FOUND_VALUE: HV = MAX_WINNER_STEPS * WINNER_UNIT;
 
 /// A game state evaluation, which is based on number of moves until win/lose, and heuristic score
-#[derive(Default, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[derive(Default, Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Eval {
     pub _repr: HV,
 }
@@ -132,6 +131,7 @@ impl Windowable for Eval {
     }
 }
 
+impl ValueTrait for Eval {}
 impl EvalTrait for Eval {
     const MIN: Eval = Eval::from_repr_const(-MAX_WINNER_FOUND_VALUE);
     const MAX: Eval = Eval::from_repr_const(MAX_WINNER_FOUND_VALUE);

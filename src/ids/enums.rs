@@ -2,10 +2,11 @@
 
 use enum_map::Enum;
 use enumset::EnumSetType;
-use serde::{Deserialize, Serialize};
+
 use std::hash::Hash;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Enum, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Enum)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum CharId {
     Yoimiya,
     Kaeya,
@@ -51,7 +52,8 @@ pub enum CharId {
     Candace,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum SkillId {
     FireworkFlareUp,
     NiwabiFireDance,
@@ -186,7 +188,8 @@ pub enum SkillId {
     HeronStrike,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Enum, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Enum)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum StatusId {
     // Reactions
     CrystallizeShield,
@@ -313,7 +316,8 @@ pub enum StatusId {
 }
 
 #[allow(clippy::derived_hash_with_manual_eq)]
-#[derive(Debug, PartialOrd, Ord, Hash, Enum, Serialize, Deserialize, EnumSetType)]
+#[derive(Debug, PartialOrd, Ord, Hash, Enum, EnumSetType)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[enumset(repr = "u32")]
 pub enum SummonId {
     BurningFlame,
@@ -343,7 +347,8 @@ pub enum SummonId {
     TalismanSpirit,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Enum, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Enum)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum SupportId {
     Paimon,
     Katheryne,
@@ -363,7 +368,8 @@ pub enum SupportId {
     Tenshukaku,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Enum, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Enum)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum CardId {
     BlankCard,
     TheBestestTravelCompanion,
