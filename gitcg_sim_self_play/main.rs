@@ -187,7 +187,7 @@ fn run_self_play<
         let n_states = states.len();
         let evals = &evals[player_id];
         for t in 0..(n_states - 1) {
-            let grad = evals[t].1.as_slice_ref();
+            let mut grad = evals[t].1.as_slice();
             let sum_td: f32 = (t..(n_states - 1))
                 .map(|j| {
                     let temporal_diff = evals[j + 1].0 - evals[j].0;
@@ -195,21 +195,21 @@ fn run_self_play<
                 })
                 .sum();
 
-            let a = sum_td * learning_rate;
-            for (wi, gi) in weights.iter_mut().zip(grad.iter().copied()) {
-                *wi += a * gi;
-            }
-
             if let Some(a) = regularization.l1 {
-                for (wi, gi) in weights.iter_mut().zip(grad.iter().copied()) {
-                    *wi += a * gi.abs();
+                for (gi, wi) in grad.iter_mut().zip(weights.iter().copied()) {
+                    *gi += a * wi.abs();
                 }
             }
 
             if let Some(a) = regularization.l2 {
-                for (wi, gi) in weights.iter_mut().zip(grad.iter().copied()) {
-                    *wi += 2f32 * a * gi;
+                for (gi, wi) in grad.iter_mut().zip(weights.iter().copied()) {
+                    *gi += 2.0 * a * wi;
                 }
+            }
+
+            let a = sum_td * learning_rate;
+            for (wi, gi) in weights.iter_mut().zip(grad.iter().copied()) {
+                *wi += a * gi;
             }
         }
     }
