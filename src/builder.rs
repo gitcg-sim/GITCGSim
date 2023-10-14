@@ -101,12 +101,15 @@ impl<C: CharactersState, S: StartingConditionState> GameStateBuilder<C, S> {
         }
     }
 
-    pub fn with_characters<T: Into<Vector<CharId>>>(
-        self,
-        characters: ByPlayer<T>,
-    ) -> GameStateBuilder<HasCharacters, S> {
+    pub fn skip_to_roll_phase(self) -> GameStateBuilder<C, HasStartingCondition> {
+        self.with_starting_condition(StartingCondition {
+            starting_phase: StartingPhase::RollPhase,
+        })
+    }
+
+    pub fn with_characters<T: Into<Vector<CharId>>>(self, chars1: T, chars2: T) -> GameStateBuilder<HasCharacters, S> {
         GameStateBuilder {
-            characters: characters.map(|x| x.into()),
+            characters: (chars1.into(), chars2.into()).into(),
             starting_condition: self.starting_condition,
             enable_log: self.enable_log,
             ignore_costs: self.ignore_costs,
