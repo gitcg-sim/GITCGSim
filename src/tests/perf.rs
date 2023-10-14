@@ -59,7 +59,7 @@ fn bench_cast_skill() {
 }
 
 #[test]
-fn bench_yoimia_na_after_niwabi_fire_dance() {
+fn bench_yoimiya_na_after_niwabi_fire_dance() {
     let mut gs = get_game_state();
     gs.advance_multiple(&vec![
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::FireworkFlareUp)),
