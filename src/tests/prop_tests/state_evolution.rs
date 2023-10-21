@@ -1,4 +1,4 @@
-use crate::types::game_state::PlayerId;
+use crate::list8;
 
 use super::*;
 
@@ -9,6 +9,25 @@ proptest! {
         max_global_rejects: 2 * CASES,
         ..ProptestConfig::default()
     })]
+
+    #[test]
+    fn select_starting_character(gs in arb_init_game_state(), a in 0u8..=2, b in 0u8..=2) {
+        let a = a % (gs.get_player(PlayerId::PlayerFirst).char_states.len() as u8);
+        let b = b % (gs.get_player(PlayerId::PlayerSecond).char_states.len() as u8);
+        let mut gs = gs;
+        gs.advance(Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::SwitchCharacter(a))).unwrap();
+        gs.advance(Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::SwitchCharacter(b))).unwrap();
+        assert_eq!(Phase::new_roll_phase(PlayerId::PlayerFirst), gs.phase);
+        assert_eq!(a, gs.get_player(PlayerId::PlayerFirst).active_char_index);
+        assert_eq!(b, gs.get_player(PlayerId::PlayerSecond).active_char_index);
+        gs.advance(Input::NoAction).unwrap();
+        gs.advance(Input::NondetResult(NondetResult::ProvideCards(list8![], list8![]))).unwrap();
+        gs.advance(Input::NondetResult(NondetResult::ProvideDice(Default::default(), Default::default()))).unwrap();
+
+        assert_eq!(Some(PlayerId::PlayerFirst), gs.to_move_player());
+        assert_eq!(a, gs.get_player(PlayerId::PlayerFirst).active_char_index);
+        assert_eq!(b, gs.get_player(PlayerId::PlayerSecond).active_char_index);
+    }
 
     #[test]
     fn actions_from_actions_should_be_performable_with_ok_result(gs in arb_reachable_game_state_wrapper()) {

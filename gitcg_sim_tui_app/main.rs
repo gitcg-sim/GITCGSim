@@ -273,6 +273,7 @@ impl<B: Backend> App<B> {
 
             let info = Paragraph::new({
                 let phase_part = match game_state.phase {
+                    Phase::SelectStartingCharacter { .. } => "Select Starting".to_string(),
                     Phase::RollPhase { .. } => "Roll Phase".to_string(),
                     Phase::ActionPhase { first_end_round, .. } => {
                         format!("Action Phase{}", if first_end_round.is_some() { '*' } else { ' ' })

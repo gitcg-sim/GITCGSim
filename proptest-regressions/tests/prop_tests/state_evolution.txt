@@ -1,0 +1,7 @@
+# Seeds for failure cases proptest has generated in the past. It is
+# automatically read and these particular cases re-run before any
+# novel cases are generated.
+#
+# It is recommended to check this file in to source control so that
+# everyone who runs the test benefits from these saved cases.
+cc a753ecc46a6202a2a0bd4b846450b6e89a78d5545373335273ed8fa61d7b73b5 # shrinks to gs = GameState { pending_cmds: None, round_number: 1, phase: SelectStartingCharacter { already_selected: None }, players: ByPlayer(PlayerState { active_char_index: 0, dice: DiceCounter([]), char_states: [CharState { char_id: Yoimiya, hp: 10, energy: 0, applied: EnumSet(), flags: EnumSet() }], status_collection: StatusCollection { responds_to: EnumSet(), responds_to_triggers: EnumSet(), responds_to_events: EnumSet(), _status_entries: [] }, hand: [], flags: EnumSet() }, PlayerState { active_char_index: 0, dice: DiceCounter([]), char_states: [CharState { char_id: Fischl, hp: 10, energy: 0, applied: EnumSet(), flags: EnumSet() }], status_collection: StatusCollection { responds_to: EnumSet(), responds_to_triggers: EnumSet(), responds_to_events: EnumSet(), _status_entries: [] }, hand: [], flags: EnumSet() }), log: EventLog { enabled: false }, ignore_costs: false, _incremental_hash: ZobristHasher(6176813755000886287), _hash: ZobristHasher(6176813755000886287) }, a = 0, b = 0

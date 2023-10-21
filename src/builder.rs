@@ -4,6 +4,7 @@ use crate::{cards::ids::*, data_structures::Vector, prelude::*, types::by_player
 
 #[derive(Copy, Clone)]
 pub enum StartingPhase {
+    SelectStartingCharacter,
     RollPhase,
 }
 
@@ -28,6 +29,9 @@ impl StartingCondition {
     pub fn starting_phase(&self) -> Phase {
         match self.starting_phase {
             StartingPhase::RollPhase => Phase::new_roll_phase(PlayerId::PlayerFirst),
+            StartingPhase::SelectStartingCharacter => Phase::SelectStartingCharacter {
+                already_selected: Default::default(),
+            },
         }
     }
 }
@@ -99,6 +103,12 @@ impl<C: CharactersState, S: StartingConditionState> GameStateBuilder<C, S> {
             ignore_costs: self.ignore_costs,
             _marker: PhantomData,
         }
+    }
+
+    pub fn start_at_select_character(self) -> GameStateBuilder<C, HasStartingCondition> {
+        self.with_starting_condition(StartingCondition {
+            starting_phase: StartingPhase::SelectStartingCharacter,
+        })
     }
 
     pub fn skip_to_roll_phase(self) -> GameStateBuilder<C, HasStartingCondition> {

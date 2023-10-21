@@ -120,9 +120,10 @@ impl PlayerId {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum RollPhaseState {
+    #[default]
     Start,
     Drawing,
     Rolling,
@@ -131,6 +132,9 @@ pub enum RollPhaseState {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum Phase {
+    SelectStartingCharacter {
+        already_selected: Option<PlayerId>,
+    },
     RollPhase {
         first_active_player: PlayerId,
         roll_phase_state: RollPhaseState,
@@ -148,6 +152,12 @@ pub enum Phase {
 }
 
 impl Phase {
+    pub fn select_starting_to_move(already_selected: Option<PlayerId>) -> PlayerId {
+        already_selected
+            .map(PlayerId::opposite)
+            .unwrap_or(PlayerId::PlayerFirst)
+    }
+
     #[inline]
     pub fn new_roll_phase(first_active_player: PlayerId) -> Phase {
         Phase::RollPhase {
@@ -159,6 +169,9 @@ impl Phase {
     #[inline]
     pub fn active_player(&self) -> Option<PlayerId> {
         match self {
+            Phase::SelectStartingCharacter { already_selected } => {
+                Some(Self::select_starting_to_move(*already_selected))
+            }
             Phase::ActionPhase { active_player, .. } => Some(*active_player),
             _ => None,
         }

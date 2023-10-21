@@ -70,6 +70,7 @@ impl Display for Event {
             Event::Round(r, p) => f.write_fmt(format_args!("Round {r}: {p} to move first")),
             Event::Phase(p) => {
                 let s = match p {
+                    Phase::SelectStartingCharacter { .. } => "Select Starting",
                     Phase::RollPhase { .. } => "Roll Phase",
                     Phase::ActionPhase { .. } => "Action Phase",
                     Phase::EndPhase { .. } => "End Phase",

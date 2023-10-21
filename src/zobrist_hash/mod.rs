@@ -240,6 +240,13 @@ impl Phase {
             Self::WinnerDecided {
                 winner: PlayerId::PlayerSecond,
             } => 15,
+            Self::SelectStartingCharacter { already_selected: None } => 16,
+            Self::SelectStartingCharacter {
+                already_selected: Some(PlayerId::PlayerFirst),
+            } => 17,
+            Self::SelectStartingCharacter {
+                already_selected: Some(PlayerId::PlayerSecond),
+            } => 18,
         }
     }
 }
