@@ -46,7 +46,9 @@ impl Debug for CharState {
 }
 
 #[derive(Debug, Clone, Default)]
+#[repr(transparent)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(transparent))]
 pub struct CharStates {
     pub char_states: Vector<CharState>,
 }

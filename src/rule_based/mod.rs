@@ -105,8 +105,13 @@ impl RuleBasedSearchConfig {
         let (tgt_char_idx, tgt_hp) = (opp_player.active_char_idx, opp_player.get_active_character().get_hp());
         let mut scores = src_player
             .char_states
-            .enumerate_valid()
+            .iter_all()
+            .enumerate()
             .map(|(src_char_idx, src_char)| {
+                if src_char.is_invalid() {
+                    return 0;
+                }
+                let src_char_idx = src_char_idx as u8;
                 let has_outgoing_reaction = game_state.has_outgoing_reaction(player_id, src_char_idx, tgt_char_idx);
                 let has_incoming_reaction =
                     game_state.has_outgoing_reaction(player_id.opposite(), tgt_char_idx, src_char_idx);
