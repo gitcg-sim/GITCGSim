@@ -41,7 +41,7 @@ impl StatusImpl for IronTongueTian {
             return None;
         };
         // TODO
-        e.add_cmd(Command::AddEnergyToCharacter(1, i as u8));
+        e.add_cmd(Command::AddEnergyToCharacter(1, i));
         None
     }
 }

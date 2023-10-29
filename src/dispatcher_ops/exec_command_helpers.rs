@@ -443,7 +443,7 @@ impl PlayerState {
     #[inline]
     pub(crate) fn relative_switch_char_idx(&self, switch_type: RelativeSwitchType) -> Option<u8> {
         let i0 = self.active_char_index;
-        let n = self.char_states.len() as u8;
+        let n = self.char_states.len();
         match switch_type {
             RelativeSwitchType::Next => {
                 for d in 1..n {

@@ -65,6 +65,14 @@ impl CharStates {
         }
     }
 
+    #[inline]
+    pub fn is_valid_char_idx(&self, char_idx: u8) -> bool {
+        if char_idx < self.len() {
+            return !self.char_states[char_idx as usize].is_invalid();
+        }
+        false
+    }
+
     #[inline(always)]
     pub fn is_empty(&self) -> bool {
         self.char_states.is_empty()

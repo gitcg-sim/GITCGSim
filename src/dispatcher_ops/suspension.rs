@@ -36,13 +36,8 @@ impl SuspendedState {
         match *self {
             SuspendedState::PostDeathSwitch { player_id, .. } => {
                 let p = game_state.get_player(player_id);
-                for char_idx in 0..p.char_states.len() {
-                    if p.is_valid_char_idx(char_idx as u8) {
-                        acts.push(Input::FromPlayer(
-                            player_id,
-                            PlayerAction::PostDeathSwitch(char_idx as u8),
-                        ));
-                    }
+                for (char_idx, _) in p.char_states.enumerate_valid() {
+                    acts.push(Input::FromPlayer(player_id, PlayerAction::PostDeathSwitch(char_idx)));
                 }
                 acts
             }

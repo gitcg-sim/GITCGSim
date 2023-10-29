@@ -245,7 +245,7 @@ pub mod exiles_circlet {
             let SkillType::ElementalBurst = e.get_event_skill_ensuring_attached_character()?.skill_type() else {
                 return None;
             };
-            for char_idx in 0..(e.c.src_player_state.char_states.len() as u8) {
+            for (char_idx, _) in e.c.src_player_state.char_states.enumerate_valid() {
                 if char_idx == e.active_char_idx() {
                     continue;
                 }

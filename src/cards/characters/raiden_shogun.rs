@@ -108,7 +108,7 @@ pub mod chakra_desiderata {
             };
 
             let char_idx_raiden_shogun = e.find_chararacter_for(|c| c.char_id == CharId::RaidenShogun);
-            if e.src_char_idx() == char_idx_raiden_shogun.map(|t| t.0 as u8) {
+            if e.src_char_idx() == char_idx_raiden_shogun.map(|t| t.0) {
                 return None;
             }
 

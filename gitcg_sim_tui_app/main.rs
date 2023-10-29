@@ -928,8 +928,7 @@ fn sort_key_for_action(input: &Input) -> String {
 
 fn describe_action<'a, 'b>(player_state: &'b PlayerState, input: &'b Input) -> (Cell<'a>, Cell<'a>) {
     let get_character_name = |i: u8| -> Cell<'a> {
-        Cell::from(player_state.char_states[i as u8].char_id.get_char_card().name)
-            .style(Style::default().fg(Color::Yellow))
+        Cell::from(player_state.char_states[i].char_id.get_char_card().name).style(Style::default().fg(Color::Yellow))
     };
 
     fn card_cell<'a>(card_id: CardId) -> Cell<'a> {

@@ -12,8 +12,8 @@ proptest! {
 
     #[test]
     fn select_starting_character(gs in arb_init_game_state(), a in 0u8..=2, b in 0u8..=2) {
-        let a = a % (gs.get_player(PlayerId::PlayerFirst).char_states.len() as u8);
-        let b = b % (gs.get_player(PlayerId::PlayerSecond).char_states.len() as u8);
+        let a = a % gs.get_player(PlayerId::PlayerFirst).char_states.len();
+        let b = b % gs.get_player(PlayerId::PlayerSecond).char_states.len();
         let mut gs = gs;
         gs.advance(Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::SwitchCharacter(a))).unwrap();
         gs.advance(Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::SwitchCharacter(b))).unwrap();

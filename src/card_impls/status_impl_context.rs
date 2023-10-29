@@ -1,5 +1,4 @@
 use crate::cards::ids::*;
-use crate::dispatcher_ops::state_ops::check_valid_char_idx;
 use crate::status_impls::prelude::WeaponType;
 use crate::tcg_model::enums::SkillType;
 use crate::types::{card_defs::*, command::*, game_state::*};
@@ -9,7 +8,7 @@ impl<'a, 'b, 'c, 'v, D> StatusImplContext<'a, 'b, 'c, 'v, D> {
     pub fn src_char_id(&self) -> Option<CharId> {
         let ci = self.ctx.src.char_idx()?;
         let cs = self.src_player_state.char_states;
-        if check_valid_char_idx(cs, ci) {
+        if cs.is_valid_char_idx(ci) {
             return Some(cs[ci].char_id);
         }
         None
@@ -42,9 +41,9 @@ impl<'a, 'b, 'c, 'v, D> StatusImplContext<'a, 'b, 'c, 'v, D> {
 
     #[inline]
     pub fn is_casted_by_character(&self, char_id: CharId) -> bool {
-        if let Some(i) = self.ctx.src.char_idx() {
+        if let Some(char_idx) = self.ctx.src.char_idx() {
             let cs = &self.src_player_state.char_states;
-            check_valid_char_idx(cs, i) && char_id == cs[i].char_id
+            cs.is_valid_char_idx(char_idx) && char_id == cs[char_idx].char_id
         } else {
             false
         }
@@ -58,7 +57,7 @@ impl<'a, 'b, 'c, 'v, D> StatusImplContext<'a, 'b, 'c, 'v, D> {
     #[inline]
     pub fn get_character_state(&self, char_idx: u8) -> Option<&CharState> {
         let cs = self.src_player_state.char_states;
-        if check_valid_char_idx(cs, char_idx) {
+        if cs.is_valid_char_idx(char_idx) {
             return Some(&cs[char_idx]);
         }
         None

@@ -43,25 +43,17 @@ impl CharState {
     }
 }
 
-#[inline]
-pub fn check_valid_char_idx(char_states: &CharStates, char_idx: u8) -> bool {
-    if char_idx >= char_states.len() {
-        false
-    } else {
-        !char_states[char_idx].is_invalid()
-    }
-}
-
 impl PlayerState {
     #[inline]
     pub fn get_character_card(&self, char_idx: u8) -> &'static CharCard {
         self.char_states[char_idx].char_id.get_char_card()
     }
 
+    // TODO inline this
     /// Checks if char_idx refers to a valid and alive character.
     #[inline]
     pub fn is_valid_char_idx(&self, char_idx: u8) -> bool {
-        check_valid_char_idx(&self.char_states, char_idx)
+        self.char_states.is_valid_char_idx(char_idx)
     }
 
     #[inline]
@@ -85,16 +77,6 @@ impl PlayerState {
     #[inline]
     pub fn get_active_character(&self) -> &CharState {
         &self.char_states[self.active_char_index]
-    }
-
-    pub fn get_other_character_indices(&self) -> Vec<u8> {
-        let mut v: Vec<u8> = vec![];
-        for i in 0..(self.char_states.len() as u8) {
-            if i != self.active_char_index {
-                v.push(i)
-            }
-        }
-        v
     }
 
     // Returns None for invalid index

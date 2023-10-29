@@ -102,14 +102,11 @@ impl RuleBasedSearchConfig {
         );
         let own_dice_count = src_player.dice.total();
         // let opp_dice_count = game_state.get_player(player_id.opposite()).dice.total();
-        let own_char_idxs = 0..(src_player.char_states.len() as u8);
         let (tgt_char_idx, tgt_hp) = (opp_player.active_char_index, opp_player.get_active_character().get_hp());
-        let mut scores = own_char_idxs
-            .into_iter()
-            .map(|src_char_idx| {
-                let Some(src_char) = src_player.try_get_character(src_char_idx) else {
-                    return 0;
-                };
+        let mut scores = src_player
+            .char_states
+            .enumerate_valid()
+            .map(|(src_char_idx, src_char)| {
                 let has_outgoing_reaction = game_state.has_outgoing_reaction(player_id, src_char_idx, tgt_char_idx);
                 let has_incoming_reaction =
                     game_state.has_outgoing_reaction(player_id.opposite(), tgt_char_idx, src_char_idx);

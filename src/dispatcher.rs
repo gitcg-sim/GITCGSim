@@ -401,7 +401,7 @@ impl GameState {
         match self.phase {
             Phase::SelectStartingCharacter { already_selected } => {
                 let player_id = Phase::select_starting_to_move(already_selected);
-                for char_idx in 0u8..self.get_player(player_id).char_states.len() as u8 {
+                for (char_idx, _) in self.get_player(player_id).char_states.enumerate_valid() {
                     if self.can_switch_to(player_id, char_idx) {
                         acts.push(Input::FromPlayer(player_id, PlayerAction::SwitchCharacter(char_idx)));
                     }
@@ -467,12 +467,9 @@ impl GameState {
         }
 
         // Switch
-        for char_idx in 0..player.char_states.len() {
-            if self.can_switch_to(player_id, char_idx as u8) {
-                acts.push(Input::FromPlayer(
-                    player_id,
-                    PlayerAction::SwitchCharacter(char_idx as u8),
-                ));
+        for (char_idx, _) in player.char_states.enumerate_valid() {
+            if self.can_switch_to(player_id, char_idx) {
+                acts.push(Input::FromPlayer(player_id, PlayerAction::SwitchCharacter(char_idx)));
             }
         }
 
@@ -502,7 +499,7 @@ impl GameState {
             for (i, c) in player.char_states.enumerate_valid() {
                 if let Some(p) = &c.char_id.get_char_card().passive {
                     for status_id in p.apply_statuses.to_vec() {
-                        to_apply.push((i as u8, status_id));
+                        to_apply.push((i, status_id));
                     }
                 }
             }

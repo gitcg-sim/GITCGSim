@@ -62,14 +62,10 @@ impl CardSelectionSpec {
         match self {
             Self::OwnCharacter => {
                 let player = players.get(player_id);
-                (0..player.char_states.len() as u8)
-                    .filter_map(|i| {
-                        if player.is_valid_char_idx(i) {
-                            Some(CardSelection::OwnCharacter(i))
-                        } else {
-                            None
-                        }
-                    })
+                player
+                    .char_states
+                    .enumerate_valid()
+                    .map(|(i, _)| CardSelection::OwnCharacter(i))
                     .collect()
             }
             Self::OwnSummon => {
