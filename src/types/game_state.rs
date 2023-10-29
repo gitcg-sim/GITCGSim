@@ -216,7 +216,7 @@ impl PlayerFlag {
 pub struct PlayerState {
     pub active_char_index: u8,
     pub dice: DiceCounter,
-    pub char_states: Vector<CharState>,
+    pub char_states: CharStates,
     pub status_collection: StatusCollection,
     // TODO enforce limit of 10
     pub hand: Vector<CardId>,
@@ -224,10 +224,10 @@ pub struct PlayerState {
 }
 
 impl PlayerState {
-    pub fn new(char_ids: &[CharId]) -> Self {
+    pub fn new<T: IntoIterator<Item = CharId>>(char_ids: T) -> Self {
         Self {
             dice: DiceCounter::default(),
-            char_states: char_ids.iter().copied().map(CharState::new).collect(),
+            char_states: CharStates::from_ids(char_ids),
             active_char_index: 0,
             status_collection: StatusCollection::default(),
             hand: vector![],
@@ -247,7 +247,7 @@ impl PlayerState {
 #[derive(Debug, Clone)]
 pub struct PlayerStateView<'a> {
     pub active_char_index: u8,
-    pub char_states: &'a Vector<CharState>,
+    pub char_states: &'a CharStates,
     pub flags: EnumSet<PlayerFlag>,
     pub dice: DiceCounter,
     pub affected_by: SmallVec<[StatusKey; 4]>,

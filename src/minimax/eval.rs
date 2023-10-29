@@ -25,16 +25,19 @@ impl PlayerState {
     pub fn eval(&self) -> HV {
         let dice_value = self.dice.total();
         let hand_value = self.hand.len();
-        let hp_total = self.char_states.iter().fold(0, |x, c| x + c.get_hp());
-        let energy_total = self
-            .char_states
-            .iter()
-            .fold(0, |x, c| x + if c.get_hp() > 0 { c.get_energy() } else { 0 });
+        let hp_total: u8 = self.char_states.iter_valid().map(CharState::get_hp).sum();
+        let energy_total: u8 = self.char_states.iter_valid().map(CharState::get_energy).sum();
         let support_total = self.status_collection.support_count() as HV;
         let status_total = self.status_collection.status_count() as HV;
         let summons_total = self.status_collection.summon_count() as HV;
-        let elem_total = self.char_states.iter().fold(0, |x, c| x + (c.applied.len() as u8));
-        let low_hp_total = self.char_states.iter().fold(0, |x, c| x + low_hp_factor(c.get_hp()));
+        let elem_total = self
+            .char_states
+            .iter_valid()
+            .fold(0, |x, c| x + (c.applied.len() as u8));
+        let low_hp_total = self
+            .char_states
+            .iter_valid()
+            .fold(0, |x, c| x + low_hp_factor(c.get_hp()));
         // TODO use switch score instead
         let active_char_value = self.get_active_character().active_eval();
 

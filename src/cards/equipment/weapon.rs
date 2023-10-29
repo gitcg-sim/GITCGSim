@@ -184,8 +184,8 @@ pub mod lithic_spear {
             let src_player = &cic.game_state.players[ctx.src_player_id];
             let n = src_player
                 .char_states
-                .iter()
-                .filter(|c| !c.is_invalid() && c.char_id.get_char_card().faction == Faction::Liyue)
+                .iter_valid()
+                .filter(|c| c.char_id.get_char_card().faction == Faction::Liyue)
                 .count() as u8;
             commands.push((
                 *ctx,

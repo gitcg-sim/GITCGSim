@@ -113,11 +113,11 @@ impl PlayerState {
     }
 
     fn char_features(&self, char_idx: u8) -> CharFeatures<f32> {
-        if !self.is_valid_char_index(char_idx) {
+        if !self.is_valid_char_idx(char_idx) {
             return Default::default();
         }
 
-        let char_state = &self.char_states[char_idx as usize];
+        let char_state = &self.char_states[char_idx];
         CharFeatures {
             is_active: (self.active_char_index == char_idx).bv(),
             is_alive: true.bv(),

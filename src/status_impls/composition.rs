@@ -247,7 +247,7 @@ mod tests {
             StatusImplContext {
                 src_player_state: &crate::types::game_state::PlayerStateView {
                     active_char_index: 0,
-                    char_states: &smallvec![],
+                    char_states: &Default::default(),
                     flags: enum_set![],
                     dice: DiceCounter::omni(0),
                     affected_by: smallvec![],

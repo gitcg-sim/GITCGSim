@@ -54,7 +54,7 @@ pub mod dandelion_field {
             if !e
                 .src_player_state
                 .char_states
-                .iter()
+                .iter_valid()
                 .any(|&c| c.char_id == CharId::Jean && c.has_talent_equipped())
             {
                 return None;

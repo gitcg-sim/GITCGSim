@@ -43,7 +43,7 @@ fn test_seed_of_skandha_receive_pd() {
         let p = gs.get_player(PlayerId::PlayerSecond);
         assert_eq!(
             vec![3, 9, 10, 9],
-            p.char_states.iter().map(|c| c.get_hp()).collect::<Vec<_>>()
+            p.char_states.iter_valid().map(CharState::get_hp).collect::<Vec<_>>()
         );
     }
 }

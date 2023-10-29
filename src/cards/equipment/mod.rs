@@ -112,7 +112,7 @@ fn can_be_played_for_weapon(weapon_type: WeaponType, cic: &CardImplContext) -> C
         if !cic
             .game_state
             .get_player(cic.active_player_id)
-            .is_valid_char_index(char_idx)
+            .is_valid_char_idx(char_idx)
         {
             return CanBePlayedResult::InvalidSelection;
         }

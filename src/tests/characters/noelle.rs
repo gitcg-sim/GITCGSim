@@ -54,7 +54,7 @@ fn test_talent_card_heals_all() {
     .build();
 
     gs.players.0.hand.push(CardId::IGotYourBack);
-    for c in gs.players.0.char_states.iter_mut() {
+    for c in gs.players.0.char_states.iter_all_mut() {
         c.set_hp(5)
     }
 
@@ -75,7 +75,7 @@ fn test_talent_card_heals_all() {
         .get_player(PlayerId::PlayerFirst)
         .has_team_status(StatusId::FullPlate));
 
-    for c in gs.players.0.char_states.iter() {
+    for c in gs.players.0.char_states.iter_valid() {
         assert_eq!(6, c.get_hp())
     }
 
@@ -84,7 +84,7 @@ fn test_talent_card_heals_all() {
         PlayerAction::CastSkill(SkillId::FavoniusBladeworkMaid),
     )]);
 
-    for c in gs.players.0.char_states.iter() {
+    for c in gs.players.0.char_states.iter_valid() {
         assert_eq!(6, c.get_hp())
     }
 }

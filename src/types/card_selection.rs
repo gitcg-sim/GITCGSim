@@ -41,7 +41,7 @@ impl CardSelectionSpec {
         player_id: PlayerId,
     ) -> bool {
         match (self, sel) {
-            (Self::OwnCharacter, CardSelection::OwnCharacter(ci)) => players.get(player_id).is_valid_char_index(ci),
+            (Self::OwnCharacter, CardSelection::OwnCharacter(ci)) => players.get(player_id).is_valid_char_idx(ci),
             (Self::OwnSummon, CardSelection::OwnSummon(summon_id)) => {
                 players.get(player_id).status_collection.has_summon(summon_id)
             }
@@ -64,7 +64,7 @@ impl CardSelectionSpec {
                 let player = players.get(player_id);
                 (0..player.char_states.len() as u8)
                     .filter_map(|i| {
-                        if player.is_valid_char_index(i) {
+                        if player.is_valid_char_idx(i) {
                             Some(CardSelection::OwnCharacter(i))
                         } else {
                             None

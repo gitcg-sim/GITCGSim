@@ -9,7 +9,7 @@ use crate::dispatcher::cmd_trigger_event;
 use crate::tcg_model::enums::*;
 
 use super::exec_command_helpers::*;
-use super::state_ops::check_valid_char_index;
+use super::state_ops::check_valid_char_idx;
 use super::types::{DispatchResult, NondetRequest};
 use crate::types::status_impl::RespondsTo;
 use crate::types::status_impl::StatusImpl;
@@ -116,7 +116,7 @@ impl GameState {
                 {
                     let player = self.players.get_mut(player_id);
                     player.clear_flags_for_end_of_turn(phc!(self, player_id));
-                    for (char_idx, char_state) in player.char_states.iter_mut().enumerate() {
+                    for (char_idx, char_state) in player.char_states.iter_all_mut().enumerate() {
                         let next_flags = char_state.flags & CharFlag::RETAIN;
                         char_state.set_flags_hashed(chc!(self, player_id, char_idx as u8), next_flags);
                     }
@@ -211,7 +211,7 @@ impl GameState {
         let tgt_player = self.players.get(src_player_id.opposite());
         let opp = src_player_id.opposite();
         let cmd_tgt = {
-            if tgt_player.is_valid_char_index(tgt_player.active_char_index) {
+            if tgt_player.is_valid_char_idx(tgt_player.active_char_index) {
                 Some(CommandTarget {
                     player_id: opp,
                     char_idx: tgt_player.active_char_index,
@@ -284,24 +284,24 @@ impl GameState {
 
         let (src_player_id, tgt_player_id) = (ctx.src_player_id, ctx.src_player_id.opposite());
         let (src_player, tgt_player) = self.players.get_two_mut(src_player_id);
-        if !tgt_player.is_valid_char_index(tgt_char_idx) {
+        if !tgt_player.is_valid_char_idx(tgt_char_idx) {
             return ExecResult::Success;
         }
 
         let mut defeated = CharIdxSet::default();
         let mut addl_cmds: SmallVec<[(CommandContext, Command); 8]> = cmd_list![];
-        let mut i = 0;
+        let mut i = 0usize;
         let mut targets: SmallVec<[_; 4]> = smallvec![(tgt_char_idx, dmg)];
         while i < targets.len() {
             let (tgt_char_idx, mut dmg) = targets[i];
             let is_piercing = dmg.dmg_type == DealDMGType::Piercing;
-            if !check_valid_char_index(&tgt_player.char_states, tgt_char_idx) {
+            if !check_valid_char_idx(&tgt_player.char_states, tgt_char_idx) {
                 i += 1;
                 continue;
             }
 
             let (tgt_applied, log_tgt, dmg_info) = {
-                let tgt_char = &tgt_player.char_states[tgt_char_idx as usize];
+                let tgt_char = &tgt_player.char_states[tgt_char_idx];
                 let tgt_applied = tgt_char.applied;
                 let log_tgt = (tgt_char_idx, tgt_char.char_id);
                 let dmg_info: DMGInfo = DMGInfo {
@@ -361,7 +361,7 @@ impl GameState {
                 }
             };
             {
-                let tgt_char = &mut tgt_player.char_states[tgt_char_idx as usize];
+                let tgt_char = &mut tgt_player.char_states[tgt_char_idx];
                 let c = chc!(self, tgt_player_id, tgt_char_idx);
                 tgt_char.set_applied_elements_hashed(c, new_tgt_applied);
             }
@@ -408,7 +408,7 @@ impl GameState {
             };
 
             {
-                let tgt_char = &mut tgt_player.char_states[tgt_char_idx as usize];
+                let tgt_char = &mut tgt_player.char_states[tgt_char_idx];
                 let defeated = reduce_hp(tgt_char, tgt_char_idx, dmg.dmg);
                 addl_cmds.push((
                     *ctx,
@@ -434,7 +434,7 @@ impl GameState {
             }
 
             if dmg.piercing_dmg_to_standby > 0 {
-                let new_char_states: &mut Vector<CharState> = &mut tgt_player.char_states;
+                let new_char_states: &mut CharStates = &mut tgt_player.char_states;
 
                 let pd = dmg.piercing_dmg_to_standby;
                 for j in 0..new_char_states.len() {
@@ -465,7 +465,7 @@ impl GameState {
                 Some(Command::DealSwirlDMG(e, ..)) => {
                     for j in 0..tgt_player.char_states.len() {
                         let j = j as u8;
-                        if j == tgt_char_idx || tgt_player.char_states[i].is_invalid() {
+                        if j == tgt_char_idx || tgt_player.char_states[i as u8].is_invalid() {
                             continue;
                         }
                         targets.push((
@@ -507,7 +507,7 @@ impl GameState {
 
         for char_idx in defeated {
             let char_idx: u8 = char_idx.into();
-            let char_state = &mut player.char_states[char_idx as usize];
+            let char_state = &mut player.char_states[char_idx];
             char_state.set_energy_hashed(chc!(self, player_id, char_idx), 0);
             char_state.set_applied_elements_hashed(chc!(self, player_id, char_idx), Default::default());
             char_state.set_flags_hashed(chc!(self, player_id, char_idx), Default::default());
@@ -552,11 +552,7 @@ impl GameState {
         let player = self.players.get_mut(ctx.src_player_id);
         let sc = &player.status_collection;
         let mut cmds = smallvec![];
-        for (i, c) in player.char_states.iter().enumerate() {
-            if c.is_invalid() {
-                continue;
-            }
-            let char_idx = i as u8;
+        for (char_idx, c) in player.char_states.enumerate_valid() {
             if !sc.has_character_status(char_idx, status_id) {
                 continue;
             }
@@ -582,8 +578,7 @@ impl GameState {
                 Some(p.active_char_index)
             } else {
                 p.char_states
-                    .iter()
-                    .enumerate()
+                    .enumerate_valid()
                     .find(|(_, c)| check(c))
                     .map(|(i, _)| i as u8)
             }
@@ -607,9 +602,9 @@ impl GameState {
     fn add_energy_to_non_active_characters(&mut self, ctx: &CommandContext, energy: u8) -> ExecResult {
         let player = self.players.get_mut(ctx.src_player_id);
         let active_char_idx = player.active_char_index;
-        for (i, char_state) in player.char_states.iter_mut().enumerate() {
+        for (i, char_state) in player.char_states.enumerate_valid_mut() {
             let char_idx = i as u8;
-            if char_idx == active_char_idx || char_state.is_invalid() {
+            if char_idx == active_char_idx {
                 continue;
             }
             char_state.add_energy_hashed(chc!(self, ctx.src_player_id, char_idx), energy);
@@ -630,7 +625,7 @@ impl GameState {
         let player = self.players.get_mut(ctx.src_player_id);
         let char_idx = ctx.src.selected_char_index_or(player.active_char_index);
         let mut total = 0;
-        for (i, char_state) in player.char_states.iter_mut().enumerate() {
+        for (i, char_state) in player.char_states.enumerate_valid_mut() {
             let i = i as u8;
             if i == char_idx || char_state.get_energy() == 0 {
                 continue;
@@ -641,7 +636,7 @@ impl GameState {
                 break;
             }
         }
-        let char_state = &mut player.char_states[char_idx as usize];
+        let char_state = &mut player.char_states[char_idx];
         let new_energy = min(
             char_state.get_energy() + total,
             char_state.char_id.get_char_card().max_energy,
@@ -803,7 +798,7 @@ impl GameState {
         };
         let tgt_player = self.players.get_mut(tgt_player_id);
         let tgt_char_idx = ctx.tgt.map(|x| x.char_idx).unwrap_or(tgt_player.active_char_index);
-        if !tgt_player.is_valid_char_index(tgt_char_idx) {
+        if !tgt_player.is_valid_char_idx(tgt_char_idx) {
             return ExecResult::Success;
         }
 
@@ -848,8 +843,7 @@ impl GameState {
 
         let tgt_char_states = &self.players[tgt_player_id].char_states;
         let to_apply: Vector<(u8, CharId)> = tgt_char_states
-            .iter()
-            .enumerate()
+            .enumerate_valid()
             .filter(|(_, c)| !c.is_invalid())
             .map(|(i, c)| (i as u8, c.char_id))
             .collect();
@@ -867,7 +861,7 @@ impl GameState {
 
     fn apply_status_to_character(&mut self, ctx: &CommandContext, status_id: StatusId, char_idx: u8) -> ExecResult {
         let player = self.players.get_mut(ctx.src_player_id);
-        if !player.is_valid_char_index(char_idx) {
+        if !player.is_valid_char_idx(char_idx) {
             return ExecResult::Success;
         }
 
@@ -904,7 +898,7 @@ impl GameState {
         char_idx: u8,
     ) -> ExecResult {
         let player = self.players.get_mut(ctx.src_player_id);
-        if !player.is_valid_char_index(char_idx) {
+        if !player.is_valid_char_idx(char_idx) {
             return ExecResult::Success;
         }
 
@@ -933,10 +927,10 @@ impl GameState {
         status_id: Option<StatusId>,
     ) -> ExecResult {
         let player = self.players.get_mut(ctx.src_player_id);
-        if !player.is_valid_char_index(char_idx) {
+        if !player.is_valid_char_idx(char_idx) {
             return ExecResult::Success;
         }
-        let char_state = &mut player.char_states[char_idx as usize];
+        let char_state = &mut player.char_states[char_idx];
         let flags = char_state.flags | CharFlag::TalentEquipped;
         if let Some(status_id) = status_id {
             let slot = EquipSlot::Talent;
@@ -1015,12 +1009,12 @@ impl GameState {
     fn post_death_check(&mut self, prev_res: ExecResult) -> ExecResult {
         for player_id in [PlayerId::PlayerFirst, PlayerId::PlayerSecond] {
             let player = self.players.get_mut(player_id);
-            if player.is_valid_char_index(player.active_char_index) {
+            if player.is_valid_char_idx(player.active_char_index) {
                 continue;
             }
 
             // Found a winner due to all characters being dead
-            if player.char_states.iter().all(|s| s.is_invalid()) {
+            if player.char_states.iter_all().all(CharState::is_invalid) {
                 return ExecResult::Return(DispatchResult::Winner(player_id.opposite()));
             }
 
@@ -1066,7 +1060,7 @@ impl GameState {
         let char_idx = ctx.src.char_idx().unwrap_or(player.active_char_index);
         let chc = chc!(self, player_id, char_idx);
         {
-            let char = &mut player.char_states[char_idx as usize];
+            let char = &mut player.char_states[char_idx];
             let flags = char.flags | char.skill_flags(skill_id);
             char.set_flags_hashed(chc, flags);
         }

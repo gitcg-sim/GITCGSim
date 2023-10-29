@@ -17,12 +17,7 @@ pub const I: LightningStiletto = LightningStiletto();
 impl CardImpl for LightningStiletto {
     fn can_be_played(&self, cic: &CardImplContext) -> CanBePlayedResult {
         let player = cic.game_state.get_player(cic.active_player_id);
-        if player
-            .char_states
-            .iter()
-            .enumerate()
-            .any(|(ci, c)| player.is_valid_char_index(ci as u8) && c.char_id == CharId::Keqing)
-        {
+        if player.char_states.iter_valid().any(|c| c.char_id == CharId::Keqing) {
             CanBePlayedResult::CanBePlayed
         } else {
             CanBePlayedResult::CannotBePlayed
@@ -38,13 +33,12 @@ impl CardImpl for LightningStiletto {
         let player = cic.game_state.get_player(cic.active_player_id);
         let Some((ci, _)) = player
             .char_states
-            .iter()
-            .enumerate()
-            .find(|(ci, c)| player.is_valid_char_index(*ci as u8) && c.char_id == CharId::Keqing)
+            .enumerate_valid()
+            .find(|(_, c)| c.char_id == CharId::Keqing)
         else {
             return;
         };
-        commands.push((*ctx, Command::SwitchCharacter(ci as u8)));
+        commands.push((*ctx, Command::SwitchCharacter(ci)));
         commands.append(&mut get_cast_skill_cmds(player, ctx, SkillId::StellarRestoration));
     }
 }

@@ -1,9 +1,10 @@
 #![allow(non_snake_case)]
 use std::fmt::Debug;
+use std::ops::{Index, IndexMut};
 
 use enumset::{enum_set, EnumSet, EnumSetType};
 
-use crate::cards::ids::*;
+use crate::{cards::ids::*, data_structures::Vector};
 
 pub use crate::types::applied_effect_state::AppliedEffectState;
 use crate::types::ElementSet;
@@ -41,6 +42,92 @@ impl Debug for CharState {
             .field("applied", &self.applied)
             .field("flags", &self.flags)
             .finish()
+    }
+}
+
+#[derive(Debug, Clone, Default)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct CharStates {
+    pub char_states: Vector<CharState>,
+}
+
+impl CharStates {
+    pub fn from_ids<T: IntoIterator<Item = CharId>>(char_ids: T) -> Self {
+        Self {
+            char_states: char_ids.into_iter().map(CharState::new).collect(),
+        }
+    }
+
+    #[inline(always)]
+    pub fn new<T: Into<Vector<CharState>>>(char_states: T) -> Self {
+        Self {
+            char_states: char_states.into(),
+        }
+    }
+
+    #[inline(always)]
+    pub fn is_empty(&self) -> bool {
+        self.char_states.is_empty()
+    }
+
+    #[inline(always)]
+    pub fn len(&self) -> u8 {
+        self.char_states.len() as u8
+    }
+
+    pub fn iter_all(&self) -> impl Iterator<Item = &CharState> {
+        self.char_states.iter()
+    }
+
+    pub fn iter_all_mut(&mut self) -> impl Iterator<Item = &mut CharState> {
+        self.char_states.iter_mut()
+    }
+
+    pub fn enumerate_valid(&self) -> impl Iterator<Item = (u8, &CharState)> {
+        self.char_states
+            .iter()
+            .enumerate()
+            .filter(|(_, v)| !v.is_invalid())
+            .map(|(i, v)| (i as u8, v))
+    }
+
+    pub fn enumerate_valid_mut(&mut self) -> impl Iterator<Item = (u8, &mut CharState)> {
+        self.char_states
+            .iter_mut()
+            .enumerate()
+            .filter(|(_, v)| !v.is_invalid())
+            .map(|(i, v)| (i as u8, v))
+    }
+
+    pub fn iter_valid(&self) -> impl Iterator<Item = &CharState> {
+        self.char_states
+            .iter()
+            .enumerate()
+            .filter(|(_, v)| !v.is_invalid())
+            .map(|(_, v)| v)
+    }
+
+    pub fn iter_valid_mut(&mut self) -> impl Iterator<Item = &mut CharState> {
+        self.char_states
+            .iter_mut()
+            .enumerate()
+            .filter(|(_, v)| v.is_invalid())
+            .map(|(_, v)| v)
+    }
+}
+
+impl Index<u8> for CharStates {
+    type Output = CharState;
+    #[inline(always)]
+    fn index(&self, index: u8) -> &Self::Output {
+        &self.char_states[index as usize]
+    }
+}
+
+impl IndexMut<u8> for CharStates {
+    #[inline(always)]
+    fn index_mut(&mut self, index: u8) -> &mut Self::Output {
+        &mut self.char_states[index as usize]
     }
 }
 

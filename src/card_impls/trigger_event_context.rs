@@ -28,12 +28,11 @@ impl<'a, 'b, 'c, 'd, 'v, T> TriggerEventContext<'a, 'b, 'c, 'd, 'v, T> {
         self.c.ctx.src.char_idx()
     }
 
-    pub fn find_chararacter_for<F: Fn(&CharState) -> bool>(&self, f: F) -> Option<(usize, &CharState)> {
+    pub fn find_chararacter_for<F: FnMut(&CharState) -> bool>(&self, mut f: F) -> Option<(u8, &CharState)> {
         self.c
             .src_player_state
             .char_states
-            .iter()
-            .enumerate()
+            .enumerate_valid()
             .find(|(_, c)| f(c))
     }
 

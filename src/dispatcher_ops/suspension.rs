@@ -37,7 +37,7 @@ impl SuspendedState {
             SuspendedState::PostDeathSwitch { player_id, .. } => {
                 let p = game_state.get_player(player_id);
                 for char_idx in 0..p.char_states.len() {
-                    if p.is_valid_char_index(char_idx as u8) {
+                    if p.is_valid_char_idx(char_idx as u8) {
                         acts.push(Input::FromPlayer(
                             player_id,
                             PlayerAction::PostDeathSwitch(char_idx as u8),
@@ -64,7 +64,7 @@ impl GameState {
             Input::FromPlayer(_, action) => match action {
                 PlayerAction::PostDeathSwitch(char_index) => {
                     let player = self.players.get_mut(player_id);
-                    if !player.is_valid_char_index(char_index) {
+                    if !player.is_valid_char_idx(char_index) {
                         Err(DispatchError::CannotSwitchInto)
                     } else {
                         let prev_char_idx = player.active_char_index;

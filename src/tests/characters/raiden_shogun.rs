@@ -19,16 +19,16 @@ fn test_secret_art_musou_shinsetsu_increases_energy() {
         vec![0, 2, 2],
         gs.get_player(PlayerId::PlayerFirst)
             .char_states
-            .iter()
-            .map(|c| c.get_energy())
+            .iter_valid()
+            .map(CharState::get_energy)
             .collect::<Vec<_>>()
     );
     assert_eq!(
         vec![0, 0, 0],
         gs.get_player(PlayerId::PlayerSecond)
             .char_states
-            .iter()
-            .map(|c| c.get_energy())
+            .iter_valid()
+            .map(CharState::get_energy)
             .collect::<Vec<_>>()
     );
 }

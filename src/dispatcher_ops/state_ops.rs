@@ -1,6 +1,5 @@
 use crate::cards::ids::lookup::GetStatus;
 use crate::cards::ids::{GetCharCard, SupportId};
-use crate::data_structures::Vector;
 
 use crate::phc;
 use crate::status_impls::prelude::Cost;
@@ -45,8 +44,7 @@ impl CharState {
 }
 
 #[inline]
-pub fn check_valid_char_index(char_states: &Vector<CharState>, char_idx: u8) -> bool {
-    let char_idx = char_idx as usize;
+pub fn check_valid_char_idx(char_states: &CharStates, char_idx: u8) -> bool {
     if char_idx >= char_states.len() {
         false
     } else {
@@ -57,28 +55,28 @@ pub fn check_valid_char_index(char_states: &Vector<CharState>, char_idx: u8) -> 
 impl PlayerState {
     #[inline]
     pub fn get_character_card(&self, char_idx: u8) -> &'static CharCard {
-        self.char_states[char_idx as usize].char_id.get_char_card()
+        self.char_states[char_idx].char_id.get_char_card()
     }
 
-    /// Checks if char_index refers to a valid and alive character.
+    /// Checks if char_idx refers to a valid and alive character.
     #[inline]
-    pub fn is_valid_char_index(&self, char_index: u8) -> bool {
-        check_valid_char_index(&self.char_states, char_index)
+    pub fn is_valid_char_idx(&self, char_idx: u8) -> bool {
+        check_valid_char_idx(&self.char_states, char_idx)
     }
 
     #[inline]
-    pub fn try_get_character(&self, char_index: u8) -> Option<&CharState> {
-        if self.is_valid_char_index(char_index) {
-            Some(&self.char_states[char_index as usize])
+    pub fn try_get_character(&self, char_idx: u8) -> Option<&CharState> {
+        if self.is_valid_char_idx(char_idx) {
+            Some(&self.char_states[char_idx])
         } else {
             None
         }
     }
 
     #[inline]
-    pub fn try_get_character_mut(&mut self, char_index: u8) -> Option<&mut CharState> {
-        if self.is_valid_char_index(char_index) {
-            Some(&mut self.char_states[char_index as usize])
+    pub fn try_get_character_mut(&mut self, char_idx: u8) -> Option<&mut CharState> {
+        if self.is_valid_char_idx(char_idx) {
+            Some(&mut self.char_states[char_idx])
         } else {
             None
         }
@@ -86,7 +84,7 @@ impl PlayerState {
 
     #[inline]
     pub fn get_active_character(&self) -> &CharState {
-        &self.char_states[self.active_char_index as usize]
+        &self.char_states[self.active_char_index]
     }
 
     pub fn get_other_character_indices(&self) -> Vec<u8> {
@@ -100,12 +98,12 @@ impl PlayerState {
     }
 
     // Returns None for invalid index
-    pub fn switch_character(&mut self, c: PlayerHashContext, char_index: u8) -> bool {
-        if !self.is_valid_char_index(char_index) || char_index == self.active_char_index {
+    pub fn switch_character(&mut self, c: PlayerHashContext, char_idx: u8) -> bool {
+        if !self.is_valid_char_idx(char_idx) || char_idx == self.active_char_index {
             false
         } else {
-            self.update_active_char_index(c, char_index);
-            self.active_char_index = char_index;
+            self.update_active_char_index(c, char_idx);
+            self.active_char_index = char_idx;
             true
         }
     }
@@ -113,14 +111,10 @@ impl PlayerState {
     // TODO need to take switch target into account
     pub fn get_element_priority(&self) -> ElementPriority {
         let mut ep = ElementPriority::default();
-        for (i, c) in self.char_states.iter().enumerate() {
-            if c.is_invalid() {
-                continue;
-            }
-
+        for (i, c) in self.char_states.enumerate_valid() {
             let e = c.char_id.get_char_card().elem;
             ep.important_elems |= e;
-            if i == self.active_char_index as usize {
+            if i == self.active_char_index {
                 ep.active_elem = Some(e);
             }
         }

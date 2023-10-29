@@ -83,6 +83,7 @@ impl GameStateBuilder<HasCharacters, MissingStartingCondition> {
     }
 }
 
+// TODO starting dice/hands
 impl<C: CharactersState, S: StartingConditionState> GameStateBuilder<C, S> {
     pub fn with_enable_log(self, enable_log: bool) -> Self {
         Self { enable_log, ..self }
@@ -136,10 +137,7 @@ impl GameStateBuilder<HasCharacters, HasStartingCondition> {
     #[inline(always)]
     fn empty_game_state() -> GameState {
         GameState {
-            players: ByPlayer::new(
-                PlayerState::new(Default::default()),
-                PlayerState::new(Default::default()),
-            ),
+            players: ByPlayer::new(PlayerState::new([]), PlayerState::new([])),
             pending_cmds: None,
             phase: Phase::new_roll_phase(PlayerId::PlayerFirst),
             round_number: 1,
@@ -165,8 +163,8 @@ impl GameStateBuilder<HasCharacters, HasStartingCondition> {
 
         let mut res = GameState {
             players: ByPlayer::new(
-                PlayerState::new(self.characters.get(PlayerId::PlayerFirst)),
-                PlayerState::new(self.characters.get(PlayerId::PlayerSecond)),
+                PlayerState::new(self.characters.get(PlayerId::PlayerFirst).iter().copied()),
+                PlayerState::new(self.characters.get(PlayerId::PlayerSecond).iter().copied()),
             ),
             phase: self.starting_condition.starting_phase(),
             ignore_costs: self.ignore_costs,

@@ -373,7 +373,7 @@ impl PlayerState {
     }
 
     pub fn zobrist_hash_for_char_states(&self, h: &mut ZobristHasher, player_id: PlayerId) {
-        for (i, cs) in self.char_states.iter().enumerate() {
+        for (i, cs) in self.char_states.iter_all().enumerate() {
             cs.zobrist_hash(h, player_id, i as u8);
         }
     }

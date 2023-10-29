@@ -105,7 +105,7 @@ impl GameState {
         }
 
         let player = self.get_player(player_id);
-        if player.active_char_index == char_idx || !player.is_valid_char_index(char_idx) {
+        if player.active_char_index == char_idx || !player.is_valid_char_idx(char_idx) {
             return Err(DispatchError::CannotSwitchInto);
         }
 
@@ -121,7 +121,7 @@ impl GameState {
             return false;
         }
         let player = self.get_player(player_id);
-        if !player.is_valid_char_index(player.active_char_index) {
+        if !player.is_valid_char_idx(player.active_char_index) {
             return false;
         }
         if player
@@ -499,7 +499,7 @@ impl GameState {
         for player_id in [PlayerId::PlayerFirst, PlayerId::PlayerSecond] {
             let player = self.get_player_mut(player_id);
             let mut to_apply = vector![];
-            for (i, c) in player.char_states.iter().enumerate() {
+            for (i, c) in player.char_states.enumerate_valid() {
                 if let Some(p) = &c.char_id.get_char_card().passive {
                     for status_id in p.apply_statuses.to_vec() {
                         to_apply.push((i as u8, status_id));
@@ -623,7 +623,7 @@ impl GameState {
             Input::FromPlayer(player_id, ..) if player_id != active_player => Err(DispatchError::InvalidPlayer),
             Input::FromPlayer(player_id, PlayerAction::SwitchCharacter(char_idx)) => {
                 let player = &self.players.get(player_id);
-                if !player.is_valid_char_index(char_idx) {
+                if !player.is_valid_char_idx(char_idx) {
                     return Err(DispatchError::CannotSwitchInto);
                 }
                 self.get_player_mut(player_id).active_char_index = char_idx;

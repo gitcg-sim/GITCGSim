@@ -26,7 +26,7 @@ impl StatusImpl for IronTongueTian {
 
     fn trigger_event(&self, e: &mut TriggerEventContext) -> Option<AppliedEffectResult> {
         let EventId::EndPhase = e.event_id else { return None };
-        let active_char = &e.c.src_player_state.char_states[e.active_char_idx() as usize];
+        let active_char = &e.c.src_player_state.char_states[e.active_char_idx()];
         if active_char.get_energy() < active_char.char_id.get_char_card().max_energy {
             e.add_cmd(Command::AddEnergy(1));
             return Some(AppliedEffectResult::ConsumeUsage);
@@ -35,9 +35,8 @@ impl StatusImpl for IronTongueTian {
         let Some((i, _)) =
             e.c.src_player_state
                 .char_states
-                .iter()
-                .enumerate()
-                .find(|(_, c)| !c.is_invalid() && c.get_energy() < c.char_id.get_char_card().max_energy)
+                .enumerate_valid()
+                .find(|(_, c)| c.get_energy() < c.char_id.get_char_card().max_energy)
         else {
             return None;
         };

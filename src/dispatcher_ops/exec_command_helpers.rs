@@ -438,6 +438,7 @@ impl CommandSource {
     }
 }
 
+// TODO rewrite relative index API
 impl PlayerState {
     #[inline]
     pub(crate) fn relative_switch_char_idx(&self, switch_type: RelativeSwitchType) -> Option<u8> {
@@ -447,7 +448,7 @@ impl PlayerState {
             RelativeSwitchType::Next => {
                 for d in 1..n {
                     let j = (i0 + d) % n;
-                    if self.is_valid_char_index(j) {
+                    if self.is_valid_char_idx(j) {
                         return Some(j);
                     }
                 }
@@ -456,7 +457,7 @@ impl PlayerState {
             RelativeSwitchType::Previous => {
                 for d in 1..n {
                     let j = (i0 + n - d) % n;
-                    if self.is_valid_char_index(j) {
+                    if self.is_valid_char_idx(j) {
                         return Some(j);
                     }
                 }

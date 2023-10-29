@@ -410,7 +410,7 @@ impl<B: Backend> App<B> {
         }
 
         let ac = player.active_char_index;
-        for (j, c) in player.char_states.iter().enumerate() {
+        for (j, c) in player.char_states.iter_all().enumerate() {
             let is_active = j == (ac as usize);
             let rect = {
                 let i_first_char_chunk = 1;
@@ -928,7 +928,7 @@ fn sort_key_for_action(input: &Input) -> String {
 
 fn describe_action<'a, 'b>(player_state: &'b PlayerState, input: &'b Input) -> (Cell<'a>, Cell<'a>) {
     let get_character_name = |i: u8| -> Cell<'a> {
-        Cell::from(player_state.char_states[i as usize].char_id.get_char_card().name)
+        Cell::from(player_state.char_states[i as u8].char_id.get_char_card().name)
             .style(Style::default().fg(Color::Yellow))
     };
 
