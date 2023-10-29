@@ -25,6 +25,27 @@ pub struct DiceDistribution {
     pub fixed: [(Element, u8); 4],
 }
 
+/// Dice determinization policy. Determines how unknown (own or opponent) dice are
+/// determinized given `DiceDistribution`.
+/// Determinization = deterministic approximation of hidden information or random processes.
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub enum DiceDeterminization {
+    AllOmnis,
+    Simplified { extra_omnis: u8 },
+    Randomized,
+}
+
+impl DiceDeterminization {
+    pub fn determinize<R: Rng>(self, rng: &mut R, dist: DiceDistribution) -> DiceCounter {
+        match self {
+            Self::AllOmnis => DiceCounter::omni(dist.count),
+            Self::Simplified { extra_omnis } => DiceCounter::simplified_dice(dist, extra_omnis),
+            Self::Randomized => DiceCounter::rand_with_reroll(rng, dist),
+        }
+    }
+}
+
 impl DiceDistribution {
     #[inline]
     pub fn new(count: u8, rerolls: u8, priority: ElementPriority, fixed_vec: SmallVec<[(Element, u8); 4]>) -> Self {
@@ -107,9 +128,10 @@ impl DiceDistribution {
 }
 
 impl DiceCounter {
-    pub fn simplified_dice(dist: DiceDistribution) -> DiceCounter {
-        let free = dist.count - dist.fixed_count();
-        let omni_count: u8 = dist.avg_desired().round() as u8;
+    pub fn simplified_dice(dist: DiceDistribution, extra_omnis: u8) -> DiceCounter {
+        let free = dist.count.saturating_sub(dist.fixed_count());
+        let avg = dist.avg_desired().ceil() as u8;
+        let omni_count: u8 = avg + extra_omnis;
         let mut dice_counter = DiceCounter::omni(omni_count);
         if omni_count < free {
             if let Some(off_elem) = dist.priority.get_off_element() {

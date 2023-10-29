@@ -24,7 +24,10 @@ use crate::{
 
 use super::{
     command::SummonRandomSpec,
-    dice_counter::{distribution::DiceDistribution, DiceCounter},
+    dice_counter::{
+        distribution::{DiceDeterminization, DiceDistribution},
+        DiceCounter,
+    },
     game_state::{GameState, PlayerId},
     input::{Input, NondetResult},
 };
@@ -73,6 +76,7 @@ pub enum StandardNondetHandlerFlags {
 #[derive(Debug, Clone)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct StandardNondetHandlerState {
+    pub dice_determinization: DiceDeterminization,
     pub decks: (DeckState, DeckState),
     pub rng: RngState,
     pub flags: EnumSet<StandardNondetHandlerFlags>,
@@ -81,6 +85,8 @@ pub struct StandardNondetHandlerState {
 impl StandardNondetHandlerState {
     pub fn new(s1: &Decklist, s2: &Decklist, rng: RngState) -> Self {
         Self {
+            // TODO allow external customization
+            dice_determinization: DiceDeterminization::Simplified { extra_omnis: 2 },
             decks: (DeckState::new(s1), DeckState::new(s2)),
             rng,
             flags: Default::default(),
@@ -105,7 +111,7 @@ impl StandardNondetHandlerState {
     #[inline]
     fn roll_dice(&mut self, player_id: PlayerId, dist: DiceDistribution) -> DiceCounter {
         if self.should_hide_player_dice(player_id) {
-            DiceCounter::simplified_dice(dist)
+            self.dice_determinization.determinize(&mut self.rng, dist)
         } else {
             DiceCounter::rand_with_reroll(&mut self.rng, dist)
         }
@@ -154,7 +160,9 @@ impl NondetState for StandardNondetHandlerState {
             *c = CardId::BlankCard;
         }
         player.flags.insert(super::game_state::PlayerFlag::Tactical);
-        player.dice = DiceCounter::rand_with_reroll(&mut self.rng, player.get_dice_distribution());
+        player.dice = self
+            .dice_determinization
+            .determinize(&mut self.rng, player.get_dice_distribution());
         game_state.rehash();
     }
 
