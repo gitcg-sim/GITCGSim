@@ -38,8 +38,8 @@ impl GameState {
 
         if cost.energy_cost > 0 {
             let ec = cost.energy_cost;
-            let active_char_index = player.active_char_index;
-            let Some(active_char) = player.try_get_character_mut(active_char_index) else {
+            let active_char_idx = player.active_char_idx;
+            let Some(active_char) = player.try_get_character_mut(active_char_idx) else {
                 return Err(DispatchError::UnableToPayCost);
             };
             let e = active_char.get_energy();
@@ -47,7 +47,7 @@ impl GameState {
                 return Err(DispatchError::UnableToPayCost);
             }
 
-            active_char.set_energy_hashed(chc!(self, active_player_id, active_char_index), e - ec);
+            active_char.set_energy_hashed(chc!(self, active_player_id, active_char_idx), e - ec);
         }
 
         log.log(Event::PayCost(active_player_id, cost, cost_type));
@@ -210,10 +210,10 @@ impl GameState {
         let tgt_player = self.players.get(src_player_id.opposite());
         let opp = src_player_id.opposite();
         let cmd_tgt = {
-            if tgt_player.is_valid_char_idx(tgt_player.active_char_index) {
+            if tgt_player.is_valid_char_idx(tgt_player.active_char_idx) {
                 Some(CommandTarget {
                     player_id: opp,
-                    char_idx: tgt_player.active_char_index,
+                    char_idx: tgt_player.active_char_idx,
                 })
             } else {
                 None
@@ -222,16 +222,16 @@ impl GameState {
         CommandContext::new(src_player_id, src, cmd_tgt)
     }
 
-    fn do_switch_character(&mut self, ctx: &CommandContext, char_index: u8) -> ExecResult {
+    fn do_switch_character(&mut self, ctx: &CommandContext, char_idx: u8) -> ExecResult {
         let p = self.players.get_mut(ctx.src_player_id);
-        let prev_char_idx = p.active_char_index;
+        let prev_char_idx = p.active_char_idx;
         // Switching into self or invalid character does nothing
-        if !p.switch_character(phc!(self, ctx.src_player_id), char_index) {
+        if !p.switch_character(phc!(self, ctx.src_player_id), char_idx) {
             return ExecResult::Success;
         }
         let sw = CommandSource::Switch {
             from_char_idx: prev_char_idx,
-            dst_char_idx: char_index,
+            dst_char_idx: char_idx,
         };
         ExecResult::AdditionalCmds(cmd_list![(
             CommandContext::new(ctx.src_player_id, sw, None),
@@ -250,7 +250,7 @@ impl GameState {
         let char_idx = if let CommandSource::Skill { char_idx, .. } = ctx.src {
             char_idx
         } else {
-            self.players.get(ctx.src_player_id).active_char_index
+            self.players.get(ctx.src_player_id).active_char_idx
         };
 
         let src_player = self.players.get_mut(ctx.src_player_id);
@@ -564,7 +564,7 @@ impl GameState {
 
     fn add_energy(&mut self, ctx: &CommandContext, energy: u8) -> ExecResult {
         let p = self.players.get_mut(ctx.src_player_id);
-        let char_idx = ctx.src.selected_char_index_or(p.active_char_index);
+        let char_idx = ctx.src.selected_char_idx_or(p.active_char_idx);
         self.add_energy_to_character(ctx, energy, char_idx)
     }
 
@@ -574,7 +574,7 @@ impl GameState {
             let p = self.players.get(ctx.src_player_id);
             let active_char = p.get_active_character();
             if check(active_char) {
-                Some(p.active_char_index)
+                Some(p.active_char_idx)
             } else {
                 p.char_states.enumerate_valid().find(|(_, c)| check(c)).map(|(i, _)| i)
             }
@@ -597,7 +597,7 @@ impl GameState {
 
     fn add_energy_to_non_active_characters(&mut self, ctx: &CommandContext, energy: u8) -> ExecResult {
         let player = self.players.get_mut(ctx.src_player_id);
-        let active_char_idx = player.active_char_index;
+        let active_char_idx = player.active_char_idx;
         for (i, char_state) in player.char_states.enumerate_valid_mut() {
             let char_idx = i;
             if char_idx == active_char_idx {
@@ -610,7 +610,7 @@ impl GameState {
 
     fn set_energy(&mut self, ctx: &CommandContext, energy: u8) -> ExecResult {
         let p = self.players.get_mut(ctx.src_player_id);
-        let char_idx = ctx.src.selected_char_index_or(p.active_char_index);
+        let char_idx = ctx.src.selected_char_idx_or(p.active_char_idx);
         if let Some(active_char) = p.try_get_character_mut(char_idx) {
             active_char.set_energy_hashed(chc!(self, ctx.src_player_id, char_idx), energy);
         }
@@ -619,7 +619,7 @@ impl GameState {
 
     fn shift_energy(&mut self, ctx: &CommandContext) -> ExecResult {
         let player = self.players.get_mut(ctx.src_player_id);
-        let char_idx = ctx.src.selected_char_index_or(player.active_char_index);
+        let char_idx = ctx.src.selected_char_idx_or(player.active_char_idx);
         let mut total = 0;
         for (i, char_state) in player.char_states.enumerate_valid_mut() {
             let i = i;
@@ -680,7 +680,7 @@ impl GameState {
 
     fn heal(&mut self, ctx: &CommandContext, hp: u8) -> ExecResult {
         let p = self.players.get_mut(ctx.src_player_id);
-        let char_idx = ctx.src.selected_char_index_or(p.active_char_index);
+        let char_idx = ctx.src.selected_char_idx_or(p.active_char_idx);
         if let Some(active_char) = p.try_get_character_mut(char_idx) {
             active_char.heal_hashed(chc!(self, ctx.src_player_id, char_idx), hp);
             if self.log.enabled {
@@ -790,7 +790,7 @@ impl GameState {
             panic!("apply_status_to_target: no target");
         };
         let tgt_player = self.players.get_mut(tgt_player_id);
-        let tgt_char_idx = ctx.tgt.map(|x| x.char_idx).unwrap_or(tgt_player.active_char_index);
+        let tgt_char_idx = ctx.tgt.map(|x| x.char_idx).unwrap_or(tgt_player.active_char_idx);
         if !tgt_player.is_valid_char_idx(tgt_char_idx) {
             return ExecResult::Success;
         }
@@ -876,7 +876,7 @@ impl GameState {
         let active_player = self
             .get_active_player()
             .unwrap_or_else(|| self.players.get(ctx.src_player_id));
-        self.apply_status_to_character(ctx, status_id, active_player.active_char_index)
+        self.apply_status_to_character(ctx, status_id, active_player.active_char_idx)
     }
 
     fn apply_equipment_to_character(
@@ -949,7 +949,7 @@ impl GameState {
         status_id: StatusId,
         eff_state: AppliedEffectState,
     ) -> ExecResult {
-        let active_char_idx = self.get_player(player_id).active_char_index;
+        let active_char_idx = self.get_player(player_id).active_char_idx;
         mutate_statuses!(self, player_id, |sc| {
             sc.set_status(StatusKey::Character(active_char_idx, status_id), eff_state)
         });
@@ -970,9 +970,9 @@ impl GameState {
             panic!("force_switch_for_target: no target");
         };
         let tgt_player = self.players.get_mut(tgt_player_id);
-        let tgt_char_idx = ctx.tgt.map(|x| x.char_idx).unwrap_or(tgt_player.active_char_index);
+        let tgt_char_idx = ctx.tgt.map(|x| x.char_idx).unwrap_or(tgt_player.active_char_idx);
 
-        if tgt_player.active_char_index != tgt_char_idx {
+        if tgt_player.active_char_idx != tgt_char_idx {
             return ExecResult::Success;
         }
 
@@ -998,7 +998,7 @@ impl GameState {
     fn post_death_check(&mut self, prev_res: ExecResult) -> ExecResult {
         for player_id in [PlayerId::PlayerFirst, PlayerId::PlayerSecond] {
             let player = self.players.get_mut(player_id);
-            if player.is_valid_char_idx(player.active_char_index) {
+            if player.is_valid_char_idx(player.active_char_idx) {
                 continue;
             }
 
@@ -1023,7 +1023,7 @@ impl GameState {
     fn stellar_restoration_from_skill(&mut self, ctx: &CommandContext) -> ExecResult {
         let player_id = ctx.src_player_id;
         let active_player = self.players.get_mut(player_id);
-        let char_idx = active_player.active_char_index;
+        let char_idx = active_player.active_char_idx;
         let mut h = ZobristHasher::new();
         let res = if active_player.try_remove_card_from_hand((&mut h, player_id), CardId::LightningStiletto) {
             ExecResult::AdditionalCmds(cmd_list![(
@@ -1046,7 +1046,7 @@ impl GameState {
     fn cast_skill_from_cmd(&mut self, ctx: &CommandContext, skill_id: SkillId) -> ExecResult {
         let player_id = ctx.src_player_id;
         let player = self.players.get_mut(player_id);
-        let char_idx = ctx.src.char_idx().unwrap_or(player.active_char_index);
+        let char_idx = ctx.src.char_idx().unwrap_or(player.active_char_idx);
         let chc = chc!(self, player_id, char_idx);
         {
             let char = &mut player.char_states[char_idx];

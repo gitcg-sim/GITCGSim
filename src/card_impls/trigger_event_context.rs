@@ -20,7 +20,7 @@ impl<'a, 'b, 'c, 'd, 'v, T> TriggerEventContext<'a, 'b, 'c, 'd, 'v, T> {
 
     #[inline]
     pub fn active_char_idx(&self) -> u8 {
-        self.c.src_player_state.active_char_index
+        self.c.src_player_state.active_char_idx
     }
 
     #[inline]

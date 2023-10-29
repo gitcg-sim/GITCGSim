@@ -214,6 +214,6 @@ fn test_swirl_triggers_secondary_reactions_overloaded_no_forced_switch() {
         assert_eq!(elem_set![], player.char_states[0].applied);
         assert_eq!(elem_set![], player.char_states[1].applied);
         assert_eq!(elem_set![], player.char_states[2].applied);
-        assert_eq!(0, player.active_char_index);
+        assert_eq!(0, player.active_char_idx);
     }
 }

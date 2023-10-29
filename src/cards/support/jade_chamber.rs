@@ -19,7 +19,7 @@ impl StatusImpl for JadeChamber {
     }
 
     fn dice_distribution(&self, c: &StatusImplContext, dist: &mut DiceDistribution) -> bool {
-        let active_char_elem = c.src_player_state.char_states[c.src_player_state.active_char_index]
+        let active_char_elem = c.src_player_state.char_states[c.src_player_state.active_char_idx]
             .char_id
             .get_char_card()
             .elem;

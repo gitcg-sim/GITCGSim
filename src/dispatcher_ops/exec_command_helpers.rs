@@ -82,7 +82,7 @@ pub enum RelativeSwitchType {
 macro_rules! view {
     ($p: ident) => {
         PlayerStateView {
-            active_char_index: $p.active_char_index,
+            active_char_idx: $p.active_char_idx,
             char_states: &$p.char_states,
             flags: $p.flags,
             dice: $p.dice,
@@ -239,14 +239,14 @@ impl CostType {
 
 // TODO can reduce cost for character talent cards
 pub fn augment_cost(c: PlayerHashContext, player: &mut PlayerState, cost: &mut Cost, cost_type: CostType) -> bool {
-    let char_idx = player.active_char_index;
+    let char_idx = player.active_char_idx;
     if !player.status_collection.responds_to(RespondsTo::UpdateCost) {
         return false;
     }
 
     let view = &view!(player);
     mutate_statuses_1!(c, player, |sc| {
-        let ctx = &CommandContext::EMPTY.with_src(cost_type.cmd_src(player.active_char_index));
+        let ctx = &CommandContext::EMPTY.with_src(cost_type.cmd_src(player.active_char_idx));
         let sicb = StatusImplContextBuilder::new(view, ctx, ());
         sc.consume_statuses(
             CharacterIndexSelector::One(char_idx),
@@ -262,9 +262,9 @@ pub fn augment_cost_immutable(player: &PlayerState, cost: &mut Cost, cost_type: 
         return;
     }
 
-    let char_idx = player.active_char_index;
+    let char_idx = player.active_char_idx;
     let view = &view!(player);
-    let ctx = &CommandContext::EMPTY.with_src(cost_type.cmd_src(player.active_char_index));
+    let ctx = &CommandContext::EMPTY.with_src(cost_type.cmd_src(player.active_char_idx));
     let sicb = StatusImplContextBuilder::new(view, ctx, ());
     sc.consume_statuses_immutable(
         CharacterIndexSelector::One(char_idx),
@@ -279,7 +279,7 @@ pub fn update_gains_energy(player: &PlayerState, ctx_for_skill: &CommandContext,
         return;
     }
 
-    let char_idx = player.active_char_index;
+    let char_idx = player.active_char_idx;
     let view = &view!(player);
     let ctx = &CommandContext::EMPTY;
     let sicb = StatusImplContextBuilder::new(view, ctx, ());
@@ -357,7 +357,7 @@ pub fn get_cast_skill_cmds(
     if let Some(status_id) = skill.apply {
         match status_id.get_status().attach_mode {
             StatusAttachMode::Character => {
-                let char_idx = src_player.active_char_index;
+                let char_idx = src_player.active_char_idx;
                 cmds.push((*ctx, Command::ApplyStatusToCharacter(status_id, char_idx)));
             }
             StatusAttachMode::Team => {
@@ -417,7 +417,7 @@ pub fn get_cast_skill_cmds(
         *ctx,
         Command::TriggerXEvent(XEvent::Skill(XEventSkill {
             src_player_id: ctx.src_player_id,
-            src_char_idx: src_player.active_char_index,
+            src_char_idx: src_player.active_char_idx,
             skill_id,
         })),
     ));
@@ -427,7 +427,7 @@ pub fn get_cast_skill_cmds(
 
 impl CommandSource {
     #[inline]
-    pub(crate) fn selected_char_index_or(&self, or_char_idx: u8) -> u8 {
+    pub(crate) fn selected_char_idx_or(&self, or_char_idx: u8) -> u8 {
         match self {
             CommandSource::Card {
                 target: Some(CardSelection::OwnCharacter(c)),
@@ -442,7 +442,7 @@ impl CommandSource {
 impl PlayerState {
     #[inline]
     pub(crate) fn relative_switch_char_idx(&self, switch_type: RelativeSwitchType) -> Option<u8> {
-        let i0 = self.active_char_index;
+        let i0 = self.active_char_idx;
         let n = self.char_states.len();
         match switch_type {
             RelativeSwitchType::Next => {

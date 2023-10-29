@@ -57,14 +57,14 @@ impl GameState {
             Input::NoAction => Err(DispatchError::InvalidPlayer),
             Input::FromPlayer(p, _) if p != player_id => Err(DispatchError::InvalidPlayer),
             Input::FromPlayer(_, action) => match action {
-                PlayerAction::PostDeathSwitch(char_index) => {
+                PlayerAction::PostDeathSwitch(char_idx) => {
                     let player = self.players.get_mut(player_id);
-                    if !player.is_valid_char_idx(char_index) {
+                    if !player.is_valid_char_idx(char_idx) {
                         Err(DispatchError::CannotSwitchInto)
                     } else {
-                        let prev_char_idx = player.active_char_index;
-                        player.update_active_char_index(phc!(self, player_id), char_index);
-                        Ok(Self::trigger_switch_cmd(player_id, prev_char_idx, char_index))
+                        let prev_char_idx = player.active_char_idx;
+                        player.update_active_char_idx(phc!(self, player_id), char_idx);
+                        Ok(Self::trigger_switch_cmd(player_id, prev_char_idx, char_idx))
                     }
                 }
                 PlayerAction::SwitchCharacter(_) => Err(DispatchError::InvalidInput(

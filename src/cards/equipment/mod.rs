@@ -296,7 +296,7 @@ impl CardImpl for Talent {
 
         if self.skill_id.is_some() {
             // To be able to cast skill, the target must be the active character
-            if char_idx != player.active_char_index {
+            if char_idx != player.active_char_idx {
                 CanBePlayedResult::CannotBePlayed
             } else {
                 CanBePlayedResult::CanBePlayed

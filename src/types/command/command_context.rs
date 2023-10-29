@@ -129,7 +129,7 @@ impl CommandContext {
     }
 
     #[inline]
-    pub fn with_character_index(&self, char_idx: u8) -> Self {
+    pub fn with_char_idx(&self, char_idx: u8) -> Self {
         let tgt = Some(CommandTarget::new(self.src_player_id.opposite(), char_idx));
         Self { tgt, ..*self }
     }

@@ -60,6 +60,6 @@ impl PlayerState {
 
     pub fn has_active_character_status(&self, status_id: StatusId) -> bool {
         self.status_collection
-            .has_character_status(self.active_char_index, status_id)
+            .has_character_status(self.active_char_idx, status_id)
     }
 }

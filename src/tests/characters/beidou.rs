@@ -71,7 +71,7 @@ fn test_tidecaller_prepared_skill_interrupted_by_overload() {
         PlayerId::PlayerSecond,
         PlayerAction::CastSkill(SkillId::Nightrider),
     )]);
-    assert_eq!(1, gs.get_player(PlayerId::PlayerFirst).active_char_index);
+    assert_eq!(1, gs.get_player(PlayerId::PlayerFirst).active_char_idx);
     assert!(!gs
         .get_player(PlayerId::PlayerFirst)
         .has_character_status(0, StatusId::TidecallerSurfEmbrace));
@@ -114,7 +114,7 @@ fn test_tidecaller_prepared_skill_frozen() {
         PlayerId::PlayerSecond,
         PlayerAction::CastSkill(SkillId::TheShapeOfWater),
     )]);
-    assert_eq!(0, gs.get_player(PlayerId::PlayerFirst).active_char_index);
+    assert_eq!(0, gs.get_player(PlayerId::PlayerFirst).active_char_idx);
     assert!(gs
         .get_player(PlayerId::PlayerFirst)
         .has_character_status(0, StatusId::TidecallerSurfEmbrace));

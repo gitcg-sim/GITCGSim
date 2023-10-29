@@ -119,7 +119,7 @@ impl PlayerState {
 
         let char_state = &self.char_states[char_idx];
         CharFeatures {
-            is_active: (self.active_char_index == char_idx).bv(),
+            is_active: (self.active_char_idx == char_idx).bv(),
             is_alive: true.bv(),
             hp: char_state.get_hp() as f32,
             energy: char_state.get_energy() as f32,

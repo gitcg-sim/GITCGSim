@@ -51,10 +51,10 @@ impl PlayerState {
     }
 
     #[inline]
-    pub fn update_active_char_index(&mut self, (h, player_id): PlayerHashContext, active_char_index: u8) {
-        h.hash(HASH_PROVIDER.active_char_index(player_id, self.active_char_index));
-        self.active_char_index = active_char_index;
-        h.hash(HASH_PROVIDER.active_char_index(player_id, active_char_index));
+    pub fn update_active_char_idx(&mut self, (h, player_id): PlayerHashContext, active_char_idx: u8) {
+        h.hash(HASH_PROVIDER.active_char_idx(player_id, self.active_char_idx));
+        self.active_char_idx = active_char_idx;
+        h.hash(HASH_PROVIDER.active_char_idx(player_id, active_char_idx));
     }
 
     #[inline]

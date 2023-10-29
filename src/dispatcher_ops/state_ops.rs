@@ -76,16 +76,16 @@ impl PlayerState {
 
     #[inline]
     pub fn get_active_character(&self) -> &CharState {
-        &self.char_states[self.active_char_index]
+        &self.char_states[self.active_char_idx]
     }
 
     // Returns None for invalid index
     pub fn switch_character(&mut self, c: PlayerHashContext, char_idx: u8) -> bool {
-        if !self.is_valid_char_idx(char_idx) || char_idx == self.active_char_index {
+        if !self.is_valid_char_idx(char_idx) || char_idx == self.active_char_idx {
             false
         } else {
-            self.update_active_char_index(c, char_idx);
-            self.active_char_index = char_idx;
+            self.update_active_char_idx(c, char_idx);
+            self.active_char_idx = char_idx;
             true
         }
     }
@@ -96,7 +96,7 @@ impl PlayerState {
         for (i, c) in self.char_states.enumerate_valid() {
             let e = c.char_id.get_char_card().elem;
             ep.important_elems |= e;
-            if i == self.active_char_index {
+            if i == self.active_char_idx {
                 ep.active_elem = Some(e);
             }
         }
@@ -173,7 +173,7 @@ impl PlayerState {
             .contains(RespondsTo::UpdateStatusSpec)
         {
             self.status_collection.consume_statuses_immutable(
-                CharacterIndexSelector::One(self.active_char_index),
+                CharacterIndexSelector::One(self.active_char_idx),
                 |si| si.responds_to().contains(RespondsTo::UpdateStatusSpec),
                 |_, _sk, si| {
                     if si.update_status_spec(&mut modifiers) {
@@ -200,7 +200,7 @@ impl PlayerState {
     #[inline]
     pub fn is_preparing_skill(&self) -> bool {
         self.status_collection
-            .find_preparing_skill(self.active_char_index)
+            .find_preparing_skill(self.active_char_idx)
             .is_some()
     }
 }

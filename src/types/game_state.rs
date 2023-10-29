@@ -214,7 +214,7 @@ impl PlayerFlag {
 #[derive(Debug, Clone)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct PlayerState {
-    pub active_char_index: u8,
+    pub active_char_idx: u8,
     pub dice: DiceCounter,
     pub char_states: CharStates,
     pub status_collection: StatusCollection,
@@ -228,7 +228,7 @@ impl PlayerState {
         Self {
             dice: DiceCounter::default(),
             char_states: CharStates::from_ids(char_ids),
-            active_char_index: 0,
+            active_char_idx: 0,
             status_collection: StatusCollection::default(),
             hand: vector![],
             flags: enum_set![],
@@ -246,7 +246,7 @@ impl PlayerState {
 /// immutably.
 #[derive(Debug, Clone)]
 pub struct PlayerStateView<'a> {
-    pub active_char_index: u8,
+    pub active_char_idx: u8,
     pub char_states: &'a CharStates,
     pub flags: EnumSet<PlayerFlag>,
     pub dice: DiceCounter,

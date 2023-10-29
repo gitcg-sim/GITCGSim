@@ -246,7 +246,7 @@ mod tests {
         ($($dmg_info: expr)?) => {
             StatusImplContext {
                 src_player_state: &crate::types::game_state::PlayerStateView {
-                    active_char_index: 0,
+                    active_char_idx: 0,
                     char_states: &Default::default(),
                     flags: enum_set![],
                     dice: DiceCounter::omni(0),

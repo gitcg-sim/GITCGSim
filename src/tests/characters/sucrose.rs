@@ -11,7 +11,7 @@ fn test_astable_anemohypostasis_creation_6308_forces_switch_1_character() {
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::AstableAnemohypostasisCreation6308),
     )]);
-    assert_eq!(0, gs.get_player(PlayerId::PlayerSecond).active_char_index);
+    assert_eq!(0, gs.get_player(PlayerId::PlayerSecond).active_char_idx);
     assert!(gs
         .get_player(PlayerId::PlayerSecond)
         .get_active_character()
@@ -33,7 +33,7 @@ fn test_astable_anemohypostasis_creation_6308_forces_switch_to_prev() {
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::AstableAnemohypostasisCreation6308),
     )]);
-    assert_eq!(2, gs.get_player(PlayerId::PlayerSecond).active_char_index);
+    assert_eq!(2, gs.get_player(PlayerId::PlayerSecond).active_char_idx);
     gs.advance_multiple(&vec![
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
         Input::FromPlayer(
@@ -41,18 +41,18 @@ fn test_astable_anemohypostasis_creation_6308_forces_switch_to_prev() {
             PlayerAction::CastSkill(SkillId::AstableAnemohypostasisCreation6308),
         ),
     ]);
-    assert_eq!(1, gs.get_player(PlayerId::PlayerSecond).active_char_index);
+    assert_eq!(1, gs.get_player(PlayerId::PlayerSecond).active_char_idx);
     gs.advance_multiple(&vec![Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::AstableAnemohypostasisCreation6308),
     )]);
-    assert_eq!(0, gs.get_player(PlayerId::PlayerSecond).active_char_index);
+    assert_eq!(0, gs.get_player(PlayerId::PlayerSecond).active_char_idx);
     gs.get_player_mut(PlayerId::PlayerSecond).char_states[2].set_hp(0);
     gs.advance_multiple(&vec![Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::AstableAnemohypostasisCreation6308),
     )]);
-    assert_eq!(1, gs.get_player(PlayerId::PlayerSecond).active_char_index);
+    assert_eq!(1, gs.get_player(PlayerId::PlayerSecond).active_char_idx);
 }
 
 #[test]

@@ -215,7 +215,7 @@ pub mod gamblers_earrings {
                 return None;
             }
             let equip_char_idx = e.c.status_key.char_idx()?;
-            let active_char_idx = e.c.src_player_state.active_char_index;
+            let active_char_idx = e.c.src_player_state.active_char_idx;
             if equip_char_idx != active_char_idx {
                 return None;
             }

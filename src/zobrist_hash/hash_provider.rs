@@ -40,7 +40,7 @@ type BoxStatusHashes = Box<[[HashValue; STATUS_B_COUNT]; STATUS_A_COUNT]>;
 ///
 /// If there is an index overflow, a hash based on `FxHash` will be computed instad.
 pub struct HashProvider {
-    pub active_char_index_hashes: ByPlayer<[HashValue; CHAR_COUNT]>,
+    pub active_char_idx_hashes: ByPlayer<[HashValue; CHAR_COUNT]>,
     pub hp_hashes: ByPlayer<[[HashValue; HP_COUNT]; CHAR_COUNT]>,
     pub energy_hashes: ByPlayer<[[HashValue; ENERGY_COUNT]; CHAR_COUNT]>,
     pub applied_elements_hashes: ByPlayer<[[HashValue; 8]; CHAR_COUNT]>,
@@ -117,7 +117,7 @@ impl HashProvider {
             };
         }
 
-        let active_char_index_hashes = by_player!(rand_array![random!(); CHAR_COUNT]);
+        let active_char_idx_hashes = by_player!(rand_array![random!(); CHAR_COUNT]);
         let hp_hashes = by_player!(rand_array![[random!(); HP_COUNT]; CHAR_COUNT]);
         let energy_hashes = by_player!(rand_array![[random!(); ENERGY_COUNT]; CHAR_COUNT]);
         let applied_elements_hashes = by_player!(rand_array![[random!(); 8]; CHAR_COUNT]);
@@ -131,7 +131,7 @@ impl HashProvider {
         let phase_hashes = rand_array![random!(); 18];
         let other_hashes = by_player!(rand_array![random!(); 32]);
         Self {
-            active_char_index_hashes,
+            active_char_idx_hashes,
             hp_hashes,
             energy_hashes,
             applied_elements_hashes,
@@ -153,8 +153,8 @@ impl HashProvider {
     }
 
     #[inline]
-    pub fn active_char_index(&self, player_id: PlayerId, char_idx: u8) -> HashValue {
-        self.active_char_index_hashes[player_id][char_idx as usize]
+    pub fn active_char_idx(&self, player_id: PlayerId, char_idx: u8) -> HashValue {
+        self.active_char_idx_hashes[player_id][char_idx as usize]
     }
 
     #[inline]

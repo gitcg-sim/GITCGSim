@@ -409,7 +409,7 @@ impl<B: Backend> App<B> {
             rects.insert((player_id, RectKey::Summon(summon_id)), rect);
         }
 
-        let ac = player.active_char_index;
+        let ac = player.active_char_idx;
         for (j, c) in player.char_states.iter_all().enumerate() {
             let is_active = j == (ac as usize);
             let rect = {
@@ -746,7 +746,7 @@ fn add_logs(
     for entry in new_log_entries {
         if let logging::Event::DealDMG(_src, (dst_player_id, (dst_char_idx, _)), deal_dmg) = entry {
             let src_player_id = dst_player_id.opposite();
-            let src_char_idx = game_state.get_player(src_player_id).active_char_index;
+            let src_char_idx = game_state.get_player(src_player_id).active_char_idx;
             let Some(src) = rects.get(&(src_player_id, RectKey::Character(src_char_idx))) else {
                 continue;
             };

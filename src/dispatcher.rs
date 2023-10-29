@@ -35,7 +35,7 @@ impl GameState {
     fn ensure_active_char(&self) -> Result<(PlayerId, u8), DispatchError> {
         let ap = self.phase.active_player();
         if let Some(active_player_id) = ap {
-            Ok((active_player_id, self.get_player(active_player_id).active_char_index))
+            Ok((active_player_id, self.get_player(active_player_id).active_char_idx))
         } else {
             Err(DispatchError::InvalidInput(
                 "Cannot perform this action outside of Action Phase.".to_string(),
@@ -105,7 +105,7 @@ impl GameState {
         }
 
         let player = self.get_player(player_id);
-        if player.active_char_index == char_idx || !player.is_valid_char_idx(char_idx) {
+        if player.active_char_idx == char_idx || !player.is_valid_char_idx(char_idx) {
             return Err(DispatchError::CannotSwitchInto);
         }
 
@@ -121,13 +121,10 @@ impl GameState {
             return false;
         }
         let player = self.get_player(player_id);
-        if !player.is_valid_char_idx(player.active_char_index) {
+        if !player.is_valid_char_idx(player.active_char_idx) {
             return false;
         }
-        if player
-            .status_collection
-            .cannot_perform_actions(player.active_char_index)
-        {
+        if player.status_collection.cannot_perform_actions(player.active_char_idx) {
             return false;
         }
 
@@ -150,7 +147,7 @@ impl GameState {
 
     fn cmd_tgt(&self, player_id: PlayerId) -> Option<CommandTarget> {
         let opp = player_id.opposite();
-        let tgt_char_idx = self.get_player(opp).active_char_index;
+        let tgt_char_idx = self.get_player(opp).active_char_idx;
         Some(CommandTarget {
             player_id: opp,
             char_idx: tgt_char_idx,
@@ -170,10 +167,7 @@ impl GameState {
         }
 
         let player = self.get_player(player_id);
-        if player
-            .status_collection
-            .cannot_perform_actions(player.active_char_index)
-        {
+        if player.status_collection.cannot_perform_actions(player.active_char_idx) {
             return Err(DispatchError::CannotCastSkills);
         }
 
@@ -374,7 +368,7 @@ impl GameState {
                         Some((skill_id.get_skill().cost, CostType::Skill(skill_id)))
                     }
                     PlayerAction::SwitchCharacter(_) => {
-                        is_fast_action = self.check_switch_is_fast_action(active_player_id, player.active_char_index);
+                        is_fast_action = self.check_switch_is_fast_action(active_player_id, player.active_char_idx);
                         Some((Cost::ONE, CostType::Switching))
                     }
                     PlayerAction::EndRound => return (Cost::ZERO, false),
@@ -623,7 +617,7 @@ impl GameState {
                 if !player.is_valid_char_idx(char_idx) {
                     return Err(DispatchError::CannotSwitchInto);
                 }
-                self.get_player_mut(player_id).active_char_index = char_idx;
+                self.get_player_mut(player_id).active_char_idx = char_idx;
                 self.phase = match already_selected {
                     None => Phase::SelectStartingCharacter {
                         already_selected: Some(player_id),
@@ -724,7 +718,7 @@ impl GameState {
         active_player_id: PlayerId,
     ) -> Option<Result<DispatchResult, DispatchError>> {
         let player = self.players.get(active_player_id);
-        let active_char_index = player.active_char_index;
+        let active_char_idx = player.active_char_idx;
         let Some((skill_id, key, turns_remaining)) = player
             .status_collection
             .find_preparing_skill_with_status_key_and_turns_remaining()
@@ -735,7 +729,7 @@ impl GameState {
             return Some(Err(DispatchError::InvalidInput("Preparing skill".to_string())));
         };
         let char_idx = key.char_idx().expect("Prepared skills must be character statuses.");
-        if active_char_index != char_idx {
+        if active_char_idx != char_idx {
             mutate_statuses!(self, active_player_id, |sc| {
                 sc.delete(key);
             });

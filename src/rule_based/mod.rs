@@ -102,7 +102,7 @@ impl RuleBasedSearchConfig {
         );
         let own_dice_count = src_player.dice.total();
         // let opp_dice_count = game_state.get_player(player_id.opposite()).dice.total();
-        let (tgt_char_idx, tgt_hp) = (opp_player.active_char_index, opp_player.get_active_character().get_hp());
+        let (tgt_char_idx, tgt_hp) = (opp_player.active_char_idx, opp_player.get_active_character().get_hp());
         let mut scores = src_player
             .char_states
             .enumerate_valid()
@@ -112,7 +112,7 @@ impl RuleBasedSearchConfig {
                     game_state.has_outgoing_reaction(player_id.opposite(), tgt_char_idx, src_char_idx);
                 let offensive_threat_score = {
                     let can_switch_attack = own_dice_count > 3;
-                    let can_counter_switch = src_char_idx == !src_player.active_char_index
+                    let can_counter_switch = src_char_idx == !src_player.active_char_idx
                         || game_state.opponent_can_counter_switch(player_id, Some(src_char_idx));
                     let has_offensive_reaction = can_switch_attack && has_outgoing_reaction && !can_counter_switch;
                     let has_kill =
@@ -152,7 +152,7 @@ impl RuleBasedSearchConfig {
         } else {
             self.switch_score_diff_threshold
         };
-        let subtract = scores[src_player.active_char_index as usize] + threshold;
+        let subtract = scores[src_player.active_char_idx as usize] + threshold;
         scores.iter_mut().for_each(|s| *s = s.saturating_sub(subtract));
         scores
     }

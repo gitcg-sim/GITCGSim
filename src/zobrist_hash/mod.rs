@@ -384,7 +384,7 @@ impl PlayerState {
     }
 
     pub fn incremental_zobrist_hash(&self, h: &mut ZobristHasher, player_id: PlayerId) {
-        h.hash(HASH_PROVIDER.active_char_index(player_id, self.active_char_index));
+        h.hash(HASH_PROVIDER.active_char_idx(player_id, self.active_char_idx));
         self.status_collection.zobrist_hash(h, player_id);
         self.zobrist_hash_for_flags(h, player_id);
         self.zobrist_hash_for_dice(h, player_id);

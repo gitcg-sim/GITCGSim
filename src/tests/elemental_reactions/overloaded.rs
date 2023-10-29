@@ -16,7 +16,7 @@ fn test_overloaded_force_switch() {
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::SwitchCharacter(1)),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::Nightrider)),
     ]);
-    assert_eq!(1, gs.players.1.active_char_index);
+    assert_eq!(1, gs.players.1.active_char_idx);
     assert_eq!(4, gs.players.1.char_states[0].get_hp());
     assert_eq!(10, gs.players.1.char_states[1].get_hp());
     assert!(gs.players.0.char_states[0].applied.is_empty());
@@ -39,7 +39,7 @@ fn test_overloaded_force_switch_no_alternatives() {
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::SwitchCharacter(1)),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::Nightrider)),
     ]);
-    assert_eq!(0, gs.players.1.active_char_index);
+    assert_eq!(0, gs.players.1.active_char_idx);
 }
 
 #[test]
@@ -51,7 +51,7 @@ fn test_overloaded_force_switch_rotate() {
     .with_ignore_costs(true)
     .build();
     gs.players.1.char_states[0].set_hp(0);
-    gs.players.1.active_char_index = 2;
+    gs.players.1.active_char_idx = 2;
     gs.advance_roll_phase_no_dice();
     gs.advance_multiple(&vec![
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::NiwabiFireDance)),
@@ -60,5 +60,5 @@ fn test_overloaded_force_switch_rotate() {
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::SwitchCharacter(1)),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::Nightrider)),
     ]);
-    assert_eq!(1, gs.players.1.active_char_index);
+    assert_eq!(1, gs.players.1.active_char_idx);
 }

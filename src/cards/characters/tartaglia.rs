@@ -41,7 +41,7 @@ impl PlayerState {
     #[inline]
     fn is_melee_stance(&self) -> bool {
         self.status_collection
-            .has_character_status(self.active_char_index, StatusId::MeleeStance)
+            .has_character_status(self.active_char_idx, StatusId::MeleeStance)
     }
 }
 
@@ -56,7 +56,7 @@ impl SkillImpl for FoulLegacyRagingTide {
         if src_player.is_melee_stance() {
             return;
         }
-        let char_idx = src_player.active_char_index;
+        let char_idx = src_player.active_char_idx;
         cmds.push((
             *ctx,
             Command::DeleteStatus(StatusKey::Character(char_idx, StatusId::RangedStance)),
