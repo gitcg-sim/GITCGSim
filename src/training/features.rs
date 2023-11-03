@@ -1,3 +1,5 @@
+use std::ops::Add;
+
 use crate::cards::ids::{CardId, GetCard, GetSkill};
 use crate::impl_as_slice;
 use crate::prelude::*;
@@ -35,12 +37,26 @@ pub struct TeamStatusFeatures<T> {
     pub support_count: T,
 }
 
+impl<T: Copy + Add<Output = T>> TeamStatusFeatures<T> {
+    #[inline(always)]
+    fn total(&self) -> T {
+        self.status_count + self.summon_count + self.support_count
+    }
+}
+
 #[repr(C)]
 #[derive(Default, Copy, Clone)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct CharStatusFeatures<T> {
     pub equip_count: T,
     pub status_count: T,
+}
+
+impl<T: Copy + Add<Output = T>> CharStatusFeatures<T> {
+    #[inline(always)]
+    fn total(&self) -> T {
+        self.equip_count + self.status_count
+    }
 }
 
 #[repr(C)]
@@ -88,6 +104,43 @@ pub struct GameStateFeatures<T> {
 impl_as_slice!(PlayerStateFeatures<f32>, f32);
 impl_as_slice!(GameStateFeatures<f32>, f32);
 
+#[repr(C)]
+#[derive(Default, Copy, Clone)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct ExpressCharFeatures<T> {
+    pub has_applied: T,
+    pub hp: T,
+    pub energy: T,
+    // pub status: CharStatusFeatures<T>,
+    pub status_count: T,
+}
+
+#[repr(C)]
+#[derive(Default, Copy, Clone)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct ExpressPlayerStateFeatures<T> {
+    // pub can_perform: CanPerformFeatures<T>,
+    pub turn: TurnFeatures<T>,
+    pub dice: DiceFeatures<T>,
+    pub hand_count: T,
+    // pub team: TeamStatusFeatures<T>,
+    pub team_status_count: T,
+    pub active_char: ExpressCharFeatures<T>,
+    pub inactive_chars: [ExpressCharFeatures<T>; N_CHARS],
+}
+
+#[repr(C)]
+#[derive(Default, Copy, Clone)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct ExpressGameStateFeatures<T> {
+    pub p1: ExpressPlayerStateFeatures<T>,
+    pub p2: ExpressPlayerStateFeatures<T>,
+}
+
+impl_as_slice!(ExpressCharFeatures<f32>, f32);
+impl_as_slice!(ExpressPlayerStateFeatures<f32>, f32);
+impl_as_slice!(ExpressGameStateFeatures<f32>, f32);
+
 trait BoolValue {
     fn bv(self) -> f32;
 }
@@ -127,6 +180,22 @@ impl PlayerState {
             status: self.char_status_features(char_idx),
         }
     }
+
+    fn express_char_features(&self, char_idx: u8) -> ExpressCharFeatures<f32> {
+        if !self.is_valid_char_idx(char_idx) {
+            return Default::default();
+        }
+
+        let char_state = &self.char_states[char_idx];
+        ExpressCharFeatures {
+            has_applied: if char_state.applied.is_empty() { 0.0 } else { 1.0 },
+            hp: char_state.get_hp() as f32,
+            energy: char_state.get_energy() as f32,
+            // status: self.char_status_features(char_idx),
+            status_count: self.char_status_features(char_idx).total(),
+        }
+    }
+
     fn team_features(&self) -> TeamStatusFeatures<f32> {
         let sc = &self.status_collection;
         TeamStatusFeatures {
@@ -177,16 +246,41 @@ impl GameState {
         }
     }
 
+    fn turn_features(&self, player_id: PlayerId) -> TurnFeatures<f32> {
+        TurnFeatures {
+            own_turn: (self.to_move_player() == Some(player_id)).bv(),
+            opp_ended_round: self.phase.opponent_ended_round(player_id).bv(),
+        }
+    }
+
+    fn express_player_state_features(&self, player_id: PlayerId) -> ExpressPlayerStateFeatures<f32> {
+        let player_state = self.players.get(player_id);
+        let active_char_idx = player_state.active_char_idx;
+        let mut chars: [ExpressCharFeatures<f32>; N_CHARS] = Default::default();
+        for (char_idx, c) in chars.iter_mut().enumerate() {
+            *c = player_state.express_char_features(char_idx as u8);
+        }
+
+        let mut active_char = Default::default();
+        std::mem::swap(&mut active_char, &mut chars[active_char_idx as usize]);
+
+        ExpressPlayerStateFeatures {
+            // can_perform: self.can_perform_features(player_id),
+            turn: self.turn_features(player_id),
+            dice: player_state.dice_features(),
+            hand_count: player_state.hand.len() as f32,
+            // team: player_state.team_features(),
+            team_status_count: player_state.team_features().total(),
+            active_char,
+            inactive_chars: chars,
+        }
+    }
+
     fn player_state_features(&self, player_id: PlayerId) -> PlayerStateFeatures<f32> {
         let player_state = self.players.get(player_id);
         let switch_is_fast_action = (0u8..(N_CHARS as u8))
             .any(|char_idx| self.check_switch_is_fast_action(player_id, char_idx))
             .bv();
-
-        let turn = TurnFeatures {
-            own_turn: (self.to_move_player() == Some(player_id)).bv(),
-            opp_ended_round: self.phase.opponent_ended_round(player_id).bv(),
-        };
 
         let mut chars: [CharFeatures<f32>; N_CHARS] = Default::default();
         for (char_idx, c) in chars.iter_mut().enumerate() {
@@ -195,7 +289,7 @@ impl GameState {
 
         PlayerStateFeatures {
             can_perform: self.can_perform_features(player_id),
-            turn,
+            turn: self.turn_features(player_id),
             switch_is_fast_action,
             dice: player_state.dice_features(),
             hand_count: player_state.hand.len() as f32,
@@ -210,11 +304,23 @@ impl GameState {
             p2: self.player_state_features(PlayerId::PlayerSecond),
         }
     }
+
+    pub fn express_features(&self) -> ExpressGameStateFeatures<f32> {
+        ExpressGameStateFeatures {
+            p1: self.express_player_state_features(PlayerId::PlayerFirst),
+            p2: self.express_player_state_features(PlayerId::PlayerSecond),
+        }
+    }
 }
 
 impl<S: NondetState> crate::game_tree_search::GameStateWrapper<S> {
+    #[cfg(any())]
     pub fn features(&self) -> GameStateFeatures<f32> {
         self.game_state.features()
+    }
+
+    pub fn features(&self) -> ExpressGameStateFeatures<f32> {
+        self.game_state.express_features()
     }
 }
 
@@ -326,6 +432,8 @@ impl Input {
         arr
     }
 }
+
+pub type Features = ExpressGameStateFeatures<f32>;
 
 #[cfg(test)]
 mod tests {

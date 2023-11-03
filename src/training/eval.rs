@@ -7,7 +7,7 @@ use crate::{
     minimax::Eval,
     prelude::*,
     rand::{distributions::WeightedIndex, prelude::Distribution, thread_rng, Rng},
-    training::{as_slice::AsSlice, features::GameStateFeatures},
+    training::{as_slice::AsSlice, features::Features},
     types::nondet::NondetState,
 };
 
@@ -33,7 +33,7 @@ pub fn sigmoid_dot<const N: usize>(x: &[f32; N], w: &[f32; N], a: f32) -> (f32, 
 
 #[derive(Default, Clone)]
 pub struct SelfPlayModel {
-    pub weights: GameStateFeatures<f32>,
+    pub weights: Features,
     pub player_id: PlayerId,
 }
 
@@ -44,16 +44,16 @@ impl SelfPlayModel {
     pub const EVAL_SCALING: f32 = 100.0 / 1.25;
     const MULT: f32 = 1f32 / Self::EVAL_SCALING;
 
-    pub fn new(weights: GameStateFeatures<f32>, player_id: PlayerId) -> Self {
+    pub fn new(weights: Features, player_id: PlayerId) -> Self {
         Self { weights, player_id }
     }
 
-    pub fn evaluate<S: NondetState>(&self, game_state: &GameStateWrapper<S>) -> (f32, GameStateFeatures<f32>) {
+    pub fn evaluate<S: NondetState>(&self, game_state: &GameStateWrapper<S>) -> (f32, Features) {
         let features = game_state.features();
-        let x = <GameStateFeatures<f32> as AsSlice<f32>>::as_slice(features);
-        let w = <GameStateFeatures<f32> as AsSlice<f32>>::as_slice_ref(&self.weights);
+        let x = <Features as AsSlice<f32>>::as_slice(features);
+        let w = <Features as AsSlice<f32>>::as_slice_ref(&self.weights);
         let (y, grad) = sigmoid_dot(w, &x, Self::MULT);
-        (y, <GameStateFeatures<f32> as AsSlice<f32>>::from_slice(grad))
+        (y, <Features as AsSlice<f32>>::from_slice(grad))
     }
 }
 
@@ -92,7 +92,7 @@ impl GetSelfPlayModel for SelfPlaySearch {
 }
 
 impl SelfPlaySearch {
-    pub fn new(init_weights: GameStateFeatures<f32>, player_id: PlayerId, beta: f32, delta: f32) -> Self {
+    pub fn new(init_weights: Features, player_id: PlayerId, beta: f32, delta: f32) -> Self {
         Self {
             model: SelfPlayModel::new(init_weights, player_id),
             beta,

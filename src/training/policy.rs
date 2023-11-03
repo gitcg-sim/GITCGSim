@@ -3,12 +3,12 @@ use std::path::PathBuf;
 
 use crate::training::{
     as_slice::*,
-    features::{GameStateFeatures, InputFeatures},
+    features::{Features, InputFeatures},
 };
 
 // const H: usize = 3;
 // type Model = (Linear<N, H>, Sigmoid, Linear<H, K>, Sigmoid);
-pub const N: usize = <GameStateFeatures<f32> as AsSlice<f32>>::LENGTH;
+pub const N: usize = <Features as AsSlice<f32>>::LENGTH;
 pub const K: usize = <InputFeatures<f32> as AsSlice<f32>>::LENGTH;
 pub type Model = (Linear<N, K>, Sigmoid);
 

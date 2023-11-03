@@ -5,7 +5,11 @@ use gitcg_sim::{
     mcts::{MCTSConfig, MCTS},
     playout::Playout,
     rand::{rngs::SmallRng, thread_rng, Rng, SeedableRng},
-    training::{as_slice::*, features::*, policy::*},
+    training::{
+        as_slice::*,
+        features::{Features, InputFeatures},
+        policy::*,
+    },
 };
 use serde::Serialize;
 use serde_json::json;
@@ -121,8 +125,8 @@ fn run_playout<
     states
 }
 
-const N: usize = <GameStateFeatures<f32> as AsSlice<f32>>::LENGTH;
-fn winner_eval(winner: PlayerId, player_id: PlayerId) -> (f32, GameStateFeatures<f32>) {
+const N: usize = gitcg_sim::training::policy::N;
+fn winner_eval(winner: PlayerId, player_id: PlayerId) -> (f32, Features) {
     (
         if winner == player_id {
             SelfPlayModel::WIN
@@ -139,13 +143,13 @@ struct DebugEntry {
     pub learning_rate: f32,
     pub player_id: PlayerId,
     #[serde(flatten)]
-    pub game_state: GameStateFeatures<f32>,
+    pub game_state: Features,
 }
 
 fn run_self_play<
     T: GameTreeSearch<GameStateWrapper<S>> + GetSelfPlayModel,
     S: NondetState,
-    F: Fn(PlayerId, GameStateFeatures<f32>) -> DebugEntry,
+    F: Fn(PlayerId, Features) -> DebugEntry,
 >(
     initial: &GameStateWrapper<S>,
     searches: &RefCell<ByPlayer<T>>,
@@ -215,7 +219,7 @@ fn run_self_play<
     }
 }
 
-fn new_search(init_weights: GameStateFeatures<f32>, player_id: PlayerId, beta: f32, delta: f32) -> SelfPlaySearch {
+fn new_search(init_weights: Features, player_id: PlayerId, beta: f32, delta: f32) -> SelfPlaySearch {
     SelfPlaySearch::new(init_weights, player_id, beta, delta)
 }
 
@@ -223,8 +227,8 @@ fn main_tdl(mut deck: SearchOpts, opts: TDLOpts) -> Result<(), std::io::Error> {
     let mut seed_gen = thread_rng();
     let (beta, delta) = (opts.beta, 1e-4);
     let searches = RefCell::new(ByPlayer::new(
-        new_search(GameStateFeatures::<f32>::default(), PlayerId::PlayerFirst, beta, delta),
-        new_search(GameStateFeatures::<f32>::default(), PlayerId::PlayerSecond, beta, delta),
+        new_search(Default::default(), PlayerId::PlayerFirst, beta, delta),
+        new_search(Default::default(), PlayerId::PlayerSecond, beta, delta),
     ));
     for i in 0..=opts.max_iters {
         deck.seed = Some(seed_gen.gen());
@@ -254,7 +258,7 @@ fn main_tdl(mut deck: SearchOpts, opts: TDLOpts) -> Result<(), std::io::Error> {
 
 fn generate_batch<S: NondetState>(
     initial: &GameStateWrapper<S>,
-    data_points: &mut Vec<(GameStateFeatures<f32>, InputFeatures<f32>, u8)>,
+    data_points: &mut Vec<(Features, InputFeatures<f32>, u8)>,
     searches: &RefCell<ByPlayer<MCTS<GameStateWrapper<S>>>>,
     mcts_min_depth: u8,
     batch_size: usize,
@@ -323,7 +327,7 @@ fn main_policy(deck: SearchOpts, opts: PolicyOpts) -> Result<(), std::io::Error>
             ..Default::default()
         },
     );
-    let mut data_points: Vec<(GameStateFeatures<f32>, InputFeatures<f32>, u8)> = vec![];
+    let mut data_points: Vec<(Features, InputFeatures<f32>, u8)> = vec![];
     for iter in 0..250 {
         let searches = RefCell::new(ByPlayer::new(make_search(), make_search()));
         let initial = deck.get_standard_game(Some(SmallRng::from_seed(seed_gen.gen())))?;
