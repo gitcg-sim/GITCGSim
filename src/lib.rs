@@ -5,6 +5,21 @@
 //! - Move generation and validation
 //! - Minimax and MCTS search algorithms
 //!
+//! ## Features
+//!
+//! ### `serde`
+//! Enables `serde` support for the relevant datatypes.
+//!
+//! ### `wasm`
+//! Required for WebAssembly bilds.
+//!
+//! ### `no_parallel`
+//! Disables parallelization (including `rayon` dependency).
+//!
+//! ### `no_static_status_impl`
+//! Use dynamic dispatch (`dyn StatusImpl`) instead of heavily
+//! inlined trait implementations for dispatching `StatusImpl`s.
+//!
 //! ## Using the `GameState` type
 //! ```
 //! use gitcg_sim::prelude::*;
