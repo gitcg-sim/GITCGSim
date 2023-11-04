@@ -226,4 +226,14 @@ impl CharState {
         self.flags = flags;
         h.hash(HASH_PROVIDER.char_flags(player_id, char_idx, flags));
     }
+
+    #[inline]
+    pub fn insert_flag_hashed(&mut self, chc: CharacterHashContext, flag: CharFlag) {
+        self.set_flags_hashed(chc, self.flags | flag);
+    }
+
+    #[inline]
+    pub fn remove_flag_hashed(&mut self, chc: CharacterHashContext, flag: CharFlag) {
+        self.set_flags_hashed(chc, self.flags - flag);
+    }
 }

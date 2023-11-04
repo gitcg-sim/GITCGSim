@@ -84,8 +84,7 @@ impl PlayerState {
         &mut self.char_states[self.active_char_idx]
     }
 
-    // Returns None for invalid index
-    pub fn switch_character(&mut self, c: PlayerHashContext, char_idx: u8) -> bool {
+    pub(crate) fn switch_character_hashed(&mut self, c: PlayerHashContext, char_idx: u8) -> bool {
         if !self.is_valid_char_idx(char_idx) || char_idx == self.active_char_idx {
             false
         } else {

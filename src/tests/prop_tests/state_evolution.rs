@@ -117,4 +117,14 @@ proptest! {
         let aa1 = gs1.actions();
         assert_eq!(aa, aa1);
     }
+
+    #[test]
+    fn non_active_characters_no_pluging_attack_flag(gs in arb_reachable_game_state_wrapper()) {
+        for player_id in [PlayerId::PlayerFirst, PlayerId::PlayerSecond] {
+            let PlayerState { char_states, active_char_idx, .. } = gs.game_state.players.get(player_id);
+            for (_, char_state) in char_states.enumerate_valid().filter(|(i, _)| i != active_char_idx) {
+                assert!(!char_state.flags.contains(crate::types::char_state::CharFlag::PlungingAttack), "Contains PlungingAttack: {char_state:?}");
+            }
+        }
+    }
 }

@@ -133,19 +133,24 @@ impl GameState {
 
     fn trigger_event(&mut self, ctx: &CommandContext, event_id: EventId) -> ExecResult {
         let src_player_id = ctx.src_player_id;
-        let mut cmds = cmd_list![];
         let ctx_for_dmg = self.ctx_for_dmg(src_player_id, ctx.src);
         let src_player = self.players.get_mut(src_player_id);
         // When switching to a new character -> set pluging attack flag
         if let EventId::Switched = event_id {
-            let char_idx = src_player.active_char_idx;
-            let char_state = &mut src_player.char_states[char_idx];
-            char_state.set_flags_hashed(
-                chc!(self, ctx.src_player_id, char_idx),
-                char_state.flags | CharFlag::PlungingAttack,
-            );
+            let CommandSource::Switch {
+                from_char_idx,
+                dst_char_idx: char_idx,
+            } = ctx.src
+            else {
+                panic!("trigger_event: EventId::Switched: Failed to match for ctx.src: CommandSource::Switch.");
+            };
+            src_player.char_states[from_char_idx]
+                .remove_flag_hashed(chc!(self, src_player_id, from_char_idx), CharFlag::PlungingAttack);
+            src_player.char_states[char_idx]
+                .insert_flag_hashed(chc!(self, src_player_id, char_idx), CharFlag::PlungingAttack);
         }
 
+        let mut cmds = cmd_list![];
         if src_player.status_collection.responds_to_trigger_event(event_id) {
             let src_player_state = &view!(src_player);
             let sicb = StatusImplContextBuilder::new(src_player_state, ctx, ());
@@ -236,17 +241,14 @@ impl GameState {
         let p = self.players.get_mut(ctx.src_player_id);
         let prev_char_idx = p.active_char_idx;
         // Switching into self or invalid character does nothing
-        if !p.switch_character(phc!(self, ctx.src_player_id), char_idx) {
+        if !p.switch_character_hashed(phc!(self, ctx.src_player_id), char_idx) {
             return ExecResult::Success;
         }
-        let sw = CommandSource::Switch {
-            from_char_idx: prev_char_idx,
-            dst_char_idx: char_idx,
-        };
-        ExecResult::AdditionalCmds(cmd_list![(
-            CommandContext::new(ctx.src_player_id, sw, None),
-            Command::TriggerEvent(EventId::Switched)
-        )])
+        ExecResult::AdditionalCmds(cmd_list![Self::trigger_switch_cmd(
+            ctx.src_player_id,
+            prev_char_idx,
+            char_idx
+        ),])
     }
 
     fn switch_relative(&mut self, ctx: &CommandContext, switch_type: RelativeSwitchType) -> ExecResult {
