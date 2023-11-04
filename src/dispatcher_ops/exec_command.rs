@@ -136,6 +136,16 @@ impl GameState {
         let mut cmds = cmd_list![];
         let ctx_for_dmg = self.ctx_for_dmg(src_player_id, ctx.src);
         let src_player = self.players.get_mut(src_player_id);
+        // When switching to a new character -> set pluging attack flag
+        if let EventId::Switched = event_id {
+            let char_idx = src_player.active_char_idx;
+            let char_state = &mut src_player.char_states[char_idx];
+            char_state.set_flags_hashed(
+                chc!(self, ctx.src_player_id, char_idx),
+                char_state.flags | CharFlag::PlungingAttack,
+            );
+        }
+
         if src_player.status_collection.responds_to_trigger_event(event_id) {
             let src_player_state = &view!(src_player);
             let sicb = StatusImplContextBuilder::new(src_player_state, ctx, ());
@@ -743,6 +753,13 @@ impl GameState {
     }
 
     fn hand_over_player(&mut self) -> ExecResult {
+        if let Some(player_id) = self.phase.active_player() {
+            let player = &mut self.players[player_id];
+            let c = chc!(self, player_id, player.active_char_idx);
+            let char = player.get_active_character_mut();
+            char.set_flags_hashed(c, char.flags - CharFlag::PlungingAttack);
+        }
+
         let (first_end_round, next_player) = match self.phase {
             Phase::RollPhase {
                 first_active_player,

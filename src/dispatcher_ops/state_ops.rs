@@ -79,6 +79,11 @@ impl PlayerState {
         &self.char_states[self.active_char_idx]
     }
 
+    #[inline]
+    pub fn get_active_character_mut(&mut self) -> &mut CharState {
+        &mut self.char_states[self.active_char_idx]
+    }
+
     // Returns None for invalid index
     pub fn switch_character(&mut self, c: PlayerHashContext, char_idx: u8) -> bool {
         if !self.is_valid_char_idx(char_idx) || char_idx == self.active_char_idx {
@@ -244,6 +249,14 @@ impl GameState {
         self.phase.active_player().map(|p| match p {
             PlayerId::PlayerFirst => &self.players.0,
             PlayerId::PlayerSecond => &self.players.1,
+        })
+    }
+
+    #[inline]
+    pub fn get_active_player_mut(&mut self) -> Option<&mut PlayerState> {
+        self.phase.active_player().map(|p| match p {
+            PlayerId::PlayerFirst => &mut self.players.0,
+            PlayerId::PlayerSecond => &mut self.players.1,
         })
     }
 

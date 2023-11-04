@@ -50,6 +50,7 @@ pub enum CharId {
     Yanfei,
     Shenhe,
     Candace,
+    Xiao,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -186,6 +187,9 @@ pub enum SkillId {
     SacredRiteHeronsSanctum,
     SacredRiteWagtailsTide,
     HeronStrike,
+    WhirlwindThrust,
+    LemniscaticWindCycling,
+    BaneOfAllEvil,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Enum)]
@@ -303,6 +307,7 @@ pub enum StatusId {
     IcyQuill,
     HeronShield,
     PrayerOfTheCrimsonCrown,
+    YakshasMask,
 
     // Talents
     ColdBloodedStrike,

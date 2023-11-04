@@ -14,6 +14,7 @@ use crate::types::ElementSet;
 #[enumset(repr = "u8")]
 pub enum CharFlag {
     TalentEquipped,
+    PlungingAttack,
     SkillCastedThisTurn0,
     SkillCastedThisTurn1,
     SkillCastedThisTurn2,

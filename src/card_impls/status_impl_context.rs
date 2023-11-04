@@ -15,6 +15,11 @@ impl<'a, 'b, 'c, 'v, D> StatusImplContext<'a, 'b, 'c, 'v, D> {
     }
 
     #[inline]
+    pub fn src_char_idx(&self) -> Option<u8> {
+        self.ctx.src.char_idx()
+    }
+
+    #[inline]
     pub fn src_char_card(&self) -> Option<&'static CharCard> {
         self.src_char_id().map(CharId::get_char_card)
     }
@@ -76,6 +81,14 @@ impl<'a, 'b, 'c, 'v, D> StatusImplContext<'a, 'b, 'c, 'v, D> {
     #[inline]
     pub fn is_switch(&self) -> bool {
         matches!(self.ctx.src, CommandSource::Switch { .. })
+    }
+
+    #[inline]
+    pub fn is_plunging_attack(&self) -> bool {
+        self.skill_type() == Some(SkillType::NormalAttack)
+            && self
+                .get_src_character_state()
+                .is_some_and(|s| s.flags.contains(CharFlag::PlungingAttack))
     }
 
     #[inline]

@@ -40,6 +40,7 @@ macro_rules! __generated_char_reexports {
         pub use super::tartaglia::*;
         pub use super::tighnari::*;
         pub use super::xiangling::*;
+        pub use super::xiao::*;
         pub use super::xingqiu::*;
         pub use super::yae_miko::*;
         pub use super::yanfei::*;
@@ -182,6 +183,9 @@ macro_rules! __generated_skills_cases {
             SkillId::SacredRiteHeronsSanctum => &SACRED_RITE_HERONS_SANCTUM,
             SkillId::SacredRiteWagtailsTide => &SACRED_RITE_WAGTAILS_TIDE,
             SkillId::HeronStrike => &HERON_STRIKE,
+            SkillId::WhirlwindThrust => &WHIRLWIND_THRUST,
+            SkillId::LemniscaticWindCycling => &LEMNISCATIC_WIND_CYCLING,
+            SkillId::BaneOfAllEvil => &BANE_OF_ALL_EVIL,
         }
     };
 }
@@ -232,6 +236,7 @@ macro_rules! __generated_enum_cases {
             CharId::Yanfei => $crate::__mapping!(yanfei::$I, $(| $val | $blk)?),
             CharId::Shenhe => $crate::__mapping!(shenhe::$I, $(| $val | $blk)?),
             CharId::Candace => $crate::__mapping!(candace::$I, $(| $val | $blk)?),
+            CharId::Xiao => $crate::__mapping!(xiao::$I, $(| $val | $blk)?),
         }
     };
 
@@ -279,6 +284,7 @@ macro_rules! __generated_enum_cases {
             CharId::Yanfei => $crate::__mapping!(&yanfei::$I, $(| $val | $blk)?),
             CharId::Shenhe => $crate::__mapping!(&shenhe::$I, $(| $val | $blk)?),
             CharId::Candace => $crate::__mapping!(&candace::$I, $(| $val | $blk)?),
+            CharId::Xiao => $crate::__mapping!(&xiao::$I, $(| $val | $blk)?),
         }
     };
 
@@ -415,6 +421,9 @@ macro_rules! __generated_enum_cases {
             SkillId::SacredRiteHeronsSanctum => $crate::__mapping!(sacred_rite_herons_sanctum::$I, $(| $val | $blk)?),
             SkillId::SacredRiteWagtailsTide => $crate::__mapping!(sacred_rite_wagtails_tide::$I, $(| $val | $blk)?),
             SkillId::HeronStrike => $crate::__mapping!(heron_strike::$I, $(| $val | $blk)?),
+            SkillId::WhirlwindThrust => $crate::__mapping!(whirlwind_thrust::$I, $(| $val | $blk)?),
+            SkillId::LemniscaticWindCycling => $crate::__mapping!(lemniscatic_wind_cycling::$I, $(| $val | $blk)?),
+            SkillId::BaneOfAllEvil => $crate::__mapping!(bane_of_all_evil::$I, $(| $val | $blk)?),
         }
     };
 
@@ -551,6 +560,9 @@ macro_rules! __generated_enum_cases {
             SkillId::SacredRiteHeronsSanctum => $crate::__mapping!(&sacred_rite_herons_sanctum::$I, $(| $val | $blk)?),
             SkillId::SacredRiteWagtailsTide => $crate::__mapping!(&sacred_rite_wagtails_tide::$I, $(| $val | $blk)?),
             SkillId::HeronStrike => $crate::__mapping!(&heron_strike::$I, $(| $val | $blk)?),
+            SkillId::WhirlwindThrust => $crate::__mapping!(&whirlwind_thrust::$I, $(| $val | $blk)?),
+            SkillId::LemniscaticWindCycling => $crate::__mapping!(&lemniscatic_wind_cycling::$I, $(| $val | $blk)?),
+            SkillId::BaneOfAllEvil => $crate::__mapping!(&bane_of_all_evil::$I, $(| $val | $blk)?),
         }
     };
 
@@ -658,6 +670,7 @@ macro_rules! __generated_enum_cases {
             StatusId::IcyQuill => $crate::__mapping!(icy_quill::$I, $(| $val | $blk)?),
             StatusId::HeronShield => $crate::__mapping!(heron_shield::$I, $(| $val | $blk)?),
             StatusId::PrayerOfTheCrimsonCrown => $crate::__mapping!(prayer_of_the_crimson_crown::$I, $(| $val | $blk)?),
+            StatusId::YakshasMask => $crate::__mapping!(yakshas_mask::$I, $(| $val | $blk)?),
             StatusId::ColdBloodedStrike => $crate::__mapping!(cold_blooded_strike::$I, $(| $val | $blk)?),
             StatusId::UndividedHeart => $crate::__mapping!(undivided_heart::$I, $(| $val | $blk)?),
             StatusId::Riptide => $crate::__mapping!(riptide::$I, $(| $val | $blk)?),
@@ -773,6 +786,7 @@ macro_rules! __generated_enum_cases {
             StatusId::IcyQuill => $crate::__mapping!(&icy_quill::$I, $(| $val | $blk)?),
             StatusId::HeronShield => $crate::__mapping!(&heron_shield::$I, $(| $val | $blk)?),
             StatusId::PrayerOfTheCrimsonCrown => $crate::__mapping!(&prayer_of_the_crimson_crown::$I, $(| $val | $blk)?),
+            StatusId::YakshasMask => $crate::__mapping!(&yakshas_mask::$I, $(| $val | $blk)?),
             StatusId::ColdBloodedStrike => $crate::__mapping!(&cold_blooded_strike::$I, $(| $val | $blk)?),
             StatusId::UndividedHeart => $crate::__mapping!(&undivided_heart::$I, $(| $val | $blk)?),
             StatusId::Riptide => $crate::__mapping!(&riptide::$I, $(| $val | $blk)?),

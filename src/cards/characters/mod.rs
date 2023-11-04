@@ -47,6 +47,7 @@ pub mod sucrose;
 pub mod tartaglia;
 pub mod tighnari;
 pub mod xiangling;
+pub mod xiao;
 pub mod xingqiu;
 pub mod yae_miko;
 pub mod yanfei;
