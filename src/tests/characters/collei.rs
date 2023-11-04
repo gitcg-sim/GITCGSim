@@ -1,7 +1,7 @@
 use super::*;
 
 #[test]
-fn test_talent_card() {
+fn talent_card() {
     let mut gs =
         GameStateBuilder::new_skip_to_roll_phase(vector![CharId::Collei, CharId::Fischl], vector![CharId::Ganyu])
             .with_enable_log(true)
@@ -30,7 +30,7 @@ fn test_talent_card() {
 }
 
 #[test]
-fn test_talent_card_immediate_reaction() {
+fn talent_card_immediate_reaction() {
     let mut gs =
         GameStateBuilder::new_skip_to_roll_phase(vector![CharId::Collei, CharId::Fischl], vector![CharId::Ganyu])
             .with_enable_log(true)
@@ -54,7 +54,7 @@ fn test_talent_card_immediate_reaction() {
 }
 
 #[test]
-fn test_talent_card_does_not_trigger_on_incoming_dendro_reaction() {
+fn talent_card_does_not_trigger_on_incoming_dendro_reaction() {
     let mut gs =
         GameStateBuilder::new_skip_to_roll_phase(vector![CharId::Collei, CharId::Fischl], vector![CharId::Collei])
             .with_enable_log(true)

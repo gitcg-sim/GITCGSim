@@ -1,7 +1,7 @@
 use super::*;
 
 #[test]
-fn test_icetide_vortex() {
+fn icetide_vortex() {
     let mut gs = GameStateBuilder::new_skip_to_roll_phase(vector![CharId::Eula], vector![CharId::Yoimiya])
         .with_enable_log(true)
         .with_ignore_costs(true)
@@ -29,7 +29,7 @@ fn test_icetide_vortex() {
 }
 
 #[test]
-fn test_glacial_illumination_prevents_energy_gain_and_increments_counter_and_deals_physical_dmg() {
+fn glacial_illumination_prevents_energy_gain_and_increments_counter_and_deals_physical_dmg() {
     let mut gs = GameStateBuilder::new_skip_to_roll_phase(
         vector![CharId::Eula],
         vector![CharId::Xiangling, CharId::Fischl, CharId::Kaeya],
@@ -114,7 +114,7 @@ fn test_glacial_illumination_prevents_energy_gain_and_increments_counter_and_dea
 }
 
 #[test]
-fn test_glacial_illumination_does_not_accumulate_counter_on_others() {
+fn glacial_illumination_does_not_accumulate_counter_on_others() {
     let mut gs =
         GameStateBuilder::new_skip_to_roll_phase(vector![CharId::Eula, CharId::Fischl], vector![CharId::Xiangling])
             .with_enable_log(true)

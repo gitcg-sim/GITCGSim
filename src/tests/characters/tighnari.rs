@@ -1,7 +1,7 @@
 use super::*;
 
 #[test]
-fn test_vijnana_phala_mine_charged_attack() {
+fn vijnana_phala_mine_charged_attack() {
     let mut gs = GameStateBuilder::new_skip_to_roll_phase(vector![CharId::Tighnari], vector![CharId::Fischl])
         .with_enable_log(true)
         .with_ignore_costs(true)
@@ -43,7 +43,7 @@ fn test_vijnana_phala_mine_charged_attack() {
 }
 
 #[test]
-fn test_vijnana_phala_mine_non_charged_attack() {
+fn vijnana_phala_mine_non_charged_attack() {
     let mut gs = GameStateBuilder::new_skip_to_roll_phase(vector![CharId::Tighnari], vector![CharId::Fischl])
         .with_enable_log(true)
         .with_ignore_costs(true)
@@ -89,7 +89,7 @@ fn test_vijnana_phala_mine_non_charged_attack() {
 }
 
 #[test]
-fn test_talent_card_charged_attack() {
+fn talent_card_charged_attack() {
     let mut gs = GameStateBuilder::new_skip_to_roll_phase(vector![CharId::Tighnari], vector![CharId::Fischl])
         .with_enable_log(true)
         .build();

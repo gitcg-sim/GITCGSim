@@ -1,7 +1,7 @@
 use super::*;
 
 #[test]
-fn test_passive_switch_character_away_is_fast_action_once_per_round() {
+fn passive_switch_character_away_is_fast_action_once_per_round() {
     let mut gs =
         GameStateBuilder::new_skip_to_roll_phase(vector![CharId::Mona, CharId::Kaeya], vector![CharId::Fischl])
             .with_enable_log(true)
@@ -40,7 +40,7 @@ fn test_passive_switch_character_away_is_fast_action_once_per_round() {
 }
 
 #[test]
-fn test_reflection_expires_without_usage_being_consumed() {
+fn reflection_expires_without_usage_being_consumed() {
     let mut gs = GameStateBuilder::new_skip_to_roll_phase(vector![CharId::Mona], vector![CharId::Fischl])
         .with_enable_log(true)
         .with_ignore_costs(true)
@@ -65,7 +65,7 @@ fn test_reflection_expires_without_usage_being_consumed() {
 }
 
 #[test]
-fn test_reflection_reduces_dmg_and_remains_until_end_phase() {
+fn reflection_reduces_dmg_and_remains_until_end_phase() {
     let mut gs = GameStateBuilder::new_skip_to_roll_phase(vector![CharId::Mona], vector![CharId::Fischl])
         .with_enable_log(true)
         .with_ignore_costs(true)
@@ -113,7 +113,7 @@ fn test_reflection_reduces_dmg_and_remains_until_end_phase() {
 
 // TODO do reaction DMG bonuses apply before or after doubling? (after currently)
 #[test]
-fn test_stellaris_phantasm_doubles_dmg() {
+fn stellaris_phantasm_doubles_dmg() {
     let mut gs = GameStateBuilder::new_skip_to_roll_phase(
         vector![CharId::Mona, CharId::Xingqiu],
         vector![CharId::Fischl, CharId::Barbara],
@@ -153,7 +153,7 @@ fn test_stellaris_phantasm_doubles_dmg() {
 }
 
 #[test]
-fn test_stellaris_phantasm_doubles_dmg_for_reaction_post_reaction_bonus() {
+fn stellaris_phantasm_doubles_dmg_for_reaction_post_reaction_bonus() {
     let mut gs = GameStateBuilder::new_skip_to_roll_phase(
         vector![CharId::Mona, CharId::Bennett],
         vector![CharId::Fischl, CharId::Barbara],
@@ -182,7 +182,7 @@ fn test_stellaris_phantasm_doubles_dmg_for_reaction_post_reaction_bonus() {
 }
 
 #[test]
-fn test_stellaris_phantasm_does_not_double_summon_dmg() {
+fn stellaris_phantasm_does_not_double_summon_dmg() {
     let mut gs = GameStateBuilder::new_skip_to_roll_phase(
         vector![CharId::Xiangling, CharId::Mona],
         vector![CharId::Fischl, CharId::Barbara, CharId::Kaeya],

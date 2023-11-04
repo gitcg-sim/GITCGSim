@@ -7,7 +7,7 @@ pub mod support;
 pub mod elemental_resonance;
 
 #[test]
-fn test_changing_shifts() {
+fn changing_shifts() {
     let mut gs = GameStateBuilder::new_skip_to_roll_phase(
         vector![CharId::Kaeya, CharId::Fischl],
         vector![CharId::KamisatoAyaka],
@@ -28,7 +28,7 @@ fn test_changing_shifts() {
 }
 
 #[test]
-fn test_changing_shifts_not_cleared() {
+fn changing_shifts_not_cleared() {
     let mut gs = GameStateBuilder::new_skip_to_roll_phase(
         vector![CharId::Kaeya, CharId::Fischl],
         vector![CharId::KamisatoAyaka],
@@ -53,7 +53,7 @@ fn test_changing_shifts_not_cleared() {
 }
 
 #[test]
-fn test_leave_it_to_me() {
+fn leave_it_to_me() {
     let mut gs = GameStateBuilder::new_skip_to_roll_phase(
         vector![CharId::Kaeya, CharId::Fischl],
         vector![CharId::KamisatoAyaka],
@@ -77,7 +77,7 @@ fn test_leave_it_to_me() {
 }
 
 #[test]
-fn test_food() {
+fn food() {
     // TODO food implementation: target character and once per turn check
     let mut gs = GameStateBuilder::new_skip_to_roll_phase(
         vector![CharId::Kaeya, CharId::Fischl, CharId::Yoimiya],
@@ -139,7 +139,7 @@ fn test_food() {
 }
 
 #[test]
-fn test_i_havent_lost_yet_activation_condition() {
+fn i_havent_lost_yet_activation_condition() {
     let mut gs =
         GameStateBuilder::new_skip_to_roll_phase(vector![CharId::Kaeya, CharId::Fischl], vector![CharId::Yoimiya])
             .build();
@@ -183,7 +183,7 @@ fn test_i_havent_lost_yet_activation_condition() {
 }
 
 #[test]
-fn test_strategize() {
+fn strategize() {
     let mut gs = GameStateBuilder::new_skip_to_roll_phase(vector![CharId::Kaeya], vector![CharId::Yoimiya]).build();
 
     gs.players.0.dice.add_in_place(&DiceCounter::omni(8));
@@ -204,7 +204,7 @@ fn test_strategize() {
 }
 
 #[test]
-fn test_quick_knit() {
+fn quick_knit() {
     let mut gs = GameStateBuilder::new_skip_to_roll_phase(vector![CharId::Fischl], vector![CharId::Yoimiya])
         .with_ignore_costs(true)
         .build();
@@ -230,7 +230,7 @@ fn test_quick_knit() {
 }
 
 #[test]
-fn test_send_off() {
+fn send_off() {
     let mut gs = GameStateBuilder::new_skip_to_roll_phase(vector![CharId::Yoimiya], vector![CharId::Fischl])
         .with_ignore_costs(true)
         .build();
@@ -259,7 +259,7 @@ fn test_send_off() {
 }
 
 #[test]
-fn test_calxs_arts() {
+fn calxs_arts() {
     let mut gs = GameStateBuilder::new_skip_to_roll_phase(
         vector![CharId::Yoimiya, CharId::Ganyu, CharId::Xingqiu],
         vector![CharId::Fischl],

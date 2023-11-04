@@ -9,7 +9,7 @@ use crate::{
 use super::*;
 
 #[test]
-fn test_zobrist_hash() {
+fn zobrist_hash() {
     let mut gs =
         GameStateBuilder::new_skip_to_roll_phase(vector![CharId::Fischl], vector![CharId::Kaeya, CharId::Yoimiya])
             .with_ignore_costs(true)
@@ -39,7 +39,7 @@ fn test_zobrist_hash() {
 }
 
 #[test]
-fn test_zobrist_hash_random_steps_1() {
+fn zobrist_hash_random_steps_1() {
     let gs = GameStateBuilder::new_skip_to_roll_phase(
         vector![CharId::Keqing, CharId::Yoimiya, CharId::Cyno],
         vector![CharId::Klee, CharId::Xingqiu, CharId::Mona],
@@ -49,7 +49,7 @@ fn test_zobrist_hash_random_steps_1() {
 }
 
 #[test]
-fn test_zobrist_hash_random_steps_2() {
+fn zobrist_hash_random_steps_2() {
     let gs = GameStateBuilder::new_skip_to_roll_phase(
         vector![CharId::KamisatoAyaka, CharId::Yoimiya, CharId::Collei],
         vector![CharId::Diona, CharId::Ningguang, CharId::Noelle],
@@ -59,7 +59,7 @@ fn test_zobrist_hash_random_steps_2() {
 }
 
 #[test]
-fn test_zobrist_hash_random_steps_3() {
+fn zobrist_hash_random_steps_3() {
     let gs = GameStateBuilder::new_skip_to_roll_phase(
         vector![CharId::Barbara, CharId::Fischl, CharId::Collei],
         vector![CharId::Mona, CharId::Ganyu, CharId::Kaeya],
@@ -69,7 +69,7 @@ fn test_zobrist_hash_random_steps_3() {
 }
 
 #[test]
-fn test_zobrist_hash_random_steps_4() {
+fn zobrist_hash_random_steps_4() {
     let gs = GameStateBuilder::new_skip_to_roll_phase(
         vector![CharId::KujouSara, CharId::Keqing, CharId::SangonomiyaKokomi],
         vector![CharId::Mona, CharId::Cyno, CharId::Eula],
@@ -79,7 +79,7 @@ fn test_zobrist_hash_random_steps_4() {
 }
 
 #[test]
-fn test_zobrist_hash_random_steps_5() {
+fn zobrist_hash_random_steps_5() {
     let gs = GameStateBuilder::new_skip_to_roll_phase(
         vector![CharId::Eula, CharId::Fischl, CharId::Diona],
         vector![CharId::KamisatoAyaka, CharId::Ganyu, CharId::Xingqiu],

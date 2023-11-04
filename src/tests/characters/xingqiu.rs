@@ -1,7 +1,7 @@
 use super::*;
 
 #[test]
-fn test_fatal_rainscreen_applies_hydro_to_self_and_creates_rain_sword() {
+fn fatal_rainscreen_applies_hydro_to_self_and_creates_rain_sword() {
     let mut gs = GameStateBuilder::new_skip_to_roll_phase(vector![CharId::Xingqiu], vector![CharId::Fischl])
         .with_ignore_costs(true)
         .build();
@@ -33,7 +33,7 @@ fn test_fatal_rainscreen_applies_hydro_to_self_and_creates_rain_sword() {
 }
 
 #[test]
-fn test_talent_card_increases_fatal_rainscreen_usages() {
+fn talent_card_increases_fatal_rainscreen_usages() {
     let mut gs = GameStateBuilder::new_skip_to_roll_phase(vector![CharId::Xingqiu], vector![CharId::Fischl])
         .with_ignore_costs(true)
         .build();
@@ -58,7 +58,7 @@ fn test_talent_card_increases_fatal_rainscreen_usages() {
 }
 
 #[test]
-fn test_rain_sword_reduces_dmg_above_3_by_1() {
+fn rain_sword_reduces_dmg_above_3_by_1() {
     let mut gs = GameStateBuilder::new_skip_to_roll_phase(
         vector![CharId::Xingqiu, CharId::Yoimiya],
         vector![CharId::Fischl, CharId::Noelle],
@@ -103,7 +103,7 @@ fn test_rain_sword_reduces_dmg_above_3_by_1() {
 }
 
 #[test]
-fn test_raincutter_applies_hydro_to_self_and_creates_rainbow_bladework() {
+fn raincutter_applies_hydro_to_self_and_creates_rainbow_bladework() {
     let mut gs = GameStateBuilder::new_skip_to_roll_phase(vector![CharId::Xingqiu], vector![CharId::Fischl])
         .with_ignore_costs(true)
         .build();
@@ -135,7 +135,7 @@ fn test_raincutter_applies_hydro_to_self_and_creates_rainbow_bladework() {
 }
 
 #[test]
-fn test_rainbow_bladework_procs_on_normal_attacks() {
+fn rainbow_bladework_procs_on_normal_attacks() {
     let mut gs = GameStateBuilder::new_skip_to_roll_phase(
         vector![CharId::Xingqiu, CharId::Xiangling],
         vector![CharId::Fischl, CharId::Noelle],

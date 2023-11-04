@@ -1,7 +1,7 @@
 use super::*;
 
 #[test]
-fn test_tengu_juurai_ambush_applies_crowfeather_cover_end_phase() {
+fn tengu_juurai_ambush_applies_crowfeather_cover_end_phase() {
     let mut gs = GameStateBuilder::new_skip_to_roll_phase(
         vector![CharId::KujouSara, CharId::Kaeya],
         vector![CharId::Ganyu, CharId::Xiangling],

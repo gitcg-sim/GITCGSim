@@ -6,7 +6,7 @@ use crate::{
 use super::*;
 
 #[test]
-fn test_switch_character_validation() {
+fn switch_character_validation() {
     let mut gs = GameStateBuilder::new_skip_to_roll_phase(
         vector![CharId::Yoimiya, CharId::Xingqiu, CharId::Ganyu],
         vector![CharId::Yoimiya, CharId::Xingqiu, CharId::Ganyu],
@@ -53,7 +53,7 @@ fn test_switch_character_validation() {
 }
 
 #[test]
-fn test_cast_skill_validation() {
+fn cast_skill_validation() {
     let mut gs = GameStateBuilder::new_skip_to_roll_phase(
         vector![CharId::Yoimiya, CharId::Xingqiu, CharId::Ganyu],
         vector![CharId::Yoimiya, CharId::Xingqiu, CharId::Ganyu],
@@ -86,7 +86,7 @@ fn test_cast_skill_validation() {
 }
 
 #[test]
-fn test_cast_skill_cost_validation() {
+fn cast_skill_cost_validation() {
     let mut gs = GameStateBuilder::new_skip_to_roll_phase(
         vector![CharId::Yoimiya, CharId::Xingqiu, CharId::Ganyu],
         vector![CharId::Yoimiya, CharId::Xingqiu, CharId::Ganyu],
@@ -113,7 +113,7 @@ fn test_cast_skill_cost_validation() {
 }
 
 #[test]
-fn test_weapon_equip_validation() {
+fn weapon_equip_validation() {
     let mut gs =
         GameStateBuilder::new_skip_to_roll_phase(vector![CharId::Yoimiya, CharId::Keqing], vector![CharId::Fischl])
             .with_ignore_costs(true)
@@ -173,7 +173,7 @@ fn test_weapon_equip_validation() {
 }
 
 #[test]
-fn test_artifact_equip_validation() {
+fn artifact_equip_validation() {
     let mut gs =
         GameStateBuilder::new_skip_to_roll_phase(vector![CharId::Yoimiya, CharId::Ganyu], vector![CharId::Fischl])
             .with_ignore_costs(true)

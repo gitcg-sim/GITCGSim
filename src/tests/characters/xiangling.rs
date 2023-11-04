@@ -1,7 +1,7 @@
 use super::*;
 
 #[test]
-fn test_guoba_attack_deals_dmg_at_end_phase() {
+fn guoba_attack_deals_dmg_at_end_phase() {
     let mut gs =
         GameStateBuilder::new_skip_to_roll_phase(vector![CharId::Xiangling, CharId::Fischl], vector![CharId::Kaeya])
             .with_enable_log(true)
@@ -24,7 +24,7 @@ fn test_guoba_attack_deals_dmg_at_end_phase() {
 }
 
 #[test]
-fn test_talent_card_deals_pyro_dmg_on_skill_cast() {
+fn talent_card_deals_pyro_dmg_on_skill_cast() {
     let mut gs =
         GameStateBuilder::new_skip_to_roll_phase(vector![CharId::Xiangling, CharId::Fischl], vector![CharId::Kaeya])
             .with_enable_log(true)
@@ -45,7 +45,7 @@ fn test_talent_card_deals_pyro_dmg_on_skill_cast() {
 }
 
 #[test]
-fn test_pyronado_deals_dmg_on_skill_cast() {
+fn pyronado_deals_dmg_on_skill_cast() {
     let mut gs = GameStateBuilder::new_skip_to_roll_phase(
         vector![CharId::Xiangling, CharId::Fischl],
         vector![CharId::Kaeya, CharId::Xingqiu],

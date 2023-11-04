@@ -1,7 +1,7 @@
 use super::*;
 
 #[test]
-fn test_stonehide_consumes_2_usages_for_geo_dmg() {
+fn stonehide_consumes_2_usages_for_geo_dmg() {
     let mut gs =
         GameStateBuilder::new_skip_to_roll_phase(vector![CharId::StonehideLawachurl], vector![CharId::Ningguang])
             .with_enable_log(true)
@@ -36,7 +36,7 @@ fn test_stonehide_consumes_2_usages_for_geo_dmg() {
 }
 
 #[test]
-fn test_stonehide_removes_stone_force_at_zero_usages() {
+fn stonehide_removes_stone_force_at_zero_usages() {
     let mut gs =
         GameStateBuilder::new_skip_to_roll_phase(vector![CharId::StonehideLawachurl], vector![CharId::Ningguang])
             .with_enable_log(true)
@@ -82,7 +82,7 @@ fn test_stonehide_removes_stone_force_at_zero_usages() {
 }
 
 #[test]
-fn test_stone_force_infuses_geo() {
+fn stone_force_infuses_geo() {
     let mut gs =
         GameStateBuilder::new_skip_to_roll_phase(vector![CharId::StonehideLawachurl], vector![CharId::Ningguang])
             .with_enable_log(true)

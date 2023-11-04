@@ -1,7 +1,7 @@
 use super::*;
 
 #[test]
-fn test_playing_up_to_4_supports() {
+fn playing_up_to_4_supports() {
     let mut gs = GameStateBuilder::new_skip_to_roll_phase(vector![CharId::Fischl], vector![CharId::Yoimiya])
         .with_enable_log(true)
         .with_ignore_costs(true)
@@ -37,7 +37,7 @@ fn test_playing_up_to_4_supports() {
 }
 
 #[test]
-fn test_paimon_adds_omni_dice() {
+fn paimon_adds_omni_dice() {
     let mut gs = GameStateBuilder::new_skip_to_roll_phase(vector![CharId::Fischl], vector![CharId::Yoimiya])
         .with_enable_log(true)
         .build();
@@ -76,7 +76,7 @@ fn test_paimon_adds_omni_dice() {
 }
 
 #[test]
-fn test_multiple_paimon_adds_additional_omni_dice() {
+fn multiple_paimon_adds_additional_omni_dice() {
     let mut gs = GameStateBuilder::new_skip_to_roll_phase(vector![CharId::Fischl], vector![CharId::Yoimiya])
         .with_enable_log(true)
         .build();
@@ -104,7 +104,7 @@ fn test_multiple_paimon_adds_additional_omni_dice() {
 }
 
 #[test]
-fn test_jade_chamber_guarantees_dice_with_active_character_elem() {
+fn jade_chamber_guarantees_dice_with_active_character_elem() {
     let mut gs =
         GameStateBuilder::new_skip_to_roll_phase(vector![CharId::Fischl, CharId::Ganyu], vector![CharId::Yoimiya])
             .with_enable_log(true)
@@ -144,7 +144,7 @@ fn test_jade_chamber_guarantees_dice_with_active_character_elem() {
 }
 
 #[test]
-fn test_knights_of_favonius_library_updates_reroll_counts() {
+fn knights_of_favonius_library_updates_reroll_counts() {
     let mut gs =
         GameStateBuilder::new_skip_to_roll_phase(vector![CharId::Fischl, CharId::Ganyu], vector![CharId::Yoimiya])
             .with_enable_log(true)
@@ -167,7 +167,7 @@ fn test_knights_of_favonius_library_updates_reroll_counts() {
 }
 
 #[test]
-fn test_liben() {
+fn liben() {
     let mut gs =
         GameStateBuilder::new_skip_to_roll_phase(vector![CharId::Fischl, CharId::Ganyu], vector![CharId::Yoimiya])
             .with_enable_log(true)

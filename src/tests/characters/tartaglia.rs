@@ -1,7 +1,7 @@
 use super::*;
 
 #[test]
-fn test_foul_legacy_raging_tide_melee_stance_and_riptide_transfer() {
+fn foul_legacy_raging_tide_melee_stance_and_riptide_transfer() {
     let mut gs =
         GameStateBuilder::new_skip_to_roll_phase(vector![CharId::Tartaglia], vector![CharId::Ganyu, CharId::Fischl])
             .with_enable_log(true)

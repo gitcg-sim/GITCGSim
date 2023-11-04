@@ -3,7 +3,7 @@ use enumset::enum_set;
 use super::*;
 
 #[test]
-fn test_first_phase_is_roll_phase() {
+fn first_phase_is_roll_phase() {
     let gs = GameStateBuilder::new_skip_to_roll_phase(
         vector![CharId::Kaeya, CharId::Fischl],
         vector![CharId::KamisatoAyaka],
@@ -20,7 +20,7 @@ fn test_first_phase_is_roll_phase() {
 }
 
 #[test]
-fn test_action_phase_and_first_player_to_end_round() {
+fn action_phase_and_first_player_to_end_round() {
     let mut gs = GameStateBuilder::new_skip_to_roll_phase(
         vector![CharId::Kaeya, CharId::Fischl],
         vector![CharId::KamisatoAyaka],
@@ -73,7 +73,7 @@ fn test_action_phase_and_first_player_to_end_round() {
 }
 
 #[test]
-fn test_post_death_switch() {
+fn post_death_switch() {
     let mut gs = GameStateBuilder::new_skip_to_roll_phase(
         vector![CharId::Fischl],
         vector![CharId::Kaeya, CharId::Ganyu, CharId::Yoimiya],
@@ -98,7 +98,7 @@ fn test_post_death_switch() {
 }
 
 #[test]
-fn test_piercing_dmg_victory() {
+fn piercing_dmg_victory() {
     let mut gs = GameStateBuilder::new_skip_to_roll_phase(
         vector![CharId::Ganyu],
         vector![CharId::Kaeya, CharId::Ganyu, CharId::Yoimiya],
@@ -125,7 +125,7 @@ fn test_piercing_dmg_victory() {
 }
 
 #[test]
-fn test_piercing_dmg_causing_post_death_switch() {
+fn piercing_dmg_causing_post_death_switch() {
     let mut gs = GameStateBuilder::new_skip_to_roll_phase(
         vector![CharId::Ganyu],
         vector![CharId::Kaeya, CharId::Ganyu, CharId::Yoimiya],
@@ -146,7 +146,7 @@ fn test_piercing_dmg_causing_post_death_switch() {
 }
 
 #[test]
-fn test_trigger_effects_after_post_death_switch() {
+fn trigger_effects_after_post_death_switch() {
     let mut gs =
         GameStateBuilder::new_skip_to_roll_phase(vector![CharId::Fischl], vector![CharId::Kaeya, CharId::Yoimiya])
             .with_ignore_costs(true)
@@ -168,7 +168,7 @@ fn test_trigger_effects_after_post_death_switch() {
 }
 
 #[test]
-fn test_end_phase_post_death_switch() {
+fn end_phase_post_death_switch() {
     let mut gs = GameStateBuilder::new_skip_to_roll_phase(
         vector![CharId::Yoimiya, CharId::Ganyu],
         vector![CharId::Fischl, CharId::KamisatoAyaka, CharId::Collei],
@@ -199,7 +199,7 @@ fn test_end_phase_post_death_switch() {
 }
 
 #[test]
-fn test_end_phase_winner_decided() {
+fn end_phase_winner_decided() {
     let mut gs = GameStateBuilder::new_skip_to_roll_phase(
         vector![CharId::Yoimiya],
         vector![CharId::Fischl, CharId::KamisatoAyaka, CharId::Collei],
@@ -233,7 +233,7 @@ fn test_end_phase_winner_decided() {
 }
 
 #[test]
-fn test_play_card() {
+fn play_card() {
     let mut gs = GameStateBuilder::new_skip_to_roll_phase(
         vector![CharId::Yoimiya],
         vector![CharId::Fischl, CharId::KamisatoAyaka, CharId::Collei],
@@ -259,7 +259,7 @@ fn test_play_card() {
 }
 
 #[test]
-fn test_elemental_tuning() {
+fn elemental_tuning() {
     let mut gs = GameStateBuilder::new_skip_to_roll_phase(vector![CharId::Yoimiya], vector![CharId::Fischl]).build();
     gs.advance_roll_phase_no_dice();
     gs.players.0.dice[Dice::DENDRO] = 1;
@@ -278,7 +278,7 @@ fn test_elemental_tuning() {
 }
 
 #[test]
-fn test_artifact_equip_replace() {
+fn artifact_equip_replace() {
     let mut gs = GameStateBuilder::new_skip_to_roll_phase(vector![CharId::Yoimiya], vector![CharId::Fischl])
         .with_ignore_costs(true)
         .build();
@@ -312,7 +312,7 @@ fn test_artifact_equip_replace() {
 }
 
 #[test]
-fn test_weapon_equip_replace() {
+fn weapon_equip_replace() {
     let mut gs = GameStateBuilder::new_skip_to_roll_phase(vector![CharId::Yoimiya], vector![CharId::Fischl])
         .with_ignore_costs(true)
         .build();
@@ -346,7 +346,7 @@ fn test_weapon_equip_replace() {
 }
 
 #[test]
-fn test_skill_cast_tracker() {
+fn skill_cast_tracker() {
     let mut gs = GameStateBuilder::new_skip_to_roll_phase(
         vector![CharId::Ganyu, CharId::Yoimiya],
         vector![CharId::Fischl, CharId::Noelle],

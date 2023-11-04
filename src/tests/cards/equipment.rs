@@ -15,7 +15,7 @@ fn game_state_for_artifacts(card_id: CardId) -> GameState {
 }
 
 #[test]
-fn test_artifact_2_reduces_talent_cost_once_per_round() {
+fn artifact_2_reduces_talent_cost_once_per_round() {
     let mut gs = game_state_for_artifacts(CardId::BrokenRimesEcho);
     assert_eq!(8, gs.players.0.dice.total());
     gs.advance_multiple(&vec![Input::FromPlayer(
@@ -56,7 +56,7 @@ fn test_artifact_2_reduces_talent_cost_once_per_round() {
 }
 
 #[test]
-fn test_artifact_2_does_not_reduce_non_matching_element_cost() {
+fn artifact_2_does_not_reduce_non_matching_element_cost() {
     let mut gs = game_state_for_artifacts(CardId::BrokenRimesEcho);
     assert_eq!(8, gs.players.0.dice.total());
     gs.advance_multiple(&vec![
@@ -77,7 +77,7 @@ fn test_artifact_2_does_not_reduce_non_matching_element_cost() {
 }
 
 #[test]
-fn test_artifact_3_dice_guarantee() {
+fn artifact_3_dice_guarantee() {
     let mut gs = game_state_for_artifacts(CardId::BlizzardStrayer);
     assert_eq!(8, gs.players.0.dice.total());
     gs.advance_multiple(&vec![Input::FromPlayer(
@@ -103,7 +103,7 @@ fn test_artifact_3_dice_guarantee() {
 }
 
 #[test]
-fn test_talent_equip_must_be_on_matching_and_active_character() {
+fn talent_equip_must_be_on_matching_and_active_character() {
     let mut gs =
         GameStateBuilder::new_skip_to_roll_phase(vector![CharId::Xingqiu, CharId::Yoimiya], vector![CharId::Fischl])
             .with_enable_log(true)
@@ -143,7 +143,7 @@ fn test_talent_equip_must_be_on_matching_and_active_character() {
 }
 
 #[test]
-fn test_talent_equip_without_skill_must_be_on_matching_character() {
+fn talent_equip_without_skill_must_be_on_matching_character() {
     let mut gs = GameStateBuilder::new_skip_to_roll_phase(
         vector![CharId::Xingqiu, CharId::KamisatoAyaka],
         vector![CharId::Fischl],
@@ -163,7 +163,7 @@ fn test_talent_equip_without_skill_must_be_on_matching_character() {
 }
 
 #[test]
-fn test_gamblers_earrings_triggers_on_skill_defeat() {
+fn gamblers_earrings_triggers_on_skill_defeat() {
     let mut gs = GameStateBuilder::new_skip_to_roll_phase(
         vector![CharId::Fischl, CharId::Kaeya],
         vector![CharId::Ganyu, CharId::Xingqiu],
@@ -187,7 +187,7 @@ fn test_gamblers_earrings_triggers_on_skill_defeat() {
 }
 
 #[test]
-fn test_gamblers_earrings_triggers_on_summon_defeat() {
+fn gamblers_earrings_triggers_on_summon_defeat() {
     let mut gs = GameStateBuilder::new_skip_to_roll_phase(
         vector![CharId::Fischl, CharId::Kaeya],
         vector![CharId::Ganyu, CharId::Xingqiu],
@@ -217,7 +217,7 @@ fn test_gamblers_earrings_triggers_on_summon_defeat() {
 }
 
 #[test]
-fn test_gamblers_earrings_does_not_trigger_on_non_active_defeat() {
+fn gamblers_earrings_does_not_trigger_on_non_active_defeat() {
     let mut gs = GameStateBuilder::new_skip_to_roll_phase(
         vector![CharId::Fischl, CharId::Kaeya],
         vector![CharId::Ganyu, CharId::Xingqiu],
@@ -245,7 +245,7 @@ fn test_gamblers_earrings_does_not_trigger_on_non_active_defeat() {
 }
 
 #[test]
-fn test_gamblers_earrings_does_not_trigger_on_non_active_summon_defeat() {
+fn gamblers_earrings_does_not_trigger_on_non_active_summon_defeat() {
     let mut gs = GameStateBuilder::new_skip_to_roll_phase(
         vector![CharId::Fischl, CharId::Kaeya],
         vector![CharId::Ganyu, CharId::Xingqiu],
@@ -276,7 +276,7 @@ fn test_gamblers_earrings_does_not_trigger_on_non_active_summon_defeat() {
 }
 
 #[test]
-fn test_lithic_spear_grants_shield_points() {
+fn lithic_spear_grants_shield_points() {
     let mut gs = GameStateBuilder::new_skip_to_roll_phase(
         vector![CharId::Xiangling, CharId::Yoimiya, CharId::Xingqiu],
         vector![CharId::Fischl],

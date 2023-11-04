@@ -80,7 +80,7 @@ fn _initial_gs_wrapper() -> GameStateWrapper<StandardNondetHandlerState> {
 }
 
 #[test]
-fn test_game_state_serialize_json() {
+fn game_state_serialize_json() {
     let gs = _initial_gs();
     let ser = serde_json::to_string_pretty(&gs).unwrap();
     println!("{ser}");
@@ -90,7 +90,7 @@ fn test_game_state_serialize_json() {
 }
 
 #[test]
-fn test_game_state_serialize_bincode() {
+fn game_state_serialize_bincode() {
     let gs = _initial_gs();
     let ser = bincode::serialize(&gs).unwrap();
     println!("{ser:?}");
@@ -100,7 +100,7 @@ fn test_game_state_serialize_bincode() {
 }
 
 #[test]
-fn test_gsw_serialize_json() {
+fn gsw_serialize_json() {
     let gs = _initial_gs_wrapper();
     let ser = serde_json::to_string_pretty(&gs).unwrap();
     println!("{ser}");
@@ -110,7 +110,7 @@ fn test_gsw_serialize_json() {
 }
 
 #[test]
-fn test_gsw_serialize_bincode() {
+fn gsw_serialize_bincode() {
     let gs = _initial_gs_wrapper();
     let ser = bincode::serialize(&gs).unwrap();
     println!("{ser:?}");

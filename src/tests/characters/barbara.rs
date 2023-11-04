@@ -1,7 +1,7 @@
 use super::*;
 
 #[test]
-fn test_melody_loop_heals_and_applies_hydro_to_active_character() {
+fn melody_loop_heals_and_applies_hydro_to_active_character() {
     let mut gs = GameStateBuilder::new_skip_to_roll_phase(
         vector![CharId::Barbara, CharId::Noelle],
         vector![CharId::Fischl, CharId::Yoimiya],

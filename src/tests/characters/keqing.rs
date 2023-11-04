@@ -18,7 +18,7 @@ fn game_state_after_stellar_restoration() -> GameState {
 }
 
 #[test]
-fn test_stellar_restoration_creates_lightning_stiletto() {
+fn stellar_restoration_creates_lightning_stiletto() {
     let gs = game_state_after_stellar_restoration();
     {
         let fischl = gs.get_player(PlayerId::PlayerSecond).get_active_character();
@@ -33,7 +33,7 @@ fn test_stellar_restoration_creates_lightning_stiletto() {
 }
 
 #[test]
-fn test_lightning_stiletto_switches_to_keqing_and_casts_skill() {
+fn lightning_stiletto_switches_to_keqing_and_casts_skill() {
     let mut gs = game_state_after_stellar_restoration();
     gs.advance_multiple(&vec![
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::SwitchCharacter(1)),
@@ -60,7 +60,7 @@ fn test_lightning_stiletto_switches_to_keqing_and_casts_skill() {
 }
 
 #[test]
-fn test_lightning_stiletto_casts_skill_when_keqing_is_active() {
+fn lightning_stiletto_casts_skill_when_keqing_is_active() {
     let mut gs = game_state_after_stellar_restoration();
     gs.advance_multiple(&vec![
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::SwitchCharacter(1)),
@@ -88,7 +88,7 @@ fn test_lightning_stiletto_casts_skill_when_keqing_is_active() {
 }
 
 #[test]
-fn test_lightning_stiletto_cannot_be_played_with_dead_keqing() {
+fn lightning_stiletto_cannot_be_played_with_dead_keqing() {
     let mut gs = game_state_after_stellar_restoration();
     gs.advance_multiple(&vec![
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::SwitchCharacter(1)),
@@ -105,7 +105,7 @@ fn test_lightning_stiletto_cannot_be_played_with_dead_keqing() {
 }
 
 #[test]
-fn test_stellar_restoration_grants_electro_infusion_by_consuming_lightning_stiletto_on_hand() {
+fn stellar_restoration_grants_electro_infusion_by_consuming_lightning_stiletto_on_hand() {
     let mut gs = game_state_after_stellar_restoration();
     gs.advance_multiple(&vec![
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::SwitchCharacter(1)),
@@ -128,7 +128,7 @@ fn test_stellar_restoration_grants_electro_infusion_by_consuming_lightning_stile
 }
 
 #[test]
-fn test_talent_card_increases_electro_infusion_duration() {
+fn talent_card_increases_electro_infusion_duration() {
     let mut gs = game_state_after_stellar_restoration();
     gs.players.0.hand.push(CardId::ThunderingPenance);
     gs.advance_multiple(&vec![

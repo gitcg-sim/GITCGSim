@@ -1,7 +1,7 @@
 use super::*;
 
 #[test]
-fn test_astable_anemohypostasis_creation_6308_forces_switch_1_character() {
+fn astable_anemohypostasis_creation_6308_forces_switch_1_character() {
     let mut gs = GameStateBuilder::new_skip_to_roll_phase(vector![CharId::Sucrose], vector![CharId::Ganyu])
         .with_enable_log(true)
         .with_ignore_costs(true)
@@ -20,7 +20,7 @@ fn test_astable_anemohypostasis_creation_6308_forces_switch_1_character() {
 }
 
 #[test]
-fn test_astable_anemohypostasis_creation_6308_forces_switch_to_prev() {
+fn astable_anemohypostasis_creation_6308_forces_switch_to_prev() {
     let mut gs = GameStateBuilder::new_skip_to_roll_phase(
         vector![CharId::Sucrose],
         vector![CharId::Ganyu, CharId::Yoimiya, CharId::Fischl],
@@ -56,7 +56,7 @@ fn test_astable_anemohypostasis_creation_6308_forces_switch_to_prev() {
 }
 
 #[test]
-fn test_large_wind_spirit_deals_anemo_dmg_without_infusion() {
+fn large_wind_spirit_deals_anemo_dmg_without_infusion() {
     let mut gs =
         GameStateBuilder::new_skip_to_roll_phase(vector![CharId::Sucrose], vector![CharId::Ganyu, CharId::Yoimiya])
             .with_enable_log(true)
@@ -96,7 +96,7 @@ fn test_large_wind_spirit_deals_anemo_dmg_without_infusion() {
 }
 
 #[test]
-fn test_large_wind_spirit_deals_infuses_after_swirling() {
+fn large_wind_spirit_deals_infuses_after_swirling() {
     let mut gs =
         GameStateBuilder::new_skip_to_roll_phase(vector![CharId::Sucrose], vector![CharId::Ganyu, CharId::Yoimiya])
             .with_enable_log(true)
@@ -167,7 +167,7 @@ fn test_large_wind_spirit_deals_infuses_after_swirling() {
 // TODO test different own summon swirling
 
 #[test]
-fn test_large_wind_spirit_infused_dmg_after_own_character_swirling() {
+fn large_wind_spirit_infused_dmg_after_own_character_swirling() {
     let mut gs = GameStateBuilder::new_skip_to_roll_phase(
         vector![CharId::Sucrose, CharId::Jean],
         vector![CharId::Jean, CharId::Yoimiya],
@@ -227,7 +227,7 @@ fn test_large_wind_spirit_infused_dmg_after_own_character_swirling() {
 }
 
 #[test]
-fn test_large_wind_spirit_does_not_infuse_after_opponent_summon_swirling() {
+fn large_wind_spirit_does_not_infuse_after_opponent_summon_swirling() {
     let mut gs = GameStateBuilder::new_skip_to_roll_phase(vector![CharId::Sucrose], vector![CharId::Sucrose])
         .with_enable_log(true)
         .with_ignore_costs(true)
@@ -284,7 +284,7 @@ fn test_large_wind_spirit_does_not_infuse_after_opponent_summon_swirling() {
 }
 
 #[test]
-fn test_large_wind_spirit_does_not_infuse_after_opponent_skill_swirling() {
+fn large_wind_spirit_does_not_infuse_after_opponent_skill_swirling() {
     let mut gs = GameStateBuilder::new_skip_to_roll_phase(vector![CharId::Sucrose], vector![CharId::Sucrose])
         .with_enable_log(true)
         .with_ignore_costs(true)

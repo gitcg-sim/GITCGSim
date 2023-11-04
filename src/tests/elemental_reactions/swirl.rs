@@ -1,7 +1,7 @@
 use super::*;
 
 #[test]
-fn test_swirl_deals_swirl_dmg_and_applies_element() {
+fn swirl_deals_swirl_dmg_and_applies_element() {
     for e in [Element::Pyro, Element::Hydro, Element::Electro, Element::Cryo] {
         let mut gs = GameStateBuilder::new_skip_to_roll_phase(
             vector![CharId::Sucrose],
@@ -30,7 +30,7 @@ fn test_swirl_deals_swirl_dmg_and_applies_element() {
 }
 
 #[test]
-fn test_swirl_triggers_secondary_reactions_melt_vaporize() {
+fn swirl_triggers_secondary_reactions_melt_vaporize() {
     let mut gs = GameStateBuilder::new_skip_to_roll_phase(
         vector![CharId::Sucrose],
         vector![CharId::Yoimiya, CharId::Fischl, CharId::Ganyu],
@@ -61,7 +61,7 @@ fn test_swirl_triggers_secondary_reactions_melt_vaporize() {
 }
 
 #[test]
-fn test_swirl_triggers_secondary_reactions_electro_charged_superconduct() {
+fn swirl_triggers_secondary_reactions_electro_charged_superconduct() {
     for e in [Element::Hydro, Element::Cryo] {
         let mut gs = GameStateBuilder::new_skip_to_roll_phase(
             vector![CharId::Sucrose],
@@ -93,7 +93,7 @@ fn test_swirl_triggers_secondary_reactions_electro_charged_superconduct() {
 }
 
 #[test]
-fn test_swirl_triggers_secondary_reactions_bloom_frozen() {
+fn swirl_triggers_secondary_reactions_bloom_frozen() {
     let mut gs = GameStateBuilder::new_skip_to_roll_phase(
         vector![CharId::Sucrose],
         vector![CharId::Yoimiya, CharId::Fischl, CharId::Ganyu],
@@ -129,7 +129,7 @@ fn test_swirl_triggers_secondary_reactions_bloom_frozen() {
 }
 
 #[test]
-fn test_swirl_triggers_secondary_reactions_quicken() {
+fn swirl_triggers_secondary_reactions_quicken() {
     let mut gs = GameStateBuilder::new_skip_to_roll_phase(
         vector![CharId::Sucrose],
         vector![CharId::Yoimiya, CharId::Fischl, CharId::Ganyu],
@@ -159,7 +159,7 @@ fn test_swirl_triggers_secondary_reactions_quicken() {
 }
 
 #[test]
-fn test_swirl_triggers_secondary_reactions_burning() {
+fn swirl_triggers_secondary_reactions_burning() {
     let mut gs = GameStateBuilder::new_skip_to_roll_phase(
         vector![CharId::Sucrose],
         vector![CharId::Yoimiya, CharId::Fischl, CharId::Ganyu],
@@ -187,7 +187,7 @@ fn test_swirl_triggers_secondary_reactions_burning() {
 }
 
 #[test]
-fn test_swirl_triggers_secondary_reactions_overloaded_no_forced_switch() {
+fn swirl_triggers_secondary_reactions_overloaded_no_forced_switch() {
     let mut gs = GameStateBuilder::new_skip_to_roll_phase(
         vector![CharId::Sucrose],
         vector![CharId::Yoimiya, CharId::Fischl, CharId::Ganyu],

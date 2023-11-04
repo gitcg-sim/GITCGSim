@@ -1,7 +1,7 @@
 use super::*;
 
 #[test]
-fn test_tidecaller_prepared_skill_not_discarded_by_lost_shield_points() {
+fn tidecaller_prepared_skill_not_discarded_by_lost_shield_points() {
     let mut gs =
         GameStateBuilder::new_skip_to_roll_phase(vector![CharId::Beidou, CharId::Noelle], vector![CharId::Fischl])
             .with_enable_log(true)
@@ -44,7 +44,7 @@ fn test_tidecaller_prepared_skill_not_discarded_by_lost_shield_points() {
 }
 
 #[test]
-fn test_tidecaller_prepared_skill_interrupted_by_overload() {
+fn tidecaller_prepared_skill_interrupted_by_overload() {
     let mut gs =
         GameStateBuilder::new_skip_to_roll_phase(vector![CharId::Beidou, CharId::Noelle], vector![CharId::Fischl])
             .with_enable_log(true)
@@ -85,7 +85,7 @@ fn test_tidecaller_prepared_skill_interrupted_by_overload() {
 
 // TOOD don't know the actual interaction between prepare skill and frozen
 #[test]
-fn test_tidecaller_prepared_skill_frozen() {
+fn tidecaller_prepared_skill_frozen() {
     let mut gs = GameStateBuilder::new_skip_to_roll_phase(
         vector![CharId::Beidou, CharId::Noelle],
         vector![CharId::SangonomiyaKokomi],

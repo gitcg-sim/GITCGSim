@@ -1,7 +1,7 @@
 use super::*;
 
 #[test]
-fn test_frostflake_arrow_piercing_dmg() {
+fn frostflake_arrow_piercing_dmg() {
     let mut gs = GameStateBuilder::new_skip_to_roll_phase(
         vector![CharId::Ganyu],
         vector![CharId::Fischl, CharId::Yoimiya, CharId::Kaeya],
@@ -32,7 +32,7 @@ fn test_frostflake_arrow_piercing_dmg() {
 }
 
 #[test]
-fn test_talent_card_does_not_increase_frostflake_arrow_dmg_first_cast() {
+fn talent_card_does_not_increase_frostflake_arrow_dmg_first_cast() {
     let mut gs = GameStateBuilder::new_skip_to_roll_phase(
         vector![CharId::Ganyu],
         vector![CharId::Fischl, CharId::Yoimiya, CharId::Kaeya],
@@ -64,7 +64,7 @@ fn test_talent_card_does_not_increase_frostflake_arrow_dmg_first_cast() {
 }
 
 #[test]
-fn test_talent_card_increases_frostflake_arrow_dmg_subsequent_cast() {
+fn talent_card_increases_frostflake_arrow_dmg_subsequent_cast() {
     let mut gs = GameStateBuilder::new_skip_to_roll_phase(
         vector![CharId::Ganyu],
         vector![CharId::Fischl, CharId::Yoimiya, CharId::Kaeya],
