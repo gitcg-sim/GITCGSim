@@ -9,6 +9,7 @@ use crate::status_impls::primitives::all::*;
 
 use super::ids::lookup::GetCharCard;
 
+pub mod albedo;
 pub mod amber;
 pub mod arataki_itto;
 pub mod barbara;

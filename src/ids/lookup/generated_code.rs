@@ -2,6 +2,7 @@
 #[macro_export]
 macro_rules! __generated_char_reexports {
     () => {
+        pub use super::albedo::*;
         pub use super::amber::*;
         pub use super::arataki_itto::*;
         pub use super::barbara::*;
@@ -186,6 +187,9 @@ macro_rules! __generated_skills_cases {
             SkillId::WhirlwindThrust => &WHIRLWIND_THRUST,
             SkillId::LemniscaticWindCycling => &LEMNISCATIC_WIND_CYCLING,
             SkillId::BaneOfAllEvil => &BANE_OF_ALL_EVIL,
+            SkillId::FavoniusBladeworkWeiss => &FAVONIUS_BLADEWORK_WEISS,
+            SkillId::AbiogenesisSolarIsotoma => &ABIOGENESIS_SOLAR_ISOTOMA,
+            SkillId::RiteOfProgenitureTectonicTide => &RITE_OF_PROGENITURE_TECTONIC_TIDE,
         }
     };
 }
@@ -237,6 +241,7 @@ macro_rules! __generated_enum_cases {
             CharId::Shenhe => $crate::__mapping!(shenhe::$I, $(| $val | $blk)?),
             CharId::Candace => $crate::__mapping!(candace::$I, $(| $val | $blk)?),
             CharId::Xiao => $crate::__mapping!(xiao::$I, $(| $val | $blk)?),
+            CharId::Albedo => $crate::__mapping!(albedo::$I, $(| $val | $blk)?),
         }
     };
 
@@ -285,6 +290,7 @@ macro_rules! __generated_enum_cases {
             CharId::Shenhe => $crate::__mapping!(&shenhe::$I, $(| $val | $blk)?),
             CharId::Candace => $crate::__mapping!(&candace::$I, $(| $val | $blk)?),
             CharId::Xiao => $crate::__mapping!(&xiao::$I, $(| $val | $blk)?),
+            CharId::Albedo => $crate::__mapping!(&albedo::$I, $(| $val | $blk)?),
         }
     };
 
@@ -424,6 +430,9 @@ macro_rules! __generated_enum_cases {
             SkillId::WhirlwindThrust => $crate::__mapping!(whirlwind_thrust::$I, $(| $val | $blk)?),
             SkillId::LemniscaticWindCycling => $crate::__mapping!(lemniscatic_wind_cycling::$I, $(| $val | $blk)?),
             SkillId::BaneOfAllEvil => $crate::__mapping!(bane_of_all_evil::$I, $(| $val | $blk)?),
+            SkillId::FavoniusBladeworkWeiss => $crate::__mapping!(favonius_bladework_weiss::$I, $(| $val | $blk)?),
+            SkillId::AbiogenesisSolarIsotoma => $crate::__mapping!(abiogenesis_solar_isotoma::$I, $(| $val | $blk)?),
+            SkillId::RiteOfProgenitureTectonicTide => $crate::__mapping!(rite_of_progeniture_tectonic_tide::$I, $(| $val | $blk)?),
         }
     };
 
@@ -563,6 +572,9 @@ macro_rules! __generated_enum_cases {
             SkillId::WhirlwindThrust => $crate::__mapping!(&whirlwind_thrust::$I, $(| $val | $blk)?),
             SkillId::LemniscaticWindCycling => $crate::__mapping!(&lemniscatic_wind_cycling::$I, $(| $val | $blk)?),
             SkillId::BaneOfAllEvil => $crate::__mapping!(&bane_of_all_evil::$I, $(| $val | $blk)?),
+            SkillId::FavoniusBladeworkWeiss => $crate::__mapping!(&favonius_bladework_weiss::$I, $(| $val | $blk)?),
+            SkillId::AbiogenesisSolarIsotoma => $crate::__mapping!(&abiogenesis_solar_isotoma::$I, $(| $val | $blk)?),
+            SkillId::RiteOfProgenitureTectonicTide => $crate::__mapping!(&rite_of_progeniture_tectonic_tide::$I, $(| $val | $blk)?),
         }
     };
 
@@ -825,6 +837,7 @@ macro_rules! __generated_enum_cases {
             SummonId::OceanidMimicFrog => $crate::__mapping!(oceanid_mimic_frog::$I, $(| $val | $blk)?),
             SummonId::SesshouSakura => $crate::__mapping!(sesshou_sakura::$I, $(| $val | $blk)?),
             SummonId::TalismanSpirit => $crate::__mapping!(talisman_spirit::$I, $(| $val | $blk)?),
+            SummonId::SolarIsotoma => $crate::__mapping!(solar_isotoma::$I, $(| $val | $blk)?),
         }
     };
 
@@ -855,6 +868,7 @@ macro_rules! __generated_enum_cases {
             SummonId::OceanidMimicFrog => $crate::__mapping!(&oceanid_mimic_frog::$I, $(| $val | $blk)?),
             SummonId::SesshouSakura => $crate::__mapping!(&sesshou_sakura::$I, $(| $val | $blk)?),
             SummonId::TalismanSpirit => $crate::__mapping!(&talisman_spirit::$I, $(| $val | $blk)?),
+            SummonId::SolarIsotoma => $crate::__mapping!(&solar_isotoma::$I, $(| $val | $blk)?),
         }
     };
 

@@ -51,6 +51,7 @@ pub enum CharId {
     Shenhe,
     Candace,
     Xiao,
+    Albedo,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -190,6 +191,9 @@ pub enum SkillId {
     WhirlwindThrust,
     LemniscaticWindCycling,
     BaneOfAllEvil,
+    FavoniusBladeworkWeiss,
+    AbiogenesisSolarIsotoma,
+    RiteOfProgenitureTectonicTide,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Enum)]
@@ -350,6 +354,7 @@ pub enum SummonId {
     OceanidMimicFrog,
     SesshouSakura,
     TalismanSpirit,
+    SolarIsotoma,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Enum)]
