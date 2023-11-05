@@ -66,11 +66,12 @@ pub mod yakshas_mask {
             let CostType::Switching = cost_type else { return None };
             if e.status_key.char_idx() != Some(e.src_player_state.active_char_idx) {
                 return None;
-            };
-            if !cost.try_reduce_by(1) {
-                return None;
             }
-            None
+            if cost.try_reduce_unaligned_cost(1) {
+                Some(AppliedEffectResult::ConsumeOncePerRound)
+            } else {
+                None
+            }
         }
     }
 }
