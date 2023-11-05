@@ -52,11 +52,14 @@ impl SkillImpl for RiteOfProgenitureTectonicTide {
 }
 
 pub mod solar_isotoma {
+    use crate::increase_outgoing_dmg_impl;
+
     use super::*;
 
-    pub const S: Status = Status::new_usages("Solar Isotoma", StatusAttachMode::Summon, 3, None);
+    pub const S: Status =
+        Status::new_usages("Solar Isotoma", StatusAttachMode::Summon, 3, None).with_casted_by_character(CharId::Albedo);
 
-    struct SolarIsotomaReducePlungingAttackCost();
+    pub struct SolarIsotomaReducePlungingAttackCost();
     impl StatusImpl for SolarIsotomaReducePlungingAttackCost {
         fn responds_to(&self) -> EnumSet<RespondsTo> {
             enum_set![RespondsTo::UpdateCost]
@@ -75,9 +78,21 @@ pub mod solar_isotoma {
         }
     }
 
+    pub struct SolarIsotomaUnderTalentIncreasePlungingAttackDMG {
+        pub dmg_increase: u8,
+        pub result: AppliedEffectResult,
+    }
+    increase_outgoing_dmg_impl!(SolarIsotomaUnderTalentIncreasePlungingAttackDMG, |e, _dmg| e
+        .has_talent_equipped()
+        && e.is_plunging_attack());
+
     decl_summon_impl_type!(SolarIsotoma, I);
     compose_status_impls!(SolarIsotoma(
         EndPhaseDealDMG(deal_elem_dmg(Element::Geo, 1, 0)),
+        SolarIsotomaUnderTalentIncreasePlungingAttackDMG {
+            dmg_increase: 1,
+            result: AppliedEffectResult::NoChange
+        },
         SolarIsotomaReducePlungingAttackCost(),
     ));
 }

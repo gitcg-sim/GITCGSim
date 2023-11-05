@@ -3,6 +3,7 @@ use crate::status_impls::prelude::*;
 
 pub mod dmg {
     use super::*;
+    #[macro_export]
     macro_rules! increase_outgoing_dmg_impl {
         ($Type: ident, |$e: ident, $dmg: ident| $check: expr) => {
             impl StatusImpl for $Type {

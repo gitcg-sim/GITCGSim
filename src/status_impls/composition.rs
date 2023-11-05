@@ -78,6 +78,11 @@ macro_rules! trigger_event_impl {
 
 #[macro_export]
 macro_rules! compose_status_impls {
+    ($TypeName: ident ( $A: expr, $B: expr, $C: expr $(,)? )) => {
+        pub struct ComposeStatusImplsIntermediate();
+        compose_status_impls!(ComposeStatusImplsIntermediate($A, $B));
+        compose_status_impls!($TypeName(ComposeStatusImplsIntermediate(), $C));
+    };
     ($TypeName: ident ( $A: expr, $B: expr $(,)? )) => {
         impl $crate::types::status_impl::StatusImpl for $TypeName {
             $crate::c2_trait_impls!(|_this| ($A, $B), {
