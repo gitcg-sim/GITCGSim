@@ -69,11 +69,8 @@ pub mod melody_loop {
                 return None;
             }
 
-            if cost.try_reduce_by(1) {
-                Some(AppliedEffectResult::ConsumeOncePerRound)
-            } else {
-                None
-            }
+            cost.try_reduce_by(1)
+                .then_some(AppliedEffectResult::ConsumeOncePerRound)
         }
 
         fn trigger_event(&self, e: &mut TriggerEventContext) -> Option<AppliedEffectResult> {

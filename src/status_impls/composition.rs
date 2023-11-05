@@ -207,11 +207,8 @@ mod tests {
             let SkillType::NormalAttack = cost_type.get_skill()?.skill_type else {
                 return None;
             };
-            if cost.try_reduce_unaligned_cost(1) {
-                Some(AppliedEffectResult::NoChange)
-            } else {
-                None
-            }
+            cost.try_reduce_unaligned_cost(1)
+                .then_some(AppliedEffectResult::NoChange)
         }
 
         fn trigger_xevent(&self, e: &mut TriggerEventContext<XEvent>) -> Option<AppliedEffectResult> {

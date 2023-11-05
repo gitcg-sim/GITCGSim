@@ -18,15 +18,12 @@ impl StatusImpl for NorthernSmokedChicken {
         enum_set![RespondsTo::UpdateCost]
     }
 
-    fn update_cost(&self, _: &StatusImplContext, cost: &mut Cost, cost_type: CostType) -> Option<AppliedEffectResult> {
-        let Some(SkillType::NormalAttack) = cost_type.get_skill().map(|s| s.skill_type) else {
+    fn update_cost(&self, ctx: &StatusImplContext, cost: &mut Cost, _: CostType) -> Option<AppliedEffectResult> {
+        if !ctx.is_normal_attack() {
             return None;
-        };
-
-        if cost.try_reduce_unaligned_cost(1) {
-            Some(AppliedEffectResult::ConsumeUsage)
-        } else {
-            None
         }
+
+        cost.try_reduce_unaligned_cost(1)
+            .then_some(AppliedEffectResult::ConsumeUsage)
     }
 }

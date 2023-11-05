@@ -106,11 +106,7 @@ pub mod oceanid_mimic_frog {
                 return None;
             }
 
-            if dmg.reduce(1) {
-                Some(AppliedEffectResult::ConsumeUsage)
-            } else {
-                None
-            }
+            dmg.reduce(1).then_some(AppliedEffectResult::ConsumeUsage)
         }
 
         fn trigger_event(&self, e: &mut TriggerEventContext<EventId>) -> Option<AppliedEffectResult> {

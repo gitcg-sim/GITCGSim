@@ -61,11 +61,7 @@ pub mod chonghua_frost_field {
                 dmg.dmg += 1;
             }
 
-            if dmg.infuse(DealDMGType::CRYO) {
-                Some(AppliedEffectResult::NoChange)
-            } else {
-                None
-            }
+            dmg.infuse(DealDMGType::CRYO).then_some(AppliedEffectResult::NoChange)
         }
     }
 }

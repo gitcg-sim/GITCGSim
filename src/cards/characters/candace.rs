@@ -79,11 +79,7 @@ pub mod prayer_of_the_crimson_crown {
             if let Some(WeaponType::Sword | WeaponType::Claymore | WeaponType::Polearm) = e.weapon_type() {
                 found |= dmg.infuse(DealDMGType::HYDRO);
             }
-            if found {
-                Some(AppliedEffectResult::NoChange)
-            } else {
-                None
-            }
+            found.then_some(AppliedEffectResult::NoChange)
         }
     }
 

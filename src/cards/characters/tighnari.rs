@@ -54,11 +54,8 @@ pub mod vijnana_suffusion {
                 return None;
             }
 
-            if dmg.infuse(DealDMGType::DENDRO) {
-                Some(AppliedEffectResult::ConsumeUsage)
-            } else {
-                None
-            }
+            dmg.infuse(DealDMGType::DENDRO)
+                .then_some(AppliedEffectResult::ConsumeUsage)
         }
 
         fn update_cost(
@@ -75,11 +72,8 @@ pub mod vijnana_suffusion {
                 return None;
             };
 
-            if cost.try_reduce_unaligned_cost(1) {
-                Some(AppliedEffectResult::NoChange)
-            } else {
-                None
-            }
+            cost.try_reduce_unaligned_cost(1)
+                .then_some(AppliedEffectResult::NoChange)
         }
 
         fn trigger_xevent(&self, e: &mut TriggerEventContext<XEvent>) -> Option<AppliedEffectResult> {

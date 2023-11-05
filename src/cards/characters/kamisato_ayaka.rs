@@ -80,15 +80,14 @@ pub mod cryo_elemental_infusion {
             let Some(SkillId::KamisatoArtKabuki) = e.skill_id() else {
                 return None;
             };
-            if dmg.infuse(DealDMGType::CRYO) {
-                if e.has_talent_equipped() && e.eff_state.can_use_once_per_round() {
-                    dmg.dmg += 1;
-                    Some(AppliedEffectResult::ConsumeOncePerRound)
-                } else {
-                    Some(AppliedEffectResult::NoChange)
-                }
+            if !dmg.infuse(DealDMGType::CRYO) {
+                return None;
+            }
+            if e.has_talent_equipped() && e.eff_state.can_use_once_per_round() {
+                dmg.dmg += 1;
+                Some(AppliedEffectResult::ConsumeOncePerRound)
             } else {
-                None
+                Some(AppliedEffectResult::NoChange)
             }
         }
     }

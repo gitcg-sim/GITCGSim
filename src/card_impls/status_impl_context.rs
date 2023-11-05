@@ -99,6 +99,12 @@ impl<'a, 'b, 'c, 'v, D> StatusImplContext<'a, 'b, 'c, 'v, D> {
     }
 
     #[inline]
+    /// Skill is Normal Attack or Charged Attack
+    pub fn is_normal_attack(&self) -> bool {
+        self.skill_type() == Some(SkillType::NormalAttack)
+    }
+
+    #[inline]
     pub fn has_talent_equipped(&self) -> bool {
         let check_for_status = |status: &'static Status| -> bool {
             if status.applies_to_opposing {

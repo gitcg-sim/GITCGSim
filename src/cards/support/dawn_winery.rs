@@ -24,10 +24,7 @@ impl StatusImpl for DawnWinery {
         if !(cost_type == CostType::Switching && e.eff_state.can_use_once_per_round()) {
             return None;
         }
-        if cost.try_reduce_by(1) {
-            Some(AppliedEffectResult::ConsumeOncePerRound)
-        } else {
-            None
-        }
+        cost.try_reduce_by(1)
+            .then_some(AppliedEffectResult::ConsumeOncePerRound)
     }
 }

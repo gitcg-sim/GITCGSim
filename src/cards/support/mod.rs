@@ -123,12 +123,8 @@ impl StatusImpl for CardCostReductionSupport {
         }
 
         let counter = e.eff_state.get_counter();
-        let total = cost.total_dice();
-        if counter >= total && cost.try_reduce_by(counter) {
-            Some(AppliedEffectResult::SetCounterAndConsumeOncePerRound(counter - total))
-        } else {
-            None
-        }
+        cost.try_reduce_by(counter)
+            .then(|| AppliedEffectResult::SetCounterAndConsumeOncePerRound(counter.saturating_sub(cost.total_dice())))
     }
 
     fn trigger_event(&self, e: &mut TriggerEventContext) -> Option<AppliedEffectResult> {

@@ -76,11 +76,8 @@ impl StatusImpl for ElementalArtifact {
 
         // TODO also check equip talent cost
         let CostType::Skill(_) = cost_type else { return None };
-        if cost.try_reduce_elemental_cost(1, self.elem) {
-            Some(AppliedEffectResult::ConsumeOncePerRound)
-        } else {
-            None
-        }
+        cost.try_reduce_elemental_cost(1, self.elem)
+            .then_some(AppliedEffectResult::ConsumeOncePerRound)
     }
 
     fn dice_distribution(&self, _: &StatusImplContext, dist: &mut DiceDistribution) -> bool {

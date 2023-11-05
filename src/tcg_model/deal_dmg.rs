@@ -81,10 +81,6 @@ impl DealDMG {
 
     #[inline]
     pub fn try_reduce<T>(&mut self, value: u8, if_some: T) -> Option<T> {
-        if self.reduce(value) {
-            Some(if_some)
-        } else {
-            None
-        }
+        self.reduce(value).then_some(if_some)
     }
 }

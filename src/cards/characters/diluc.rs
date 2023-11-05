@@ -61,11 +61,8 @@ pub mod searing_onslaught_counter {
                 return None;
             };
             let 1 = e.eff_state.get_counter() else { return None };
-            if cost.try_reduce_elemental_cost(1, Element::Pyro) {
-                Some(AppliedEffectResult::NoChange)
-            } else {
-                None
-            }
+            cost.try_reduce_elemental_cost(1, Element::Pyro)
+                .then_some(AppliedEffectResult::NoChange)
         }
 
         fn outgoing_dmg(&self, e: &StatusImplContext<DMGInfo>, dmg: &mut DealDMG) -> Option<AppliedEffectResult> {
@@ -100,11 +97,8 @@ pub mod pyro_infusion {
             let Some(SkillId::TemperedSword) = e.ctx.src.skill_id() else {
                 return None;
             };
-            if dmg.infuse(DealDMGType::Elemental(Element::Pyro)) {
-                Some(AppliedEffectResult::NoChange)
-            } else {
-                None
-            }
+            dmg.infuse(DealDMGType::Elemental(Element::Pyro))
+                .then_some(AppliedEffectResult::NoChange)
         }
     }
 }

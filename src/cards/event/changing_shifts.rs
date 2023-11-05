@@ -18,10 +18,6 @@ impl StatusImpl for ChangingShifts {
 
     fn update_cost(&self, _: &StatusImplContext, cost: &mut Cost, cost_type: CostType) -> Option<AppliedEffectResult> {
         let CostType::Switching = cost_type else { return None };
-        if cost.try_reduce_by(1) {
-            Some(AppliedEffectResult::ConsumeUsage)
-        } else {
-            None
-        }
+        cost.try_reduce_by(1).then_some(AppliedEffectResult::ConsumeUsage)
     }
 }

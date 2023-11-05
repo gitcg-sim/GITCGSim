@@ -110,11 +110,8 @@ pub mod superlative_superstrength {
                 return None;
             }
 
-            if cost.try_reduce_unaligned_cost(1) {
-                Some(AppliedEffectResult::NoChange)
-            } else {
-                None
-            }
+            cost.try_reduce_unaligned_cost(1)
+                .then_some(AppliedEffectResult::NoChange)
         }
 
         fn outgoing_dmg(&self, e: &StatusImplContext<DMGInfo>, dmg: &mut DealDMG) -> Option<AppliedEffectResult> {

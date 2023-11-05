@@ -64,11 +64,8 @@ pub mod brilliance {
                 return None;
             }
 
-            if cost.try_reduce_elemental_cost(1, Element::Pyro) {
-                Some(AppliedEffectResult::ConsumeOncePerRound)
-            } else {
-                None
-            }
+            cost.try_reduce_elemental_cost(1, Element::Pyro)
+                .then_some(AppliedEffectResult::ConsumeOncePerRound)
         }
     }
 

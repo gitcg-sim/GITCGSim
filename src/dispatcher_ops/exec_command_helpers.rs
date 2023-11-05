@@ -287,11 +287,8 @@ pub fn update_gains_energy(player: &PlayerState, ctx_for_skill: &CommandContext,
         CharacterIndexSelector::One(char_idx),
         |si| si.responds_to().contains(RespondsTo::GainsEnergy),
         |es, sk, si| {
-            if si.gains_energy(&sicb.build(sk, es), ctx_for_skill, gains_energy) {
-                Some(AppliedEffectResult::NoChange)
-            } else {
-                None
-            }
+            si.gains_energy(&sicb.build(sk, es), ctx_for_skill, gains_energy)
+                .then_some(AppliedEffectResult::NoChange)
         },
     );
 }
@@ -310,11 +307,8 @@ pub fn update_dice_distribution(player: &PlayerState, dist: &mut DiceDistributio
         CharacterIndexSelector::All,
         |si| si.responds_to().contains(RespondsTo::DiceDistribution),
         |es, sk, si| {
-            if si.dice_distribution(&sicb.build(sk, es), dist) {
-                Some(AppliedEffectResult::NoChange)
-            } else {
-                None
-            }
+            si.dice_distribution(&sicb.build(sk, es), dist)
+                .then_some(AppliedEffectResult::NoChange)
         },
     );
 }

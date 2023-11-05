@@ -33,10 +33,7 @@ impl StatusImpl for Tubby {
             return None;
         }
 
-        if cost.try_reduce_by(2) {
-            Some(AppliedEffectResult::ConsumeOncePerRound)
-        } else {
-            None
-        }
+        cost.try_reduce_by(2)
+            .then_some(AppliedEffectResult::ConsumeOncePerRound)
     }
 }

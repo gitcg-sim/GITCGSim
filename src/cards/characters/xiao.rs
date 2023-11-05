@@ -67,11 +67,8 @@ pub mod yakshas_mask {
             if e.status_key.char_idx() != Some(e.src_player_state.active_char_idx) {
                 return None;
             }
-            if cost.try_reduce_unaligned_cost(1) {
-                Some(AppliedEffectResult::ConsumeOncePerRound)
-            } else {
-                None
-            }
+            cost.try_reduce_unaligned_cost(1)
+                .then_some(AppliedEffectResult::ConsumeOncePerRound)
         }
     }
 }

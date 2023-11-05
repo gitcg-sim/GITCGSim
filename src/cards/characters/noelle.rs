@@ -100,11 +100,8 @@ pub mod sweeping_time {
             if !e.eff_state.can_use_once_per_round() {
                 return None;
             }
-            if cost.try_reduce_elemental_cost(1, Element::Geo) {
-                Some(AppliedEffectResult::ConsumeOncePerRound)
-            } else {
-                None
-            }
+            cost.try_reduce_elemental_cost(1, Element::Geo)
+                .then_some(AppliedEffectResult::ConsumeOncePerRound)
         }
 
         fn outgoing_dmg(&self, e: &StatusImplContext<DMGInfo>, dmg: &mut DealDMG) -> Option<AppliedEffectResult> {

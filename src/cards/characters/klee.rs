@@ -84,11 +84,8 @@ pub mod explosive_spark {
                 return None;
             };
 
-            if cost.try_reduce_elemental_cost(1, Element::Pyro) {
-                Some(AppliedEffectResult::NoChange)
-            } else {
-                None
-            }
+            cost.try_reduce_elemental_cost(1, Element::Pyro)
+                .then_some(AppliedEffectResult::NoChange)
         }
 
         fn outgoing_dmg(&self, e: &StatusImplContext<DMGInfo>, dmg: &mut DealDMG) -> Option<AppliedEffectResult> {

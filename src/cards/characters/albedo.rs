@@ -70,11 +70,8 @@ pub mod solar_isotoma {
                 return None;
             }
 
-            if cost.try_reduce_unaligned_cost(1) {
-                Some(AppliedEffectResult::ConsumeOncePerRound)
-            } else {
-                None
-            }
+            cost.try_reduce_unaligned_cost(1)
+                .then_some(AppliedEffectResult::ConsumeOncePerRound)
         }
     }
 

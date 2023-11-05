@@ -23,10 +23,7 @@ impl StatusImpl for MintyMeatRolls {
             return None;
         };
 
-        if cost.try_reduce_unaligned_cost(1) {
-            Some(AppliedEffectResult::NoChange)
-        } else {
-            None
-        }
+        cost.try_reduce_unaligned_cost(1)
+            .then_some(AppliedEffectResult::NoChange)
     }
 }

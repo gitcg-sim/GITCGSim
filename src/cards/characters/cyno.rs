@@ -78,11 +78,7 @@ pub mod pactsworn_pathclearer {
                 changed = true;
             }
 
-            if changed {
-                Some(AppliedEffectResult::NoChange)
-            } else {
-                None
-            }
+            changed.then_some(AppliedEffectResult::NoChange)
         }
 
         // TODO need level decrease check for equipping Talent Card

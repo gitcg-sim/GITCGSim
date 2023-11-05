@@ -86,11 +86,7 @@ pub mod incoming_dmg {
                 }
             }
 
-            if dmg.reduce(self.dmg_reduction) {
-                Some(self.result)
-            } else {
-                None
-            }
+            dmg.reduce(self.dmg_reduction).then_some(self.result)
         }
     }
 }
