@@ -358,3 +358,13 @@ pub mod the_overflow {
         skill => SacredRiteWagtailsTide,
     );
 }
+
+pub mod descent_of_divinity {
+    talent!(
+        DescentOfDivinity,
+        "Descent of Divinity",
+        Cost::elem(Element::Geo, 3),
+        Albedo,
+        skill => AbiogenesisSolarIsotoma,
+    );
+}

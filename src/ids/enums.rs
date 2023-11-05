@@ -494,4 +494,5 @@ pub enum CardId {
     RightOfFinalInterpretation,
     MysticalAbandon,
     TheOverflow,
+    DescentOfDivinity,
 }
