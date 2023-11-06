@@ -22,7 +22,7 @@ pub const ASTABLE_ANEMOHYPOSTASIS_CREATION_6308: Skill = Skill {
     skill_type: SkillType::ElementalSkill,
     cost: cost_elem(Element::Anemo, 3, 0, 0),
     deal_dmg: Some(deal_elem_dmg(Element::Anemo, 3, 0)),
-    commands: list8![Command::SwitchPrevForTarget],
+    commands: list8![Command::ForceSwitchForTarget(RelativeSwitchType::Previous)],
     ..Skill::new()
 };
 

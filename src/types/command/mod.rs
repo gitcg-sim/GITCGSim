@@ -7,6 +7,7 @@ use super::{deal_dmg::DealDMG, enums::Element, game_state::PlayerId};
 use crate::cards::ids::*;
 use crate::data_structures::capped_list::CappedLengthList8;
 use crate::data_structures::CommandList;
+pub use crate::dispatcher_ops::exec_command_helpers::RelativeSwitchType;
 use enumset::{EnumSet, EnumSetType};
 
 mod command_context;
@@ -413,10 +414,8 @@ pub enum Command {
     SummonRandom(SummonRandomSpec),
     SwitchPrev,
     SwitchNext,
-    /// Force the target player to switch the active character to the previous character.
-    SwitchPrevForTarget,
-    /// Force the target player to switch the active character to the next character.
-    SwitchNextForTarget,
+    /// Force the target player to switch the active character to the specified relative switch.
+    ForceSwitchForTarget(RelativeSwitchType),
     /// Hand turn to the next player. This command is used for performing Combat Actions.
     HandOverPlayer,
     /// End the turn and perform end of turn actions.

@@ -52,6 +52,7 @@ pub enum CharId {
     Candace,
     Xiao,
     Albedo,
+    Venti,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -194,6 +195,9 @@ pub enum SkillId {
     FavoniusBladeworkWeiss,
     AbiogenesisSolarIsotoma,
     RiteOfProgenitureTectonicTide,
+    DivineMarksmanship,
+    SkywardSonnet,
+    WindsGrandOde,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Enum)]
@@ -312,6 +316,7 @@ pub enum StatusId {
     HeronShield,
     PrayerOfTheCrimsonCrown,
     YakshasMask,
+    Stormzone,
 
     // Talents
     ColdBloodedStrike,
@@ -355,6 +360,7 @@ pub enum SummonId {
     SesshouSakura,
     TalismanSpirit,
     SolarIsotoma,
+    Stormeye,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Enum)]

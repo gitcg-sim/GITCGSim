@@ -72,10 +72,12 @@ pub enum ExecResult {
     AdditionalCmds(CommandList<(CommandContext, Command)>),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum RelativeSwitchType {
     Previous,
     Next,
+    ClosestTo(u8),
 }
 
 #[macro_export]
@@ -432,31 +434,91 @@ impl CommandSource {
     }
 }
 
+impl RelativeSwitchType {
+    pub(crate) fn indexing_seq(self, char_idx: u8, n: u8) -> impl Iterator<Item = u8> {
+        let i0 = char_idx;
+        (0..n).map(move |d| match self {
+            RelativeSwitchType::Previous => {
+                if d > n {
+                    n
+                } else {
+                    (i0 + n - d - 1) % n
+                }
+            }
+            RelativeSwitchType::Next => {
+                if d > n {
+                    n
+                } else {
+                    (i0 + d + 1) % n
+                }
+            }
+            RelativeSwitchType::ClosestTo(mid) => {
+                if mid >= n {
+                    return n - 1 - d;
+                }
+                let dr = n - 1 - mid;
+                let rev = d % 2 == 1;
+                let k = 2 * dr.min(mid);
+                let low = d <= k;
+                if mid == 0 {
+                    d
+                } else if mid == n - 1 {
+                    n - 1 - d
+                } else if low {
+                    let d = (d + 1) / 2;
+                    if rev {
+                        mid - d
+                    } else {
+                        mid + d
+                    }
+                } else if mid >= dr {
+                    n - 1 - d
+                } else {
+                    d
+                }
+            }
+        })
+    }
+}
+
 // TODO rewrite relative index API
 impl PlayerState {
     #[inline]
     pub(crate) fn relative_switch_char_idx(&self, switch_type: RelativeSwitchType) -> Option<u8> {
-        let i0 = self.active_char_idx;
-        let n = self.char_states.len();
-        match switch_type {
-            RelativeSwitchType::Next => {
-                for d in 1..n {
-                    let j = (i0 + d) % n;
-                    if self.is_valid_char_idx(j) {
-                        return Some(j);
-                    }
-                }
-                None
-            }
-            RelativeSwitchType::Previous => {
-                for d in 1..n {
-                    let j = (i0 + n - d) % n;
-                    if self.is_valid_char_idx(j) {
-                        return Some(j);
-                    }
-                }
-                None
-            }
+        switch_type
+            .indexing_seq(self.active_char_idx, self.char_states.len())
+            .find(|&j| self.is_valid_char_idx(j))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use proptest::prelude::*;
+
+    use super::RelativeSwitchType;
+
+    const N: u8 = 15;
+
+    fn arb_relative_switch_type() -> impl Strategy<Value = RelativeSwitchType> {
+        prop_oneof![
+            Just(RelativeSwitchType::Previous),
+            Just(RelativeSwitchType::Next),
+            (0..N).prop_map(RelativeSwitchType::ClosestTo),
+        ]
+    }
+    proptest! {
+        #[test]
+        fn indexing_seq_has_length_of_n(n in 1..N, s in arb_relative_switch_type(), char_idx in 0..N) {
+            prop_assume!(char_idx < n);
+            assert_eq!(n, s.indexing_seq(char_idx, n).collect::<Vec<_>>().len() as u8);
+        }
+
+        #[test]
+        fn indexing_seq_is_a_permutation_of_range_from_zero_to_n(n in 1..N, s in arb_relative_switch_type(), char_idx in 0..N) {
+            prop_assume!(char_idx < n);
+            let perm = s.indexing_seq(char_idx, N).collect::<Vec<_>>();
+            let sorted = { let mut sorted = perm.clone(); sorted.sort(); sorted };
+            assert_eq!((0..N).collect::<Vec<_>>(), sorted, "{perm:?}, s={s:?} char_idx={char_idx}");
         }
     }
 }
