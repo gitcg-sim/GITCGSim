@@ -53,6 +53,7 @@ pub enum CharId {
     Xiao,
     Albedo,
     Venti,
+    Wanderer,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -198,6 +199,9 @@ pub enum SkillId {
     DivineMarksmanship,
     SkywardSonnet,
     WindsGrandOde,
+    YuubanMeigen,
+    HanegaSongOfTheWind,
+    KyougenFiveCeremonialPlays,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Enum)]
@@ -317,6 +321,7 @@ pub enum StatusId {
     PrayerOfTheCrimsonCrown,
     YakshasMask,
     Stormzone,
+    Windfavored,
 
     // Talents
     ColdBloodedStrike,

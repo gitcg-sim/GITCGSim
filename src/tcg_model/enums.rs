@@ -106,6 +106,7 @@ pub enum WeaponType {
 #[derive(Debug, PartialOrd, Ord, Hash, EnumSetType)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum Faction {
+    Other,
     Mondstadt,
     Liyue,
     Inazuma,

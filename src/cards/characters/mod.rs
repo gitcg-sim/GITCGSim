@@ -48,6 +48,7 @@ pub mod sucrose;
 pub mod tartaglia;
 pub mod tighnari;
 pub mod venti;
+pub mod wanderer;
 pub mod xiangling;
 pub mod xiao;
 pub mod xingqiu;
