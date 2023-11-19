@@ -18,7 +18,7 @@ pub const GALE_BLADE: Skill = Skill {
     skill_type: SkillType::ElementalSkill,
     cost: cost_elem(Element::Anemo, 3, 0, 0),
     deal_dmg: Some(deal_elem_dmg(Element::Anemo, 3, 0)),
-    commands: list8![Command::ForceSwitchForTarget(RelativeSwitchType::Next)],
+    commands: list8![Command::ForceSwitchForTarget(RelativeCharIdx::Next)],
     ..Skill::new()
 };
 

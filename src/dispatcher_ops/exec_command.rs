@@ -251,7 +251,7 @@ impl GameState {
         ),])
     }
 
-    fn switch_relative(&mut self, ctx: &CommandContext, switch_type: RelativeSwitchType) -> ExecResult {
+    fn switch_relative(&mut self, ctx: &CommandContext, switch_type: RelativeCharIdx) -> ExecResult {
         let Some(char_idx) = self.players[ctx.src_player_id].relative_switch_char_idx(switch_type) else {
             return ExecResult::Success;
         };
@@ -500,6 +500,28 @@ impl GameState {
 
         self.resolve_defeated(tgt_player_id, ctx, defeated, &mut addl_cmds);
         ExecResult::AdditionalCmds(addl_cmds)
+    }
+
+    fn deal_dmg_relative(
+        &mut self,
+        ctx: &CommandContext,
+        dmg: DealDMG,
+        relative: RelativeCharIdx,
+    ) -> crate::dispatcher_ops::exec_command_helpers::ExecResult {
+        let Some(CommandTarget {
+            player_id: tgt_player_id,
+            char_idx: tgt_char_idx,
+        }) = ctx.tgt
+        else {
+            panic!("deal_dmg_relative(relative={relative:?}): cmd has no target.");
+        };
+        let tgt_char_idx = self.players[tgt_player_id]
+            .relative_switch_char_idx(relative)
+            .unwrap_or(tgt_char_idx);
+        self.deal_dmg(
+            &ctx.with_tgt(Some(CommandTarget::new(tgt_player_id, tgt_char_idx))),
+            dmg,
+        )
     }
 
     fn resolve_defeated(
@@ -984,7 +1006,7 @@ impl GameState {
         ExecResult::Success
     }
 
-    fn force_switch_for_target(&mut self, ctx: &CommandContext, force_switch_type: RelativeSwitchType) -> ExecResult {
+    fn force_switch_for_target(&mut self, ctx: &CommandContext, force_switch_type: RelativeCharIdx) -> ExecResult {
         let Some(tgt_player_id) = ctx.tgt.map(|t| t.player_id) else {
             panic!("force_switch_for_target: no target");
         };
@@ -1086,6 +1108,7 @@ impl GameState {
             Command::ApplyElementToSelf(e) => self.apply_element_to_self(ctx, e),
             Command::DealDMG(d) => self.deal_dmg(ctx, d),
             Command::TakeDMG(d) => self.take_dmg(ctx, d),
+            Command::DealDMGRelative(d, relative) => self.deal_dmg_relative(ctx, d, relative),
             Command::TakeDMGForAffectedBy(status_id, d) => self.take_dmg_for_affected_by(ctx, status_id, d),
             Command::DealSwirlDMG(_, _) => panic!("Cannot execute DealSwirlDMG command."),
             Command::Heal(v) => self.heal(ctx, v),
@@ -1126,8 +1149,8 @@ impl GameState {
             }
             Command::Summon(summon_id) => self.summon(ctx, summon_id),
             Command::SummonRandom(spec) => self.summon_random(ctx, spec),
-            Command::SwitchPrev => self.switch_relative(ctx, RelativeSwitchType::Previous),
-            Command::SwitchNext => self.switch_relative(ctx, RelativeSwitchType::Next),
+            Command::SwitchPrev => self.switch_relative(ctx, RelativeCharIdx::Previous),
+            Command::SwitchNext => self.switch_relative(ctx, RelativeCharIdx::Next),
             Command::ForceSwitchForTarget(force_switch_type) => self.force_switch_for_target(ctx, force_switch_type),
             Command::HandOverPlayer => self.hand_over_player(),
             Command::EndOfTurn => self.end_of_turn(),

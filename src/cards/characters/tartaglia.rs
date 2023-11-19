@@ -112,6 +112,7 @@ pub mod melee_stance {
     use super::*;
 
     pub const S: Status = Status::new_duration("Melee Stance", StatusAttachMode::Character, 2)
+        .with_counter(CounterSpec { name: "Affected by Riptide", default_value: 2, resets_at_turn_end: true })
         .with_reapplies_on_discard(StatusId::RangedStance);
 
     pub struct MeleeStanceOutgoingDMG();
@@ -138,6 +139,18 @@ pub mod melee_stance {
             }
             e.add_cmd(Command::ApplyStatusToTarget(StatusId::Riptide));
             Some(AppliedEffectResult::NoChange)
+        }
+    }
+
+    impl AttachedCharacterOutgoingDMGEvent for MeleeStanceNA {
+        fn invoke(e: &mut TriggerEventContext<XEvent>, dmg: XEventDMG) -> Option<AppliedEffectResult> {
+            if !dmg.dmg_info.target_affected_by_riptide {
+                return None
+            }
+            e.consume_counter(|e, _| {
+                // TODO strict "next slot"?
+                e.add_cmd(Command::DealDMGRelative(DealDMG::new_piercing(1), RelativeCharIdx::Next));
+            })
         }
     }
 

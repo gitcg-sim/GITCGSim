@@ -1,6 +1,6 @@
 use enumset::{enum_set, EnumSet};
 
-use crate::status_impls::prelude::RelativeSwitchType;
+use crate::status_impls::prelude::RelativeCharIdx;
 use crate::types::ElementSet;
 use crate::{
     cards::ids::*,
@@ -84,7 +84,7 @@ impl Reaction {
             Reaction::ElectroCharged => (1, 1, None),
             Reaction::Frozen => (1, 0, Some(Command::ApplyStatusToTarget(StatusId::Frozen))),
             Reaction::Melt => (2, 0, None),
-            Reaction::Overloaded => (2, 0, Some(Command::ForceSwitchForTarget(RelativeSwitchType::Next))),
+            Reaction::Overloaded => (2, 0, Some(Command::ForceSwitchForTarget(RelativeCharIdx::Next))),
             Reaction::Quicken => (1, 0, Some(Command::ApplyStatusToTeam(StatusId::CatalyzingField))),
             Reaction::Superconduct => (1, 1, None),
             Reaction::Swirl => (0, 0, target.and_then(|t| t.swirl_effect())),

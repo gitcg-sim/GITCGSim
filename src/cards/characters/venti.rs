@@ -66,7 +66,7 @@ pub mod stormzone {
 pub mod stormeye {
     use super::*;
 
-    use crate::dispatcher_ops::exec_command_helpers::RelativeSwitchType;
+    use crate::dispatcher_ops::exec_command_helpers::RelativeCharIdx;
 
     pub const S: Status = Status::new_usages("Stormeye", StatusAttachMode::Summon, 2, None);
 
@@ -81,7 +81,7 @@ pub mod stormeye {
         }
 
         fn trigger_event(&self, e: &mut TriggerEventContext) -> Option<AppliedEffectResult> {
-            e.add_cmd(Command::ForceSwitchForTarget(RelativeSwitchType::ClosestTo(
+            e.add_cmd(Command::ForceSwitchForTarget(RelativeCharIdx::ClosestTo(
                 e.active_char_idx(),
             )));
             Some(AppliedEffectResult::ConsumeUsage)

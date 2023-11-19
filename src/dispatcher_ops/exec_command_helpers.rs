@@ -74,7 +74,7 @@ pub enum ExecResult {
 
 #[derive(Debug, Clone, Copy)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub enum RelativeSwitchType {
+pub enum RelativeCharIdx {
     Previous,
     Next,
     ClosestTo(u8),
@@ -434,25 +434,25 @@ impl CommandSource {
     }
 }
 
-impl RelativeSwitchType {
+impl RelativeCharIdx {
     pub(crate) fn indexing_seq(self, char_idx: u8, n: u8) -> impl Iterator<Item = u8> {
         let i0 = char_idx;
         (0..n).map(move |d| match self {
-            RelativeSwitchType::Previous => {
+            RelativeCharIdx::Previous => {
                 if d > n {
                     n
                 } else {
                     (i0 + n - d - 1) % n
                 }
             }
-            RelativeSwitchType::Next => {
+            RelativeCharIdx::Next => {
                 if d > n {
                     n
                 } else {
                     (i0 + d + 1) % n
                 }
             }
-            RelativeSwitchType::ClosestTo(mid) => {
+            RelativeCharIdx::ClosestTo(mid) => {
                 if mid >= n {
                     return n - 1 - d;
                 }
@@ -484,7 +484,7 @@ impl RelativeSwitchType {
 // TODO rewrite relative index API
 impl PlayerState {
     #[inline]
-    pub(crate) fn relative_switch_char_idx(&self, switch_type: RelativeSwitchType) -> Option<u8> {
+    pub(crate) fn relative_switch_char_idx(&self, switch_type: RelativeCharIdx) -> Option<u8> {
         switch_type
             .indexing_seq(self.active_char_idx, self.char_states.len())
             .find(|&j| self.is_valid_char_idx(j))
@@ -495,15 +495,15 @@ impl PlayerState {
 mod tests {
     use proptest::prelude::*;
 
-    use super::RelativeSwitchType;
+    use super::RelativeCharIdx;
 
     const N: u8 = 15;
 
-    fn arb_relative_switch_type() -> impl Strategy<Value = RelativeSwitchType> {
+    fn arb_relative_switch_type() -> impl Strategy<Value = RelativeCharIdx> {
         prop_oneof![
-            Just(RelativeSwitchType::Previous),
-            Just(RelativeSwitchType::Next),
-            (0..N).prop_map(RelativeSwitchType::ClosestTo),
+            Just(RelativeCharIdx::Previous),
+            Just(RelativeCharIdx::Next),
+            (0..N).prop_map(RelativeCharIdx::ClosestTo),
         ]
     }
     proptest! {
