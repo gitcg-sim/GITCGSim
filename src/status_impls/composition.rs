@@ -108,6 +108,14 @@ macro_rules! compose_status_impls {
                     e: &StatusImplContext<DMGInfo>,
                     dmg: &mut DealDMG,
                 ) -> Option<AppliedEffectResult>;
+                fn outgoing_dmg_target(
+                    &self,
+                    e: &StatusImplContext<DMGInfo>,
+                    tgt_chars: &CharStates,
+                    tgt_active_char_idx: u8,
+                    dmg: &DealDMG,
+                    tgt_char_idx: &mut u8,
+                ) -> Option<AppliedEffectResult>;
                 fn late_outgoing_dmg(
                     &self,
                     e: &StatusImplContext<DMGInfo>,

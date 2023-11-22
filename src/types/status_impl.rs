@@ -5,6 +5,7 @@ use crate::status_impl_trait_decl;
 
 use super::{
     card_defs::Cost,
+    char_state::CharStates,
     command::*,
     deal_dmg::DealDMG,
     dice_counter::distribution::DiceDistribution,
@@ -21,6 +22,7 @@ pub enum RespondsTo {
     UpdateStatusSpec,
     IncomingDMG,
     OutgoingDMG,
+    OutgoingDMGTarget,
     LateOutgoingDMG,
     OutgoingReactionDMG,
     GainsEnergy,
@@ -82,6 +84,17 @@ status_impl_trait_decl!(
         }
 
         fn outgoing_dmg(&self, e: &StatusImplContext<DMGInfo>, dmg: &mut DealDMG) -> Option<AppliedEffectResult> {
+            None
+        }
+
+        fn outgoing_dmg_target(
+            &self,
+            e: &StatusImplContext<DMGInfo>,
+            tgt_chars: &CharStates,
+            tgt_active_char_idx: u8,
+            dmg: &DealDMG,
+            tgt_char_idx: &mut u8,
+        ) -> Option<AppliedEffectResult> {
             None
         }
 

@@ -345,6 +345,27 @@ impl GameState {
                 );
             }
 
+            let tgt_char_idx = {
+                let mut tgt_char_idx = tgt_char_idx;
+                let PlayerState {
+                    char_states: tgt_char_states,
+                    active_char_idx: tgt_active_char_idx,
+                    ..
+                } = &tgt_player;
+                apply_statuses!(
+                    (src_player, src_player_id, RespondsTo::OutgoingDMGTarget, dmg_info),
+                    |sc_src, sicb| augment_outgoing_dmg_target_for_statuses(
+                        sc_src,
+                        sicb,
+                        tgt_char_states,
+                        *tgt_active_char_idx,
+                        &dmg,
+                        &mut tgt_char_idx
+                    )
+                );
+                tgt_char_idx
+            };
+
             // Resolve Elemental Reaction
             let mut reaction: Option<(Reaction, Option<Element>)> = None;
             let (new_tgt_applied, rxn_cmd, log_rxn) = match dmg.dmg_type {

@@ -66,7 +66,7 @@ pub mod windfavored {
     decl_status_impl_type!(Windfavored, I);
     impl StatusImpl for Windfavored {
         fn responds_to(&self) -> EnumSet<RespondsTo> {
-            enum_set![RespondsTo::OutgoingDMG]
+            enum_set![RespondsTo::OutgoingDMG | RespondsTo::OutgoingDMGTarget]
         }
 
         fn outgoing_dmg(&self, e: &StatusImplContext<DMGInfo>, dmg: &mut DealDMG) -> Option<AppliedEffectResult> {
@@ -76,6 +76,24 @@ pub mod windfavored {
             // TODO next opposing character
             dmg.dmg += 2;
             Some(AppliedEffectResult::ConsumeUsage)
+        }
+
+        fn outgoing_dmg_target(
+            &self,
+            e: &StatusImplContext<DMGInfo>,
+            tgt_chars: &CharStates,
+            tgt_active_char_idx: u8,
+            _: &DealDMG,
+            tgt_char_idx: &mut u8,
+        ) -> Option<AppliedEffectResult> {
+            if !e.is_normal_attack() {
+                return None;
+            }
+            let Some(char_idx1) = tgt_chars.relative_switch_char_idx(tgt_active_char_idx, RelativeCharIdx::Next) else {
+                return None;
+            };
+            *tgt_char_idx = char_idx1;
+            Some(AppliedEffectResult::NoChange)
         }
     }
 }

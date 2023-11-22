@@ -136,6 +136,29 @@ pub fn augment_outgoing_dmg_for_statuses(
     )
 }
 
+pub fn augment_outgoing_dmg_target_for_statuses(
+    sc: &mut StatusCollection,
+    sicb: StatusImplContextBuilder<DMGInfo>,
+    tgt_chars: &CharStates,
+    tgt_active_char_idx: u8,
+    dmg: &DealDMG,
+    target_char_idx: &mut u8,
+) -> bool {
+    sc.consume_statuses(
+        sicb.src_char_idx_selector(),
+        |si| si.responds_to().contains(RespondsTo::OutgoingDMG),
+        |es, sk, si| {
+            si.outgoing_dmg_target(
+                &sicb.build(sk, es),
+                tgt_chars,
+                tgt_active_char_idx,
+                dmg,
+                target_char_idx,
+            )
+        },
+    )
+}
+
 pub fn augment_late_outgoing_dmg_for_statuses(
     sc: &mut StatusCollection,
     sicb: StatusImplContextBuilder<DMGInfo>,
@@ -481,13 +504,20 @@ impl RelativeCharIdx {
     }
 }
 
-// TODO rewrite relative index API
+impl CharStates {
+    #[inline]
+    pub(crate) fn relative_switch_char_idx(&self, active_char_idx: u8, switch_type: RelativeCharIdx) -> Option<u8> {
+        switch_type
+            .indexing_seq(active_char_idx, self.len())
+            .find(|&j| self.is_valid_char_idx(j))
+    }
+}
+
 impl PlayerState {
     #[inline]
     pub(crate) fn relative_switch_char_idx(&self, switch_type: RelativeCharIdx) -> Option<u8> {
-        switch_type
-            .indexing_seq(self.active_char_idx, self.char_states.len())
-            .find(|&j| self.is_valid_char_idx(j))
+        self.char_states
+            .relative_switch_char_idx(self.active_char_idx, switch_type)
     }
 }
 
