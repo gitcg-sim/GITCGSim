@@ -68,9 +68,7 @@ pub mod fortune_preserving_talisman {
         const SKILL_TYPES: EnumSet<SkillType> =
             enum_set![SkillType::NormalAttack | SkillType::ElementalSkill | SkillType::ElementalBurst];
         fn invoke(e: &mut TriggerEventContext<XEvent>, _: XEventSkill) -> Option<AppliedEffectResult> {
-            let active_char = e.c.src_player_state.active_char_state();
-            // TODO extract is_max_hp() method
-            if active_char.get_hp() >= active_char.char_id.get_char_card().max_health {
+            if e.c.src_player_state.active_char_state().is_max_hp() {
                 return None;
             }
 

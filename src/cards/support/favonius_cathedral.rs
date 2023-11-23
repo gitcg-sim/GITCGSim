@@ -26,13 +26,11 @@ impl StatusImpl for FavoniusCathedral {
 
     fn trigger_event(&self, e: &mut TriggerEventContext) -> Option<AppliedEffectResult> {
         let EventId::EndPhase = e.event_id else { return None };
-        let active_char_idx = e.active_char_idx();
-        let char_state = &e.c.src_player_state.char_states[active_char_idx];
-        if char_state.get_hp() < char_state.char_id.get_char_card().max_health {
-            e.add_cmd(Command::Heal(2));
-            Some(AppliedEffectResult::ConsumeUsage)
-        } else {
-            None
+        if e.c.src_player_state.active_char_state().is_max_hp() {
+            return None;
         }
+
+        e.add_cmd(Command::Heal(2));
+        Some(AppliedEffectResult::ConsumeUsage)
     }
 }

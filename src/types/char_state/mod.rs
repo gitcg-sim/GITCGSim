@@ -210,6 +210,11 @@ impl CharState {
     }
 
     #[inline]
+    pub fn is_max_hp(&self) -> bool {
+        self.get_hp() >= self.char_id.get_char_card().max_health
+    }
+
+    #[inline]
     pub fn reduce_hp(&mut self, dmg_value: u8) {
         let h = self.get_hp();
         if dmg_value > h {
