@@ -62,6 +62,8 @@ pub mod aurous_blaze {
 
     decl_event_handler_trait_impl!(OwnCharacterSkillEvent(AurousBlaze), I);
     impl OwnCharacterSkillEvent for AurousBlaze {
+        const SKILL_TYPES: EnumSet<SkillType>  = enum_set![SkillType::NormalAttack | SkillType::ElementalSkill | SkillType::ElementalBurst];
+
         fn invoke(e: &mut TriggerEventContext<XEvent>, _: XEventSkill) -> Option<AppliedEffectResult> {
             if e.c.is_casted_by_character(CharId::Yoimiya) {
                 return None;
