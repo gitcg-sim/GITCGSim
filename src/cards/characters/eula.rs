@@ -82,11 +82,8 @@ pub mod grimheart {
 pub mod lightfall_sword {
     use super::*;
 
-    pub const S: Status = Status::new_indef("Lightfall Sword", StatusAttachMode::Summon).with_counter(CounterSpec {
-        name: "Zeal",
-        default_value: 0,
-        resets_at_turn_end: false,
-    });
+    pub const S: Status =
+        Status::new_indef("Lightfall Sword", StatusAttachMode::Summon).with_counter(CounterSpec::new("Zeal", 0));
 
     pub const I: LightfallSword = LightfallSword();
     pub struct LightfallSword();

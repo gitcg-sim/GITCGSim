@@ -287,11 +287,7 @@ pub mod a_thousand_floating_dreams {
         Catalyst,
         AThousandFloatingDreams,
         Cost::aligned(3),
-        status => equipment_status(NAME).with_counter(CounterSpec {
-            name: "[Counter]",
-            default_value: 2,
-            resets_at_turn_end: true
-        })
+        status => equipment_status(NAME).with_counter(CounterSpec::new("[Counter]", 2).resets_at_turn_end(true))
     );
 }
 
@@ -328,10 +324,6 @@ pub mod aquila_favonia {
         Sword,
         AquilaFavonia,
         Cost::aligned(3),
-        status => equipment_status(NAME).with_counter(CounterSpec {
-            name: "[Counter]",
-            default_value: 2,
-            resets_at_turn_end: true
-        })
+        status => equipment_status(NAME).with_counter(CounterSpec::new("[Counter]", 2).resets_at_turn_end(true))
     );
 }

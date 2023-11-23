@@ -35,12 +35,8 @@ pub const DAWN: Skill = Skill {
 pub mod searing_onslaught_counter {
     use super::*;
 
-    pub const S: Status =
-        Status::new_indef("[Searing Onslaught Counter]", StatusAttachMode::Character).with_counter(CounterSpec {
-            name: "[Searing Onslaught Counter]",
-            default_value: 0,
-            resets_at_turn_end: true,
-        });
+    pub const S: Status = Status::new_indef("[Searing Onslaught Counter]", StatusAttachMode::Character)
+        .with_counter(CounterSpec::new("[Searing Onslaught Counter]", 0).resets_at_turn_end(true));
 
     decl_status_impl_type!(SearingOnslaughtCounter, I);
     impl StatusImpl for SearingOnslaughtCounter {

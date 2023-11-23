@@ -112,11 +112,7 @@ pub mod melee_stance {
     use super::*;
 
     pub const S: Status = Status::new_duration("Melee Stance", StatusAttachMode::Character, 2)
-        .with_counter(CounterSpec {
-            name: "Affected by Riptide",
-            default_value: 2,
-            resets_at_turn_end: true,
-        })
+        .with_counter(CounterSpec::new("Affected by Riptide", 2).resets_at_turn_end(true))
         .with_reapplies_on_discard(StatusId::RangedStance);
 
     pub struct MeleeStanceOutgoingDMG();

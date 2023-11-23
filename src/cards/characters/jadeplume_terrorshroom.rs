@@ -36,12 +36,8 @@ pub const FEATHER_SPREADING: Skill = Skill {
 pub mod radical_vitality {
     use super::*;
 
-    pub const S: Status =
-        Status::new_indef("Radical Vitality", StatusAttachMode::Character).with_counter(CounterSpec {
-            name: "Radical Vitality",
-            default_value: 0,
-            resets_at_turn_end: false,
-        });
+    pub const S: Status = Status::new_indef("Radical Vitality", StatusAttachMode::Character)
+        .with_counter(CounterSpec::new("Radical Vitality", 0));
 
     #[inline]
     fn increase_stacks(s: u8) -> u8 {

@@ -36,12 +36,8 @@ pub const SACRED_RITE_WOLFS_SWIFTNESS: Skill = Skill {
 pub mod pactsworn_pathclearer {
     use super::*;
 
-    pub const S: Status =
-        Status::new_indef("Pactsworn Pathclearer", StatusAttachMode::Character).with_counter(CounterSpec {
-            name: "Indwelling Level",
-            default_value: 0,
-            resets_at_turn_end: false,
-        });
+    pub const S: Status = Status::new_indef("Pactsworn Pathclearer", StatusAttachMode::Character)
+        .with_counter(CounterSpec::new("Indwelling Level", 0));
 
     #[inline]
     fn increase_indwelling_level(level: u8, increase: u8) -> u8 {

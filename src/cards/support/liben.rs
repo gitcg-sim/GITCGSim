@@ -12,11 +12,7 @@ pub const C: Card = Card {
     card_impl: Some(&SupportImpl(SupportId::Liben)),
 };
 
-pub const S: Status = Status::new_indef(NAME, StatusAttachMode::Support).with_counter(CounterSpec {
-    name: "Liben",
-    default_value: 0,
-    resets_at_turn_end: false,
-});
+pub const S: Status = Status::new_indef(NAME, StatusAttachMode::Support).with_counter(CounterSpec::new("Liben", 0));
 
 decl_support_impl_type!(Liben, I);
 impl StatusImpl for Liben {

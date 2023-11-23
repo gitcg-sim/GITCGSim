@@ -10,11 +10,8 @@ pub const C: Card = Card {
     card_impl: Some(&SupportImpl(SupportId::Timaeus)),
 };
 
-pub const S: Status = Status::new_indef(NAME, StatusAttachMode::Support).with_counter(CounterSpec {
-    name: "Transmutation Materials",
-    default_value: 2,
-    resets_at_turn_end: false,
-});
+pub const S: Status =
+    Status::new_indef(NAME, StatusAttachMode::Support).with_counter(CounterSpec::new("Transmutation Materials", 2));
 
 pub const I: CardCostReductionSupport = CardCostReductionSupport {
     card_type: CardTypeFilter::Artifact,

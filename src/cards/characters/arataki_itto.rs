@@ -39,11 +39,7 @@ pub mod ushi {
     use super::*;
 
     pub const S: Status = Status::new_usages("Ushi", StatusAttachMode::Summon, 1, None)
-        .with_counter(CounterSpec {
-            name: "Ushi Trigger",
-            default_value: 1,
-            resets_at_turn_end: false,
-        })
+        .with_counter(CounterSpec::new("Ushi Trigger", 1))
         .with_manual_discard(true);
 
     pub const I: Ushi = Ushi();

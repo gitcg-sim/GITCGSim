@@ -312,7 +312,6 @@ pub struct CounterSpec {
     pub resets_at_turn_end: bool,
 }
 
-// TODO use these constructors
 impl CounterSpec {
     pub const fn new(name: &'static str, default_value: u8) -> Self {
         Self {
@@ -322,11 +321,10 @@ impl CounterSpec {
         }
     }
 
-    pub const fn new_resets_at_turn_end(name: &'static str, default_value: u8) -> Self {
+    pub const fn resets_at_turn_end(self, resets_at_turn_end: bool) -> Self {
         Self {
-            name,
-            default_value,
-            resets_at_turn_end: true,
+            resets_at_turn_end,
+            ..self
         }
     }
 }
