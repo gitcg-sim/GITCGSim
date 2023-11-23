@@ -31,6 +31,7 @@ macro_rules! __generated_char_reexports {
         pub use super::nahida::*;
         pub use super::ningguang::*;
         pub use super::noelle::*;
+        pub use super::qiqi::*;
         pub use super::raiden_shogun::*;
         pub use super::razor::*;
         pub use super::rhodeia_of_loch::*;
@@ -198,6 +199,9 @@ macro_rules! __generated_skills_cases {
             SkillId::YuubanMeigen => &YUUBAN_MEIGEN,
             SkillId::HanegaSongOfTheWind => &HANEGA_SONG_OF_THE_WIND,
             SkillId::KyougenFiveCeremonialPlays => &KYOUGEN_FIVE_CEREMONIAL_PLAYS,
+            SkillId::AncientSwordArt => &ANCIENT_SWORD_ART,
+            SkillId::AdeptusArtHeraldOfFrost => &ADEPTUS_ART_HERALD_OF_FROST,
+            SkillId::AdeptusArtPreserverOfFortune => &ADEPTUS_ART_PRESERVER_OF_FORTUNE,
         }
     };
 }
@@ -252,6 +256,7 @@ macro_rules! __generated_enum_cases {
             CharId::Albedo => $crate::__mapping!(albedo::$I, $(| $val | $blk)?),
             CharId::Venti => $crate::__mapping!(venti::$I, $(| $val | $blk)?),
             CharId::Wanderer => $crate::__mapping!(wanderer::$I, $(| $val | $blk)?),
+            CharId::Qiqi => $crate::__mapping!(qiqi::$I, $(| $val | $blk)?),
         }
     };
 
@@ -303,6 +308,7 @@ macro_rules! __generated_enum_cases {
             CharId::Albedo => $crate::__mapping!(&albedo::$I, $(| $val | $blk)?),
             CharId::Venti => $crate::__mapping!(&venti::$I, $(| $val | $blk)?),
             CharId::Wanderer => $crate::__mapping!(&wanderer::$I, $(| $val | $blk)?),
+            CharId::Qiqi => $crate::__mapping!(&qiqi::$I, $(| $val | $blk)?),
         }
     };
 
@@ -451,6 +457,9 @@ macro_rules! __generated_enum_cases {
             SkillId::YuubanMeigen => $crate::__mapping!(yuuban_meigen::$I, $(| $val | $blk)?),
             SkillId::HanegaSongOfTheWind => $crate::__mapping!(hanega_song_of_the_wind::$I, $(| $val | $blk)?),
             SkillId::KyougenFiveCeremonialPlays => $crate::__mapping!(kyougen_five_ceremonial_plays::$I, $(| $val | $blk)?),
+            SkillId::AncientSwordArt => $crate::__mapping!(ancient_sword_art::$I, $(| $val | $blk)?),
+            SkillId::AdeptusArtHeraldOfFrost => $crate::__mapping!(adeptus_art_herald_of_frost::$I, $(| $val | $blk)?),
+            SkillId::AdeptusArtPreserverOfFortune => $crate::__mapping!(adeptus_art_preserver_of_fortune::$I, $(| $val | $blk)?),
         }
     };
 
@@ -599,6 +608,9 @@ macro_rules! __generated_enum_cases {
             SkillId::YuubanMeigen => $crate::__mapping!(&yuuban_meigen::$I, $(| $val | $blk)?),
             SkillId::HanegaSongOfTheWind => $crate::__mapping!(&hanega_song_of_the_wind::$I, $(| $val | $blk)?),
             SkillId::KyougenFiveCeremonialPlays => $crate::__mapping!(&kyougen_five_ceremonial_plays::$I, $(| $val | $blk)?),
+            SkillId::AncientSwordArt => $crate::__mapping!(&ancient_sword_art::$I, $(| $val | $blk)?),
+            SkillId::AdeptusArtHeraldOfFrost => $crate::__mapping!(&adeptus_art_herald_of_frost::$I, $(| $val | $blk)?),
+            SkillId::AdeptusArtPreserverOfFortune => $crate::__mapping!(&adeptus_art_preserver_of_fortune::$I, $(| $val | $blk)?),
         }
     };
 
@@ -709,6 +721,7 @@ macro_rules! __generated_enum_cases {
             StatusId::YakshasMask => $crate::__mapping!(yakshas_mask::$I, $(| $val | $blk)?),
             StatusId::Stormzone => $crate::__mapping!(stormzone::$I, $(| $val | $blk)?),
             StatusId::Windfavored => $crate::__mapping!(windfavored::$I, $(| $val | $blk)?),
+            StatusId::FortunePreservingTalisman => $crate::__mapping!(fortune_preserving_talisman::$I, $(| $val | $blk)?),
             StatusId::ColdBloodedStrike => $crate::__mapping!(cold_blooded_strike::$I, $(| $val | $blk)?),
             StatusId::UndividedHeart => $crate::__mapping!(undivided_heart::$I, $(| $val | $blk)?),
             StatusId::Riptide => $crate::__mapping!(riptide::$I, $(| $val | $blk)?),
@@ -827,6 +840,7 @@ macro_rules! __generated_enum_cases {
             StatusId::YakshasMask => $crate::__mapping!(&yakshas_mask::$I, $(| $val | $blk)?),
             StatusId::Stormzone => $crate::__mapping!(&stormzone::$I, $(| $val | $blk)?),
             StatusId::Windfavored => $crate::__mapping!(&windfavored::$I, $(| $val | $blk)?),
+            StatusId::FortunePreservingTalisman => $crate::__mapping!(&fortune_preserving_talisman::$I, $(| $val | $blk)?),
             StatusId::ColdBloodedStrike => $crate::__mapping!(&cold_blooded_strike::$I, $(| $val | $blk)?),
             StatusId::UndividedHeart => $crate::__mapping!(&undivided_heart::$I, $(| $val | $blk)?),
             StatusId::Riptide => $crate::__mapping!(&riptide::$I, $(| $val | $blk)?),
@@ -867,6 +881,7 @@ macro_rules! __generated_enum_cases {
             SummonId::TalismanSpirit => $crate::__mapping!(talisman_spirit::$I, $(| $val | $blk)?),
             SummonId::SolarIsotoma => $crate::__mapping!(solar_isotoma::$I, $(| $val | $blk)?),
             SummonId::Stormeye => $crate::__mapping!(stormeye::$I, $(| $val | $blk)?),
+            SummonId::HeraldOfFrost => $crate::__mapping!(herald_of_frost::$I, $(| $val | $blk)?),
         }
     };
 
@@ -899,6 +914,7 @@ macro_rules! __generated_enum_cases {
             SummonId::TalismanSpirit => $crate::__mapping!(&talisman_spirit::$I, $(| $val | $blk)?),
             SummonId::SolarIsotoma => $crate::__mapping!(&solar_isotoma::$I, $(| $val | $blk)?),
             SummonId::Stormeye => $crate::__mapping!(&stormeye::$I, $(| $val | $blk)?),
+            SummonId::HeraldOfFrost => $crate::__mapping!(&herald_of_frost::$I, $(| $val | $blk)?),
         }
     };
 

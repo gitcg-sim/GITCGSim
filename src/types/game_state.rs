@@ -221,6 +221,8 @@ pub struct PlayerState {
     // TODO enforce limit of 10
     pub hand: Vector<CardId>,
     pub flags: EnumSet<PlayerFlag>,
+    // TODO
+    // pub taken_most_dmg: Option<TakenMostDMG>,
 }
 
 impl PlayerState {
@@ -251,6 +253,12 @@ pub struct PlayerStateView<'a> {
     pub flags: EnumSet<PlayerFlag>,
     pub dice: DiceCounter,
     pub affected_by: SmallVec<[StatusKey; 4]>,
+}
+
+impl<'a> PlayerStateView<'a> {
+    pub fn active_char_state(&self) -> &CharState {
+        &self.char_states[self.active_char_idx]
+    }
 }
 
 #[derive(Debug, Clone, Default)]

@@ -38,6 +38,7 @@ pub mod mona;
 pub mod nahida;
 pub mod ningguang;
 pub mod noelle;
+pub mod qiqi;
 pub mod raiden_shogun;
 pub mod razor;
 pub mod rhodeia_of_loch;

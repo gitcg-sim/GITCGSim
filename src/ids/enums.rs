@@ -54,6 +54,7 @@ pub enum CharId {
     Albedo,
     Venti,
     Wanderer,
+    Qiqi,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -202,6 +203,9 @@ pub enum SkillId {
     YuubanMeigen,
     HanegaSongOfTheWind,
     KyougenFiveCeremonialPlays,
+    AncientSwordArt,
+    AdeptusArtHeraldOfFrost,
+    AdeptusArtPreserverOfFortune,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Enum)]
@@ -322,6 +326,7 @@ pub enum StatusId {
     YakshasMask,
     Stormzone,
     Windfavored,
+    FortunePreservingTalisman,
 
     // Talents
     ColdBloodedStrike,
@@ -366,6 +371,7 @@ pub enum SummonId {
     TalismanSpirit,
     SolarIsotoma,
     Stormeye,
+    HeraldOfFrost,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Enum)]
