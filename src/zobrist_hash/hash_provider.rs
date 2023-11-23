@@ -45,6 +45,7 @@ pub struct HashProvider {
     pub energy_hashes: ByPlayer<[[HashValue; ENERGY_COUNT]; CHAR_COUNT]>,
     pub applied_elements_hashes: ByPlayer<[[HashValue; 8]; CHAR_COUNT]>,
     pub char_flags_hashes: ByPlayer<[[[HashValue; 16]; 16]; CHAR_COUNT]>,
+    pub total_dmg_taken_hashes: ByPlayer<[[[HashValue; 16]; 16]; CHAR_COUNT]>,
     // Since constructing a HashProvider requires the array to be allocated on the stack,
     // Box is used in some parts of the hash collections
     pub team_status_hashes: Box<ByPlayer<EnumMap<StatusId, BoxStatusHashes>>>,
@@ -122,6 +123,7 @@ impl HashProvider {
         let energy_hashes = by_player!(rand_array![[random!(); ENERGY_COUNT]; CHAR_COUNT]);
         let applied_elements_hashes = by_player!(rand_array![[random!(); 8]; CHAR_COUNT]);
         let char_flags_hashes = by_player!(rand_array![[[random!(); 16]; 16]; CHAR_COUNT]);
+        let total_dmg_taken_hashes = by_player!(rand_array![[[random!(); 16]; 16]; CHAR_COUNT]);
         let team_status_hashes = Box::new(by_player!(by_enum!(bs!())));
         let char_status_hashes = Box::new(by_player!(by_enum!(rand_array![bs!(); CHAR_COUNT])));
         let summon_hashes = Box::new(by_player!(by_enum!(bs!())));
@@ -136,6 +138,7 @@ impl HashProvider {
             energy_hashes,
             applied_elements_hashes,
             char_flags_hashes,
+            total_dmg_taken_hashes,
             team_status_hashes,
             char_status_hashes,
             summon_hashes,
@@ -195,6 +198,12 @@ impl HashProvider {
         let v: u8 = flags.as_repr();
         let (a, b) = (v / 16, v % 16);
         self.char_flags_hashes[player_id][char_idx as usize][a as usize][b as usize]
+    }
+
+    #[inline]
+    pub fn total_dmg_taken(&self, player_id: PlayerId, char_idx: u8, value: u8) -> HashValue {
+        let (a, b) = (value / 16, value % 16);
+        self.total_dmg_taken_hashes[player_id][char_idx as usize][a as usize][b as usize]
     }
 
     #[inline]

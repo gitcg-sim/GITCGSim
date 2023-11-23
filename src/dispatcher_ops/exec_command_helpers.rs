@@ -511,6 +511,10 @@ impl CharStates {
             .indexing_seq(active_char_idx, self.len())
             .find(|&j| self.is_valid_char_idx(j))
     }
+
+    pub(crate) fn get_taken_most_dmg(&self) -> Option<(u8, &CharState)> {
+        self.enumerate_valid().max_by_key(|(_, c)| c.get_total_dmg_taken())
+    }
 }
 
 impl PlayerState {

@@ -746,6 +746,14 @@ impl GameState {
         ExecResult::Success
     }
 
+    fn heal_taken_most_dmg(&mut self, ctx: &CommandContext, hp: u8) -> ExecResult {
+        let char_states = &self.players.get(ctx.src_player_id).char_states;
+        let Some((char_idx, _)) = char_states.get_taken_most_dmg() else {
+            return ExecResult::Success;
+        };
+        self.heal(&ctx.with_src(CommandSource::Character { char_idx }), hp)
+    }
+
     fn heal_all(&mut self, ctx: &CommandContext, hp: u8) -> ExecResult {
         let p = self.players.get_mut(ctx.src_player_id);
         for (char_idx, character) in p.char_states.enumerate_valid_mut() {
@@ -1133,6 +1141,7 @@ impl GameState {
             Command::TakeDMGForAffectedBy(status_id, d) => self.take_dmg_for_affected_by(ctx, status_id, d),
             Command::DealSwirlDMG(_, _) => panic!("Cannot execute DealSwirlDMG command."),
             Command::Heal(v) => self.heal(ctx, v),
+            Command::HealTakenMostDMG(v) => self.heal_taken_most_dmg(ctx, v),
             Command::HealAll(v) => self.heal_all(ctx, v),
             Command::AddEnergy(v) => self.add_energy(ctx, v),
             Command::AddEnergyWithoutMaximum(v) => self.add_energy_without_maximum(ctx, v),

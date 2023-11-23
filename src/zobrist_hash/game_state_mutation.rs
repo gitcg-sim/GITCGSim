@@ -178,7 +178,7 @@ impl CharState {
         self.set_hp(hp);
         h.hash(HASH_PROVIDER.hp(player_id, char_idx, hp));
         if self.get_hp() == 0 {
-            self.set_energy_hashed((h, player_id, char_idx), 0);
+            self.on_death_hashed((h, player_id, char_idx));
         }
     }
 
@@ -188,8 +188,22 @@ impl CharState {
         self.reduce_hp(dmg_value);
         h.hash(HASH_PROVIDER.hp(player_id, char_idx, self.get_hp()));
         if self.get_hp() == 0 {
-            self.set_energy_hashed((h, player_id, char_idx), 0);
+            self.on_death_hashed((h, player_id, char_idx));
+        } else {
+            h.hash(HASH_PROVIDER.total_dmg_taken(player_id, char_idx, self.total_dmg_taken));
+            self.add_dmg_taken(dmg_value);
+            h.hash(HASH_PROVIDER.total_dmg_taken(player_id, char_idx, self.total_dmg_taken));
         }
+    }
+
+    #[inline]
+    fn on_death_hashed(&mut self, (h, player_id, char_idx): CharacterHashContext) {
+        self.set_energy_hashed((h, player_id, char_idx), 0);
+        self.set_flags_hashed((h, player_id, char_idx), Default::default());
+        self.set_applied_elements_hashed((h, player_id, char_idx), Default::default());
+        h.hash(HASH_PROVIDER.total_dmg_taken(player_id, char_idx, self.total_dmg_taken));
+        self.total_dmg_taken = 0;
+        h.hash(HASH_PROVIDER.total_dmg_taken(player_id, char_idx, self.total_dmg_taken));
     }
 
     #[inline]

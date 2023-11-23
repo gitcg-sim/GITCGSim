@@ -32,6 +32,7 @@ pub struct CharState {
     _hp_and_energy: u8,
     pub applied: ElementSet,
     pub flags: EnumSet<CharFlag>,
+    pub total_dmg_taken: u8,
 }
 
 impl Debug for CharState {
@@ -42,6 +43,7 @@ impl Debug for CharState {
             .field("energy", &self.get_energy())
             .field("applied", &self.applied)
             .field("flags", &self.flags)
+            .field("total_dmg_taken", &self.total_dmg_taken)
             .finish()
     }
 }
@@ -184,6 +186,7 @@ impl CharState {
         CharState {
             char_id,
             _hp_and_energy: char_id.get_char_card().max_health,
+            total_dmg_taken: Default::default(),
             applied: Default::default(),
             flags: Default::default(),
         }
@@ -217,11 +220,17 @@ impl CharState {
     #[inline]
     pub fn reduce_hp(&mut self, dmg_value: u8) {
         let h = self.get_hp();
-        if dmg_value > h {
-            self.set_hp(0);
-        } else {
-            self.set_hp(h - dmg_value);
-        }
+        self.set_hp(h.saturating_sub(dmg_value));
+    }
+
+    #[inline]
+    pub(crate) fn add_dmg_taken(&mut self, dmg_value: u8) {
+        self.total_dmg_taken = self.total_dmg_taken.saturating_add(dmg_value);
+    }
+
+    #[inline]
+    pub fn get_total_dmg_taken(&self) -> u8 {
+        self.total_dmg_taken
     }
 
     pub(crate) fn skill_flags(&self, skill_id: SkillId) -> EnumSet<CharFlag> {

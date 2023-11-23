@@ -405,6 +405,7 @@ impl CharState {
         h.hash(HASH_PROVIDER.energy(player_id, char_idx, self.get_energy()));
         h.hash(HASH_PROVIDER.applied_elements(player_id, char_idx, self.applied));
         h.hash(HASH_PROVIDER.char_flags(player_id, char_idx, self.flags));
+        h.hash(HASH_PROVIDER.total_dmg_taken(player_id, char_idx, self.total_dmg_taken));
     }
 }
 

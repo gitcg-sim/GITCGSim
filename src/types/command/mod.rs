@@ -368,6 +368,8 @@ pub enum Command {
     Heal(u8),
     /// Heall all of the player's characters.
     HealAll(u8),
+    /// Heal the character that has taken the most DMG.
+    HealTakenMostDMG(u8),
     /// Add energy to selected character of the player.
     AddEnergy(u8),
     /// Add energy to one character without maximum energy (active prioritized.)
