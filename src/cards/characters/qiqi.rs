@@ -21,6 +21,7 @@ pub const ADEPTUS_ART_HERALD_OF_FROST: Skill = Skill {
     name: "Adeptus Art: Herald of Frost",
     skill_type: SkillType::ElementalSkill,
     cost: cost_elem(Element::Cryo, 3, 0, 0),
+    summon: Some(SummonSpec::One(SummonId::HeraldOfFrost)),
     ..Skill::new()
 };
 
@@ -28,6 +29,8 @@ pub const ADEPTUS_ART_PRESERVER_OF_FORTUNE: Skill = Skill {
     name: "Adeptus Art: Preserver of Fortune",
     skill_type: SkillType::ElementalBurst,
     cost: cost_elem(Element::Cryo, 3, 0, 3),
+    deal_dmg: Some(deal_elem_dmg(Element::Cryo, 3, 0)),
+    apply: Some(StatusId::FortunePreservingTalisman),
     ..Skill::new()
 };
 
