@@ -57,6 +57,7 @@ pub enum CharId {
     Qiqi,
     Yaoyao,
     Nilou,
+    Zhongli,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -214,6 +215,10 @@ pub enum SkillId {
     DanceOfSamser,
     DanceOfHaftkarsvar,
     DanceOfAbzendegiDistantDreamsListeningSpring,
+    RainOfStone,
+    DominusLapidis,
+    DominusLapidisStrikingStone,
+    PlanetBefall,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Enum)]
@@ -338,6 +343,8 @@ pub enum StatusId {
     AdeptalLegacy,
     GoldenChalicesBounty,
     LingeringAeon,
+    Petrification,
+    JadeShield,
 
     // Talents
     ColdBloodedStrike,
@@ -385,6 +392,7 @@ pub enum SummonId {
     HeraldOfFrost,
     YueguiThrowingMode,
     BountifulCore,
+    StoneStele,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Enum)]

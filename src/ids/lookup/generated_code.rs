@@ -51,6 +51,7 @@ macro_rules! __generated_char_reexports {
         pub use super::yanfei::*;
         pub use super::yaoyao::*;
         pub use super::yoimiya::*;
+        pub use super::zhongli::*;
     };
 }
 
@@ -212,6 +213,10 @@ macro_rules! __generated_skills_cases {
             SkillId::DanceOfAbzendegiDistantDreamsListeningSpring => {
                 &DANCE_OF_ABZENDEGI_DISTANT_DREAMS_LISTENING_SPRING
             }
+            SkillId::RainOfStone => &RAIN_OF_STONE,
+            SkillId::DominusLapidis => &DOMINUS_LAPIDIS,
+            SkillId::DominusLapidisStrikingStone => &DOMINUS_LAPIDIS_STRIKING_STONE,
+            SkillId::PlanetBefall => &PLANET_BEFALL,
         }
     };
 }
@@ -269,6 +274,7 @@ macro_rules! __generated_enum_cases {
             CharId::Qiqi => $crate::__mapping!(qiqi::$I, $(| $val | $blk)?),
             CharId::Yaoyao => $crate::__mapping!(yaoyao::$I, $(| $val | $blk)?),
             CharId::Nilou => $crate::__mapping!(nilou::$I, $(| $val | $blk)?),
+            CharId::Zhongli => $crate::__mapping!(zhongli::$I, $(| $val | $blk)?),
         }
     };
 
@@ -323,6 +329,7 @@ macro_rules! __generated_enum_cases {
             CharId::Qiqi => $crate::__mapping!(&qiqi::$I, $(| $val | $blk)?),
             CharId::Yaoyao => $crate::__mapping!(&yaoyao::$I, $(| $val | $blk)?),
             CharId::Nilou => $crate::__mapping!(&nilou::$I, $(| $val | $blk)?),
+            CharId::Zhongli => $crate::__mapping!(&zhongli::$I, $(| $val | $blk)?),
         }
     };
 
@@ -480,6 +487,10 @@ macro_rules! __generated_enum_cases {
             SkillId::DanceOfSamser => $crate::__mapping!(dance_of_samser::$I, $(| $val | $blk)?),
             SkillId::DanceOfHaftkarsvar => $crate::__mapping!(dance_of_haftkarsvar::$I, $(| $val | $blk)?),
             SkillId::DanceOfAbzendegiDistantDreamsListeningSpring => $crate::__mapping!(dance_of_abzendegi_distant_dreams_listening_spring::$I, $(| $val | $blk)?),
+            SkillId::RainOfStone => $crate::__mapping!(rain_of_stone::$I, $(| $val | $blk)?),
+            SkillId::DominusLapidis => $crate::__mapping!(dominus_lapidis::$I, $(| $val | $blk)?),
+            SkillId::DominusLapidisStrikingStone => $crate::__mapping!(dominus_lapidis_striking_stone::$I, $(| $val | $blk)?),
+            SkillId::PlanetBefall => $crate::__mapping!(planet_befall::$I, $(| $val | $blk)?),
         }
     };
 
@@ -637,6 +648,10 @@ macro_rules! __generated_enum_cases {
             SkillId::DanceOfSamser => $crate::__mapping!(&dance_of_samser::$I, $(| $val | $blk)?),
             SkillId::DanceOfHaftkarsvar => $crate::__mapping!(&dance_of_haftkarsvar::$I, $(| $val | $blk)?),
             SkillId::DanceOfAbzendegiDistantDreamsListeningSpring => $crate::__mapping!(&dance_of_abzendegi_distant_dreams_listening_spring::$I, $(| $val | $blk)?),
+            SkillId::RainOfStone => $crate::__mapping!(&rain_of_stone::$I, $(| $val | $blk)?),
+            SkillId::DominusLapidis => $crate::__mapping!(&dominus_lapidis::$I, $(| $val | $blk)?),
+            SkillId::DominusLapidisStrikingStone => $crate::__mapping!(&dominus_lapidis_striking_stone::$I, $(| $val | $blk)?),
+            SkillId::PlanetBefall => $crate::__mapping!(&planet_befall::$I, $(| $val | $blk)?),
         }
     };
 
@@ -751,6 +766,8 @@ macro_rules! __generated_enum_cases {
             StatusId::AdeptalLegacy => $crate::__mapping!(adeptal_legacy::$I, $(| $val | $blk)?),
             StatusId::GoldenChalicesBounty => $crate::__mapping!(golden_chalices_bounty::$I, $(| $val | $blk)?),
             StatusId::LingeringAeon => $crate::__mapping!(lingering_aeon::$I, $(| $val | $blk)?),
+            StatusId::Petrification => $crate::__mapping!(petrification::$I, $(| $val | $blk)?),
+            StatusId::JadeShield => $crate::__mapping!(jade_shield::$I, $(| $val | $blk)?),
             StatusId::ColdBloodedStrike => $crate::__mapping!(cold_blooded_strike::$I, $(| $val | $blk)?),
             StatusId::UndividedHeart => $crate::__mapping!(undivided_heart::$I, $(| $val | $blk)?),
             StatusId::Riptide => $crate::__mapping!(riptide::$I, $(| $val | $blk)?),
@@ -873,6 +890,8 @@ macro_rules! __generated_enum_cases {
             StatusId::AdeptalLegacy => $crate::__mapping!(&adeptal_legacy::$I, $(| $val | $blk)?),
             StatusId::GoldenChalicesBounty => $crate::__mapping!(&golden_chalices_bounty::$I, $(| $val | $blk)?),
             StatusId::LingeringAeon => $crate::__mapping!(&lingering_aeon::$I, $(| $val | $blk)?),
+            StatusId::Petrification => $crate::__mapping!(&petrification::$I, $(| $val | $blk)?),
+            StatusId::JadeShield => $crate::__mapping!(&jade_shield::$I, $(| $val | $blk)?),
             StatusId::ColdBloodedStrike => $crate::__mapping!(&cold_blooded_strike::$I, $(| $val | $blk)?),
             StatusId::UndividedHeart => $crate::__mapping!(&undivided_heart::$I, $(| $val | $blk)?),
             StatusId::Riptide => $crate::__mapping!(&riptide::$I, $(| $val | $blk)?),
@@ -916,6 +935,7 @@ macro_rules! __generated_enum_cases {
             SummonId::HeraldOfFrost => $crate::__mapping!(herald_of_frost::$I, $(| $val | $blk)?),
             SummonId::YueguiThrowingMode => $crate::__mapping!(yuegui_throwing_mode::$I, $(| $val | $blk)?),
             SummonId::BountifulCore => $crate::__mapping!(bountiful_core::$I, $(| $val | $blk)?),
+            SummonId::StoneStele => $crate::__mapping!(stone_stele::$I, $(| $val | $blk)?),
         }
     };
 
@@ -951,6 +971,7 @@ macro_rules! __generated_enum_cases {
             SummonId::HeraldOfFrost => $crate::__mapping!(&herald_of_frost::$I, $(| $val | $blk)?),
             SummonId::YueguiThrowingMode => $crate::__mapping!(&yuegui_throwing_mode::$I, $(| $val | $blk)?),
             SummonId::BountifulCore => $crate::__mapping!(&bountiful_core::$I, $(| $val | $blk)?),
+            SummonId::StoneStele => $crate::__mapping!(&stone_stele::$I, $(| $val | $blk)?),
         }
     };
 

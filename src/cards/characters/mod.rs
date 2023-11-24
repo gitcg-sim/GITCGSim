@@ -58,6 +58,7 @@ pub mod yae_miko;
 pub mod yanfei;
 pub mod yaoyao;
 pub mod yoimiya;
+pub mod zhongli;
 
 pub(crate) mod char_reexports {
     crate::__generated_char_reexports!();
