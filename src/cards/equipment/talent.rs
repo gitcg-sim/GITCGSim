@@ -378,3 +378,13 @@ pub mod beneficent {
         skill => RaphanusSkyCluster,
     );
 }
+
+pub mod the_starry_skies_their_flowers_rain {
+    talent!(
+        TheStarrySkiesTheirFlowersRain,
+        "The Starry Skies Their Flowers Rain",
+        Cost::elem(Element::Hydro, 3),
+        Nilou,
+        skill => DanceOfHaftkarsvar,
+    );
+}

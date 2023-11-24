@@ -376,7 +376,15 @@ impl GameState {
                         if i == 0 {
                             reaction = Some((rxn, te));
                         }
-                        let (dmg_bonus, piercing, rxn_cmd) = rxn.reaction_effects(te);
+                        let (dmg_bonus, piercing, rxn_cmd) = if matches!(reaction, Some((Reaction::Bloom, _)))
+                            && src_player
+                                .status_collection
+                                .has_team_status(StatusId::GoldenChalicesBounty)
+                        {
+                            (1, 0, Some(Command::Summon(SummonId::BountifulCore)))
+                        } else {
+                            rxn.reaction_effects(te)
+                        };
                         dmg.dmg += dmg_bonus;
                         dmg.piercing_dmg_to_standby += piercing;
 

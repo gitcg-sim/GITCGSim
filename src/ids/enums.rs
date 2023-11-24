@@ -56,6 +56,7 @@ pub enum CharId {
     Wanderer,
     Qiqi,
     Yaoyao,
+    Nilou,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -210,6 +211,9 @@ pub enum SkillId {
     TossNTurnSpear,
     RaphanusSkyCluster,
     MoonjadeDescent,
+    DanceOfSamser,
+    DanceOfHaftkarsvar,
+    DanceOfAbzendegiDistantDreamsListeningSpring,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Enum)]
@@ -332,6 +336,8 @@ pub enum StatusId {
     Windfavored,
     FortunePreservingTalisman,
     AdeptalLegacy,
+    GoldenChalicesBounty,
+    LingeringAeon,
 
     // Talents
     ColdBloodedStrike,
@@ -378,6 +384,7 @@ pub enum SummonId {
     Stormeye,
     HeraldOfFrost,
     YueguiThrowingMode,
+    BountifulCore,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Enum)]
@@ -519,4 +526,5 @@ pub enum CardId {
     TheOverflow,
     DescentOfDivinity,
     Beneficent,
+    TheStarrySkiesTheirFlowersRain,
 }

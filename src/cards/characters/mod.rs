@@ -36,6 +36,7 @@ pub mod klee;
 pub mod kujou_sara;
 pub mod mona;
 pub mod nahida;
+pub mod nilou;
 pub mod ningguang;
 pub mod noelle;
 pub mod qiqi;
