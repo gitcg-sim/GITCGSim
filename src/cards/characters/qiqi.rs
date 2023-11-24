@@ -44,7 +44,6 @@ pub mod herald_of_frost {
                 return None;
             };
 
-            // TODO doesn't work
             c.add_cmd(Command::HealTakenMostDMG(1));
             Some(AppliedEffectResult::NoChange)
         }
