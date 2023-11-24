@@ -48,6 +48,7 @@ macro_rules! __generated_char_reexports {
         pub use super::xingqiu::*;
         pub use super::yae_miko::*;
         pub use super::yanfei::*;
+        pub use super::yaoyao::*;
         pub use super::yoimiya::*;
     };
 }
@@ -202,6 +203,9 @@ macro_rules! __generated_skills_cases {
             SkillId::AncientSwordArt => &ANCIENT_SWORD_ART,
             SkillId::AdeptusArtHeraldOfFrost => &ADEPTUS_ART_HERALD_OF_FROST,
             SkillId::AdeptusArtPreserverOfFortune => &ADEPTUS_ART_PRESERVER_OF_FORTUNE,
+            SkillId::TossNTurnSpear => &TOSS_N_TURN_SPEAR,
+            SkillId::RaphanusSkyCluster => &RAPHANUS_SKY_CLUSTER,
+            SkillId::MoonjadeDescent => &MOONJADE_DESCENT,
         }
     };
 }
@@ -257,6 +261,7 @@ macro_rules! __generated_enum_cases {
             CharId::Venti => $crate::__mapping!(venti::$I, $(| $val | $blk)?),
             CharId::Wanderer => $crate::__mapping!(wanderer::$I, $(| $val | $blk)?),
             CharId::Qiqi => $crate::__mapping!(qiqi::$I, $(| $val | $blk)?),
+            CharId::Yaoyao => $crate::__mapping!(yaoyao::$I, $(| $val | $blk)?),
         }
     };
 
@@ -309,6 +314,7 @@ macro_rules! __generated_enum_cases {
             CharId::Venti => $crate::__mapping!(&venti::$I, $(| $val | $blk)?),
             CharId::Wanderer => $crate::__mapping!(&wanderer::$I, $(| $val | $blk)?),
             CharId::Qiqi => $crate::__mapping!(&qiqi::$I, $(| $val | $blk)?),
+            CharId::Yaoyao => $crate::__mapping!(&yaoyao::$I, $(| $val | $blk)?),
         }
     };
 
@@ -460,6 +466,9 @@ macro_rules! __generated_enum_cases {
             SkillId::AncientSwordArt => $crate::__mapping!(ancient_sword_art::$I, $(| $val | $blk)?),
             SkillId::AdeptusArtHeraldOfFrost => $crate::__mapping!(adeptus_art_herald_of_frost::$I, $(| $val | $blk)?),
             SkillId::AdeptusArtPreserverOfFortune => $crate::__mapping!(adeptus_art_preserver_of_fortune::$I, $(| $val | $blk)?),
+            SkillId::TossNTurnSpear => $crate::__mapping!(toss_n_turn_spear::$I, $(| $val | $blk)?),
+            SkillId::RaphanusSkyCluster => $crate::__mapping!(raphanus_sky_cluster::$I, $(| $val | $blk)?),
+            SkillId::MoonjadeDescent => $crate::__mapping!(moonjade_descent::$I, $(| $val | $blk)?),
         }
     };
 
@@ -611,6 +620,9 @@ macro_rules! __generated_enum_cases {
             SkillId::AncientSwordArt => $crate::__mapping!(&ancient_sword_art::$I, $(| $val | $blk)?),
             SkillId::AdeptusArtHeraldOfFrost => $crate::__mapping!(&adeptus_art_herald_of_frost::$I, $(| $val | $blk)?),
             SkillId::AdeptusArtPreserverOfFortune => $crate::__mapping!(&adeptus_art_preserver_of_fortune::$I, $(| $val | $blk)?),
+            SkillId::TossNTurnSpear => $crate::__mapping!(&toss_n_turn_spear::$I, $(| $val | $blk)?),
+            SkillId::RaphanusSkyCluster => $crate::__mapping!(&raphanus_sky_cluster::$I, $(| $val | $blk)?),
+            SkillId::MoonjadeDescent => $crate::__mapping!(&moonjade_descent::$I, $(| $val | $blk)?),
         }
     };
 
@@ -722,6 +734,7 @@ macro_rules! __generated_enum_cases {
             StatusId::Stormzone => $crate::__mapping!(stormzone::$I, $(| $val | $blk)?),
             StatusId::Windfavored => $crate::__mapping!(windfavored::$I, $(| $val | $blk)?),
             StatusId::FortunePreservingTalisman => $crate::__mapping!(fortune_preserving_talisman::$I, $(| $val | $blk)?),
+            StatusId::AdeptalLegacy => $crate::__mapping!(adeptal_legacy::$I, $(| $val | $blk)?),
             StatusId::ColdBloodedStrike => $crate::__mapping!(cold_blooded_strike::$I, $(| $val | $blk)?),
             StatusId::UndividedHeart => $crate::__mapping!(undivided_heart::$I, $(| $val | $blk)?),
             StatusId::Riptide => $crate::__mapping!(riptide::$I, $(| $val | $blk)?),
@@ -841,6 +854,7 @@ macro_rules! __generated_enum_cases {
             StatusId::Stormzone => $crate::__mapping!(&stormzone::$I, $(| $val | $blk)?),
             StatusId::Windfavored => $crate::__mapping!(&windfavored::$I, $(| $val | $blk)?),
             StatusId::FortunePreservingTalisman => $crate::__mapping!(&fortune_preserving_talisman::$I, $(| $val | $blk)?),
+            StatusId::AdeptalLegacy => $crate::__mapping!(&adeptal_legacy::$I, $(| $val | $blk)?),
             StatusId::ColdBloodedStrike => $crate::__mapping!(&cold_blooded_strike::$I, $(| $val | $blk)?),
             StatusId::UndividedHeart => $crate::__mapping!(&undivided_heart::$I, $(| $val | $blk)?),
             StatusId::Riptide => $crate::__mapping!(&riptide::$I, $(| $val | $blk)?),
@@ -882,6 +896,7 @@ macro_rules! __generated_enum_cases {
             SummonId::SolarIsotoma => $crate::__mapping!(solar_isotoma::$I, $(| $val | $blk)?),
             SummonId::Stormeye => $crate::__mapping!(stormeye::$I, $(| $val | $blk)?),
             SummonId::HeraldOfFrost => $crate::__mapping!(herald_of_frost::$I, $(| $val | $blk)?),
+            SummonId::YueguiThrowingMode => $crate::__mapping!(yuegui_throwing_mode::$I, $(| $val | $blk)?),
         }
     };
 
@@ -915,6 +930,7 @@ macro_rules! __generated_enum_cases {
             SummonId::SolarIsotoma => $crate::__mapping!(&solar_isotoma::$I, $(| $val | $blk)?),
             SummonId::Stormeye => $crate::__mapping!(&stormeye::$I, $(| $val | $blk)?),
             SummonId::HeraldOfFrost => $crate::__mapping!(&herald_of_frost::$I, $(| $val | $blk)?),
+            SummonId::YueguiThrowingMode => $crate::__mapping!(&yuegui_throwing_mode::$I, $(| $val | $blk)?),
         }
     };
 
@@ -1069,6 +1085,7 @@ macro_rules! __generated_enum_cases {
             CardId::MysticalAbandon => $crate::__mapping!(mystical_abandon::$I, $(| $val | $blk)?),
             CardId::TheOverflow => $crate::__mapping!(the_overflow::$I, $(| $val | $blk)?),
             CardId::DescentOfDivinity => $crate::__mapping!(descent_of_divinity::$I, $(| $val | $blk)?),
+            CardId::Beneficent => $crate::__mapping!(beneficent::$I, $(| $val | $blk)?),
         }
     };
 
@@ -1181,6 +1198,7 @@ macro_rules! __generated_enum_cases {
             CardId::MysticalAbandon => $crate::__mapping!(&mystical_abandon::$I, $(| $val | $blk)?),
             CardId::TheOverflow => $crate::__mapping!(&the_overflow::$I, $(| $val | $blk)?),
             CardId::DescentOfDivinity => $crate::__mapping!(&descent_of_divinity::$I, $(| $val | $blk)?),
+            CardId::Beneficent => $crate::__mapping!(&beneficent::$I, $(| $val | $blk)?),
         }
     };
 

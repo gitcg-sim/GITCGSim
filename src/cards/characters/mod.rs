@@ -55,6 +55,7 @@ pub mod xiao;
 pub mod xingqiu;
 pub mod yae_miko;
 pub mod yanfei;
+pub mod yaoyao;
 pub mod yoimiya;
 
 pub(crate) mod char_reexports {

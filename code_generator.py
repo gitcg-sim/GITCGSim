@@ -67,6 +67,8 @@ def snake_case(name):
         return 'i_got_your_back'
     if name == 'SparksNSplash':
         return 'sparks_n_splash'
+    if name == 'TossNTurnSpear':
+        return 'toss_n_turn_spear'
 
     parts = []
     while len(name):

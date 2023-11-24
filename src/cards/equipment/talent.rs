@@ -368,3 +368,13 @@ pub mod descent_of_divinity {
         skill => AbiogenesisSolarIsotoma,
     );
 }
+
+pub mod beneficent {
+    talent!(
+        Beneficent,
+        "Beneficent",
+        Cost::elem(Element::Dendro, 3),
+        Yaoyao,
+        skill => RaphanusSkyCluster,
+    );
+}

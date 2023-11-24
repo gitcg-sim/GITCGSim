@@ -55,6 +55,7 @@ pub enum CharId {
     Venti,
     Wanderer,
     Qiqi,
+    Yaoyao,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -206,6 +207,9 @@ pub enum SkillId {
     AncientSwordArt,
     AdeptusArtHeraldOfFrost,
     AdeptusArtPreserverOfFortune,
+    TossNTurnSpear,
+    RaphanusSkyCluster,
+    MoonjadeDescent,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Enum)]
@@ -327,6 +331,7 @@ pub enum StatusId {
     Stormzone,
     Windfavored,
     FortunePreservingTalisman,
+    AdeptalLegacy,
 
     // Talents
     ColdBloodedStrike,
@@ -372,6 +377,7 @@ pub enum SummonId {
     SolarIsotoma,
     Stormeye,
     HeraldOfFrost,
+    YueguiThrowingMode,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Enum)]
@@ -512,4 +518,5 @@ pub enum CardId {
     MysticalAbandon,
     TheOverflow,
     DescentOfDivinity,
+    Beneficent,
 }
