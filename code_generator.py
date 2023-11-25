@@ -133,12 +133,12 @@ def macros():
     body = []
 
     reexports = '\n'.join(
-        '{}pub use super::{}::*;'.format(2 * indent, snake_case(name)) for name in enums['CharId']
+        '{}pub use super::{}::*;'.format(2 * indent, snake_case(name)) for name in sorted(enums['CharId'])
     )
 
     mapping_part = ' $(, | $val: ident | $blk: block $(,)?)?'
     for key in enums.keys():
-        for p in ['', '&']:
+        for p in ['&']:
             body.append('{}({}, $expr: expr, {} $I: ident{}) => {}'.format(indent, key, p, mapping_part, '{'))
             body.append('{}match $expr {}'.format(indent * 2, '{'))
             body.append(status_cases(key, '$I', p, '$crate::__mapping!({}, $(| $val | $blk)?)'))
