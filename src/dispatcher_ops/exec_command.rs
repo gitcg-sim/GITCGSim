@@ -596,14 +596,17 @@ impl GameState {
     }
 
     fn take_dmg(&mut self, ctx: &CommandContext, dmg: DealDMG) -> ExecResult {
-        let Some(char_idx) = ctx.src.char_idx() else {
-            return ExecResult::Success;
-        };
+        // TODO refactor TakeDMG targeting
+        let take_dmg_player_id = ctx.src_player_id;
+        let char_idx = ctx.src.char_idx().unwrap_or_else(|| {
+            let player = self.get_player(take_dmg_player_id);
+            player.active_char_idx
+        });
         let ctx = CommandContext::new(
-            ctx.src_player_id.opposite(),
+            take_dmg_player_id.opposite(),
             ctx.src,
             Some(CommandTarget {
-                player_id: ctx.src_player_id,
+                player_id: take_dmg_player_id,
                 char_idx,
             }),
         );

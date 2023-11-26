@@ -69,7 +69,10 @@ macro_rules! trigger_event_impl {
             }
 
             fn trigger_event(&self, $e: &mut TriggerEventContext<EventId>) -> Option<AppliedEffectResult> {
-                $(let EventId::$event_id = $e.event_id else { return None };)*
+                match $e.event_id {
+                    $(EventId::$event_id)|* => {}
+                    _ => return None
+                };
                 $blk
             }
         }

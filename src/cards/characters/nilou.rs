@@ -101,7 +101,9 @@ pub mod lingering_aeon {
     decl_status_impl_type!(LingeringAeon, I);
     trigger_event_impl!(LingeringAeon, [EndPhase], |e| {
         e.out_cmds.push((
-            e.ctx_for_dmg.without_target(),
+            e.ctx_for_dmg.without_target().with_src(CommandSource::Character {
+                char_idx: e.c.status_key.char_idx().unwrap(),
+            }),
             Command::TakeDMG(deal_elem_dmg(Element::Hydro, 3, 0)),
         ));
         Some(AppliedEffectResult::ConsumeUsage)
