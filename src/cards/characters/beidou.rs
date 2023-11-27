@@ -41,8 +41,8 @@ pub const WAVESTRIDER: Skill = Skill {
 pub mod tidecaller_surf_embrace {
     use super::*;
 
-    pub const S: Status = Status::new_shield_points("Tidecaller: Surf Embrace", StatusAttachMode::Character, 2, None)
-        .with_prepare_skill(1);
+    pub const S: Status =
+        Status::new_shield_points("Tidecaller: Surf Embrace", StatusAttachMode::Character, 2, None).prepare_skill(1);
 
     pub const I: PreparedSkill = PreparedSkill::new(SkillId::Wavestrider);
 }

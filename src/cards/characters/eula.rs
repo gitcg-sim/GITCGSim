@@ -83,7 +83,7 @@ pub mod lightfall_sword {
     use super::*;
 
     pub const S: Status =
-        Status::new_indef("Lightfall Sword", StatusAttachMode::Summon).with_counter(CounterSpec::new("Zeal", 0));
+        Status::new_indef("Lightfall Sword", StatusAttachMode::Summon).counter(CounterSpec::new("Zeal", 0));
 
     pub const I: LightfallSword = LightfallSword();
     pub struct LightfallSword();

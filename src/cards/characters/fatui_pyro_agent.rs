@@ -8,7 +8,7 @@ pub const C: CharCard = CharCard {
     max_health: 10,
     max_energy: 2,
     skills: list8![SkillId::Thrust, SkillId::Prowl, SkillId::BladeAblaze,],
-    passive: Some(Passive::new("Stealth Master").with_status(StatusId::Stealth)),
+    passive: Some(Passive::new("Stealth Master").status(StatusId::Stealth)),
 };
 
 pub const THRUST: Skill = skill_na("Thrust", Element::Pyro, 2, DealDMGType::Physical);
@@ -34,7 +34,7 @@ pub mod stealth {
     use super::*;
 
     pub const S: Status = Status::new_usages("Stealth", StatusAttachMode::Character, 2, None)
-        .with_talent_usages_increase(CharId::FatuiPyroAgent, 1);
+        .talent_usages_increase(CharId::FatuiPyroAgent, 1);
 
     decl_status_impl_type!(Stealth, I);
     impl StatusImpl for Stealth {

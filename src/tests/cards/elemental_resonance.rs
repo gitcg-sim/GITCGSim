@@ -64,7 +64,7 @@ fn elemental_resonance_sprawling_greenery_increases_reaction_dmg() {
 fn elemental_resonance_sprawling_greenery_increases_usages_of_catalyzing_field() {
     let mut gs =
         GameStateBuilder::new_skip_to_roll_phase(vector![CharId::Fischl, CharId::Collei], vector![CharId::Yoimiya])
-            .with_ignore_costs(true)
+            .ignore_costs(true)
             .build();
     gs.players.0.hand.push(CardId::ElementalResonanceSprawlingGreenery);
     gs.advance_roll_phase_no_dice();

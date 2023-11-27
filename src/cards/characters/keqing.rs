@@ -37,7 +37,7 @@ pub const STARWARD_SWORD: Skill = Skill {
 pub mod electro_infusion {
     use super::*;
     pub const S: Status = Status::new_duration("Electro Infusion", StatusAttachMode::Character, 2)
-        .with_talent_usages_increase(CharId::Keqing, 1);
+        .talent_usages_increase(CharId::Keqing, 1);
 
     decl_status_impl_type!(ElectroInfusion, I);
     impl StatusImpl for ElectroInfusion {

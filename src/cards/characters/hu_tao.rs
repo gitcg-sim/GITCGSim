@@ -80,7 +80,7 @@ pub mod blood_blossom {
     use super::*;
 
     pub const S: Status =
-        Status::new_usages("Blood Blossom", StatusAttachMode::Character, 1, None).with_applies_to_opposing();
+        Status::new_usages("Blood Blossom", StatusAttachMode::Character, 1, None).applies_to_opposing();
 
     pub const I: EndPhaseCommands = EndPhaseCommands(list8![Command::TakeDMG(deal_elem_dmg(Element::Pyro, 1, 0))]);
 }

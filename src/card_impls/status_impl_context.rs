@@ -110,7 +110,7 @@ impl<'a, 'b, 'c, 'v, D> StatusImplContext<'a, 'b, 'c, 'v, D> {
             if status.applies_to_opposing {
                 unimplemented!()
             }
-            let char_id = status.casted_by_character();
+            let char_id = status.get_casted_by_char_id();
             self.src_player_state
                 .char_states
                 .iter_valid()

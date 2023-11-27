@@ -206,7 +206,7 @@ fn strategize() {
 #[test]
 fn quick_knit() {
     let mut gs = GameStateBuilder::new_skip_to_roll_phase(vector![CharId::Fischl], vector![CharId::Yoimiya])
-        .with_ignore_costs(true)
+        .ignore_costs(true)
         .build();
     gs.players.0.hand.push(CardId::QuickKnit);
     gs.advance_roll_phase_no_dice();
@@ -232,7 +232,7 @@ fn quick_knit() {
 #[test]
 fn send_off() {
     let mut gs = GameStateBuilder::new_skip_to_roll_phase(vector![CharId::Yoimiya], vector![CharId::Fischl])
-        .with_ignore_costs(true)
+        .ignore_costs(true)
         .build();
     gs.players.0.hand.push(CardId::SendOff);
     gs.advance_roll_phase_no_dice();

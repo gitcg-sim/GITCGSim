@@ -35,7 +35,7 @@ pub mod sparks_n_splash {
     use super::*;
 
     pub const S: Status =
-        Status::new_usages("Sparks 'n' Splash", StatusAttachMode::Team, 2, None).with_applies_to_opposing();
+        Status::new_usages("Sparks 'n' Splash", StatusAttachMode::Team, 2, None).applies_to_opposing();
 
     decl_status_impl_type!(SparksNSplash, I);
     impl StatusImpl for SparksNSplash {
@@ -62,7 +62,7 @@ pub mod explosive_spark {
     use super::*;
 
     pub const S: Status = Status::new_usages("Explosive Spark", StatusAttachMode::Character, 1, None)
-        .with_talent_usages_increase(CharId::Klee, 1);
+        .talent_usages_increase(CharId::Klee, 1);
 
     decl_status_impl_type!(ExplosiveSpark, I);
     impl StatusImpl for ExplosiveSpark {

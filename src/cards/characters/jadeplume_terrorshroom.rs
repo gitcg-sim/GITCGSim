@@ -12,7 +12,7 @@ pub const C: CharCard = CharCard {
         SkillId::VolatileSporeCloud,
         SkillId::FeatherSpreading,
     ],
-    passive: Some(Passive::new("Radical Vitality").with_status(StatusId::RadicalVitality)),
+    passive: Some(Passive::new("Radical Vitality").status(StatusId::RadicalVitality)),
 };
 
 pub const MAJESTIC_DANCE: Skill = skill_na("Majestic Dance", Element::Dendro, 2, DealDMGType::Physical);
@@ -37,7 +37,7 @@ pub mod radical_vitality {
     use super::*;
 
     pub const S: Status = Status::new_indef("Radical Vitality", StatusAttachMode::Character)
-        .with_counter(CounterSpec::new("Radical Vitality", 0));
+        .counter(CounterSpec::new("Radical Vitality", 0));
 
     #[inline]
     fn increase_stacks(s: u8) -> u8 {

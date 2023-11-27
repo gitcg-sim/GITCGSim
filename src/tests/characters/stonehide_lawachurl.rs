@@ -4,8 +4,8 @@ use super::*;
 fn stonehide_consumes_2_usages_for_geo_dmg() {
     let mut gs =
         GameStateBuilder::new_skip_to_roll_phase(vector![CharId::StonehideLawachurl], vector![CharId::Ningguang])
-            .with_enable_log(true)
-            .with_ignore_costs(true)
+            .enable_log(true)
+            .ignore_costs(true)
             .build();
     gs.advance_roll_phase_no_dice();
     assert_eq!(8, gs.get_player(PlayerId::PlayerFirst).char_states[0].get_hp());
@@ -39,8 +39,8 @@ fn stonehide_consumes_2_usages_for_geo_dmg() {
 fn stonehide_removes_stone_force_at_zero_usages() {
     let mut gs =
         GameStateBuilder::new_skip_to_roll_phase(vector![CharId::StonehideLawachurl], vector![CharId::Ningguang])
-            .with_enable_log(true)
-            .with_ignore_costs(true)
+            .enable_log(true)
+            .ignore_costs(true)
             .build();
     gs.advance_roll_phase_no_dice();
     assert_eq!(8, gs.get_player(PlayerId::PlayerFirst).char_states[0].get_hp());
@@ -85,8 +85,8 @@ fn stonehide_removes_stone_force_at_zero_usages() {
 fn stone_force_infuses_geo() {
     let mut gs =
         GameStateBuilder::new_skip_to_roll_phase(vector![CharId::StonehideLawachurl], vector![CharId::Ningguang])
-            .with_enable_log(true)
-            .with_ignore_costs(true)
+            .enable_log(true)
+            .ignore_costs(true)
             .build();
     gs.advance_roll_phase_no_dice();
     gs.get_player_mut(PlayerId::PlayerSecond).char_states[0]

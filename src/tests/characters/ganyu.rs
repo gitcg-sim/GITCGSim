@@ -6,8 +6,8 @@ fn frostflake_arrow_piercing_dmg() {
         vector![CharId::Ganyu],
         vector![CharId::Fischl, CharId::Yoimiya, CharId::Kaeya],
     )
-    .with_enable_log(true)
-    .with_ignore_costs(true)
+    .enable_log(true)
+    .ignore_costs(true)
     .build();
     gs.advance_roll_phase_no_dice();
     gs.advance_multiple(&vec![Input::FromPlayer(
@@ -37,8 +37,8 @@ fn talent_card_does_not_increase_frostflake_arrow_dmg_first_cast() {
         vector![CharId::Ganyu],
         vector![CharId::Fischl, CharId::Yoimiya, CharId::Kaeya],
     )
-    .with_enable_log(true)
-    .with_ignore_costs(true)
+    .enable_log(true)
+    .ignore_costs(true)
     .build();
     gs.players.0.hand.push(CardId::UndividedHeart);
     gs.advance_roll_phase_no_dice();
@@ -69,8 +69,8 @@ fn talent_card_increases_frostflake_arrow_dmg_subsequent_cast() {
         vector![CharId::Ganyu],
         vector![CharId::Fischl, CharId::Yoimiya, CharId::Kaeya],
     )
-    .with_enable_log(true)
-    .with_ignore_costs(true)
+    .enable_log(true)
+    .ignore_costs(true)
     .build();
     gs.players.0.hand.push(CardId::UndividedHeart);
     gs.advance_roll_phase_no_dice();

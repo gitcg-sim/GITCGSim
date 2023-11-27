@@ -92,7 +92,7 @@ pub mod oceanid_mimic_frog {
     use super::*;
 
     pub const S: Status =
-        Status::new_usages("Oceanid Mimic: Frog", StatusAttachMode::Summon, 2, None).with_manual_discard(true);
+        Status::new_usages("Oceanid Mimic: Frog", StatusAttachMode::Summon, 2, None).manual_discard(true);
 
     pub const I: OceanidMimicFrog = OceanidMimicFrog();
     pub struct OceanidMimicFrog();

@@ -87,8 +87,8 @@ pub mod riptide {
     use super::*;
 
     pub const S: Status = Status::new_duration("Riptide", StatusAttachMode::Character, 2)
-        .with_applies_to_opposing()
-        .with_shifts_to_next_active_on_death();
+        .applies_to_opposing()
+        .shifts_to_next_active_on_death();
 
     decl_status_impl_type!(Riptide, I);
     impl StatusImpl for Riptide {
@@ -112,8 +112,8 @@ pub mod melee_stance {
     use super::*;
 
     pub const S: Status = Status::new_duration("Melee Stance", StatusAttachMode::Character, 2)
-        .with_counter(CounterSpec::new("Affected by Riptide", 2).resets_at_turn_end(true))
-        .with_reapplies_on_discard(StatusId::RangedStance);
+        .counter(CounterSpec::new("Affected by Riptide", 2).resets_at_turn_end(true))
+        .reapplies_on_discard(StatusId::RangedStance);
 
     pub struct MeleeStanceOutgoingDMG();
     impl StatusImpl for MeleeStanceOutgoingDMG {

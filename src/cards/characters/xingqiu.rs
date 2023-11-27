@@ -36,8 +36,8 @@ pub const RAINCUTTER: Skill = Skill {
 pub mod rain_sword {
     use super::*;
 
-    pub const S: Status = Status::new_usages("Rain Sword", StatusAttachMode::Team, 2, None)
-        .with_talent_usages_increase(CharId::Xingqiu, 1);
+    pub const S: Status =
+        Status::new_usages("Rain Sword", StatusAttachMode::Team, 2, None).talent_usages_increase(CharId::Xingqiu, 1);
 
     decl_status_impl_type!(RainSword, I);
     impl StatusImpl for RainSword {

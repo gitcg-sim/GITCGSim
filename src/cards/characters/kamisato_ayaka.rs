@@ -12,7 +12,7 @@ pub const C: CharCard = CharCard {
         SkillId::KamisatoArtHyouka,
         SkillId::KamisatoArtSoumetsu,
     ],
-    passive: Some(Passive::new("Kamisato Art: Senho").with_status(StatusId::KamisatoArtSenho)),
+    passive: Some(Passive::new("Kamisato Art: Senho").status(StatusId::KamisatoArtSenho)),
 };
 
 pub const KAMISATO_ART_KABUKI: Skill = skill_na("Kamisato Art: Kabuki", Element::Cryo, 2, DealDMGType::Physical);

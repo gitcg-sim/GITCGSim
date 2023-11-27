@@ -12,7 +12,7 @@ pub const C: CharCard = CharCard {
         SkillId::MirrorReflectionOfDoom,
         SkillId::StellarisPhantasm,
     ],
-    passive: Some(Passive::new("Illusory Torrent").with_status(StatusId::IllusoryTorrent)),
+    passive: Some(Passive::new("Illusory Torrent").status(StatusId::IllusoryTorrent)),
 };
 
 pub const RIPPLE_OF_FATE: Skill = skill_na("Ripple of Fate", Element::Hydro, 1, DealDMGType::HYDRO);
@@ -59,7 +59,7 @@ pub mod illusory_bubble {
 pub mod reflection {
     use super::*;
 
-    pub const S: Status = Status::new_usages("Reflection", StatusAttachMode::Summon, 1, None).with_manual_discard(true);
+    pub const S: Status = Status::new_usages("Reflection", StatusAttachMode::Summon, 1, None).manual_discard(true);
 
     pub const I: Reflection = Reflection();
     pub struct Reflection();

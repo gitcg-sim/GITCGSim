@@ -7,7 +7,7 @@ fn swirl_deals_swirl_dmg_and_applies_element() {
             vector![CharId::Sucrose],
             vector![CharId::Yoimiya, CharId::Fischl, CharId::Ganyu],
         )
-        .with_ignore_costs(true)
+        .ignore_costs(true)
         .build();
         gs.get_player_mut(PlayerId::PlayerSecond).char_states[0]
             .applied
@@ -35,7 +35,7 @@ fn swirl_triggers_secondary_reactions_melt_vaporize() {
         vector![CharId::Sucrose],
         vector![CharId::Yoimiya, CharId::Fischl, CharId::Ganyu],
     )
-    .with_ignore_costs(true)
+    .ignore_costs(true)
     .build();
     {
         let player = gs.get_player_mut(PlayerId::PlayerSecond);
@@ -67,7 +67,7 @@ fn swirl_triggers_secondary_reactions_electro_charged_superconduct() {
             vector![CharId::Sucrose],
             vector![CharId::Yoimiya, CharId::Fischl, CharId::Ganyu],
         )
-        .with_ignore_costs(true)
+        .ignore_costs(true)
         .build();
         {
             let player = gs.get_player_mut(PlayerId::PlayerSecond);
@@ -98,7 +98,7 @@ fn swirl_triggers_secondary_reactions_bloom_frozen() {
         vector![CharId::Sucrose],
         vector![CharId::Yoimiya, CharId::Fischl, CharId::Ganyu],
     )
-    .with_ignore_costs(true)
+    .ignore_costs(true)
     .build();
     {
         let player = gs.get_player_mut(PlayerId::PlayerSecond);
@@ -134,7 +134,7 @@ fn swirl_triggers_secondary_reactions_quicken() {
         vector![CharId::Sucrose],
         vector![CharId::Yoimiya, CharId::Fischl, CharId::Ganyu],
     )
-    .with_ignore_costs(true)
+    .ignore_costs(true)
     .build();
     {
         let player = gs.get_player_mut(PlayerId::PlayerSecond);
@@ -164,7 +164,7 @@ fn swirl_triggers_secondary_reactions_burning() {
         vector![CharId::Sucrose],
         vector![CharId::Yoimiya, CharId::Fischl, CharId::Ganyu],
     )
-    .with_ignore_costs(true)
+    .ignore_costs(true)
     .build();
     {
         let player = gs.get_player_mut(PlayerId::PlayerSecond);
@@ -192,7 +192,7 @@ fn swirl_triggers_secondary_reactions_overloaded_no_forced_switch() {
         vector![CharId::Sucrose],
         vector![CharId::Yoimiya, CharId::Fischl, CharId::Ganyu],
     )
-    .with_ignore_costs(true)
+    .ignore_costs(true)
     .build();
     {
         let player = gs.get_player_mut(PlayerId::PlayerSecond);

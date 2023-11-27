@@ -51,7 +51,7 @@ pub mod heron_shield {
     use super::*;
 
     pub const S: Status =
-        Status::new_shield_points("Heron Shield", StatusAttachMode::Character, 2, None).with_prepare_skill(1);
+        Status::new_shield_points("Heron Shield", StatusAttachMode::Character, 2, None).prepare_skill(1);
 
     pub const I: PreparedSkill = PreparedSkill::new(SkillId::HeronStrike);
 }
@@ -60,7 +60,7 @@ pub mod prayer_of_the_crimson_crown {
     use super::*;
 
     pub const S: Status = Status::new_duration("Prayer of the Crimson Crown", StatusAttachMode::Team, 2)
-        .with_casted_by_character(CharId::Candace);
+        .casted_by_character(CharId::Candace);
 
     decl_status_impl_type!(PrayerOfTheCrimsonCrown, I);
     pub struct PrayerOfTheCrimsonCrownOutgoingDMG();

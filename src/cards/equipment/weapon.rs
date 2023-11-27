@@ -203,7 +203,7 @@ pub mod lithic_spear {
         Polearm,
         LithicSpear,
         Cost::aligned(3),
-        status => equipment_status(NAME).with_shield_points(0)
+        status => equipment_status(NAME).shield_points(0)
     );
 }
 
@@ -287,7 +287,7 @@ pub mod a_thousand_floating_dreams {
         Catalyst,
         AThousandFloatingDreams,
         Cost::aligned(3),
-        status => equipment_status(NAME).with_counter(CounterSpec::new("[Counter]", 2).resets_at_turn_end(true))
+        status => equipment_status(NAME).counter(CounterSpec::new("[Counter]", 2).resets_at_turn_end(true))
     );
 }
 
@@ -324,6 +324,6 @@ pub mod aquila_favonia {
         Sword,
         AquilaFavonia,
         Cost::aligned(3),
-        status => equipment_status(NAME).with_counter(CounterSpec::new("[Counter]", 2).resets_at_turn_end(true))
+        status => equipment_status(NAME).counter(CounterSpec::new("[Counter]", 2).resets_at_turn_end(true))
     );
 }

@@ -78,7 +78,7 @@ fn post_death_switch() {
         vector![CharId::Fischl],
         vector![CharId::Kaeya, CharId::Ganyu, CharId::Yoimiya],
     )
-    .with_ignore_costs(true)
+    .ignore_costs(true)
     .build();
     {
         let p1 = &mut gs.players.1;
@@ -103,7 +103,7 @@ fn piercing_dmg_victory() {
         vector![CharId::Ganyu],
         vector![CharId::Kaeya, CharId::Ganyu, CharId::Yoimiya],
     )
-    .with_ignore_costs(true)
+    .ignore_costs(true)
     .build();
     {
         let p1 = &mut gs.players.1;
@@ -130,7 +130,7 @@ fn piercing_dmg_causing_post_death_switch() {
         vector![CharId::Ganyu],
         vector![CharId::Kaeya, CharId::Ganyu, CharId::Yoimiya],
     )
-    .with_ignore_costs(true)
+    .ignore_costs(true)
     .build();
     {
         let p1 = &mut gs.players.1;
@@ -149,7 +149,7 @@ fn piercing_dmg_causing_post_death_switch() {
 fn trigger_effects_after_post_death_switch() {
     let mut gs =
         GameStateBuilder::new_skip_to_roll_phase(vector![CharId::Fischl], vector![CharId::Kaeya, CharId::Yoimiya])
-            .with_ignore_costs(true)
+            .ignore_costs(true)
             .build();
     {
         let p1 = &mut gs.players.1;
@@ -173,7 +173,7 @@ fn end_phase_post_death_switch() {
         vector![CharId::Yoimiya, CharId::Ganyu],
         vector![CharId::Fischl, CharId::KamisatoAyaka, CharId::Collei],
     )
-    .with_ignore_costs(true)
+    .ignore_costs(true)
     .build();
     {
         let yoimiya = &mut gs.players.1.char_states[0];
@@ -204,7 +204,7 @@ fn end_phase_winner_decided() {
         vector![CharId::Yoimiya],
         vector![CharId::Fischl, CharId::KamisatoAyaka, CharId::Collei],
     )
-    .with_ignore_costs(true)
+    .ignore_costs(true)
     .build();
     {
         let yoimiya = &mut gs.players.1.char_states[0];
@@ -280,7 +280,7 @@ fn elemental_tuning() {
 #[test]
 fn artifact_equip_replace() {
     let mut gs = GameStateBuilder::new_skip_to_roll_phase(vector![CharId::Yoimiya], vector![CharId::Fischl])
-        .with_ignore_costs(true)
+        .ignore_costs(true)
         .build();
     gs.advance_roll_phase_no_dice();
     gs.players.0.hand = vector![CardId::WitchsScorchingHat, CardId::BrokenRimesEcho];
@@ -314,7 +314,7 @@ fn artifact_equip_replace() {
 #[test]
 fn weapon_equip_replace() {
     let mut gs = GameStateBuilder::new_skip_to_roll_phase(vector![CharId::Yoimiya], vector![CharId::Fischl])
-        .with_ignore_costs(true)
+        .ignore_costs(true)
         .build();
     gs.advance_roll_phase_no_dice();
     gs.players.0.hand = vector![CardId::SkywardHarp, CardId::SacrificialBow];
@@ -351,7 +351,7 @@ fn skill_cast_tracker() {
         vector![CharId::Ganyu, CharId::Yoimiya],
         vector![CharId::Fischl, CharId::Noelle],
     )
-    .with_ignore_costs(true)
+    .ignore_costs(true)
     .build();
 
     gs.advance_roll_phase_no_dice();

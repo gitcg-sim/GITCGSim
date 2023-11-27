@@ -8,7 +8,7 @@ fn quicken() {
         vector![CharId::Collei, CharId::Fischl],
         vector![CharId::Yoimiya, CharId::Fischl],
     )
-    .with_ignore_costs(true)
+    .ignore_costs(true)
     .build();
     gs.advance_roll_phase_no_dice();
     {
@@ -63,7 +63,7 @@ fn quicken() {
 #[test]
 fn burning_max_2_stacks() {
     let mut gs = GameStateBuilder::new_skip_to_roll_phase(vector![CharId::Collei], vector![CharId::Fischl])
-        .with_ignore_costs(true)
+        .ignore_costs(true)
         .build();
     gs.advance_roll_phase_no_dice();
     gs.get_player_mut(PlayerId::PlayerSecond).char_states[0]
@@ -119,7 +119,7 @@ fn bloom_dendro_core_increases_summon_dmg() {
         vector![CharId::Fischl, CharId::Collei],
         vector![CharId::Yoimiya, CharId::Xingqiu],
     )
-    .with_ignore_costs(true)
+    .ignore_costs(true)
     .build();
     gs.advance_roll_phase_no_dice();
 

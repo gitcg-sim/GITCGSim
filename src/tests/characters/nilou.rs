@@ -6,8 +6,8 @@ fn golden_chalices_bounty_generates_bountiful_core_when_meeting_requirements() {
         vector![CharId::Nilou, CharId::Nahida, CharId::Mona],
         vector![CharId::Ganyu],
     )
-    .with_enable_log(true)
-    .with_ignore_costs(true)
+    .enable_log(true)
+    .ignore_costs(true)
     .build();
 
     gs.advance_roll_phase_no_dice();
@@ -29,8 +29,8 @@ fn when_team_has_non_dendro_or_hydro_chars_golden_chalices_bounty_does_not_gener
         vector![CharId::Nilou, CharId::Noelle, CharId::Mona],
         vector![CharId::Ganyu],
     )
-    .with_enable_log(true)
-    .with_ignore_costs(true)
+    .enable_log(true)
+    .ignore_costs(true)
     .build();
 
     gs.advance_roll_phase_no_dice();
@@ -48,8 +48,8 @@ fn gs_bountiful_core() -> GameState {
         vector![CharId::Nilou, CharId::Nahida, CharId::Mona],
         vector![CharId::Ganyu],
     )
-    .with_enable_log(true)
-    .with_ignore_costs(true)
+    .enable_log(true)
+    .ignore_costs(true)
     .build();
 
     gs.advance_roll_phase_no_dice();
@@ -89,8 +89,8 @@ fn bountiful_cores_deals_dmg_end_of_round_given_usages() {
         vector![CharId::Nilou, CharId::Nahida, CharId::Mona],
         vector![CharId::Ganyu],
     )
-    .with_enable_log(true)
-    .with_ignore_costs(true)
+    .enable_log(true)
+    .ignore_costs(true)
     .build();
 
     gs.advance_roll_phase_no_dice();
@@ -134,8 +134,8 @@ fn talent_card_increases_bountiful_core_dmg() {
         vector![CharId::Nilou, CharId::Nahida, CharId::Mona],
         vector![CharId::Ganyu],
     )
-    .with_enable_log(true)
-    .with_ignore_costs(true)
+    .enable_log(true)
+    .ignore_costs(true)
     .build();
 
     gs.get_player_mut(PlayerId::PlayerFirst)
@@ -200,8 +200,8 @@ fn lingering_aeon_receives_dmg_end_phase() {
         vector![CharId::Nilou, CharId::Nahida, CharId::Mona],
         vector![CharId::Nilou],
     )
-    .with_enable_log(true)
-    .with_ignore_costs(true)
+    .enable_log(true)
+    .ignore_costs(true)
     .build();
 
     gs.advance_roll_phase_no_dice();

@@ -34,8 +34,7 @@ pub const UPA_SHATO: Skill = Skill {
 pub mod stonehide {
     use super::*;
 
-    pub const S: Status =
-        Status::new_usages("Stonehide", StatusAttachMode::Character, 3, None).with_manual_discard(true);
+    pub const S: Status = Status::new_usages("Stonehide", StatusAttachMode::Character, 3, None).manual_discard(true);
 
     decl_status_impl_type!(Stonehide, I);
     impl StatusImpl for Stonehide {

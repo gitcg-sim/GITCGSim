@@ -58,8 +58,8 @@ impl SkillImpl for DanceOfHaftkarsvar {
 pub mod bountiful_core {
     use super::*;
 
-    pub const S: Status = Status::new_usages("Bountiful Core", StatusAttachMode::Summon, 1, Some(3))
-        .with_casted_by_character(CharId::Nilou);
+    pub const S: Status =
+        Status::new_usages("Bountiful Core", StatusAttachMode::Summon, 1, Some(3)).casted_by_character(CharId::Nilou);
 
     decl_summon_impl_type!(BountifulCore, I);
     trigger_event_impl!(BountifulCore, [DeclareEndOfRound, EndPhase], |e| {
@@ -96,7 +96,7 @@ pub mod lingering_aeon {
     use super::*;
 
     pub const S: Status =
-        Status::new_usages("Lingering Aeon", StatusAttachMode::Character, 1, None).with_applies_to_opposing();
+        Status::new_usages("Lingering Aeon", StatusAttachMode::Character, 1, None).applies_to_opposing();
 
     decl_status_impl_type!(LingeringAeon, I);
     trigger_event_impl!(LingeringAeon, [EndPhase], |e| {

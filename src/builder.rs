@@ -85,15 +85,15 @@ impl GameStateBuilder<HasCharacters, MissingStartingCondition> {
 
 // TODO starting dice/hands
 impl<C: CharactersState, S: StartingConditionState> GameStateBuilder<C, S> {
-    pub fn with_enable_log(self, enable_log: bool) -> Self {
+    pub fn enable_log(self, enable_log: bool) -> Self {
         Self { enable_log, ..self }
     }
 
-    pub fn with_ignore_costs(self, ignore_costs: bool) -> Self {
+    pub fn ignore_costs(self, ignore_costs: bool) -> Self {
         Self { ignore_costs, ..self }
     }
 
-    pub fn with_starting_condition(
+    pub fn starting_condition(
         self,
         starting_condition: StartingCondition,
     ) -> GameStateBuilder<C, HasStartingCondition> {
@@ -107,18 +107,18 @@ impl<C: CharactersState, S: StartingConditionState> GameStateBuilder<C, S> {
     }
 
     pub fn start_at_select_character(self) -> GameStateBuilder<C, HasStartingCondition> {
-        self.with_starting_condition(StartingCondition {
+        self.starting_condition(StartingCondition {
             starting_phase: StartingPhase::SelectStartingCharacter,
         })
     }
 
     pub fn skip_to_roll_phase(self) -> GameStateBuilder<C, HasStartingCondition> {
-        self.with_starting_condition(StartingCondition {
+        self.starting_condition(StartingCondition {
             starting_phase: StartingPhase::RollPhase,
         })
     }
 
-    pub fn with_characters<T: Into<Vector<CharId>>>(self, chars1: T, chars2: T) -> GameStateBuilder<HasCharacters, S> {
+    pub fn characters<T: Into<Vector<CharId>>>(self, chars1: T, chars2: T) -> GameStateBuilder<HasCharacters, S> {
         GameStateBuilder {
             characters: (chars1.into(), chars2.into()).into(),
             starting_condition: self.starting_condition,
@@ -131,7 +131,7 @@ impl<C: CharactersState, S: StartingConditionState> GameStateBuilder<C, S> {
 
 impl GameStateBuilder<HasCharacters, HasStartingCondition> {
     pub fn new_skip_to_roll_phase<T: Into<Vector<CharId>>>(c1: T, c2: T) -> Self {
-        GameStateBuilder::<_, _>::new(c1, c2).with_starting_condition(StartingCondition::new(StartingPhase::RollPhase))
+        GameStateBuilder::<_, _>::new(c1, c2).starting_condition(StartingCondition::new(StartingPhase::RollPhase))
     }
 
     #[inline(always)]
@@ -185,8 +185,8 @@ mod tests {
     #[test]
     fn test_builder_ignore_costs() {
         let game_state = GameStateBuilder::new(vec![CharId::Yoimiya], vec![CharId::Fischl])
-            .with_ignore_costs(true)
-            .with_starting_condition(StartingCondition::default())
+            .ignore_costs(true)
+            .starting_condition(StartingCondition::default())
             .build();
         assert!(game_state.ignore_costs);
     }
@@ -194,8 +194,8 @@ mod tests {
     #[test]
     fn test_builder_enable_log() {
         let game_state = GameStateBuilder::new(vec![CharId::Yoimiya], vec![CharId::Fischl])
-            .with_enable_log(true)
-            .with_starting_condition(StartingCondition::default())
+            .enable_log(true)
+            .starting_condition(StartingCondition::default())
             .build();
         assert!(game_state.log.enabled);
     }

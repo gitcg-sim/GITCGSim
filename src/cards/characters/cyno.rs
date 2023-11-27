@@ -12,7 +12,7 @@ pub const C: CharCard = CharCard {
         SkillId::SecretRiteChasmicSoulfarer,
         SkillId::SacredRiteWolfsSwiftness,
     ],
-    passive: Some(Passive::new("Lawful Enforcer").with_status(StatusId::PactswornPathclearer)),
+    passive: Some(Passive::new("Lawful Enforcer").status(StatusId::PactswornPathclearer)),
 };
 
 pub const INVOKERS_SPEAR: Skill = skill_na("Invoker's Spear", Element::Electro, 2, DealDMGType::Physical);
@@ -37,7 +37,7 @@ pub mod pactsworn_pathclearer {
     use super::*;
 
     pub const S: Status = Status::new_indef("Pactsworn Pathclearer", StatusAttachMode::Character)
-        .with_counter(CounterSpec::new("Indwelling Level", 0));
+        .counter(CounterSpec::new("Indwelling Level", 0));
 
     #[inline]
     fn increase_indwelling_level(level: u8, increase: u8) -> u8 {

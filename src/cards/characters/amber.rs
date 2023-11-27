@@ -30,8 +30,7 @@ pub const FIERY_RAIN: Skill = Skill {
 pub mod baron_bunny {
     use super::*;
 
-    pub const S: Status =
-        Status::new_usages("Baron Bunny", StatusAttachMode::Summon, 1, None).with_manual_discard(true);
+    pub const S: Status = Status::new_usages("Baron Bunny", StatusAttachMode::Summon, 1, None).manual_discard(true);
 
     pub const I: BaronBunny = BaronBunny();
     pub struct BaronBunny();

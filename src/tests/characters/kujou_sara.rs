@@ -6,8 +6,8 @@ fn tengu_juurai_ambush_applies_crowfeather_cover_end_phase() {
         vector![CharId::KujouSara, CharId::Kaeya],
         vector![CharId::Ganyu, CharId::Xiangling],
     )
-    .with_enable_log(true)
-    .with_ignore_costs(true)
+    .enable_log(true)
+    .ignore_costs(true)
     .build();
 
     gs.advance_roll_phase_no_dice();

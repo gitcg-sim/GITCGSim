@@ -38,7 +38,7 @@ pub mod chonghua_frost_field {
     use super::*;
 
     pub const S: Status = Status::new_duration("Chonghua Frost Field", StatusAttachMode::Team, 2)
-        .with_talent_usages_increase(CharId::Chongyun, 1);
+        .talent_usages_increase(CharId::Chongyun, 1);
 
     decl_status_impl_type!(ChonghuaFrostField, I);
     impl StatusImpl for ChonghuaFrostField {

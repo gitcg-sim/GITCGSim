@@ -38,7 +38,7 @@ pub mod melody_loop {
     use super::*;
 
     pub const S: Status =
-        Status::new_usages("Melody Loop", StatusAttachMode::Summon, 2, None).with_casted_by_character(CharId::Barbara);
+        Status::new_usages("Melody Loop", StatusAttachMode::Summon, 2, None).casted_by_character(CharId::Barbara);
 
     pub const I: MelodyLoop = MelodyLoop();
 

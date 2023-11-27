@@ -6,7 +6,7 @@ fn frozen_cannot_perform_action() {
         vector![CharId::Xingqiu, CharId::KamisatoAyaka, CharId::Yoimiya],
         vector![CharId::Yoimiya, CharId::Fischl],
     )
-    .with_ignore_costs(true)
+    .ignore_costs(true)
     .build();
     gs.advance_roll_phase_no_dice();
     gs.advance_multiple(&vec![
@@ -48,7 +48,7 @@ fn frozen_broken_by_pyro() {
         vector![CharId::Xingqiu, CharId::KamisatoAyaka, CharId::Yoimiya],
         vector![CharId::Yoimiya],
     )
-    .with_ignore_costs(true)
+    .ignore_costs(true)
     .build();
     gs.advance_roll_phase_no_dice();
     gs.advance_multiple(&vec![
@@ -89,7 +89,7 @@ fn frozen_broken_by_physical() {
         vector![CharId::Xingqiu, CharId::KamisatoAyaka, CharId::Yoimiya],
         vector![CharId::Yoimiya],
     )
-    .with_ignore_costs(true)
+    .ignore_costs(true)
     .build();
     gs.advance_roll_phase_no_dice();
     gs.advance_multiple(&vec![
@@ -128,7 +128,7 @@ fn frozen_unapplied_end_of_turn() {
         vector![CharId::Xingqiu, CharId::KamisatoAyaka, CharId::Yoimiya],
         vector![CharId::Yoimiya],
     )
-    .with_ignore_costs(true)
+    .ignore_costs(true)
     .build();
     gs.advance_roll_phase_no_dice();
     gs.advance_multiple(&vec![
@@ -162,7 +162,7 @@ fn frozen_unapplied_end_of_turn_non_active_character() {
         vector![CharId::Xingqiu, CharId::KamisatoAyaka, CharId::Yoimiya],
         vector![CharId::Yoimiya, CharId::Kaeya],
     )
-    .with_ignore_costs(true)
+    .ignore_costs(true)
     .build();
     gs.advance_roll_phase_no_dice();
     gs.advance_multiple(&vec![

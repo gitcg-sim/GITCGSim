@@ -3,8 +3,8 @@ use super::*;
 #[test]
 fn niwabi_fire_dance_status() {
     let mut gs = GameStateBuilder::new_skip_to_roll_phase(vector![CharId::Yoimiya], vector![CharId::Ganyu])
-        .with_enable_log(true)
-        .with_ignore_costs(true)
+        .enable_log(true)
+        .ignore_costs(true)
         .build();
 
     gs.advance_roll_phase_no_dice();
@@ -59,8 +59,8 @@ fn ryuukin_saxifrage_trigger_duration() {
         vector![CharId::Yoimiya, CharId::Fischl],
         vector![CharId::Ganyu, CharId::Kaeya],
     )
-    .with_enable_log(true)
-    .with_ignore_costs(true)
+    .enable_log(true)
+    .ignore_costs(true)
     .build();
     gs.advance_roll_phase_no_dice();
     gs.advance_multiple(&vec![Input::FromPlayer(
@@ -100,8 +100,8 @@ fn talent_card_costs_niwabi_enshou_and_increases_dmg() {
         vector![CharId::Yoimiya, CharId::Fischl],
         vector![CharId::Ganyu, CharId::Kaeya],
     )
-    .with_enable_log(true)
-    .with_ignore_costs(true)
+    .enable_log(true)
+    .ignore_costs(true)
     .build();
     gs.players.0.hand.push(CardId::NaganoharaMeteorSwarm);
     gs.advance_roll_phase_no_dice();

@@ -164,7 +164,7 @@ pub mod adventurers_bandana {
     artifact!("Adventurer's Bandana", Cost::ONE);
 
     pub const S: Status = Status::new_indef(NAME, StatusAttachMode::Character)
-        .with_counter(CounterSpec::new("Times per Round", 3).resets_at_turn_end(true));
+        .counter(CounterSpec::new("Times per Round", 3).resets_at_turn_end(true));
 
     pub const I: HealArtifact = HealArtifact::new(StatusId::AdventurersBandana, SkillType::NormalAttack, 1, false);
 }

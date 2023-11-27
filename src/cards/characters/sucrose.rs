@@ -39,7 +39,7 @@ pub mod large_wind_spirit {
     use super::*;
 
     pub const S: Status =
-        Status::new_usages("Large Wind Spirit", StatusAttachMode::Summon, 3, None).with_counter(CounterSpec {
+        Status::new_usages("Large Wind Spirit", StatusAttachMode::Summon, 3, None).counter(CounterSpec {
             name: "Infusion",
             default_value: Element::Anemo as u8,
             resets_at_turn_end: false,

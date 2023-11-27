@@ -10,7 +10,7 @@ pub const C: CharCard = CharCard {
     max_health: 10,
     max_energy: 3,
     skills: list8![SkillId::TemperedSword, SkillId::SearingOnslaught, SkillId::Dawn],
-    passive: Some(Passive::new_hidden().with_status(StatusId::SearingOnslaughtCounter)),
+    passive: Some(Passive::new_hidden().status(StatusId::SearingOnslaughtCounter)),
 };
 
 pub const TEMPERED_SWORD: Skill = skill_na("Tempered Sword", Element::Pyro, 2, DealDMGType::Physical);
@@ -36,7 +36,7 @@ pub mod searing_onslaught_counter {
     use super::*;
 
     pub const S: Status = Status::new_indef("[Searing Onslaught Counter]", StatusAttachMode::Character)
-        .with_counter(CounterSpec::new("[Searing Onslaught Counter]", 0).resets_at_turn_end(true));
+        .counter(CounterSpec::new("[Searing Onslaught Counter]", 0).resets_at_turn_end(true));
 
     decl_status_impl_type!(SearingOnslaughtCounter, I);
     impl StatusImpl for SearingOnslaughtCounter {

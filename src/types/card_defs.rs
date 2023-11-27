@@ -36,14 +36,14 @@ impl Passive {
         }
     }
 
-    pub const fn with_status(self, status_id: StatusId) -> Self {
+    pub const fn status(self, status_id: StatusId) -> Self {
         Self {
             apply_statuses: list8![status_id],
             ..self
         }
     }
 
-    pub const fn with_statuses(self, apply_statuses: List8<StatusId>) -> Self {
+    pub const fn statuses(self, apply_statuses: List8<StatusId>) -> Self {
         Self { apply_statuses, ..self }
     }
 }
@@ -430,33 +430,33 @@ impl Status {
         }
     }
 
-    pub const fn with_prepare_skill(self, prepare_for_turns: u8) -> Self {
-        self.with_manual_discard(true).with_counter(CounterSpec {
+    pub const fn prepare_skill(self, prepare_for_turns: u8) -> Self {
+        self.manual_discard(true).counter(CounterSpec {
             name: "[Prepare Skill]",
             default_value: prepare_for_turns - 1,
             resets_at_turn_end: false,
         })
     }
 
-    pub const fn with_manual_discard(self, manual_discard: bool) -> Self {
+    pub const fn manual_discard(self, manual_discard: bool) -> Self {
         Status { manual_discard, ..self }
     }
 
-    pub const fn with_counter(self, counter_spec: CounterSpec) -> Self {
+    pub const fn counter(self, counter_spec: CounterSpec) -> Self {
         Status {
             counter_spec: Some(counter_spec),
             ..self
         }
     }
 
-    pub const fn with_talent_usages_increase(self, char_id: CharId, value: u8) -> Self {
+    pub const fn talent_usages_increase(self, char_id: CharId, value: u8) -> Self {
         Status {
             talent_usages_increase: Some((char_id, value)),
             ..self
         }
     }
 
-    pub const fn with_shield_points(self, shield_points: u8) -> Self {
+    pub const fn shield_points(self, shield_points: u8) -> Self {
         Status {
             attach_mode: StatusAttachMode::Character,
             usages_as_shield_points: true,
@@ -466,28 +466,28 @@ impl Status {
         }
     }
 
-    pub const fn with_applies_to_opposing(self) -> Self {
+    pub const fn applies_to_opposing(self) -> Self {
         Status {
             applies_to_opposing: true,
             ..self
         }
     }
 
-    pub const fn with_shifts_to_next_active_on_death(self) -> Self {
+    pub const fn shifts_to_next_active_on_death(self) -> Self {
         Status {
             shifts_to_next_active_on_death: true,
             ..self
         }
     }
 
-    pub const fn with_reapplies_on_discard(self, status_id: StatusId) -> Self {
+    pub const fn reapplies_on_discard(self, status_id: StatusId) -> Self {
         Status {
             reapplies_on_discard: Some(status_id),
             ..self
         }
     }
 
-    pub const fn with_casted_by_character(self, char_id: CharId) -> Self {
+    pub const fn casted_by_character(self, char_id: CharId) -> Self {
         Status {
             casted_by_character: Some(char_id),
             ..self
@@ -495,7 +495,7 @@ impl Status {
     }
 
     #[inline]
-    pub fn casted_by_character(&self) -> CharId {
+    pub fn get_casted_by_char_id(&self) -> CharId {
         self.casted_by_character
             .or_else(|| self.talent_usages_increase.map(|t| t.0))
             .unwrap_or_else(|| panic!("Must declare casted_by_character for status: {}", self.name))

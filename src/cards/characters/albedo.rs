@@ -57,7 +57,7 @@ pub mod solar_isotoma {
     use super::*;
 
     pub const S: Status =
-        Status::new_usages("Solar Isotoma", StatusAttachMode::Summon, 3, None).with_casted_by_character(CharId::Albedo);
+        Status::new_usages("Solar Isotoma", StatusAttachMode::Summon, 3, None).casted_by_character(CharId::Albedo);
 
     pub struct SolarIsotomaReducePlungingAttackCost();
     impl StatusImpl for SolarIsotomaReducePlungingAttackCost {

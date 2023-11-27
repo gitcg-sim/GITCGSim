@@ -20,8 +20,8 @@ fn get_stacks(gs: &GameState) -> u8 {
 pub fn test_3_radical_vitality_stacks_clear_on_end_phase() {
     let mut gs =
         GameStateBuilder::new_skip_to_roll_phase(vector![CharId::JadeplumeTerrorshroom], vector![CharId::Ganyu])
-            .with_enable_log(true)
-            .with_ignore_costs(true)
+            .enable_log(true)
+            .ignore_costs(true)
             .build();
     gs.advance_roll_phase_no_dice();
     set_stacks(&mut gs, 3);
@@ -41,8 +41,8 @@ pub fn test_radival_vitality_stacks_increases_on_own_elemental_dmg_dealt() {
         vector![CharId::JadeplumeTerrorshroom, CharId::Kaeya],
         vector![CharId::Ganyu],
     )
-    .with_enable_log(true)
-    .with_ignore_costs(true)
+    .enable_log(true)
+    .ignore_costs(true)
     .build();
     gs.advance_roll_phase_no_dice();
     assert_eq!(0, get_stacks(&gs));
@@ -73,8 +73,8 @@ pub fn test_radival_vitality_stacks_increases_on_own_elemental_dmg_received() {
         vector![CharId::JadeplumeTerrorshroom, CharId::Kaeya],
         vector![CharId::Noelle],
     )
-    .with_enable_log(true)
-    .with_ignore_costs(true)
+    .enable_log(true)
+    .ignore_costs(true)
     .build();
     gs.advance_roll_phase_no_dice();
     assert_eq!(0, get_stacks(&gs));
@@ -112,8 +112,8 @@ pub fn test_feather_spreading_consumes_radical_vitality_stacks() {
         vector![CharId::JadeplumeTerrorshroom, CharId::Kaeya],
         vector![CharId::Noelle],
     )
-    .with_enable_log(true)
-    .with_ignore_costs(true)
+    .enable_log(true)
+    .ignore_costs(true)
     .build();
     gs.advance_roll_phase_no_dice();
     set_stacks(&mut gs, 2);

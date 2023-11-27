@@ -38,7 +38,7 @@ pub mod yuegui_throwing_mode {
     use super::*;
 
     pub const S: Status = Status::new_usages("Yuegui: Throwing Mode", StatusAttachMode::Summon, 2, None)
-        .with_casted_by_character(CharId::Yaoyao);
+        .casted_by_character(CharId::Yaoyao);
 
     decl_summon_impl_type!(YueguiThrowingMode, I);
     trigger_event_impl!(YueguiThrowingMode, [Switched], |e| {

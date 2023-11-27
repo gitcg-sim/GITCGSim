@@ -3,8 +3,8 @@ use super::*;
 #[test]
 fn gale_blade_forces_switch_1_character() {
     let mut gs = GameStateBuilder::new_skip_to_roll_phase(vector![CharId::Jean], vector![CharId::Ganyu])
-        .with_enable_log(true)
-        .with_ignore_costs(true)
+        .enable_log(true)
+        .ignore_costs(true)
         .build();
     gs.advance_roll_phase_no_dice();
     gs.advance_multiple(&vec![Input::FromPlayer(
@@ -25,8 +25,8 @@ fn gale_blade_forces_switch_to_prev() {
         vector![CharId::Jean],
         vector![CharId::Ganyu, CharId::Yoimiya, CharId::Fischl],
     )
-    .with_enable_log(true)
-    .with_ignore_costs(true)
+    .enable_log(true)
+    .ignore_costs(true)
     .build();
     gs.advance_roll_phase_no_dice();
     gs.advance_multiple(&vec![Input::FromPlayer(
@@ -52,8 +52,8 @@ fn dandelion_breeze_heals_all_and_summons_dandelion_field() {
         vector![CharId::Jean, CharId::Ningguang, CharId::FatuiPyroAgent],
         vector![CharId::Ganyu, CharId::Yoimiya, CharId::Fischl],
     )
-    .with_enable_log(true)
-    .with_ignore_costs(true)
+    .enable_log(true)
+    .ignore_costs(true)
     .build();
     gs.advance_roll_phase_no_dice();
     {

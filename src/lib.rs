@@ -28,7 +28,7 @@
 //!
 //! // Create a new GameState
 //! let mut game_state: GameState = GameStateBuilder::default()
-//!     .with_characters(
+//!     .characters(
 //!        vector![CharId::Yoimiya, CharId::KamisatoAyaka, CharId::Bennett],
 //!        vector![CharId::Fischl, CharId::RhodeiaOfLoch, CharId::FatuiPyroAgent]
 //!     )
@@ -71,7 +71,7 @@
 //!
 //! // Create a new GameState
 //! let mut game_state: GameState = GameStateBuilder::default()
-//!     .with_characters(
+//!     .characters(
 //!        vector![CharId::Yoimiya, CharId::KamisatoAyaka, CharId::Bennett],
 //!        vector![CharId::Fischl, CharId::RhodeiaOfLoch, CharId::FatuiPyroAgent]
 //!     )
@@ -108,7 +108,7 @@
 //! // let nd_state = NondetProvider::new(EmptyNondetState());
 //!
 //! let game_state: GameState = GameStateBuilder::default()
-//!     .with_characters(deck1.characters, deck2.characters)
+//!     .characters(deck1.characters, deck2.characters)
 //!     .skip_to_roll_phase()
 //!     .build();
 //! let game_state_wrapper = GameStateWrapper::new(game_state, nd);

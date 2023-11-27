@@ -70,8 +70,7 @@ pub mod jade_shield {
 pub mod petrification {
     use super::*;
 
-    pub const S: Status =
-        Status::new_duration("Petrification", StatusAttachMode::Character, 1).with_applies_to_opposing();
+    pub const S: Status = Status::new_duration("Petrification", StatusAttachMode::Character, 1).applies_to_opposing();
 
     decl_status_impl_type!(Petrification, I);
     impl StatusImpl for Petrification {

@@ -49,7 +49,7 @@ pub mod seed_of_skandha {
     use super::*;
 
     pub const S: Status =
-        Status::new_usages("Seed of Skandha", StatusAttachMode::Character, 2, None).with_applies_to_opposing();
+        Status::new_usages("Seed of Skandha", StatusAttachMode::Character, 2, None).applies_to_opposing();
 
     decl_status_impl_type!(SeedOfSkandha, I);
     impl StatusImpl for SeedOfSkandha {

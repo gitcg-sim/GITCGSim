@@ -37,7 +37,7 @@ pub mod inspiration_field {
     use super::*;
 
     pub const S: Status =
-        Status::new_duration("Inspiration Field", StatusAttachMode::Team, 2).with_casted_by_character(CharId::Bennett);
+        Status::new_duration("Inspiration Field", StatusAttachMode::Team, 2).casted_by_character(CharId::Bennett);
 
     pub struct InspirationFieldOutgoingDMG();
     impl StatusImpl for InspirationFieldOutgoingDMG {

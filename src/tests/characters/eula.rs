@@ -3,8 +3,8 @@ use super::*;
 #[test]
 fn icetide_vortex() {
     let mut gs = GameStateBuilder::new_skip_to_roll_phase(vector![CharId::Eula], vector![CharId::Yoimiya])
-        .with_enable_log(true)
-        .with_ignore_costs(true)
+        .enable_log(true)
+        .ignore_costs(true)
         .build();
 
     gs.advance_roll_phase_no_dice();
@@ -34,8 +34,8 @@ fn glacial_illumination_prevents_energy_gain_and_increments_counter_and_deals_ph
         vector![CharId::Eula],
         vector![CharId::Xiangling, CharId::Fischl, CharId::Kaeya],
     )
-    .with_enable_log(true)
-    .with_ignore_costs(true)
+    .enable_log(true)
+    .ignore_costs(true)
     .build();
 
     gs.advance_roll_phase_no_dice();
@@ -117,8 +117,8 @@ fn glacial_illumination_prevents_energy_gain_and_increments_counter_and_deals_ph
 fn glacial_illumination_does_not_accumulate_counter_on_others() {
     let mut gs =
         GameStateBuilder::new_skip_to_roll_phase(vector![CharId::Eula, CharId::Fischl], vector![CharId::Xiangling])
-            .with_enable_log(true)
-            .with_ignore_costs(true)
+            .enable_log(true)
+            .ignore_costs(true)
             .build();
 
     gs.advance_roll_phase_no_dice();

@@ -36,7 +36,7 @@ pub mod cat_claw_shield {
     use super::*;
 
     pub const S: Status = Status::new_shield_points("Cat-Claw Shield", StatusAttachMode::Team, 1, None)
-        .with_talent_usages_increase(CharId::Diona, 1);
+        .talent_usages_increase(CharId::Diona, 1);
 
     pub const I: EmptyStatusImpl = EmptyStatusImpl();
 }

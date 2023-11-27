@@ -6,8 +6,8 @@ fn glacial_waltz_switch_trigger() {
         vector![CharId::Kaeya, CharId::Fischl],
         vector![CharId::Xiangling, CharId::Yoimiya],
     )
-    .with_enable_log(true)
-    .with_ignore_costs(true)
+    .enable_log(true)
+    .ignore_costs(true)
     .build();
 
     gs.advance_roll_phase_no_dice();
@@ -29,8 +29,8 @@ fn talent_card() {
         vector![CharId::Kaeya, CharId::Fischl],
         vector![CharId::Xiangling, CharId::Yoimiya],
     )
-    .with_enable_log(true)
-    .with_ignore_costs(true)
+    .enable_log(true)
+    .ignore_costs(true)
     .build();
     gs.players.0.hand.push(CardId::ColdBloodedStrike);
 

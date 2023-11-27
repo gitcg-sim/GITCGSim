@@ -60,7 +60,7 @@ pub mod catalyzing_field {
 pub mod frozen {
     use super::*;
 
-    pub const S: Status = Status::new_indef("Frozen", StatusAttachMode::Character).with_applies_to_opposing();
+    pub const S: Status = Status::new_indef("Frozen", StatusAttachMode::Character).applies_to_opposing();
 
     decl_status_impl_type!(Frozen, I);
     impl StatusImpl for Frozen {

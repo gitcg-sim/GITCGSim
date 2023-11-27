@@ -11,7 +11,7 @@ pub const C: Card = Card {
 };
 
 pub const S: Status =
-    Status::new_indef(NAME, StatusAttachMode::Support).with_counter(CounterSpec::new("Transmutation Materials", 2));
+    Status::new_indef(NAME, StatusAttachMode::Support).counter(CounterSpec::new("Transmutation Materials", 2));
 
 pub const I: CardCostReductionSupport = CardCostReductionSupport {
     card_type: CardTypeFilter::Artifact,

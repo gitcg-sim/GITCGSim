@@ -3,8 +3,8 @@ use super::*;
 #[test]
 fn searing_onslaught_increases_dmg_every_3rd_use_per_round() {
     let mut gs = GameStateBuilder::new_skip_to_roll_phase(vector![CharId::Diluc], vector![CharId::Kaeya])
-        .with_enable_log(true)
-        .with_ignore_costs(true)
+        .enable_log(true)
+        .ignore_costs(true)
         .build();
     gs.advance_roll_phase_no_dice();
     for r in 2..=3 {
@@ -49,8 +49,8 @@ fn searing_onslaught_increases_dmg_every_3rd_use_per_round() {
 fn dawn_grants_pyro_infusion() {
     let mut gs =
         GameStateBuilder::new_skip_to_roll_phase(vector![CharId::Diluc], vector![CharId::Kaeya, CharId::Fischl])
-            .with_enable_log(true)
-            .with_ignore_costs(true)
+            .enable_log(true)
+            .ignore_costs(true)
             .build();
     gs.advance_roll_phase_no_dice();
     gs.advance_multiple(&vec![

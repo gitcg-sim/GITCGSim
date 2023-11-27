@@ -73,8 +73,8 @@ pub mod eye_of_stormy_judgment {
 pub mod chakra_desiderata {
     use super::*;
 
-    pub const S: Status = Status::new_indef("Chakra Desiderata", StatusAttachMode::Character)
-        .with_counter(CounterSpec::new("Resolve", 0));
+    pub const S: Status =
+        Status::new_indef("Chakra Desiderata", StatusAttachMode::Character).counter(CounterSpec::new("Resolve", 0));
 
     decl_status_impl_type!(ChakraDesiderata, I);
     impl StatusImpl for ChakraDesiderata {

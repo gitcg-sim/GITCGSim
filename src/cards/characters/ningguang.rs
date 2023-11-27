@@ -34,7 +34,7 @@ pub mod jade_screen {
     use super::*;
 
     pub const S: Status =
-        Status::new_usages("Jade Screen", StatusAttachMode::Team, 2, None).with_casted_by_character(CharId::Ningguang);
+        Status::new_usages("Jade Screen", StatusAttachMode::Team, 2, None).casted_by_character(CharId::Ningguang);
 
     decl_status_impl_type!(JadeScreen, I);
     impl StatusImpl for JadeScreen {
