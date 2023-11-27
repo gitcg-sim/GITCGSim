@@ -27,7 +27,7 @@ impl StatusImpl for LiuSu {
 
     fn trigger_event(&self, e: &mut TriggerEventContext) -> Option<AppliedEffectResult> {
         let EventId::Switched = e.event_id else { return None };
-        let CommandSource::Switch { dst_char_idx, .. } = e.c.ctx.src else {
+        let Some(dst_char_idx) = e.c.ctx.src.switch_dst_char_idx() else {
             return None;
         };
         let char_state = &e.c.src_player_state.char_states[dst_char_idx];

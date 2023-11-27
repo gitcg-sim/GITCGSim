@@ -41,9 +41,8 @@ impl CommandSource {
         }
     }
 
-    /// Matches `Switch`
     #[inline]
-    pub fn dst_char_idx(&self) -> Option<u8> {
+    pub fn switch_dst_char_idx(&self) -> Option<u8> {
         if let CommandSource::Switch { dst_char_idx, .. } = self {
             Some(*dst_char_idx)
         } else {

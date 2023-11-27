@@ -47,7 +47,7 @@ pub mod illusory_bubble {
         }
 
         fn multiply_dmg(&self, e: &StatusImplContext<DMGInfo>, mult: &mut u8) -> Option<AppliedEffectResult> {
-            let CommandSource::Skill { .. } = e.ctx.src else {
+            let Some(..) = e.skill_id() else {
                 return None;
             };
             *mult *= 2;

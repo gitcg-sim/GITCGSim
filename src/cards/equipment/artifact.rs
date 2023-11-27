@@ -277,7 +277,7 @@ pub mod ornate_kabuto {
             let Some(own_char_idx) = e.c.status_key.char_idx() else {
                 return None;
             };
-            if Some(own_char_idx) == e.c.ctx.src.char_idx() {
+            if Some(own_char_idx) == e.c.src_char_idx() {
                 return None;
             }
 

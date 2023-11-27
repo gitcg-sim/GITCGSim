@@ -105,7 +105,7 @@ pub mod sweeping_time {
         }
 
         fn outgoing_dmg(&self, e: &StatusImplContext<DMGInfo>, dmg: &mut DealDMG) -> Option<AppliedEffectResult> {
-            let Some(SkillId::FavoniusBladeworkMaid) = e.ctx.src.skill_id() else {
+            let Some(SkillId::FavoniusBladeworkMaid) = e.skill_id() else {
                 return None;
             };
             dmg.infuse(DealDMGType::GEO);

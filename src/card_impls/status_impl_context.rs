@@ -70,7 +70,7 @@ impl<'a, 'b, 'c, 'v, D> StatusImplContext<'a, 'b, 'c, 'v, D> {
 
     #[inline]
     pub fn is_switched_into_character(&self, char_id: CharId) -> bool {
-        if let Some(tgt_char_idx) = self.ctx.src.dst_char_idx() {
+        if let Some(tgt_char_idx) = self.ctx.src.switch_dst_char_idx() {
             if let Some(cs) = self.get_character_state(tgt_char_idx) {
                 return cs.char_id == char_id;
             }

@@ -73,11 +73,7 @@ pub mod radical_vitality {
             }
 
             let stacks = e.eff_state.get_counter();
-            if let CommandSource::Skill {
-                skill_id: SkillId::FeatherSpreading,
-                ..
-            } = e.ctx.src
-            {
+            if let Some(SkillId::FeatherSpreading) = e.skill_id() {
                 // 2 stacks when casting -> 4 + 2 = 6 DMG from Burst
                 dmg.dmg += stacks;
                 Some(AppliedEffectResult::SetCounter(0))

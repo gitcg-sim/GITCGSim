@@ -90,7 +90,7 @@ pub mod pyro_infusion {
         }
 
         fn outgoing_dmg(&self, e: &StatusImplContext<DMGInfo>, dmg: &mut DealDMG) -> Option<AppliedEffectResult> {
-            let Some(SkillId::TemperedSword) = e.ctx.src.skill_id() else {
+            let Some(SkillId::TemperedSword) = e.skill_id() else {
                 return None;
             };
             dmg.infuse(DealDMGType::Elemental(Element::Pyro))
