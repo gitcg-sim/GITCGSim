@@ -6,6 +6,7 @@ use smallvec::{smallvec, SmallVec};
 use crate::data_structures::capped_list::CappedLengthList8;
 use crate::data_structures::{CommandList, Vector};
 use crate::dispatcher::cmd_trigger_event;
+use crate::dispatcher_ops::exec_command_helpers::ExecResult;
 use crate::tcg_model::enums::*;
 
 use super::exec_command_helpers::*;
@@ -226,10 +227,7 @@ impl GameState {
         let opp = src_player_id.opposite();
         let cmd_tgt = {
             if tgt_player.is_valid_char_idx(tgt_player.active_char_idx) {
-                Some(CommandTarget {
-                    player_id: opp,
-                    char_idx: tgt_player.active_char_idx,
-                })
+                Some(CommandTarget::new(opp, tgt_player.active_char_idx))
             } else {
                 None
             }
@@ -280,10 +278,7 @@ impl GameState {
     }
 
     fn deal_dmg(&mut self, ctx: &CommandContext, dmg: DealDMG) -> ExecResult {
-        let Some(CommandTarget {
-            char_idx: tgt_char_idx,
-            player_id: tgt_player_id,
-        }) = ctx.tgt
+        let (Some(tgt_char_idx), Some(tgt_player_id)) = (ctx.get_dmg_tgt_char_idx(), ctx.get_dmg_tgt_player_id())
         else {
             panic!("deal_dmg: No dst_char for ctx");
         };
@@ -531,16 +526,8 @@ impl GameState {
         ExecResult::AdditionalCmds(addl_cmds)
     }
 
-    fn deal_dmg_relative(
-        &mut self,
-        ctx: &CommandContext,
-        dmg: DealDMG,
-        relative: RelativeCharIdx,
-    ) -> crate::dispatcher_ops::exec_command_helpers::ExecResult {
-        let Some(CommandTarget {
-            player_id: tgt_player_id,
-            char_idx: tgt_char_idx,
-        }) = ctx.tgt
+    fn deal_dmg_relative(&mut self, ctx: &CommandContext, dmg: DealDMG, relative: RelativeCharIdx) -> ExecResult {
+        let (Some(tgt_player_id), Some(tgt_char_idx)) = (ctx.get_dmg_tgt_player_id(), ctx.get_dmg_tgt_char_idx())
         else {
             panic!("deal_dmg_relative(relative={relative:?}): cmd has no target.");
         };
@@ -605,10 +592,7 @@ impl GameState {
         let ctx = CommandContext::new(
             take_dmg_player_id.opposite(),
             ctx.src,
-            Some(CommandTarget {
-                player_id: take_dmg_player_id,
-                char_idx,
-            }),
+            Some(CommandTarget::new(take_dmg_player_id, char_idx)),
         );
         self.deal_dmg(&ctx, dmg)
     }
@@ -867,11 +851,11 @@ impl GameState {
             panic!("apply_status_to_target: applies_to_opposing is false");
         }
 
-        let Some(tgt_player_id) = ctx.tgt.map(|t| t.player_id) else {
+        let Some(tgt_player_id) = ctx.get_dmg_tgt_player_id() else {
             panic!("apply_status_to_target: no target");
         };
         let tgt_player = self.players.get_mut(tgt_player_id);
-        let tgt_char_idx = ctx.tgt.map(|x| x.char_idx).unwrap_or(tgt_player.active_char_idx);
+        let tgt_char_idx = ctx.get_dmg_tgt_char_idx().unwrap_or(tgt_player.active_char_idx);
         if !tgt_player.is_valid_char_idx(tgt_char_idx) {
             return ExecResult::Success;
         }
@@ -894,7 +878,7 @@ impl GameState {
         if !status.applies_to_opposing {
             panic!("apply_status_to_target_team: applies_to_opposing is false");
         }
-        let Some(tgt_player_id) = ctx.tgt.map(|t| t.player_id) else {
+        let Some(tgt_player_id) = ctx.get_dmg_tgt_player_id() else {
             panic!("apply_status_to_target_team: no target player");
         };
 
@@ -911,7 +895,7 @@ impl GameState {
         if !status.applies_to_opposing {
             panic!("apply_status_to_opponent_characters: applies_to_opposing is false");
         }
-        let Some(tgt_player_id) = ctx.tgt.map(|t| t.player_id) else {
+        let Some(tgt_player_id) = ctx.get_dmg_tgt_player_id() else {
             panic!("apply_status_to_target: no target");
         };
 
@@ -1047,11 +1031,11 @@ impl GameState {
     }
 
     fn force_switch_for_target(&mut self, ctx: &CommandContext, force_switch_type: RelativeCharIdx) -> ExecResult {
-        let Some(tgt_player_id) = ctx.tgt.map(|t| t.player_id) else {
+        let Some(tgt_player_id) = ctx.get_dmg_tgt_player_id() else {
             panic!("force_switch_for_target: no target");
         };
         let tgt_player = self.players.get_mut(tgt_player_id);
-        let tgt_char_idx = ctx.tgt.map(|x| x.char_idx).unwrap_or(tgt_player.active_char_idx);
+        let tgt_char_idx = ctx.get_dmg_tgt_char_idx().unwrap_or(tgt_player.active_char_idx);
 
         if tgt_player.active_char_idx != tgt_char_idx {
             return ExecResult::Success;

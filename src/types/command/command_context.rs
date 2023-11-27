@@ -133,4 +133,14 @@ impl CommandContext {
         let tgt = Some(CommandTarget::new(self.src_player_id.opposite(), char_idx));
         Self { tgt, ..*self }
     }
+
+    #[inline]
+    pub fn get_dmg_tgt_player_id(&self) -> Option<PlayerId> {
+        self.tgt.map(|t| t.player_id)
+    }
+
+    #[inline]
+    pub fn get_dmg_tgt_char_idx(&self) -> Option<u8> {
+        self.tgt.map(|t| t.char_idx)
+    }
 }
