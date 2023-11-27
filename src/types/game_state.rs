@@ -272,14 +272,14 @@ pub struct StatusCollection {
 }
 
 #[derive(Debug, Default)]
-pub enum CharacterIndexSelector {
+pub enum CharIdxSelector {
     #[default]
     None,
     One(u8),
     All,
 }
 
-impl CharacterIndexSelector {
+impl CharIdxSelector {
     #[inline]
     pub fn selects(&self, char_idx: u8) -> bool {
         match self {
@@ -290,7 +290,7 @@ impl CharacterIndexSelector {
     }
 }
 
-impl From<Option<u8>> for CharacterIndexSelector {
+impl From<Option<u8>> for CharIdxSelector {
     #[inline]
     fn from(value: Option<u8>) -> Self {
         match value {

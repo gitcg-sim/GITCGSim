@@ -506,7 +506,7 @@ impl StatusCollection {
         F: FnMut(&AppliedEffectState, StatusKey, StaticStatusImpl) -> Option<AppliedEffectResult>,
     >(
         &mut self,
-        s: CharacterIndexSelector,
+        s: CharIdxSelector,
         check: P,
         mut func: F,
     ) -> bool {
@@ -529,7 +529,7 @@ impl StatusCollection {
         F: FnMut(&mut AppliedEffectState, StatusKey, StaticStatusImpl) -> Option<AppliedEffectResult>,
     >(
         &mut self,
-        s: CharacterIndexSelector,
+        s: CharIdxSelector,
         check: P,
         mut func: F,
     ) -> bool {
@@ -583,7 +583,7 @@ impl StatusCollection {
         F: FnMut(&AppliedEffectState, StatusKey, StaticStatusImpl) -> Option<AppliedEffectResult>,
     >(
         &self,
-        s: CharacterIndexSelector,
+        s: CharIdxSelector,
         check: P,
         mut func: F,
     ) -> bool {

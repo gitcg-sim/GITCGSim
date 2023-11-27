@@ -66,7 +66,7 @@ impl GameState {
         let sc = &player.status_collection;
         if sc.responds_to(RespondsTo::SwitchIsFastAction) {
             sc.consume_statuses_immutable(
-                CharacterIndexSelector::One(src_char_idx),
+                CharIdxSelector::One(src_char_idx),
                 |si| si.responds_to().contains(RespondsTo::SwitchIsFastAction),
                 |es, _sk, si| si.switch_is_fast_action(es, &mut res),
             );
@@ -82,7 +82,7 @@ impl GameState {
         if player.status_collection.responds_to(RespondsTo::SwitchIsFastAction) {
             mutate_statuses!(self, player_id, |sc| {
                 sc.consume_statuses_first(
-                    CharacterIndexSelector::One(src_char_idx),
+                    CharIdxSelector::One(src_char_idx),
                     |si| si.responds_to().contains(RespondsTo::SwitchIsFastAction),
                     |es, _sk, si| si.switch_is_fast_action(es, &mut res),
                 )
@@ -99,7 +99,7 @@ impl GameState {
             for player_id in [PlayerId::PlayerFirst, PlayerId::PlayerSecond] {
                 mutate_statuses!(self, player_id, |sc| {
                     sc.consume_statuses(
-                        CharacterIndexSelector::All,
+                        CharIdxSelector::All,
                         |_| true,
                         |eff_state, status_key, _| {
                             let status = status_key.get_status();
@@ -157,7 +157,7 @@ impl GameState {
             let sicb = StatusImplContextBuilder::new(src_player_state, ctx, ());
             mutate_statuses_1!(phc!(self, src_player_id), src_player, |sc| {
                 sc.consume_statuses(
-                    CharacterIndexSelector::All,
+                    CharIdxSelector::All,
                     |si| {
                         si.responds_to().contains(RespondsTo::TriggerEvent)
                             && si.responds_to_triggers().contains(event_id)
@@ -196,7 +196,7 @@ impl GameState {
                 let sicb = StatusImplContextBuilder::new(src_player_state, ctx, ());
                 mutate_statuses_1!(phc!(self, src_player_id), src_player, |sc| {
                     sc.consume_statuses(
-                        CharacterIndexSelector::All,
+                        CharIdxSelector::All,
                         |si| {
                             si.responds_to().contains(RespondsTo::TriggerXEvent)
                                 && !(si.responds_to_events() & mask).is_empty()

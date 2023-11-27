@@ -283,7 +283,8 @@ impl<'a, 'c, 'v, D: Copy> StatusImplContextBuilder<'a, 'c, 'v, D> {
         StatusImplContext::new(src_player_state, status_key, eff_state, ctx, dmg)
     }
 
-    pub fn src_char_idx_selector(&self) -> CharacterIndexSelector {
+    #[inline]
+    pub fn src_char_idx_selector(&self) -> CharIdxSelector {
         self.ctx.src.char_idx().into()
     }
 }

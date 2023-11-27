@@ -177,7 +177,7 @@ impl PlayerState {
             .contains(RespondsTo::UpdateStatusSpec)
         {
             self.status_collection.consume_statuses_immutable(
-                CharacterIndexSelector::One(self.active_char_idx),
+                CharIdxSelector::One(self.active_char_idx),
                 |si| si.responds_to().contains(RespondsTo::UpdateStatusSpec),
                 |_, _sk, si| {
                     if si.update_status_spec(&mut modifiers) {

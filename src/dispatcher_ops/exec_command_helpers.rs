@@ -203,7 +203,7 @@ pub fn augment_incoming_dmg_for_statuses(
     dmg: &mut DealDMG,
 ) -> bool {
     sc.consume_statuses(
-        CharacterIndexSelector::One(char_idx),
+        CharIdxSelector::One(char_idx),
         |si| si.responds_to().contains(RespondsTo::IncomingDMG),
         |es, sk, si| si.incoming_dmg(&sicb.build(sk, es), dmg),
     )
@@ -246,9 +246,8 @@ pub fn consume_shield_points_for_statuses(sc: &mut StatusCollection, char_idx: u
 
 impl CostType {
     #[inline]
-    fn cmd_src(&self, active_char_idx: u8) -> CommandSource {
-        // TODO fill in the gaps: target, dst_char_idx
-        match *self {
+    fn into_cmd_src(self, active_char_idx: u8) -> CommandSource {
+        match self {
             CostType::Switching => CommandSource::Switch {
                 from_char_idx: active_char_idx,
                 dst_char_idx: active_char_idx,
@@ -271,10 +270,10 @@ pub fn augment_cost(c: PlayerHashContext, player: &mut PlayerState, cost: &mut C
 
     let view = &view!(player);
     mutate_statuses_1!(c, player, |sc| {
-        let ctx = &CommandContext::EMPTY.with_src(cost_type.cmd_src(player.active_char_idx));
+        let ctx = &CommandContext::EMPTY.with_src(cost_type.into_cmd_src(player.active_char_idx));
         let sicb = StatusImplContextBuilder::new(view, ctx, ());
         sc.consume_statuses(
-            CharacterIndexSelector::One(char_idx),
+            CharIdxSelector::One(char_idx),
             |si| si.responds_to().contains(RespondsTo::UpdateCost),
             |es, sk, si| si.update_cost(&sicb.build(sk, es), cost, cost_type),
         )
@@ -289,10 +288,10 @@ pub fn augment_cost_immutable(player: &PlayerState, cost: &mut Cost, cost_type: 
 
     let char_idx = player.active_char_idx;
     let view = &view!(player);
-    let ctx = &CommandContext::EMPTY.with_src(cost_type.cmd_src(player.active_char_idx));
+    let ctx = &CommandContext::EMPTY.with_src(cost_type.into_cmd_src(player.active_char_idx));
     let sicb = StatusImplContextBuilder::new(view, ctx, ());
     sc.consume_statuses_immutable(
-        CharacterIndexSelector::One(char_idx),
+        CharIdxSelector::One(char_idx),
         |si| si.responds_to().contains(RespondsTo::UpdateCost),
         |es, sk, si| si.update_cost(&sicb.build(sk, es), cost, cost_type),
     );
@@ -309,7 +308,7 @@ pub fn update_gains_energy(player: &PlayerState, ctx_for_skill: &CommandContext,
     let ctx = &CommandContext::EMPTY;
     let sicb = StatusImplContextBuilder::new(view, ctx, ());
     sc.consume_statuses_immutable(
-        CharacterIndexSelector::One(char_idx),
+        CharIdxSelector::One(char_idx),
         |si| si.responds_to().contains(RespondsTo::GainsEnergy),
         |es, sk, si| {
             si.gains_energy(&sicb.build(sk, es), ctx_for_skill, gains_energy)
@@ -329,7 +328,7 @@ pub fn update_dice_distribution(player: &PlayerState, dist: &mut DiceDistributio
     let sicb = StatusImplContextBuilder::new(view, ctx, ());
     sc.consume_statuses_immutable(
         // Does not need to be active character to take effect
-        CharacterIndexSelector::All,
+        CharIdxSelector::All,
         |si| si.responds_to().contains(RespondsTo::DiceDistribution),
         |es, sk, si| {
             si.dice_distribution(&sicb.build(sk, es), dist)
