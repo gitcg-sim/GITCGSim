@@ -24,11 +24,20 @@ const SWITCHING_COST: Cost = Cost {
 };
 
 #[inline]
-pub(crate) fn cmd_trigger_event(src_player_id: PlayerId, event_id: EventId) -> (CommandContext, Command) {
+pub(crate) fn cmd_trigger_event_src(
+    src_player_id: PlayerId,
+    event_id: EventId,
+    src: CommandSource,
+) -> (CommandContext, Command) {
     (
-        CommandContext::new_event(src_player_id),
+        CommandContext::new(src_player_id, src, None),
         Command::TriggerEvent(event_id),
     )
+}
+
+#[inline]
+pub(crate) fn cmd_trigger_event(src_player_id: PlayerId, event_id: EventId) -> (CommandContext, Command) {
+    cmd_trigger_event_src(src_player_id, event_id, CommandSource::Event)
 }
 
 impl GameState {
@@ -513,14 +522,11 @@ impl GameState {
         from_char_idx: u8,
         dst_char_idx: u8,
     ) -> (CommandContext, Command) {
-        let sw = CommandSource::Switch {
+        let src = CommandSource::Switch {
             from_char_idx,
             dst_char_idx,
         };
-        (
-            CommandContext::new(player_id, sw, None),
-            Command::TriggerEvent(EventId::Switched),
-        )
+        cmd_trigger_event_src(player_id, EventId::Switched, src)
     }
 
     pub fn to_move_player(&self) -> Option<PlayerId> {
@@ -811,22 +817,10 @@ impl GameState {
                 let p1 = first_active_player;
                 let p2 = first_active_player.opposite();
                 self.exec_commands(&cmd_list![
-                    (
-                        CommandContext::new(p1, CommandSource::Event, None),
-                        Command::TriggerEvent(EventId::EndPhase)
-                    ),
-                    (
-                        CommandContext::new(p2, CommandSource::Event, None),
-                        Command::TriggerEvent(EventId::EndPhase)
-                    ),
-                    (
-                        CommandContext::new(p1, CommandSource::Event, None),
-                        Command::TriggerEvent(EventId::EndOfTurn)
-                    ),
-                    (
-                        CommandContext::new(p2, CommandSource::Event, None),
-                        Command::TriggerEvent(EventId::EndOfTurn)
-                    ),
+                    cmd_trigger_event(p1, EventId::EndPhase),
+                    cmd_trigger_event(p2, EventId::EndPhase),
+                    cmd_trigger_event(p1, EventId::EndOfTurn),
+                    cmd_trigger_event(p2, EventId::EndOfTurn),
                     (CommandContext::new(p1, CommandSource::Event, None), Command::EndOfTurn),
                 ])
                 .map(|opt| self.handle_post_exec(opt))
