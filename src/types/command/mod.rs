@@ -380,7 +380,7 @@ pub enum Command {
     DealDMGRelative(DealDMG, RelativeCharIdx),
     TakeDMG(DealDMG),
     TakeDMGForAffectedBy(StatusId, DealDMG),
-    DealSwirlDMG(Element, u8),
+    InternalDealSwirlDMG(Element, u8),
     /// Heal the active (or selected) character.
     Heal(u8),
     /// Heall all of the player's characters.
@@ -416,8 +416,8 @@ pub enum Command {
     ApplyStatusToCharacter(StatusId, CmdCharIdx),
     ApplyEquipmentToCharacter(EquipSlot, StatusId, CmdCharIdx),
     ApplyTalentToCharacter(Option<StatusId>, CmdCharIdx),
-    /// Apply a character status state to target player's active character. Completes ignores context.
-    ApplyCharacterStatusToActive(PlayerId, StatusId, AppliedEffectState),
+    /// Ignores the context. Apply a character status state to the target player's active character.
+    InternalApplyCharacterStatusWithStateToActive(PlayerId, StatusId, AppliedEffectState),
     AddSupport(SupportSlot, SupportId),
     /// Apply a team status to the player.
     ApplyStatusToTeam(StatusId),
@@ -442,5 +442,5 @@ pub enum Command {
     /// Implements Keqing's "Stellar Restoration" skill:
     ///  - "creates 1 Lightning Stiletto"
     ///  - "When Keqing uses Stellar Restoration with this card (Lightning Stiletto) in Hand: ..."
-    StellarRestorationFromSkill,
+    InternalStellarRestorationFromSkill,
 }

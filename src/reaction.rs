@@ -38,10 +38,10 @@ pub const HYDRO_REACTIONS: EnumSet<Reaction> =
 
 pub const DENDRO_REACTIONS: EnumSet<Reaction> = enum_set![Reaction::Bloom | Reaction::Burning | Reaction::Quicken];
 
-pub const SWIRL_PYRO: Option<Command> = Some(Command::DealSwirlDMG(Element::Pyro, 1));
-pub const SWIRL_HYDRO: Option<Command> = Some(Command::DealSwirlDMG(Element::Hydro, 1));
-pub const SWIRL_ELECTRO: Option<Command> = Some(Command::DealSwirlDMG(Element::Electro, 1));
-pub const SWIRL_CRYO: Option<Command> = Some(Command::DealSwirlDMG(Element::Cryo, 1));
+pub const SWIRL_PYRO: Option<Command> = Some(Command::InternalDealSwirlDMG(Element::Pyro, 1));
+pub const SWIRL_HYDRO: Option<Command> = Some(Command::InternalDealSwirlDMG(Element::Hydro, 1));
+pub const SWIRL_ELECTRO: Option<Command> = Some(Command::InternalDealSwirlDMG(Element::Electro, 1));
+pub const SWIRL_CRYO: Option<Command> = Some(Command::InternalDealSwirlDMG(Element::Cryo, 1));
 
 impl Element {
     pub fn is_phec(&self) -> bool {

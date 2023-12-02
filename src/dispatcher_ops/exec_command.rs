@@ -497,7 +497,7 @@ impl GameState {
             }
 
             match rxn_cmd {
-                Some(Command::DealSwirlDMG(e, ..)) => {
+                Some(Command::InternalDealSwirlDMG(e, ..)) => {
                     for (j, _) in tgt_player
                         .char_states
                         .enumerate_valid()
@@ -577,7 +577,7 @@ impl GameState {
         for (status_id, eff_state) in shifts_to_next_active {
             addl_cmds.push((
                 *ctx,
-                Command::ApplyCharacterStatusToActive(player_id, status_id, eff_state),
+                Command::InternalApplyCharacterStatusWithStateToActive(player_id, status_id, eff_state),
             ));
         }
     }
@@ -1010,7 +1010,7 @@ impl GameState {
         ExecResult::Success
     }
 
-    fn apply_character_status_to_active(
+    fn apply_character_status_with_state_to_active(
         &mut self,
         player_id: PlayerId,
         status_id: StatusId,
@@ -1144,7 +1144,7 @@ impl GameState {
             Command::TakeDMG(d) => self.take_dmg(ctx, d),
             Command::DealDMGRelative(d, relative) => self.deal_dmg_relative(ctx, d, relative),
             Command::TakeDMGForAffectedBy(status_id, d) => self.take_dmg_for_affected_by(ctx, status_id, d),
-            Command::DealSwirlDMG(_, _) => panic!("Cannot execute DealSwirlDMG command."),
+            Command::InternalDealSwirlDMG(_, _) => panic!("Cannot execute DealSwirlDMG command."),
             Command::Heal(v) => self.heal(ctx, v),
             Command::HealTakenMostDMG(v) => self.heal_taken_most_dmg(ctx, v),
             Command::HealAll(v) => self.heal_all(ctx, v),
@@ -1171,8 +1171,8 @@ impl GameState {
             Command::ApplyTalentToCharacter(status_id, char_idx) => {
                 self.apply_talent_to_character(ctx, status_id, char_idx)
             }
-            Command::ApplyCharacterStatusToActive(player_id, status_id, eff_state) => {
-                self.apply_character_status_to_active(player_id, status_id, eff_state)
+            Command::InternalApplyCharacterStatusWithStateToActive(player_id, status_id, eff_state) => {
+                self.apply_character_status_with_state_to_active(player_id, status_id, eff_state)
             }
             Command::AddSupport(slot, support_id) => self.add_support(ctx, slot, support_id),
             Command::ApplyStatusToTeam(status_id) => self.apply_status_to_team(ctx, status_id),
@@ -1188,7 +1188,7 @@ impl GameState {
             Command::ForceSwitchForTarget(force_switch_type) => self.force_switch_for_target(ctx, force_switch_type),
             Command::HandOverPlayer => self.hand_over_player(),
             Command::EndOfTurn => self.end_of_turn(),
-            Command::StellarRestorationFromSkill => self.stellar_restoration_from_skill(ctx),
+            Command::InternalStellarRestorationFromSkill => self.stellar_restoration_from_skill(ctx),
         };
         self.post_death_check(res)
     }

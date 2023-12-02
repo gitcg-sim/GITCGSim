@@ -22,7 +22,7 @@ pub const STELLAR_RESTORATION: Skill = Skill {
     skill_type: SkillType::ElementalSkill,
     cost: cost_elem(Element::Electro, 3, 0, 0),
     deal_dmg: Some(deal_elem_dmg(Element::Electro, 3, 0)),
-    commands: list8![Command::StellarRestorationFromSkill],
+    commands: list8![Command::InternalStellarRestorationFromSkill],
     ..Skill::new()
 };
 
