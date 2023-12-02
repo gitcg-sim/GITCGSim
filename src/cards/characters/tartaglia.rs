@@ -61,7 +61,10 @@ impl SkillImpl for FoulLegacyRagingTide {
             *ctx,
             Command::DeleteStatus(StatusKey::Character(char_idx, StatusId::RangedStance)),
         ));
-        cmds.push((*ctx, Command::ApplyStatusToCharacter(StatusId::MeleeStance, char_idx)));
+        cmds.push((
+            *ctx,
+            Command::ApplyStatusToCharacter(StatusId::MeleeStance, char_idx.into()),
+        ));
     }
 }
 

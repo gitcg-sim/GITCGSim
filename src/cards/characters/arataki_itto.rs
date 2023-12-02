@@ -83,7 +83,7 @@ pub mod ushi {
             };
             e.add_cmd(Command::ApplyStatusToCharacter(
                 StatusId::SuperlativeSuperstrength,
-                char_idx,
+                char_idx.into(),
             ));
             Some(AppliedEffectResult::SetCounter(0))
         }

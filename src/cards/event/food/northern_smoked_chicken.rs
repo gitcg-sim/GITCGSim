@@ -5,7 +5,10 @@ const NAME: &str = "Northern Smoked Chicken";
 pub const C: Card = Card {
     name: NAME,
     cost: Cost::ZERO,
-    effects: list8![Command::ApplyStatusToActiveCharacter(StatusId::NorthernSmokedChicken)],
+    effects: list8![Command::ApplyStatusToCharacter(
+        StatusId::NorthernSmokedChicken,
+        CmdCharIdx::Active
+    )],
     card_type: CardType::Food,
     card_impl: Some(&FoodCardImpl()),
 };

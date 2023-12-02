@@ -98,14 +98,6 @@ pub mod lingering_aeon {
     pub const S: Status =
         Status::new_usages("Lingering Aeon", StatusAttachMode::Character, 1, None).applies_to_opposing();
 
-    decl_status_impl_type!(LingeringAeon, I);
-    trigger_event_impl!(LingeringAeon, [EndPhase], |e| {
-        e.out_cmds.push((
-            e.ctx_for_dmg.without_target().with_src(CommandSource::Character {
-                char_idx: e.c.status_key.char_idx().unwrap(),
-            }),
-            Command::TakeDMG(deal_elem_dmg(Element::Hydro, 3, 0)),
-        ));
-        Some(AppliedEffectResult::ConsumeUsage)
-    });
+    pub const I: EndPhaseTakeDMG =
+        EndPhaseTakeDMG::new(TakeDMGCharacter::Attached, deal_elem_dmg(Element::Hydro, 3, 0));
 }

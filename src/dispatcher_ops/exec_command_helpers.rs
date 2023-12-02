@@ -376,7 +376,7 @@ pub fn get_cast_skill_cmds(
         match status_id.get_status().attach_mode {
             StatusAttachMode::Character => {
                 let char_idx = src_player.active_char_idx;
-                cmds.push((*ctx, Command::ApplyStatusToCharacter(status_id, char_idx)));
+                cmds.push((*ctx, Command::ApplyStatusToCharacter(status_id, char_idx.into())));
             }
             StatusAttachMode::Team => {
                 cmds.push((*ctx, Command::ApplyStatusToTeam(status_id)));

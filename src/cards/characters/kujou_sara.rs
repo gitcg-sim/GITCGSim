@@ -42,7 +42,7 @@ pub mod tengu_juurai_ambush {
 
     pub const I: EndPhaseCommands = EndPhaseCommands(list8![
         Command::DealDMG(deal_elem_dmg(Element::Electro, 2, 0)),
-        Command::ApplyStatusToActiveCharacter(StatusId::CrowfeatherCover),
+        Command::ApplyStatusToCharacter(StatusId::CrowfeatherCover, CmdCharIdx::Active),
     ]);
 }
 
@@ -53,7 +53,7 @@ pub mod tengu_juurai_stormcluster {
 
     pub const I: EndPhaseCommands = EndPhaseCommands(list8![
         Command::DealDMG(deal_elem_dmg(Element::Electro, 2, 0)),
-        Command::ApplyStatusToActiveCharacter(StatusId::CrowfeatherCover),
+        Command::ApplyStatusToCharacter(StatusId::CrowfeatherCover, CmdCharIdx::Active),
     ]);
 }
 

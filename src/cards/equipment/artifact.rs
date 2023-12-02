@@ -247,7 +247,7 @@ pub mod exiles_circlet {
                     continue;
                 }
 
-                e.add_cmd(Command::AddEnergyToCharacter(1, char_idx));
+                e.add_cmd(Command::AddEnergyToCharacter(1, char_idx.into()));
             }
             None
         }
@@ -281,7 +281,7 @@ pub mod ornate_kabuto {
                 return None;
             }
 
-            e.add_cmd(Command::AddEnergyToCharacter(1, own_char_idx));
+            e.add_cmd(Command::AddEnergyToCharacter(1, own_char_idx.into()));
             None
         }
     }

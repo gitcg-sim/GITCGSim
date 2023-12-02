@@ -333,6 +333,22 @@ impl SummonRandomSpec {
     }
 }
 
+/// Target character index (`char_idx`) for `Command`s.
+#[derive(Debug, Clone, Copy, Default)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub enum CmdCharIdx {
+    #[default]
+    Active,
+    Index(u8),
+}
+
+impl From<u8> for CmdCharIdx {
+    #[inline]
+    fn from(value: u8) -> Self {
+        Self::Index(value)
+    }
+}
+
 /// A command represents a unit of effect performed on the game state.
 /// Most elements of card text or game mechanics are translated into `Command`s.
 /// Common examples of commands are:
@@ -376,7 +392,7 @@ pub enum Command {
     /// Add energy to one character without maximum energy (active prioritized.)
     AddEnergyWithoutMaximum(u8),
     /// Add energy to character by index in the 2nd parameter.
-    AddEnergyToCharacter(u8, u8),
+    AddEnergyToCharacter(u8, CmdCharIdx),
     AddEnergyToNonActiveCharacters(u8),
     /// Add energy to selected character of the player.
     SetEnergy(u8),
@@ -397,10 +413,9 @@ pub enum Command {
     AddCardsToHand(CappedLengthList8<CardId>),
     DrawCards(u8, Option<CardType>),
     /// Apply a status to the player's character by index.
-    ApplyStatusToCharacter(StatusId, u8),
-    ApplyStatusToActiveCharacter(StatusId),
-    ApplyEquipmentToCharacter(EquipSlot, StatusId, u8),
-    ApplyTalentToCharacter(u8, Option<StatusId>),
+    ApplyStatusToCharacter(StatusId, CmdCharIdx),
+    ApplyEquipmentToCharacter(EquipSlot, StatusId, CmdCharIdx),
+    ApplyTalentToCharacter(Option<StatusId>, CmdCharIdx),
     /// Apply a character status state to target player's active character. Completes ignores context.
     ApplyCharacterStatusToActive(PlayerId, StatusId, AppliedEffectState),
     AddSupport(SupportSlot, SupportId),

@@ -5,7 +5,7 @@ pub const C: Card = Card {
     cost: Cost::ONE,
     effects: list8![
         Command::Heal(1),
-        Command::ApplyStatusToActiveCharacter(StatusId::MushroomPizza)
+        Command::ApplyStatusToCharacter(StatusId::MushroomPizza, CmdCharIdx::Active)
     ],
     card_type: CardType::Food,
     card_impl: Some(&FoodCardImpl()),

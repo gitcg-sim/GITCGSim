@@ -94,7 +94,7 @@ pub mod incoming_dmg {
 pub mod end_phase {
     use super::*;
 
-    /// Implementation for a Summon that deals DMG
+    /// Implementation for a status that deals DMG
     /// with usage counts at the End Phase.
     ///
     /// End Phase: Deal [DMG], Usages: [count]
@@ -115,7 +115,59 @@ pub mod end_phase {
         }
     }
 
-    /// Implementation for a Summon that performs commands
+    pub enum TakeDMGCharacter {
+        Attached,
+        Active,
+    }
+
+    /// Implementation for a status that takes DMG to the attached/active character.
+    ///
+    /// End Phase: Deal [DMG] to the [active character/the charater to which this is attached].
+    /// Usages: [count]
+    pub struct EndPhaseTakeDMG {
+        pub mode: TakeDMGCharacter,
+        pub take_dmg: DealDMG,
+    }
+
+    impl EndPhaseTakeDMG {
+        pub const fn new(mode: TakeDMGCharacter, take_dmg: DealDMG) -> Self {
+            Self { mode, take_dmg }
+        }
+    }
+
+    impl StatusImpl for EndPhaseTakeDMG {
+        fn responds_to(&self) -> EnumSet<RespondsTo> {
+            enum_set![RespondsTo::TriggerEvent]
+        }
+
+        fn responds_to_triggers(&self) -> EnumSet<EventId> {
+            enum_set![EventId::EndPhase]
+        }
+
+        fn trigger_event(&self, e: &mut TriggerEventContext<EventId>) -> Option<AppliedEffectResult> {
+            let EventId::EndPhase = e.event_id else {
+                return None;
+            };
+            let char_idx = match self.mode {
+                TakeDMGCharacter::Attached => e.c.status_key.char_idx().unwrap_or_else(|| {
+                    panic!(
+                        "EndPhaseTakeDMG: Attached: Not a character status: {:?}",
+                        e.c.status_key
+                    )
+                }),
+                TakeDMGCharacter::Active => e.active_char_idx(),
+            };
+            e.out_cmds.push((
+                e.ctx_for_dmg
+                    .without_target()
+                    .with_src(CommandSource::Character { char_idx }),
+                Command::TakeDMG(self.take_dmg),
+            ));
+            Some(AppliedEffectResult::ConsumeUsage)
+        }
+    }
+
+    /// Implementation for a status that performs commands
     /// with usage counts at the End Phase.
     ///
     /// End Phase: [commands], Usages: [count]

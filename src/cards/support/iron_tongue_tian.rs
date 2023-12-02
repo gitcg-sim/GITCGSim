@@ -32,7 +32,7 @@ impl StatusImpl for IronTongueTian {
             return Some(AppliedEffectResult::ConsumeUsage);
         }
 
-        let Some((i, _)) =
+        let Some((char_idx, _)) =
             e.c.src_player_state
                 .char_states
                 .enumerate_valid()
@@ -41,7 +41,7 @@ impl StatusImpl for IronTongueTian {
             return None;
         };
         // TODO
-        e.add_cmd(Command::AddEnergyToCharacter(1, i));
+        e.add_cmd(Command::AddEnergyToCharacter(1, char_idx.into()));
         None
     }
 }

@@ -29,12 +29,13 @@ macro_rules! card_impl_for_artifact {
                 ctx: &CommandContext,
                 commands: &mut CommandList<(CommandContext, Command)>,
             ) {
-                if let Some(CardSelection::OwnCharacter(i)) = cic.selection {
+                if let Some(CardSelection::OwnCharacter(char_idx)) = cic.selection {
                     commands.push((
                         *ctx,
                         Command::ApplyEquipmentToCharacter(
                             EquipSlot::Artifact,
-                            card_impl_for_artifact!(@status self, $($status_id)?), i
+                            card_impl_for_artifact!(@status self, $($status_id)?),
+                            char_idx.into()
                         ),
                     ))
                 } else {
@@ -94,10 +95,10 @@ fn get_effects_for_weapon(
     ctx: &CommandContext,
     commands: &mut CommandList<(CommandContext, Command)>,
 ) {
-    if let Some(CardSelection::OwnCharacter(i)) = cic.selection {
+    if let Some(CardSelection::OwnCharacter(char_idx)) = cic.selection {
         commands.push((
             *ctx,
-            Command::ApplyEquipmentToCharacter(EquipSlot::Weapon, status_id, i),
+            Command::ApplyEquipmentToCharacter(EquipSlot::Weapon, status_id, char_idx.into()),
         ));
     } else {
         panic!("Weapon card: Invalid selection")
@@ -321,7 +322,7 @@ impl CardImpl for Talent {
             panic!("CardImpl for Talent: Invalid selection")
         };
 
-        commands.push((*ctx, Command::ApplyTalentToCharacter(char_idx, self.status_id)));
+        commands.push((*ctx, Command::ApplyTalentToCharacter(self.status_id, char_idx.into())));
         if let Some(skill_id) = self.skill_id {
             commands.push((
                 ctx.with_src(CommandSource::Skill { char_idx, skill_id }),

@@ -136,7 +136,7 @@ impl GameState {
         let src_player_id = ctx.src_player_id;
         let ctx_for_dmg = self.ctx_for_dmg(src_player_id, ctx.src);
         let src_player = self.players.get_mut(src_player_id);
-        // When switching to a new character -> set pluging attack flag
+        // When switching to a new character -> set plunging attack flag
         if let EventId::Switched = event_id {
             let CommandSource::Switch {
                 from_char_idx,
@@ -615,7 +615,7 @@ impl GameState {
     fn add_energy(&mut self, ctx: &CommandContext, energy: u8) -> ExecResult {
         let p = self.players.get_mut(ctx.src_player_id);
         let char_idx = ctx.src.selected_char_idx_or(p.active_char_idx);
-        self.add_energy_to_character(ctx, energy, char_idx)
+        self.add_energy_to_character(ctx, energy, char_idx.into())
     }
 
     fn add_energy_without_maximum(&mut self, ctx: &CommandContext, energy: u8) -> ExecResult {
@@ -631,13 +631,14 @@ impl GameState {
         };
 
         if let Some(char_idx) = char_idx {
-            self.add_energy_to_character(ctx, energy, char_idx)
+            self.add_energy_to_character(ctx, energy, char_idx.into())
         } else {
             ExecResult::Success
         }
     }
 
-    fn add_energy_to_character(&mut self, ctx: &CommandContext, energy: u8, char_idx: u8) -> ExecResult {
+    fn add_energy_to_character(&mut self, ctx: &CommandContext, energy: u8, char_idx: CmdCharIdx) -> ExecResult {
+        let char_idx = self.resolve_cmd_char_idx(ctx, char_idx);
         let p = self.players.get_mut(ctx.src_player_id);
         if let Some(active_char) = p.try_get_character_mut(char_idx) {
             active_char.add_energy_hashed(chc!(self, ctx.src_player_id, char_idx), energy);
@@ -913,7 +914,13 @@ impl GameState {
         ExecResult::Success
     }
 
-    fn apply_status_to_character(&mut self, ctx: &CommandContext, status_id: StatusId, char_idx: u8) -> ExecResult {
+    fn apply_status_to_character(
+        &mut self,
+        ctx: &CommandContext,
+        status_id: StatusId,
+        char_idx: CmdCharIdx,
+    ) -> ExecResult {
+        let char_idx = self.resolve_cmd_char_idx(ctx, char_idx);
         let player = self.players.get_mut(ctx.src_player_id);
         if !player.is_valid_char_idx(char_idx) {
             return ExecResult::Success;
@@ -937,20 +944,14 @@ impl GameState {
         ExecResult::Success
     }
 
-    fn apply_status_to_active_character(&mut self, ctx: &CommandContext, status_id: StatusId) -> ExecResult {
-        let active_player = self
-            .get_active_player()
-            .unwrap_or_else(|| self.players.get(ctx.src_player_id));
-        self.apply_status_to_character(ctx, status_id, active_player.active_char_idx)
-    }
-
     fn apply_equipment_to_character(
         &mut self,
         ctx: &CommandContext,
         slot: EquipSlot,
         status_id: StatusId,
-        char_idx: u8,
+        char_idx: CmdCharIdx,
     ) -> ExecResult {
+        let char_idx = self.resolve_cmd_char_idx(ctx, char_idx);
         let player = self.players.get_mut(ctx.src_player_id);
         if !player.is_valid_char_idx(char_idx) {
             return ExecResult::Success;
@@ -977,9 +978,10 @@ impl GameState {
     fn apply_talent_to_character(
         &mut self,
         ctx: &CommandContext,
-        char_idx: u8,
         status_id: Option<StatusId>,
+        char_idx: CmdCharIdx,
     ) -> ExecResult {
+        let char_idx = self.resolve_cmd_char_idx(ctx, char_idx);
         let player = self.players.get_mut(ctx.src_player_id);
         if !player.is_valid_char_idx(char_idx) {
             return ExecResult::Success;
@@ -1093,7 +1095,7 @@ impl GameState {
         let res = if active_player.try_remove_card_from_hand((&mut h, player_id), CardId::LightningStiletto) {
             ExecResult::AdditionalCmds(cmd_list![(
                 *ctx,
-                Command::ApplyStatusToCharacter(StatusId::ElectroInfusion, char_idx)
+                Command::ApplyStatusToCharacter(StatusId::ElectroInfusion, char_idx.into())
             )])
         } else {
             if !matches!(ctx.src, CommandSource::Card { .. }) {
@@ -1122,6 +1124,14 @@ impl GameState {
         ExecResult::AdditionalCmds(cmds)
     }
 
+    #[inline]
+    fn resolve_cmd_char_idx(&self, ctx: &CommandContext, char_idx: CmdCharIdx) -> u8 {
+        match char_idx {
+            CmdCharIdx::Active => self.players.get(ctx.src_player_id).active_char_idx,
+            CmdCharIdx::Index(char_idx) => char_idx,
+        }
+    }
+
     fn exec(&mut self, ctx: &CommandContext, cmd: Command) -> ExecResult {
         let res: ExecResult = match cmd {
             Command::Nop => ExecResult::Success,
@@ -1140,7 +1150,7 @@ impl GameState {
             Command::HealAll(v) => self.heal_all(ctx, v),
             Command::AddEnergy(v) => self.add_energy(ctx, v),
             Command::AddEnergyWithoutMaximum(v) => self.add_energy_without_maximum(ctx, v),
-            Command::AddEnergyToCharacter(v, i) => self.add_energy_to_character(ctx, v, i),
+            Command::AddEnergyToCharacter(v, char_idx) => self.add_energy_to_character(ctx, v, char_idx),
             Command::AddEnergyToNonActiveCharacters(v) => self.add_energy_to_non_active_characters(ctx, v),
             Command::SetEnergy(v) => self.set_energy(ctx, v),
             Command::ShiftEnergy => self.shift_energy(ctx),
@@ -1152,15 +1162,14 @@ impl GameState {
             Command::SubtractDice(d) => self.subtract_dice(ctx, &d),
             Command::AddCardsToHand(cards) => self.add_cards_to_hand(ctx.src_player_id, &cards),
             Command::DrawCards(n, t) => self.draw_cards(ctx, n, t),
-            Command::ApplyStatusToActiveCharacter(status_id) => self.apply_status_to_active_character(ctx, status_id),
             Command::ApplyStatusToCharacter(status_id, char_idx) => {
                 self.apply_status_to_character(ctx, status_id, char_idx)
             }
             Command::ApplyEquipmentToCharacter(slot, status_id, char_idx) => {
                 self.apply_equipment_to_character(ctx, slot, status_id, char_idx)
             }
-            Command::ApplyTalentToCharacter(char_idx, status_id) => {
-                self.apply_talent_to_character(ctx, char_idx, status_id)
+            Command::ApplyTalentToCharacter(status_id, char_idx) => {
+                self.apply_talent_to_character(ctx, status_id, char_idx)
             }
             Command::ApplyCharacterStatusToActive(player_id, status_id, eff_state) => {
                 self.apply_character_status_to_active(player_id, status_id, eff_state)

@@ -56,7 +56,11 @@ pub mod kamisato_art_senho {
                     // TODO utility method to apply this command
                     Command::ApplyStatusToCharacter(
                         StatusId::CryoElementalInfusion,
-                        e.c.ctx.src.switch_dst_char_idx().unwrap(),
+                        e.c.ctx
+                            .src
+                            .switch_dst_char_idx()
+                            .unwrap_or_else(|| e.active_char_idx())
+                            .into(),
                     ),
                 ));
             }

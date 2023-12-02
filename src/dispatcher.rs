@@ -507,10 +507,10 @@ impl GameState {
                 }
             }
 
-            for (i, status_id) in to_apply {
+            for (char_idx, status_id) in to_apply {
                 self.exec_commands(&cmd_list![(
                     CommandContext::new(player_id, CommandSource::Event, None),
-                    Command::ApplyStatusToCharacter(status_id, i),
+                    Command::ApplyStatusToCharacter(status_id, char_idx.into()),
                 )])
                 .unwrap();
             }

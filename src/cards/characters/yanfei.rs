@@ -27,18 +27,12 @@ pub const DONE_DEAL: Skill = Skill {
     skill_type: SkillType::ElementalBurst,
     cost: cost_elem(Element::Pyro, 3, 0, 2),
     deal_dmg: Some(deal_elem_dmg(Element::Pyro, 3, 0)),
-    skill_impl: Some(&DoneDeal()),
+    commands: list8![
+        Command::ApplyStatusToCharacter(StatusId::ScarletSeal, CmdCharIdx::Active),
+        Command::ApplyStatusToCharacter(StatusId::Brilliance, CmdCharIdx::Active),
+    ],
     ..Skill::new()
 };
-
-pub struct DoneDeal();
-
-impl SkillImpl for DoneDeal {
-    fn get_commands(&self, _: &PlayerState, ctx: &CommandContext, cmds: &mut CommandList<(CommandContext, Command)>) {
-        cmds.push((*ctx, Command::ApplyStatusToActiveCharacter(StatusId::ScarletSeal)));
-        cmds.push((*ctx, Command::ApplyStatusToActiveCharacter(StatusId::Brilliance)));
-    }
-}
 
 pub mod scarlet_seal {
     use super::*;
@@ -73,7 +67,7 @@ pub mod brilliance {
     trigger_event_impl!(BrillianceAttachScarletSeal, [EndPhase], |e| {
         e.out_cmds.push((
             *e.ctx_for_dmg,
-            Command::ApplyStatusToCharacter(StatusId::ScarletSeal, e.status_key.char_idx().unwrap()),
+            Command::ApplyStatusToCharacter(StatusId::ScarletSeal, e.status_key.char_idx().unwrap().into()),
         ));
         Some(AppliedEffectResult::NoChange)
     });
