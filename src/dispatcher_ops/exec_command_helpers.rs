@@ -78,6 +78,7 @@ pub enum RelativeCharIdx {
     Previous,
     Next,
     ClosestTo(u8),
+    ImmediateNext,
 }
 
 #[macro_export]
@@ -499,6 +500,13 @@ impl RelativeCharIdx {
                     d
                 }
             }
+            RelativeCharIdx::ImmediateNext => {
+                if d == 0 {
+                    (i0 + 1).min(n - 1)
+                } else {
+                    i0
+                }
+            }
         })
     }
 }
@@ -532,7 +540,7 @@ mod tests {
 
     const N: u8 = 15;
 
-    fn arb_relative_switch_type() -> impl Strategy<Value = RelativeCharIdx> {
+    fn arb_relative_switch_type_expect_immediate_next() -> impl Strategy<Value = RelativeCharIdx> {
         prop_oneof![
             Just(RelativeCharIdx::Previous),
             Just(RelativeCharIdx::Next),
@@ -541,17 +549,27 @@ mod tests {
     }
     proptest! {
         #[test]
-        fn indexing_seq_has_length_of_n(n in 1..N, s in arb_relative_switch_type(), char_idx in 0..N) {
+        fn indexing_seq_has_length_of_n(n in 1..N, s in arb_relative_switch_type_expect_immediate_next(), char_idx in 0..N) {
             prop_assume!(char_idx < n);
             assert_eq!(n, s.indexing_seq(char_idx, n).collect::<Vec<_>>().len() as u8);
         }
 
         #[test]
-        fn indexing_seq_is_a_permutation_of_range_from_zero_to_n(n in 1..N, s in arb_relative_switch_type(), char_idx in 0..N) {
+        fn indexing_seq_is_a_permutation_of_range_from_zero_to_n(n in 1..N, s in arb_relative_switch_type_expect_immediate_next(), char_idx in 0..N) {
             prop_assume!(char_idx < n);
             let perm = s.indexing_seq(char_idx, N).collect::<Vec<_>>();
             let sorted = { let mut sorted = perm.clone(); sorted.sort(); sorted };
             assert_eq!((0..N).collect::<Vec<_>>(), sorted, "{perm:?}, s={s:?} char_idx={char_idx}");
+        }
+
+        #[test]
+        fn indexing_seq_for_closest_to(char_idx in 0..N) {
+            let perm = RelativeCharIdx::ImmediateNext.indexing_seq(char_idx, N).take(2).collect::<Vec<_>>();
+            if char_idx + 1 < N {
+                assert_eq!(vec![char_idx + 1, char_idx], perm);
+            } else {
+                assert_eq!(vec![char_idx, char_idx], perm);
+            }
         }
     }
 }

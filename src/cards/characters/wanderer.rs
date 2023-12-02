@@ -73,7 +73,6 @@ pub mod windfavored {
             if !e.is_normal_attack() {
                 return None;
             }
-            // TODO next opposing character
             dmg.dmg += 2;
             Some(AppliedEffectResult::ConsumeUsage)
         }
@@ -89,7 +88,9 @@ pub mod windfavored {
             if !e.is_normal_attack() {
                 return None;
             }
-            let Some(char_idx1) = tgt_chars.relative_switch_char_idx(tgt_active_char_idx, RelativeCharIdx::Next) else {
+            let Some(char_idx1) =
+                tgt_chars.relative_switch_char_idx(tgt_active_char_idx, RelativeCharIdx::ImmediateNext)
+            else {
                 return None;
             };
             *tgt_char_idx = char_idx1;
