@@ -54,7 +54,7 @@ pub mod kamisato_art_senho {
                 e.out_cmds.push((
                     e.ctx_for_dmg.without_target(),
                     // TODO utility method to apply this command
-                    Command::ApplyStatusToCharacter(
+                    Command::ApplyCharacterStatus(
                         StatusId::CryoElementalInfusion,
                         e.c.ctx
                             .src

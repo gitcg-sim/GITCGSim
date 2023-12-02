@@ -413,20 +413,20 @@ pub enum Command {
     AddCardsToHand(CappedLengthList8<CardId>),
     DrawCards(u8, Option<CardType>),
     /// Apply a status to the player's character by index.
-    ApplyStatusToCharacter(StatusId, CmdCharIdx),
-    ApplyEquipmentToCharacter(EquipSlot, StatusId, CmdCharIdx),
-    ApplyTalentToCharacter(Option<StatusId>, CmdCharIdx),
+    ApplyCharacterStatus(StatusId, CmdCharIdx),
+    ApplyEquipment(EquipSlot, StatusId, CmdCharIdx),
+    ApplyTalent(Option<StatusId>, CmdCharIdx),
     /// Ignores the context. Apply a character status state to the target player's active character.
     InternalApplyCharacterStatusWithStateToActive(PlayerId, StatusId, AppliedEffectState),
     AddSupport(SupportSlot, SupportId),
     /// Apply a team status to the player.
     ApplyStatusToTeam(StatusId),
-    /// Apply a character status to the command target character
-    ApplyStatusToTarget(StatusId),
-    /// Apply a character status to all opponent characters
-    ApplyStatusToAllOpponentCharacters(StatusId),
-    /// Apply a team status to the command target's player
-    ApplyStatusToTargetTeam(StatusId),
+    /// Apply a character status to the command target character.
+    ApplyCharacterStatusToTarget(StatusId),
+    /// Apply a character status to all opponent characters.
+    ApplyCharacterStatusToAllOpponentCharacters(StatusId),
+    /// Apply a team status to the command target's player.
+    ApplyTeamStatusToTargetPlayer(StatusId),
     /// Create or refresh a summon on the player.
     Summon(SummonId),
     /// Summon random given count and existing summons to deprioritize

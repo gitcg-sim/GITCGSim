@@ -28,8 +28,8 @@ pub const DONE_DEAL: Skill = Skill {
     cost: cost_elem(Element::Pyro, 3, 0, 2),
     deal_dmg: Some(deal_elem_dmg(Element::Pyro, 3, 0)),
     commands: list8![
-        Command::ApplyStatusToCharacter(StatusId::ScarletSeal, CmdCharIdx::Active),
-        Command::ApplyStatusToCharacter(StatusId::Brilliance, CmdCharIdx::Active),
+        Command::ApplyCharacterStatus(StatusId::ScarletSeal, CmdCharIdx::Active),
+        Command::ApplyCharacterStatus(StatusId::Brilliance, CmdCharIdx::Active),
     ],
     ..Skill::new()
 };
@@ -67,7 +67,7 @@ pub mod brilliance {
     trigger_event_impl!(BrillianceAttachScarletSeal, [EndPhase], |e| {
         e.out_cmds.push((
             *e.ctx_for_dmg,
-            Command::ApplyStatusToCharacter(StatusId::ScarletSeal, e.status_key.char_idx().unwrap().into()),
+            Command::ApplyCharacterStatus(StatusId::ScarletSeal, e.status_key.char_idx().unwrap().into()),
         ));
         Some(AppliedEffectResult::NoChange)
     });

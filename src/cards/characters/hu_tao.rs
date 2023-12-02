@@ -70,7 +70,7 @@ pub mod paramita_papilio {
             if !e.c.is_charged_attack() {
                 return None;
             };
-            e.add_cmd(Command::ApplyStatusToTarget(StatusId::BloodBlossom));
+            e.add_cmd(Command::ApplyCharacterStatusToTarget(StatusId::BloodBlossom));
             Some(AppliedEffectResult::NoChange)
         }
     }

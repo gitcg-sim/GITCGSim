@@ -23,7 +23,7 @@ pub const ALL_SCHEMES_TO_KNOW: Skill = Skill {
     skill_type: SkillType::ElementalSkill,
     cost: cost_elem(Element::Dendro, 3, 0, 0),
     deal_dmg: Some(deal_elem_dmg(Element::Dendro, 2, 0)),
-    commands: list8![Command::ApplyStatusToTarget(StatusId::SeedOfSkandha)],
+    commands: list8![Command::ApplyCharacterStatusToTarget(StatusId::SeedOfSkandha)],
     ..Skill::new()
 };
 
@@ -32,7 +32,9 @@ pub const ALL_SCHEMES_TO_KNOW_TATHATA: Skill = Skill {
     skill_type: SkillType::ElementalSkill,
     cost: cost_elem(Element::Dendro, 5, 0, 0),
     deal_dmg: Some(deal_elem_dmg(Element::Dendro, 3, 0)),
-    commands: list8![Command::ApplyStatusToAllOpponentCharacters(StatusId::SeedOfSkandha)],
+    commands: list8![Command::ApplyCharacterStatusToAllOpponentCharacters(
+        StatusId::SeedOfSkandha
+    )],
     ..Skill::new()
 };
 

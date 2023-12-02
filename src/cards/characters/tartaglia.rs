@@ -63,7 +63,7 @@ impl SkillImpl for FoulLegacyRagingTide {
         ));
         cmds.push((
             *ctx,
-            Command::ApplyStatusToCharacter(StatusId::MeleeStance, char_idx.into()),
+            Command::ApplyCharacterStatus(StatusId::MeleeStance, char_idx.into()),
         ));
     }
 }
@@ -81,7 +81,7 @@ impl SkillImpl for HavocObliteration {
         } else {
             cmds.push((*ctx, Command::DealDMG(deal_elem_dmg(Element::Hydro, 4, 0))));
             cmds.push((*ctx, Command::AddEnergy(2)));
-            cmds.push((*ctx, Command::ApplyStatusToTarget(StatusId::Riptide)));
+            cmds.push((*ctx, Command::ApplyCharacterStatusToTarget(StatusId::Riptide)));
         }
     }
 }
@@ -140,7 +140,7 @@ pub mod melee_stance {
             if !e.c.is_charged_attack() {
                 return None;
             }
-            e.add_cmd(Command::ApplyStatusToTarget(StatusId::Riptide));
+            e.add_cmd(Command::ApplyCharacterStatusToTarget(StatusId::Riptide));
             Some(AppliedEffectResult::NoChange)
         }
     }
@@ -179,7 +179,7 @@ pub mod ranged_stance {
             if !e.c.is_charged_attack() {
                 return None;
             }
-            e.add_cmd(Command::ApplyStatusToTarget(StatusId::Riptide));
+            e.add_cmd(Command::ApplyCharacterStatusToTarget(StatusId::Riptide));
             Some(AppliedEffectResult::NoChange)
         }
     }

@@ -42,7 +42,7 @@ pub const PLANET_BEFALL: Skill = Skill {
     skill_type: SkillType::ElementalBurst,
     cost: cost_elem(Element::Geo, 3, 0, 3),
     deal_dmg: Some(deal_elem_dmg(Element::Geo, 4, 0)),
-    commands: list8![Command::ApplyStatusToTarget(StatusId::Petrification),],
+    commands: list8![Command::ApplyCharacterStatusToTarget(StatusId::Petrification),],
     ..Skill::new()
 };
 

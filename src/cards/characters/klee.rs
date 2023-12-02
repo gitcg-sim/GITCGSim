@@ -27,7 +27,7 @@ pub const SPARKS_N_SPLASH: Skill = Skill {
     skill_type: SkillType::ElementalBurst,
     cost: cost_elem(Element::Pyro, 3, 0, 3),
     deal_dmg: Some(deal_elem_dmg(Element::Pyro, 3, 0)),
-    commands: list8![Command::ApplyStatusToTargetTeam(StatusId::SparksNSplash)],
+    commands: list8![Command::ApplyTeamStatusToTargetPlayer(StatusId::SparksNSplash)],
     ..Skill::new()
 };
 

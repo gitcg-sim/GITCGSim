@@ -81,7 +81,7 @@ pub mod ushi {
             let Some((char_idx, _)) = e.find_chararacter_for(|c| c.char_id == CharId::AratakiItto) else {
                 return None;
             };
-            e.add_cmd(Command::ApplyStatusToCharacter(
+            e.add_cmd(Command::ApplyCharacterStatus(
                 StatusId::SuperlativeSuperstrength,
                 char_idx.into(),
             ));

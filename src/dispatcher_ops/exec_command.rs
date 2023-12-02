@@ -842,7 +842,7 @@ impl GameState {
         ExecResult::Success
     }
 
-    fn apply_status_to_target(&mut self, ctx: &CommandContext, status_id: StatusId) -> ExecResult {
+    fn apply_character_status_to_target(&mut self, ctx: &CommandContext, status_id: StatusId) -> ExecResult {
         let status = status_id.get_status();
         if status.attach_mode != StatusAttachMode::Character {
             panic!("apply_status_to_target: wrong StatusAttachMode");
@@ -871,7 +871,7 @@ impl GameState {
         ExecResult::Success
     }
 
-    fn apply_status_to_target_team(&mut self, ctx: &CommandContext, status_id: StatusId) -> ExecResult {
+    fn apply_team_status_to_target_player(&mut self, ctx: &CommandContext, status_id: StatusId) -> ExecResult {
         let status = status_id.get_status();
         if status.attach_mode != StatusAttachMode::Team {
             panic!("apply_status_to_target_team: wrong StatusAttachMode");
@@ -888,16 +888,20 @@ impl GameState {
         ExecResult::Success
     }
 
-    fn apply_status_to_opponent_characters(&mut self, ctx: &CommandContext, status_id: StatusId) -> ExecResult {
+    fn apply_character_status_to_all_opponent_characters(
+        &mut self,
+        ctx: &CommandContext,
+        status_id: StatusId,
+    ) -> ExecResult {
         let status = status_id.get_status();
         if status.attach_mode != StatusAttachMode::Character {
-            panic!("apply_status_to_opponent_characters: wrong StatusAttachMode");
+            panic!("apply_character_status_to_opponent_characters: wrong StatusAttachMode");
         }
         if !status.applies_to_opposing {
-            panic!("apply_status_to_opponent_characters: applies_to_opposing is false");
+            panic!("apply_character_status_to_opponent_characters: applies_to_opposing is false");
         }
         let Some(tgt_player_id) = ctx.get_dmg_tgt_player_id() else {
-            panic!("apply_status_to_target: no target");
+            panic!("apply_character_status_to_target: no target");
         };
 
         let tgt_char_states = &self.players[tgt_player_id].char_states;
@@ -914,7 +918,7 @@ impl GameState {
         ExecResult::Success
     }
 
-    fn apply_status_to_character(
+    fn apply_character_status(
         &mut self,
         ctx: &CommandContext,
         status_id: StatusId,
@@ -944,7 +948,7 @@ impl GameState {
         ExecResult::Success
     }
 
-    fn apply_equipment_to_character(
+    fn apply_equipment(
         &mut self,
         ctx: &CommandContext,
         slot: EquipSlot,
@@ -1095,7 +1099,7 @@ impl GameState {
         let res = if active_player.try_remove_card_from_hand((&mut h, player_id), CardId::LightningStiletto) {
             ExecResult::AdditionalCmds(cmd_list![(
                 *ctx,
-                Command::ApplyStatusToCharacter(StatusId::ElectroInfusion, char_idx.into())
+                Command::ApplyCharacterStatus(StatusId::ElectroInfusion, char_idx.into())
             )])
         } else {
             if !matches!(ctx.src, CommandSource::Card { .. }) {
@@ -1144,7 +1148,7 @@ impl GameState {
             Command::TakeDMG(d) => self.take_dmg(ctx, d),
             Command::DealDMGRelative(d, relative) => self.deal_dmg_relative(ctx, d, relative),
             Command::TakeDMGForAffectedBy(status_id, d) => self.take_dmg_for_affected_by(ctx, status_id, d),
-            Command::InternalDealSwirlDMG(_, _) => panic!("Cannot execute DealSwirlDMG command."),
+            Command::InternalDealSwirlDMG(_, _) => panic!("Cannot execute InternalDealSwirlDMG command."),
             Command::Heal(v) => self.heal(ctx, v),
             Command::HealTakenMostDMG(v) => self.heal_taken_most_dmg(ctx, v),
             Command::HealAll(v) => self.heal_all(ctx, v),
@@ -1162,24 +1166,20 @@ impl GameState {
             Command::SubtractDice(d) => self.subtract_dice(ctx, &d),
             Command::AddCardsToHand(cards) => self.add_cards_to_hand(ctx.src_player_id, &cards),
             Command::DrawCards(n, t) => self.draw_cards(ctx, n, t),
-            Command::ApplyStatusToCharacter(status_id, char_idx) => {
-                self.apply_status_to_character(ctx, status_id, char_idx)
-            }
-            Command::ApplyEquipmentToCharacter(slot, status_id, char_idx) => {
-                self.apply_equipment_to_character(ctx, slot, status_id, char_idx)
-            }
-            Command::ApplyTalentToCharacter(status_id, char_idx) => {
-                self.apply_talent_to_character(ctx, status_id, char_idx)
-            }
+            Command::ApplyCharacterStatus(status_id, char_idx) => self.apply_character_status(ctx, status_id, char_idx),
+            Command::ApplyEquipment(slot, status_id, char_idx) => self.apply_equipment(ctx, slot, status_id, char_idx),
+            Command::ApplyTalent(status_id, char_idx) => self.apply_talent_to_character(ctx, status_id, char_idx),
             Command::InternalApplyCharacterStatusWithStateToActive(player_id, status_id, eff_state) => {
                 self.apply_character_status_with_state_to_active(player_id, status_id, eff_state)
             }
             Command::AddSupport(slot, support_id) => self.add_support(ctx, slot, support_id),
             Command::ApplyStatusToTeam(status_id) => self.apply_status_to_team(ctx, status_id),
-            Command::ApplyStatusToTarget(status_id) => self.apply_status_to_target(ctx, status_id),
-            Command::ApplyStatusToTargetTeam(status_id) => self.apply_status_to_target_team(ctx, status_id),
-            Command::ApplyStatusToAllOpponentCharacters(status_id) => {
-                self.apply_status_to_opponent_characters(ctx, status_id)
+            Command::ApplyCharacterStatusToTarget(status_id) => self.apply_character_status_to_target(ctx, status_id),
+            Command::ApplyTeamStatusToTargetPlayer(status_id) => {
+                self.apply_team_status_to_target_player(ctx, status_id)
+            }
+            Command::ApplyCharacterStatusToAllOpponentCharacters(status_id) => {
+                self.apply_character_status_to_all_opponent_characters(ctx, status_id)
             }
             Command::Summon(summon_id) => self.summon(ctx, summon_id),
             Command::SummonRandom(spec) => self.summon_random(ctx, spec),

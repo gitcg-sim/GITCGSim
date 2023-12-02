@@ -82,7 +82,7 @@ impl Reaction {
             Reaction::Burning => (1, 0, Some(Command::Summon(SummonId::BurningFlame))),
             Reaction::Crystallize => (1, 0, Some(Command::ApplyStatusToTeam(StatusId::CrystallizeShield))),
             Reaction::ElectroCharged => (1, 1, None),
-            Reaction::Frozen => (1, 0, Some(Command::ApplyStatusToTarget(StatusId::Frozen))),
+            Reaction::Frozen => (1, 0, Some(Command::ApplyCharacterStatusToTarget(StatusId::Frozen))),
             Reaction::Melt => (2, 0, None),
             Reaction::Overloaded => (2, 0, Some(Command::ForceSwitchForTarget(RelativeCharIdx::Next))),
             Reaction::Quicken => (1, 0, Some(Command::ApplyStatusToTeam(StatusId::CatalyzingField))),

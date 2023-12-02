@@ -5,7 +5,7 @@ pub const NAME: &str = "Lotus Flower Crisp";
 pub const C: Card = Card {
     name: NAME,
     cost: Cost::ONE,
-    effects: list8![Command::ApplyStatusToCharacter(
+    effects: list8![Command::ApplyCharacterStatus(
         StatusId::LotusFlowerCrisp,
         CmdCharIdx::Active
     )],

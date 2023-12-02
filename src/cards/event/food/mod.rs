@@ -31,7 +31,7 @@ impl CardImpl for FoodCardImpl {
             commands.push((*ctx, eff))
         }
         if let CardSelection::OwnCharacter(i) = cic.selection.unwrap() {
-            commands.push((*ctx, Command::ApplyStatusToCharacter(StatusId::Satiated, i.into())));
+            commands.push((*ctx, Command::ApplyCharacterStatus(StatusId::Satiated, i.into())));
         }
     }
 }

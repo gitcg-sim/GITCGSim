@@ -46,7 +46,7 @@ impl SkillImpl for IcetideVortex {
         {
             cmds.push((
                 *ctx,
-                Command::ApplyStatusToCharacter(StatusId::Grimheart, CmdCharIdx::Active),
+                Command::ApplyCharacterStatus(StatusId::Grimheart, CmdCharIdx::Active),
             ))
         }
     }

@@ -31,7 +31,7 @@ pub const DANCE_OF_ABZENDEGI_DISTANT_DREAMS_LISTENING_SPRING: Skill = Skill {
     skill_type: SkillType::ElementalBurst,
     cost: cost_elem(Element::Hydro, 3, 0, 2),
     deal_dmg: Some(deal_elem_dmg(Element::Hydro, 2, 0)),
-    commands: list8![Command::ApplyStatusToTarget(StatusId::LingeringAeon),],
+    commands: list8![Command::ApplyCharacterStatusToTarget(StatusId::LingeringAeon),],
     ..Skill::new()
 };
 
