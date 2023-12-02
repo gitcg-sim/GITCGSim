@@ -5,7 +5,8 @@ const NAME: &str = "Adeptus' Temptation";
 pub const C: Card = Card {
     name: NAME,
     cost: Cost::unaligned(2),
-    effects: list8![Command::Heal(2)],
+    // TODO doesn't apply status properly?
+    effects: list8![Command::Heal(2, CmdCharIdx::CardSelected)],
     card_type: CardType::Food,
     card_impl: Some(&FoodCardImpl()),
 };

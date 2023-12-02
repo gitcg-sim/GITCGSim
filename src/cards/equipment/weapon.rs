@@ -307,7 +307,7 @@ pub mod aquila_favonia {
             }
 
             e.consume_counter(|e, _| {
-                e.add_cmd(Command::Heal(1));
+                e.add_cmd(Command::Heal(1, e.attached_cmd_char_idx()));
             })
         }
     }

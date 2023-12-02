@@ -612,12 +612,6 @@ impl GameState {
         ExecResult::AdditionalCmds(cmds)
     }
 
-    fn add_energy(&mut self, ctx: &CommandContext, energy: u8) -> ExecResult {
-        let p = self.players.get_mut(ctx.src_player_id);
-        let char_idx = ctx.src.selected_char_idx_or(p.active_char_idx);
-        self.add_energy_to_character(ctx, energy, char_idx.into())
-    }
-
     fn add_energy_without_maximum(&mut self, ctx: &CommandContext, energy: u8) -> ExecResult {
         let check = |c: &CharState| !c.is_invalid() && c.get_energy() < c.char_id.get_char_card().max_energy;
         let char_idx = {
@@ -637,6 +631,7 @@ impl GameState {
         }
     }
 
+    // TODO rename
     fn add_energy_to_character(&mut self, ctx: &CommandContext, energy: u8, char_idx: CmdCharIdx) -> ExecResult {
         let char_idx = self.resolve_cmd_char_idx(ctx, char_idx);
         let p = self.players.get_mut(ctx.src_player_id);
@@ -659,7 +654,7 @@ impl GameState {
         ExecResult::Success
     }
 
-    fn set_energy(&mut self, ctx: &CommandContext, energy: u8) -> ExecResult {
+    fn set_energy_for_active_character(&mut self, ctx: &CommandContext, energy: u8) -> ExecResult {
         let p = self.players.get_mut(ctx.src_player_id);
         let char_idx = ctx.src.selected_char_idx_or(p.active_char_idx);
         if let Some(active_char) = p.try_get_character_mut(char_idx) {
@@ -729,15 +724,15 @@ impl GameState {
         ExecResult::Success
     }
 
-    fn heal(&mut self, ctx: &CommandContext, hp: u8) -> ExecResult {
-        let p = self.players.get_mut(ctx.src_player_id);
-        let char_idx = ctx.src.selected_char_idx_or(p.active_char_idx);
-        if let Some(active_char) = p.try_get_character_mut(char_idx) {
-            active_char.heal_hashed(chc!(self, ctx.src_player_id, char_idx), hp);
-            if self.log.enabled {
-                self.log
-                    .log(Event::Heal(ctx.src_player_id, (char_idx, active_char.char_id), hp));
-            }
+    fn heal(&mut self, ctx: &CommandContext, hp: u8, char_idx: CmdCharIdx) -> ExecResult {
+        let char_idx = self.resolve_cmd_char_idx(ctx, char_idx);
+        let Some(active_char) = self.players.get_mut(ctx.src_player_id).try_get_character_mut(char_idx) else {
+            return ExecResult::Success;
+        };
+        active_char.heal_hashed(chc!(self, ctx.src_player_id, char_idx), hp);
+        if self.log.enabled {
+            self.log
+                .log(Event::Heal(ctx.src_player_id, (char_idx, active_char.char_id), hp));
         }
         ExecResult::Success
     }
@@ -747,7 +742,11 @@ impl GameState {
         let Some((char_idx, _)) = char_states.get_taken_most_dmg() else {
             return ExecResult::Success;
         };
-        self.heal(&ctx.with_src(CommandSource::Character { char_idx }), hp)
+        self.heal(
+            &ctx.with_src(CommandSource::Character { char_idx }),
+            hp,
+            char_idx.into(),
+        )
     }
 
     fn heal_all(&mut self, ctx: &CommandContext, hp: u8) -> ExecResult {
@@ -1132,6 +1131,10 @@ impl GameState {
     fn resolve_cmd_char_idx(&self, ctx: &CommandContext, char_idx: CmdCharIdx) -> u8 {
         match char_idx {
             CmdCharIdx::Active => self.players.get(ctx.src_player_id).active_char_idx,
+            CmdCharIdx::CardSelected => match ctx.src {
+                CommandSource::Card { target: Some(CardSelection::OwnCharacter(char_idx)), .. } => char_idx,
+                _ => panic!("resolve_cmd_char_idx: CmdCharIdx::CardSelected must be used on card effects with own character selections. ctx.src={:?}", ctx.src),
+            }
             CmdCharIdx::Index(char_idx) => char_idx,
         }
     }
@@ -1149,14 +1152,13 @@ impl GameState {
             Command::DealDMGRelative(d, relative) => self.deal_dmg_relative(ctx, d, relative),
             Command::TakeDMGForAffectedBy(status_id, d) => self.take_dmg_for_affected_by(ctx, status_id, d),
             Command::InternalDealSwirlDMG(_, _) => panic!("Cannot execute InternalDealSwirlDMG command."),
-            Command::Heal(v) => self.heal(ctx, v),
+            Command::Heal(hp, char_idx) => self.heal(ctx, hp, char_idx),
             Command::HealTakenMostDMG(v) => self.heal_taken_most_dmg(ctx, v),
-            Command::HealAll(v) => self.heal_all(ctx, v),
-            Command::AddEnergy(v) => self.add_energy(ctx, v),
+            Command::HealAll(hp) => self.heal_all(ctx, hp),
+            Command::AddEnergy(v, char_idx) => self.add_energy_to_character(ctx, v, char_idx),
             Command::AddEnergyWithoutMaximum(v) => self.add_energy_without_maximum(ctx, v),
-            Command::AddEnergyToCharacter(v, char_idx) => self.add_energy_to_character(ctx, v, char_idx),
             Command::AddEnergyToNonActiveCharacters(v) => self.add_energy_to_non_active_characters(ctx, v),
-            Command::SetEnergy(v) => self.set_energy(ctx, v),
+            Command::SetEnergyForActiveCharacter(v) => self.set_energy_for_active_character(ctx, v),
             Command::ShiftEnergy => self.shift_energy(ctx),
             Command::IncreaseStatusUsages(key, usages) => self.increase_status_usages(ctx, key, usages),
             Command::DeleteStatus(key) => self.delete_status(ctx, key),

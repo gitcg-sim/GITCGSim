@@ -46,6 +46,14 @@ impl<'a, 'b, 'c, 'd, 'v, T> TriggerEventContext<'a, 'b, 'c, 'd, 'v, T> {
             Some(AppliedEffectResult::SetCounter(c - 1))
         }
     }
+
+    #[inline]
+    pub fn attached_cmd_char_idx(&self) -> CmdCharIdx {
+        self.status_key
+            .char_idx()
+            .expect("attached_cmd_char_idx: Requires a character-attached status.")
+            .into()
+    }
 }
 
 impl<'a, 'b, 'c, 'd, 'v> TriggerEventContext<'a, 'b, 'c, 'd, 'v, XEvent> {

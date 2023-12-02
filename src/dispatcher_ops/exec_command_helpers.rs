@@ -428,7 +428,7 @@ pub fn get_cast_skill_cmds(
     }
 
     if gains_energy && skill.skill_type != SkillType::ElementalBurst {
-        cmds.push((*ctx, Command::AddEnergy(1)));
+        cmds.push((*ctx, Command::AddEnergy(1, CmdCharIdx::Active)));
     }
 
     cmds.push((

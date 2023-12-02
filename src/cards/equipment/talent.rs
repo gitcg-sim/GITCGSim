@@ -239,7 +239,8 @@ pub mod cold_blooded_strike {
             if !e.c.eff_state.can_use_once_per_round() {
                 return None;
             }
-            e.add_cmd(Command::Heal(2));
+            // TODO check this
+            e.add_cmd(Command::Heal(2, CmdCharIdx::Active));
             Some(AppliedEffectResult::ConsumeOncePerRound)
         }
     }

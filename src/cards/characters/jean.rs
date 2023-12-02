@@ -65,7 +65,7 @@ pub mod dandelion_field {
 
         fn trigger_event(&self, e: &mut TriggerEventContext) -> Option<AppliedEffectResult> {
             e.cmd_deal_dmg(DealDMGType::Elemental(Element::Anemo), 2, 0);
-            e.out_cmds.push((*e.ctx_for_dmg, Command::Heal(1)));
+            e.out_cmds.push((*e.ctx_for_dmg, Command::Heal(1, CmdCharIdx::Active)));
             Some(AppliedEffectResult::ConsumeUsage)
         }
     }

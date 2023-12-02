@@ -42,7 +42,7 @@ pub mod sweet_madame {
     pub const C: Card = Card {
         name: "Sweet Madame",
         cost: Cost::ZERO,
-        effects: list8![Command::Heal(1)],
+        effects: list8![Command::Heal(1, CmdCharIdx::CardSelected)],
         card_type: CardType::Food,
         card_impl: Some(&FoodCardImpl()),
     };
@@ -54,7 +54,7 @@ pub mod mondstadt_hash_brown {
     pub const C: Card = Card {
         name: "Mondstadt Hash Brown",
         cost: Cost::ONE,
-        effects: list8![Command::Heal(2)],
+        effects: list8![Command::Heal(2, CmdCharIdx::CardSelected)],
         card_type: CardType::Food,
         card_impl: Some(&FoodCardImpl()),
     };

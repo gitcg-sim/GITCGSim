@@ -42,7 +42,7 @@ pub mod bake_kurage {
 
     pub const I: EndPhaseCommands = EndPhaseCommands(list8![
         Command::DealDMG(deal_elem_dmg(Element::Hydro, 1, 0)),
-        Command::Heal(1),
+        Command::Heal(1, CmdCharIdx::Active),
     ]);
 }
 

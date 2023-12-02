@@ -4,7 +4,7 @@ pub const C: Card = Card {
     name: "Mushroom Pizza",
     cost: Cost::ONE,
     effects: list8![
-        Command::Heal(1),
+        Command::Heal(1, CmdCharIdx::CardSelected),
         Command::ApplyCharacterStatus(StatusId::MushroomPizza, CmdCharIdx::Active)
     ],
     card_type: CardType::Food,
@@ -25,7 +25,8 @@ impl StatusImpl for MushroomPizza {
     }
 
     fn trigger_event(&self, e: &mut TriggerEventContext) -> Option<AppliedEffectResult> {
-        e.out_cmds.push((*e.ctx_for_dmg, Command::Heal(1)));
+        e.out_cmds
+            .push((*e.ctx_for_dmg, Command::Heal(1, e.attached_cmd_char_idx())));
         Some(AppliedEffectResult::ConsumeUsage)
     }
 }

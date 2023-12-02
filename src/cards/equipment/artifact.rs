@@ -144,7 +144,8 @@ impl StatusImpl for HealArtifact {
                 return None;
             }
 
-            e.add_cmd(Command::Heal(self.heal));
+            // TODO use specific CharIdx?
+            e.add_cmd(Command::Heal(self.heal, CmdCharIdx::Active));
             return Some(AppliedEffectResult::ConsumeOncePerRound);
         }
 
@@ -153,7 +154,8 @@ impl StatusImpl for HealArtifact {
             return None;
         }
 
-        e.add_cmd(Command::Heal(self.heal));
+        // TODO use specific CharIdx?
+        e.add_cmd(Command::Heal(self.heal, CmdCharIdx::Active));
         Some(AppliedEffectResult::SetCounter(c - 1))
     }
 }
@@ -247,7 +249,7 @@ pub mod exiles_circlet {
                     continue;
                 }
 
-                e.add_cmd(Command::AddEnergyToCharacter(1, char_idx.into()));
+                e.add_cmd(Command::AddEnergy(1, char_idx.into()));
             }
             None
         }
@@ -281,7 +283,7 @@ pub mod ornate_kabuto {
                 return None;
             }
 
-            e.add_cmd(Command::AddEnergyToCharacter(1, own_char_idx.into()));
+            e.add_cmd(Command::AddEnergy(1, own_char_idx.into()));
             None
         }
     }

@@ -30,7 +30,7 @@ pub mod starsigns {
     pub const C: Card = Card {
         name: "Starsigns",
         cost: Cost::unaligned(2),
-        effects: list8![Command::AddEnergy(1)],
+        effects: list8![Command::AddEnergy(1, CmdCharIdx::Active)],
         card_type: CardType::Event,
         card_impl: None,
     };

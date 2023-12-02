@@ -87,7 +87,8 @@ pub mod radical_vitality {
             match e.event_id {
                 EventId::EndPhase => {
                     if stacks >= 3 {
-                        e.out_cmds.push((*e.ctx_for_dmg, Command::SetEnergy(0)));
+                        e.out_cmds
+                            .push((*e.ctx_for_dmg, Command::SetEnergyForActiveCharacter(0)));
                         Some(AppliedEffectResult::SetCounter(0))
                     } else {
                         None

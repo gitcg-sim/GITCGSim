@@ -27,7 +27,16 @@ impl StatusImpl for WangshuInn {
     fn trigger_event(&self, e: &mut TriggerEventContext) -> Option<AppliedEffectResult> {
         let EventId::EndPhase = e.event_id else { return None };
         // TODO heal most injured character
-        e.add_cmd(Command::Heal(2));
+        let Some(char_idx) =
+            e.c.src_player_state
+                .char_states
+                .enumerate_valid()
+                .min_by_key(|(_, c)| c.get_hp())
+                .map(|(i, _)| i)
+        else {
+            return Some(AppliedEffectResult::NoChange);
+        };
+        e.add_cmd(Command::Heal(2, char_idx.into()));
         Some(AppliedEffectResult::ConsumeUsage)
     }
 }

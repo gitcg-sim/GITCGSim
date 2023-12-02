@@ -80,7 +80,7 @@ impl SkillImpl for HavocObliteration {
             cmds.push((*ctx, Command::DealDMG(deal_elem_dmg(Element::Hydro, 7, 0))));
         } else {
             cmds.push((*ctx, Command::DealDMG(deal_elem_dmg(Element::Hydro, 4, 0))));
-            cmds.push((*ctx, Command::AddEnergy(2)));
+            cmds.push((*ctx, Command::AddEnergy(2, CmdCharIdx::Active)));
             cmds.push((*ctx, Command::ApplyCharacterStatusToTarget(StatusId::Riptide)));
         }
     }

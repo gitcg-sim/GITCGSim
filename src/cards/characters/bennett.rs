@@ -65,7 +65,7 @@ pub mod inspiration_field {
                 return None;
             };
             if cs.get_hp() <= 6 {
-                e.out_cmds.push((*e.ctx_for_dmg, Command::Heal(2)));
+                e.out_cmds.push((*e.ctx_for_dmg, Command::Heal(2, CmdCharIdx::Active)));
             }
             Some(AppliedEffectResult::NoChange)
         }

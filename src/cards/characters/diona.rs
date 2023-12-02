@@ -28,7 +28,7 @@ pub const SIGNATURE_MIX: Skill = Skill {
     cost: cost_elem(Element::Cryo, 3, 0, 3),
     deal_dmg: Some(deal_elem_dmg(Element::Cryo, 1, 0)),
     summon: Some(SummonSpec::One(SummonId::DrunkenMist)),
-    commands: list8![Command::Heal(2),],
+    commands: list8![Command::Heal(2, CmdCharIdx::Active),],
     ..Skill::new()
 };
 
@@ -48,6 +48,6 @@ pub mod drunken_mist {
 
     pub const I: EndPhaseCommands = EndPhaseCommands(list8![
         Command::DealDMG(DealDMG::new(DealDMGType::CRYO, 1, 0)),
-        Command::Heal(2)
+        Command::Heal(2, CmdCharIdx::Active)
     ]);
 }

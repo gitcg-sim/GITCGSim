@@ -337,8 +337,12 @@ impl SummonRandomSpec {
 #[derive(Debug, Clone, Copy, Default)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum CmdCharIdx {
+    /// Actice character.
     #[default]
     Active,
+    /// Selected by card. Panics if used outside of Card context.
+    CardSelected,
+    /// Specific character index.
     Index(u8),
 }
 
@@ -382,20 +386,18 @@ pub enum Command {
     TakeDMGForAffectedBy(StatusId, DealDMG),
     InternalDealSwirlDMG(Element, u8),
     /// Heal the active (or selected) character.
-    Heal(u8),
+    Heal(u8, CmdCharIdx),
     /// Heall all of the player's characters.
     HealAll(u8),
     /// Heal the character that has taken the most DMG.
     HealTakenMostDMG(u8),
-    /// Add energy to selected character of the player.
-    AddEnergy(u8),
+    /// Add energy the selected character.
+    AddEnergy(u8, CmdCharIdx),
     /// Add energy to one character without maximum energy (active prioritized.)
     AddEnergyWithoutMaximum(u8),
-    /// Add energy to character by index in the 2nd parameter.
-    AddEnergyToCharacter(u8, CmdCharIdx),
     AddEnergyToNonActiveCharacters(u8),
     /// Add energy to selected character of the player.
-    SetEnergy(u8),
+    SetEnergyForActiveCharacter(u8),
     /// For "Calx's Arts"
     ShiftEnergy,
     /// Increase the Usages/Duration/Shield Points of a status or summon.

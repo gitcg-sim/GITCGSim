@@ -73,7 +73,7 @@ pub mod fortune_preserving_talisman {
                 return None;
             }
 
-            e.add_cmd(Command::Heal(2));
+            e.add_cmd(Command::Heal(2, CmdCharIdx::Active));
             Some(AppliedEffectResult::ConsumeUsage)
         }
     }

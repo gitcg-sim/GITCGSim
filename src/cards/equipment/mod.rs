@@ -236,7 +236,7 @@ impl StatusImpl for FavoniusWeapon {
         let SkillType::ElementalSkill = e.get_event_skill_ensuring_attached_character()?.skill_type() else {
             return None;
         };
-        e.add_cmd(Command::AddEnergy(1));
+        e.add_cmd(Command::AddEnergy(1, CmdCharIdx::Active));
         Some(AppliedEffectResult::NoChange)
     }
 }

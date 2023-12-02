@@ -61,7 +61,7 @@ pub mod adeptal_legacy {
     decl_status_impl_type!(AdeptalLegacy, I);
     trigger_event_impl!(AdeptalLegacy, [Switched], |e| {
         e.cmd_deal_dmg(DealDMGType::DENDRO, 1, 0);
-        e.add_cmd(Command::Heal(1));
+        e.add_cmd(Command::Heal(1, CmdCharIdx::Active));
         Some(AppliedEffectResult::ConsumeUsage)
     });
 }
