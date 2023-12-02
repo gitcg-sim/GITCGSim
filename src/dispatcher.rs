@@ -175,8 +175,11 @@ impl GameState {
             }
         }
 
-        let player = self.get_player(player_id);
-        if player.status_collection.cannot_perform_actions(player.active_char_idx) {
+        if self
+            .get_player(player_id)
+            .status_collection
+            .cannot_perform_actions(self.get_player(player_id).active_char_idx)
+        {
             return Err(DispatchError::CannotCastSkills);
         }
 

@@ -374,7 +374,6 @@ pub enum Command {
     /// Cast a skill without paying cost or validating if it can be casted.
     /// This command is for implementing "Cast skill" commands.
     CastSkill(SkillId),
-    // TODO deprecate this
     TriggerEvent(EventId),
     TriggerXEvent(XEvent),
     SwitchCharacter(u8),
@@ -398,8 +397,8 @@ pub enum Command {
     AddEnergyToNonActiveCharacters(u8),
     /// Add energy to selected character of the player.
     SetEnergyForActiveCharacter(u8),
-    /// For "Calx's Arts"
-    ShiftEnergy,
+    /// For "Calx's Arts".
+    ShiftEnergyToActiveCharacter,
     /// Increase the Usages/Duration/Shield Points of a status or summon.
     /// The status must exist or else nothing happens. The usages/duration can go above the max stacks.
     IncreaseStatusUsages(StatusKey, u8),

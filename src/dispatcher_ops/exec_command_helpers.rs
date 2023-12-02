@@ -444,19 +444,6 @@ pub fn get_cast_skill_cmds(
     cmds
 }
 
-impl CommandSource {
-    #[inline]
-    pub(crate) fn selected_char_idx_or(&self, or_char_idx: u8) -> u8 {
-        match self {
-            CommandSource::Card {
-                target: Some(CardSelection::OwnCharacter(c)),
-                ..
-            } => *c,
-            _ => or_char_idx,
-        }
-    }
-}
-
 impl RelativeCharIdx {
     pub(crate) fn indexing_seq(self, char_idx: u8, n: u8) -> impl Iterator<Item = u8> {
         let i0 = char_idx;

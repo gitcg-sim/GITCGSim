@@ -654,17 +654,17 @@ impl GameState {
     }
 
     fn set_energy_for_active_character(&mut self, ctx: &CommandContext, energy: u8) -> ExecResult {
+        let char_idx = self.resolve_cmd_char_idx(ctx, CmdCharIdx::Active);
         let p = self.players.get_mut(ctx.src_player_id);
-        let char_idx = ctx.src.selected_char_idx_or(p.active_char_idx);
         if let Some(active_char) = p.try_get_character_mut(char_idx) {
             active_char.set_energy_hashed(chc!(self, ctx.src_player_id, char_idx), energy);
         }
         ExecResult::Success
     }
 
-    fn shift_energy(&mut self, ctx: &CommandContext) -> ExecResult {
+    fn shift_energy_to_active_character(&mut self, ctx: &CommandContext) -> ExecResult {
+        let char_idx = self.resolve_cmd_char_idx(ctx, CmdCharIdx::Active);
         let player = self.players.get_mut(ctx.src_player_id);
-        let char_idx = ctx.src.selected_char_idx_or(player.active_char_idx);
         let mut total = 0;
         for (i, char_state) in player.char_states.enumerate_valid_mut() {
             let i = i;
@@ -1158,7 +1158,7 @@ impl GameState {
             Command::AddEnergyWithoutMaximum(energy) => self.add_energy_without_maximum(ctx, energy),
             Command::AddEnergyToNonActiveCharacters(energy) => self.add_energy_to_non_active_characters(ctx, energy),
             Command::SetEnergyForActiveCharacter(energy) => self.set_energy_for_active_character(ctx, energy),
-            Command::ShiftEnergy => self.shift_energy(ctx),
+            Command::ShiftEnergyToActiveCharacter => self.shift_energy_to_active_character(ctx),
             Command::IncreaseStatusUsages(key, usages) => self.increase_status_usages(ctx, key, usages),
             Command::DeleteStatus(key) => self.delete_status(ctx, key),
             Command::DeleteStatusForTarget(key) => self.delete_status_for_target(ctx, key),

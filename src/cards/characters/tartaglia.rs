@@ -151,10 +151,9 @@ pub mod melee_stance {
                 return None;
             }
             e.consume_counter(|e, _| {
-                // TODO strict "next slot"?
                 e.add_cmd(Command::DealDMGRelative(
                     DealDMG::new_piercing(1),
-                    RelativeCharIdx::Next,
+                    RelativeCharIdx::ImmediateNext,
                 ));
             })
         }

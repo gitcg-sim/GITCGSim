@@ -5,5 +5,5 @@ pub const C: Card = Card {
     cost: Cost::ONE,
     card_type: CardType::Event,
     card_impl: None,
-    effects: list8![Command::ShiftEnergy,],
+    effects: list8![Command::ShiftEnergyToActiveCharacter],
 };
