@@ -11,7 +11,7 @@
 //! Enables `serde` support for the relevant datatypes.
 //!
 //! ### `wasm`
-//! Required for WebAssembly bilds.
+//! Required for WebAssembly builds. Also enables `serde` and `no_parallel`.
 //!
 //! ### `no_parallel`
 //! Disables parallelization (including `rayon` dependency).
@@ -62,9 +62,13 @@
 //!
 //! ## Hashing and mutation
 //!
-//! The game state is hashed incrementally through [Zobrist hashing]. If the game state is updated manually
-//! outside of `advance`, `game_state.rehash()` must be called to recopmute the has.
+//! The game state is hashed incrementally through [Zobrist hashing](https://www.chessprogramming.org/Zobrist_Hashing).
+//! If the game state is updated manually outside of `advance`,
+//! `game_state.rehash()` must be called to recopmute the hash.
 //!
+//! ## Adding new cards
+//!
+//! The TCG cards are **hard-coded** in this crate, therefore to add new cards you must acquire the source and recompile this crate.
 //! ```
 //! use gitcg_sim::prelude::*;
 //! use gitcg_sim::{vector, list8};
