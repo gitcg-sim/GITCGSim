@@ -625,14 +625,13 @@ impl GameState {
         };
 
         if let Some(char_idx) = char_idx {
-            self.add_energy_to_character(ctx, energy, char_idx.into())
+            self.add_energy(ctx, energy, char_idx.into())
         } else {
             ExecResult::Success
         }
     }
 
-    // TODO rename
-    fn add_energy_to_character(&mut self, ctx: &CommandContext, energy: u8, char_idx: CmdCharIdx) -> ExecResult {
+    fn add_energy(&mut self, ctx: &CommandContext, energy: u8, char_idx: CmdCharIdx) -> ExecResult {
         let char_idx = self.resolve_cmd_char_idx(ctx, char_idx);
         let p = self.players.get_mut(ctx.src_player_id);
         if let Some(active_char) = p.try_get_character_mut(char_idx) {
@@ -1143,31 +1142,31 @@ impl GameState {
         let res: ExecResult = match cmd {
             Command::Nop => ExecResult::Success,
             Command::CastSkill(skill_id) => self.cast_skill_from_cmd(ctx, skill_id),
-            Command::TriggerEvent(evt) => self.trigger_event(ctx, evt),
+            Command::TriggerEvent(event_id) => self.trigger_event(ctx, event_id),
             Command::TriggerXEvent(xevt) => self.trigger_xevent(ctx, xevt),
-            Command::SwitchCharacter(idx) => self.do_switch_character(ctx, idx),
-            Command::ApplyElementToSelf(e) => self.apply_element_to_self(ctx, e),
-            Command::DealDMG(d) => self.deal_dmg(ctx, d),
-            Command::TakeDMG(d) => self.take_dmg(ctx, d),
-            Command::DealDMGRelative(d, relative) => self.deal_dmg_relative(ctx, d, relative),
-            Command::TakeDMGForAffectedBy(status_id, d) => self.take_dmg_for_affected_by(ctx, status_id, d),
-            Command::InternalDealSwirlDMG(_, _) => panic!("Cannot execute InternalDealSwirlDMG command."),
+            Command::SwitchCharacter(char_idx) => self.do_switch_character(ctx, char_idx),
+            Command::ApplyElementToSelf(elem) => self.apply_element_to_self(ctx, elem),
+            Command::DealDMG(dmg) => self.deal_dmg(ctx, dmg),
+            Command::TakeDMG(dmg) => self.take_dmg(ctx, dmg),
+            Command::DealDMGRelative(dmg, relative) => self.deal_dmg_relative(ctx, dmg, relative),
+            Command::TakeDMGForAffectedBy(status_id, dmg) => self.take_dmg_for_affected_by(ctx, status_id, dmg),
+            Command::InternalDealSwirlDMG(..) => panic!("Cannot execute InternalDealSwirlDMG command."),
             Command::Heal(hp, char_idx) => self.heal(ctx, hp, char_idx),
-            Command::HealTakenMostDMG(v) => self.heal_taken_most_dmg(ctx, v),
+            Command::HealTakenMostDMG(hp) => self.heal_taken_most_dmg(ctx, hp),
             Command::HealAll(hp) => self.heal_all(ctx, hp),
-            Command::AddEnergy(v, char_idx) => self.add_energy_to_character(ctx, v, char_idx),
-            Command::AddEnergyWithoutMaximum(v) => self.add_energy_without_maximum(ctx, v),
-            Command::AddEnergyToNonActiveCharacters(v) => self.add_energy_to_non_active_characters(ctx, v),
-            Command::SetEnergyForActiveCharacter(v) => self.set_energy_for_active_character(ctx, v),
+            Command::AddEnergy(energy, char_idx) => self.add_energy(ctx, energy, char_idx),
+            Command::AddEnergyWithoutMaximum(energy) => self.add_energy_without_maximum(ctx, energy),
+            Command::AddEnergyToNonActiveCharacters(energy) => self.add_energy_to_non_active_characters(ctx, energy),
+            Command::SetEnergyForActiveCharacter(energy) => self.set_energy_for_active_character(ctx, energy),
             Command::ShiftEnergy => self.shift_energy(ctx),
             Command::IncreaseStatusUsages(key, usages) => self.increase_status_usages(ctx, key, usages),
             Command::DeleteStatus(key) => self.delete_status(ctx, key),
             Command::DeleteStatusForTarget(key) => self.delete_status_for_target(ctx, key),
             Command::RerollDice => self.reroll_dice(ctx),
-            Command::AddDice(d) => self.add_dice(ctx, &d),
-            Command::SubtractDice(d) => self.subtract_dice(ctx, &d),
+            Command::AddDice(dice) => self.add_dice(ctx, &dice),
+            Command::SubtractDice(dice) => self.subtract_dice(ctx, &dice),
             Command::AddCardsToHand(cards) => self.add_cards_to_hand(ctx.src_player_id, &cards),
-            Command::DrawCards(n, t) => self.draw_cards(ctx, n, t),
+            Command::DrawCards(count, card_type) => self.draw_cards(ctx, count, card_type),
             Command::ApplyCharacterStatus(status_id, char_idx) => self.apply_character_status(ctx, status_id, char_idx),
             Command::ApplyEquipment(slot, status_id, char_idx) => self.apply_equipment(ctx, slot, status_id, char_idx),
             Command::ApplyTalent(status_id, char_idx) => self.apply_talent_to_character(ctx, status_id, char_idx),
