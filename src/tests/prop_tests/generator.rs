@@ -1,34 +1,51 @@
+use std::ops::Range;
+
 use enum_map::Enum;
 
 use proptest::prelude::*;
+use rand::seq::SliceRandom;
 use rand::{rngs::SmallRng, SeedableRng};
 
 use crate::builder::GameStateBuilder;
 use crate::cards::ids::{CardId, SummonId};
 use crate::types::input::{Input, PlayerAction};
 use crate::types::{game_state::*, nondet::*};
-use crate::{cards::ids::CharId, data_structures::*, deck::Decklist, game_tree_search::*, vector};
+use crate::{cards::ids::CharId, data_structures::*, deck::Decklist, game_tree_search::*};
+
+pub fn arb_enum<E: std::fmt::Debug + Enum>() -> impl Strategy<Value = E> {
+    (0..E::LENGTH).prop_map(E::from_usize)
+}
+
+pub fn arb_distinct_vec<
+    E: Copy + std::hash::Hash + std::fmt::Debug + std::cmp::Eq,
+    T: Strategy<Value = E>,
+    S: Into<proptest::sample::SizeRange>,
+>(
+    element: T,
+    size: S,
+) -> impl Strategy<Value = Vector<E>> {
+    proptest::collection::hash_set(element, size.into())
+        .prop_map(|s| s.iter().copied().collect())
+        .prop_perturb(|mut v: Vector<E>, mut rng| {
+            v.shuffle(&mut rng);
+            v
+        })
+}
 
 pub fn arb_char_id() -> impl Strategy<Value = CharId> {
-    (0..CharId::LENGTH).prop_map(CharId::from_usize)
+    arb_enum()
 }
 
 pub fn arb_char_ids() -> impl Strategy<Value = Vector<CharId>> {
-    (1..=3, arb_char_id(), arb_char_id(), arb_char_id())
-        .prop_filter("Characters must be distinct.", |(_, a, b, c)| {
-            a != b && a != c && b != c
-        })
-        .prop_map(|(n, a, b, c)| -> Vector<CharId> {
-            let mut v = vector![];
-            v.push(a);
-            if n >= 2 {
-                v.push(b);
-            }
-            if n >= 3 {
-                v.push(c);
-            }
-            v
-        })
+    arb_distinct_vec(arb_char_id(), 1..=3)
+}
+
+pub fn arb_char_ids_containing(char_id: CharId) -> impl Strategy<Value = Vector<CharId>> {
+    arb_distinct_vec(arb_char_id(), 0..=2).prop_perturb(move |mut v: Vector<CharId>, mut rng| {
+        v.push(char_id);
+        v.shuffle(&mut rng);
+        v
+    })
 }
 
 prop_compose! {
@@ -65,6 +82,11 @@ prop_compose! {
     }
 }
 
+/// Deck does not validate.
+pub fn arb_decklist_with_chars(chars: impl Strategy<Value = Vector<CharId>>) -> impl Strategy<Value = Decklist> {
+    (chars, arb_deck()).prop_map(|(chars, cards)| Decklist::new(chars, cards))
+}
+
 prop_compose! {
     pub fn arb_init_game_state_wrapper()(
         seed in any::<u64>(),
@@ -75,23 +97,87 @@ prop_compose! {
     }
 }
 
-prop_compose! {
-    pub fn arb_reachable_game_state_wrapper()(steps in 0..50, seed in any::<u64>(), init_gs in arb_init_game_state_wrapper()) -> GameStateWrapper<StandardNondetHandlerState> {
-        let mut gs = init_gs;
-        let mut rng = SmallRng::seed_from_u64(seed);
-        for _ in 0..steps {
-            let Some(..) = gs.to_move() else { break; };
-            let acts = gs.actions();
-            let act = acts[rng.gen_range(0..acts.len())];
-            if let Err(e) = gs.advance(act) {
-                dbg!(&gs);
-                dbg!(&act);
-                panic!("{e:?}");
-            }
-        }
-        gs.game_state.rehash();
-        gs
+pub struct ArbGameState<D1: Strategy<Value = Decklist>, D2: Strategy<Value = Decklist>> {
+    pub arb_deck1: D1,
+    pub arb_deck2: D2,
+}
+
+impl<D1: Strategy<Value = Decklist>, D2: Strategy<Value = Decklist>> ArbGameState<D1, D2> {
+    pub fn new(arb_deck1: D1, arb_deck2: D2) -> Self {
+        Self { arb_deck1, arb_deck2 }
     }
+
+    // TODO remove this warning if needed
+    #[allow(dead_code)]
+    pub fn arb_game_state(self) -> impl Strategy<Value = GameState> {
+        (self.arb_deck1, self.arb_deck2).prop_map(|(d1, d2)| {
+            GameStateBuilder::default()
+                .characters(d1.characters, d2.characters)
+                .start_at_select_character()
+                .build()
+        })
+    }
+
+    pub fn arb_game_state_wrapper(self) -> impl Strategy<Value = GameStateWrapper<StandardNondetHandlerState>> {
+        (self.arb_deck1, self.arb_deck2, any::<u64>()).prop_map(|(d1, d2, rng)| {
+            let state = StandardNondetHandlerState::new(&d1, &d2, SmallRng::seed_from_u64(rng).into());
+            let gs = GameStateBuilder::default()
+                .characters(d1.characters, d2.characters)
+                .skip_to_roll_phase()
+                .build();
+            GameStateWrapper::new(gs, NondetProvider::new(state))
+        })
+    }
+
+    pub fn arb_reachable(self) -> ArbReachableGameStateWrapper<impl Strategy<Value = GameStateWrapper>> {
+        ArbReachableGameStateWrapper::new(self.arb_game_state_wrapper())
+    }
+}
+
+pub struct ArbReachableGameStateWrapper<T: Strategy<Value = GameStateWrapper<StandardNondetHandlerState>>> {
+    pub steps: Range<usize>,
+    pub arb_init_game_state_wrapper: T,
+    pub arb_seed: <u64 as Arbitrary>::Strategy,
+}
+
+impl<T: Strategy<Value = GameStateWrapper<StandardNondetHandlerState>>> ArbReachableGameStateWrapper<T> {
+    const MAX_STEPS: usize = 50usize;
+    pub fn new(arb_init_game_state_wrapper: T) -> Self {
+        Self {
+            steps: 0..Self::MAX_STEPS,
+            arb_init_game_state_wrapper,
+            arb_seed: u64::arbitrary(),
+        }
+    }
+
+    pub fn arb(self) -> impl Strategy<Value = GameStateWrapper<StandardNondetHandlerState>> {
+        (self.steps, self.arb_seed, self.arb_init_game_state_wrapper).prop_map(|(steps, seed, mut gs)| {
+            let mut rng = SmallRng::seed_from_u64(seed);
+            for _ in 0usize..steps {
+                let Some(..) = gs.to_move() else {
+                    break;
+                };
+                let acts = gs.actions();
+                let act = acts[rng.gen_range(0..acts.len())];
+                if let Err(e) = gs.advance(act) {
+                    dbg!(&gs);
+                    dbg!(&act);
+                    panic!("{e:?}");
+                }
+            }
+            gs.game_state.rehash();
+            gs
+        })
+    }
+}
+
+fn default_arb_game_state_config(
+) -> ArbReachableGameStateWrapper<impl Strategy<Value = GameStateWrapper<StandardNondetHandlerState>>> {
+    ArbReachableGameStateWrapper::new(arb_init_game_state_wrapper())
+}
+
+pub fn arb_reachable_game_state_wrapper() -> impl Strategy<Value = GameStateWrapper<StandardNondetHandlerState>> {
+    default_arb_game_state_config().arb()
 }
 
 prop_compose! {

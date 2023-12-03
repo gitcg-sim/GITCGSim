@@ -107,6 +107,7 @@ impl<C: CharactersState, S: StartingConditionState> GameStateBuilder<C, S> {
     }
 
     pub fn start_at_select_character(self) -> GameStateBuilder<C, HasStartingCondition> {
+        // TODO Select starting character broken?
         self.starting_condition(StartingCondition {
             starting_phase: StartingPhase::SelectStartingCharacter,
         })
