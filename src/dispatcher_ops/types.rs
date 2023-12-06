@@ -2,6 +2,7 @@ use crate::types::{
     card_defs::CardType, command::SummonRandomSpec, dice_counter::distribution::DiceDistribution, game_state::PlayerId,
 };
 
+// TODO refactor to use ByPlayer
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum NondetRequest {

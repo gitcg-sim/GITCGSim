@@ -418,7 +418,7 @@ pub enum Command {
     ApplyEquipment(EquipSlot, StatusId, CmdCharIdx),
     ApplyTalent(Option<StatusId>, CmdCharIdx),
     /// Ignores the context. Apply a character status state to the target player's active character.
-    InternalApplyCharacterStatusWithStateToActive(PlayerId, StatusId, AppliedEffectState),
+    InternalApplyCharacterStatusWithStateToActive(StatusId, AppliedEffectState),
     AddSupport(SupportSlot, SupportId),
     /// Apply a team status to the player.
     ApplyStatusToTeam(StatusId),

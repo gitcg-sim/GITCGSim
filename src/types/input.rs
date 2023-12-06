@@ -18,7 +18,9 @@ pub enum PlayerAction {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum NondetResult {
+    // TODO use ByPlayer
     ProvideDice(DiceCounter, DiceCounter),
+    // TODO use ByPlayer
     ProvideCards(List8<CardId>, List8<CardId>),
     ProvideSummonIds(List8<SummonId>),
 }

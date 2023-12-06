@@ -1,5 +1,7 @@
 pub mod state_ops;
 
+pub mod transpose;
+
 pub mod types;
 
 pub mod status_collection;

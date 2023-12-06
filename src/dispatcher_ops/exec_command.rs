@@ -575,9 +575,11 @@ impl GameState {
         }
 
         for (status_id, eff_state) in shifts_to_next_active {
+            let mut ctx = *ctx;
+            ctx.src_player_id = player_id;
             addl_cmds.push((
-                *ctx,
-                Command::InternalApplyCharacterStatusWithStateToActive(player_id, status_id, eff_state),
+                ctx,
+                Command::InternalApplyCharacterStatusWithStateToActive(status_id, eff_state),
             ));
         }
     }
@@ -1170,8 +1172,8 @@ impl GameState {
             Command::ApplyCharacterStatus(status_id, char_idx) => self.apply_character_status(ctx, status_id, char_idx),
             Command::ApplyEquipment(slot, status_id, char_idx) => self.apply_equipment(ctx, slot, status_id, char_idx),
             Command::ApplyTalent(status_id, char_idx) => self.apply_talent_to_character(ctx, status_id, char_idx),
-            Command::InternalApplyCharacterStatusWithStateToActive(player_id, status_id, eff_state) => {
-                self.apply_character_status_with_state_to_active(player_id, status_id, eff_state)
+            Command::InternalApplyCharacterStatusWithStateToActive(status_id, eff_state) => {
+                self.apply_character_status_with_state_to_active(ctx.src_player_id, status_id, eff_state)
             }
             Command::AddSupport(slot, support_id) => self.add_support(ctx, slot, support_id),
             Command::ApplyStatusToTeam(status_id) => self.apply_status_to_team(ctx, status_id),
