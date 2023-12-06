@@ -1,22 +1,44 @@
 use super::types::NondetRequest;
+use crate::status_impls::prelude::{Command, XEvent};
 use crate::types::by_player::ByPlayer;
 use crate::types::command::CommandContext;
 use crate::types::game_state::*;
 use crate::types::input::{Input, NondetResult};
 
 impl Input {
+    /// Swaps the roles of the two players.
+    /// See also: `GameState::transpose_in_place`
     pub fn transpose_in_place(&mut self) {
         match self {
-            Input::NoAction => {},
+            Input::NoAction => {}
             Input::NondetResult(r) => r.transpose_in_place(),
-            Input::FromPlayer(p, c) => p.flip(),
+            Input::FromPlayer(p, _) => p.flip(),
         }
     }
 
+    /// Swaps the roles of the two players.
+    /// See also: `GameState::transpose`
     pub fn transpose(self) -> Self {
-        let mut x = self;
-        x.transpose_in_place();
-        x
+        let mut input = self;
+        input.transpose_in_place();
+        input
+    }
+}
+
+impl XEvent {
+    fn transpose_in_place(&mut self) {
+        match self {
+            XEvent::DMG(dmg) => dmg.src_player_id.flip(),
+            XEvent::Skill(skill) => skill.src_player_id.flip(),
+        }
+    }
+}
+
+impl Command {
+    fn transpose_in_place(&mut self) {
+        if let Command::TriggerXEvent(xevt) = self {
+            xevt.transpose_in_place()
+        }
     }
 }
 
@@ -34,7 +56,7 @@ impl NondetResult {
         match self {
             NondetResult::ProvideDice(a, b) => std::mem::swap(a, b),
             NondetResult::ProvideCards(a, b) => std::mem::swap(a, b),
-            NondetResult::ProvideSummonIds(x) => {},
+            NondetResult::ProvideSummonIds(..) => {}
         }
     }
 }
@@ -110,15 +132,16 @@ impl PendingCommands {
             } => player_id.flip(),
             SuspendedState::NondetRequest(req) => req.transpose_in_place(),
         }
-        for (ctx, _) in self.pending_cmds.iter_mut() {
+        for (ctx, cmd) in self.pending_cmds.iter_mut() {
             ctx.transpose_in_place();
+            cmd.transpose_in_place();
         }
     }
 }
 
 impl GameState {
     /// Swaps the roles of the two players.
-    /// See also: `Input::transpose`
+    /// See also: `Input::transpose_in_place`
     pub fn transpose_in_place(&mut self) {
         self.players.transpose_in_place();
         if let Some(pending_cmds) = &mut self.pending_cmds {
@@ -126,5 +149,13 @@ impl GameState {
         }
         self.phase.transpose_in_place();
         self.rehash();
+    }
+
+    /// Swaps the roles of the two players.
+    /// See also: `Input::transpose`
+    pub fn transpose(&self) -> Self {
+        let mut gs = self.clone();
+        gs.transpose_in_place();
+        gs
     }
 }

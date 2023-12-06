@@ -18,6 +18,8 @@ pub(crate) const CASES: u32 = 5_000;
 
 pub mod state_evolution;
 
+pub mod transpose;
+
 pub mod zobrist_hash;
 
 #[cfg(feature = "serde")]
