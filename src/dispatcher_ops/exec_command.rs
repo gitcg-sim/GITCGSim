@@ -874,13 +874,13 @@ impl GameState {
     fn apply_team_status_to_target_player(&mut self, ctx: &CommandContext, status_id: StatusId) -> ExecResult {
         let status = status_id.get_status();
         if status.attach_mode != StatusAttachMode::Team {
-            panic!("apply_status_to_target_team: wrong StatusAttachMode");
+            panic!("apply_status_to_target_player: wrong StatusAttachMode");
         }
         if !status.applies_to_opposing {
-            panic!("apply_status_to_target_team: applies_to_opposing is false");
+            panic!("apply_status_to_target_player: applies_to_opposing is false");
         }
         let Some(tgt_player_id) = ctx.get_dmg_tgt_player_id() else {
-            panic!("apply_status_to_target_team: no target player");
+            panic!("apply_status_to_target_player: no target player");
         };
 
         self.log.log(Event::ApplyTeamStatus(tgt_player_id, status_id));
@@ -895,13 +895,13 @@ impl GameState {
     ) -> ExecResult {
         let status = status_id.get_status();
         if status.attach_mode != StatusAttachMode::Character {
-            panic!("apply_character_status_to_opponent_characters: wrong StatusAttachMode");
+            panic!("apply_character_status_to_all_opponent_characters: wrong StatusAttachMode");
         }
         if !status.applies_to_opposing {
-            panic!("apply_character_status_to_opponent_characters: applies_to_opposing is false");
+            panic!("apply_character_status_to_all_opponent_characters: applies_to_opposing is false");
         }
         let Some(tgt_player_id) = ctx.get_dmg_tgt_player_id() else {
-            panic!("apply_character_status_to_target: no target");
+            panic!("apply_character_status_to_all_opponent_characters: no target");
         };
 
         let tgt_char_states = &self.players[tgt_player_id].char_states;
@@ -932,7 +932,7 @@ impl GameState {
 
         let status = status_id.get_status();
         if status.attach_mode != StatusAttachMode::Character {
-            panic!("apply_status_to_target_team: wrong StatusAttachMode");
+            panic!("apply_character_status: wrong StatusAttachMode");
         }
         self.apply_or_refresh_status(ctx.src_player_id, StatusKey::Character(char_idx, status_id), status);
 
