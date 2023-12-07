@@ -26,7 +26,7 @@ pub enum DispatchResult {
 #[derive(Debug, PartialEq, Eq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum DispatchError {
-    InvalidInput(String),
+    InvalidInput(&'static str),
     NondetResultNotAllowed,
     NondetResultRequired,
     NondetResultInvalid,

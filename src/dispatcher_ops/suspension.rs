@@ -68,11 +68,9 @@ impl GameState {
                     }
                 }
                 PlayerAction::SwitchCharacter(_) => Err(DispatchError::InvalidInput(
-                    "post_death_switch: Use PostDeathSwitch instead.".to_string(),
+                    "post_death_switch: Use PostDeathSwitch instead.",
                 )),
-                _ => Err(DispatchError::InvalidInput(
-                    "post_death_switch: Invalid input.".to_string(),
-                )),
+                _ => Err(DispatchError::InvalidInput("post_death_switch: Invalid input.")),
             },
         }
     }

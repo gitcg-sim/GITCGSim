@@ -47,7 +47,7 @@ impl GameState {
             Ok((active_player_id, self.get_player(active_player_id).active_char_idx))
         } else {
             Err(DispatchError::InvalidInput(
-                "Cannot perform this action outside of Action Phase.".to_string(),
+                "Cannot perform this action outside of Action Phase.",
             ))
         }
     }
@@ -638,9 +638,7 @@ impl GameState {
                 };
                 Ok(DispatchResult::PlayerInput(player_id.opposite()))
             }
-            _ => Err(DispatchError::InvalidInput(format!(
-                "Must select a starting character for {active_player}."
-            ))),
+            _ => Err(DispatchError::InvalidInput("Must select a starting character.")),
         }
     }
 
@@ -653,9 +651,7 @@ impl GameState {
         match roll_phase_state {
             RollPhaseState::Start => match input {
                 Input::NondetResult(..) => Err(DispatchError::NondetResultNotAllowed),
-                Input::FromPlayer(..) => Err(DispatchError::InvalidInput(
-                    "RollPhase: Action is not allowed.".to_string(),
-                )),
+                Input::FromPlayer(..) => Err(DispatchError::InvalidInput("RollPhase: Action is not allowed.")),
                 Input::NoAction => {
                     if self.round_number == 1 {
                         self.apply_passives();
@@ -735,7 +731,7 @@ impl GameState {
             return None;
         };
         let Input::NoAction = input else {
-            return Some(Err(DispatchError::InvalidInput("Preparing skill".to_string())));
+            return Some(Err(DispatchError::InvalidInput("Preparing skill")));
         };
         let char_idx = key.char_idx().expect("Prepared skills must be character statuses.");
         if active_char_idx != char_idx {
@@ -828,7 +824,7 @@ impl GameState {
                 ])
                 .map(|opt| self.handle_post_exec(opt))
             }
-            _ => Err(DispatchError::InvalidInput("EndPhase: Invalid input".to_string())),
+            _ => Err(DispatchError::InvalidInput("EndPhase: Invalid input")),
         }
     }
 }
