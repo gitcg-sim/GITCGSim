@@ -68,6 +68,16 @@ impl PlayerId {
     }
 }
 
+impl SelectStartingCharacterState {
+    #[inline(always)]
+    fn flip(&mut self) {
+        match self {
+            SelectStartingCharacterState::Start { to_select } => to_select.flip(),
+            SelectStartingCharacterState::FirstSelected { to_select } => to_select.flip(),
+        }
+    }
+}
+
 impl ByPlayer<PlayerState> {
     #[inline(always)]
     fn transpose_in_place(&mut self) {
@@ -79,12 +89,7 @@ impl ByPlayer<PlayerState> {
 impl Phase {
     pub fn transpose_in_place(&mut self) {
         match self {
-            Phase::SelectStartingCharacter {
-                already_selected: Some(player_id),
-            } => {
-                player_id.flip();
-            }
-            Phase::SelectStartingCharacter { already_selected: None } => {}
+            Phase::SelectStartingCharacter { state } => state.flip(),
             Phase::RollPhase {
                 first_active_player,
                 roll_phase_state: _,

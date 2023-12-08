@@ -114,7 +114,7 @@ impl ZobristHasher {
 }
 
 impl Phase {
-    const VALUES: [Phase; 16] = [
+    const VALUES: [Phase; 20] = [
         Self::RollPhase {
             first_active_player: PlayerId::PlayerFirst,
             roll_phase_state: RollPhaseState::Start,
@@ -175,10 +175,31 @@ impl Phase {
         Self::WinnerDecided {
             winner: PlayerId::PlayerSecond,
         },
+        Self::SelectStartingCharacter {
+            state: SelectStartingCharacterState::Start {
+                to_select: PlayerId::PlayerFirst,
+            },
+        },
+        Self::SelectStartingCharacter {
+            state: SelectStartingCharacterState::Start {
+                to_select: PlayerId::PlayerSecond,
+            },
+        },
+        Self::SelectStartingCharacter {
+            state: SelectStartingCharacterState::FirstSelected {
+                to_select: PlayerId::PlayerFirst,
+            },
+        },
+        Self::SelectStartingCharacter {
+            state: SelectStartingCharacterState::FirstSelected {
+                to_select: PlayerId::PlayerSecond,
+            },
+        },
     ];
+    const COUNT: usize = Self::VALUES.len();
 
     #[inline]
-    fn to_index(self) -> usize {
+    const fn to_index(self) -> usize {
         match self {
             Self::RollPhase {
                 first_active_player: PlayerId::PlayerFirst,
@@ -240,13 +261,30 @@ impl Phase {
             Self::WinnerDecided {
                 winner: PlayerId::PlayerSecond,
             } => 15,
-            Self::SelectStartingCharacter { already_selected: None } => 16,
             Self::SelectStartingCharacter {
-                already_selected: Some(PlayerId::PlayerFirst),
+                state:
+                    SelectStartingCharacterState::Start {
+                        to_select: PlayerId::PlayerFirst,
+                    },
+            } => 16,
+            Self::SelectStartingCharacter {
+                state:
+                    SelectStartingCharacterState::Start {
+                        to_select: PlayerId::PlayerSecond,
+                    },
             } => 17,
             Self::SelectStartingCharacter {
-                already_selected: Some(PlayerId::PlayerSecond),
+                state:
+                    SelectStartingCharacterState::FirstSelected {
+                        to_select: PlayerId::PlayerFirst,
+                    },
             } => 18,
+            Self::SelectStartingCharacter {
+                state:
+                    SelectStartingCharacterState::FirstSelected {
+                        to_select: PlayerId::PlayerSecond,
+                    },
+            } => 19,
         }
     }
 }
@@ -434,5 +472,14 @@ impl StatusCollection {
         for (index, s) in self._status_entries.iter().enumerate() {
             s.zobrist_hash(h, index, player_id)
         }
+    }
+}
+
+#[cfg(test)]
+#[test]
+fn to_index_roundtrip() {
+    for (i, phase) in Phase::VALUES.iter().copied().enumerate() {
+        assert_eq!(phase, Phase::VALUES[phase.to_index()]);
+        assert_eq!(i, phase.to_index());
     }
 }

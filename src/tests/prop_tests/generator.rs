@@ -123,7 +123,7 @@ impl<D1: Strategy<Value = Decklist>, D2: Strategy<Value = Decklist>> ArbGameStat
             let state = StandardNondetHandlerState::new(&d1, &d2, SmallRng::seed_from_u64(rng).into());
             let gs = GameStateBuilder::default()
                 .characters(d1.characters, d2.characters)
-                .skip_to_roll_phase()
+                .start_at_select_character()
                 .build();
             GameStateWrapper::new(gs, NondetProvider::new(state))
         })
@@ -161,6 +161,7 @@ impl<T: Strategy<Value = GameStateWrapper<StandardNondetHandlerState>>> ArbReach
                 let act = acts[rng.gen_range(0..acts.len())];
                 if let Err(e) = gs.advance(act) {
                     dbg!(&gs);
+                    dbg!(&acts);
                     dbg!(&act);
                     panic!("{e:?}");
                 }

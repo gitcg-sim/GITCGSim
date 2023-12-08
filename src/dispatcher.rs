@@ -405,12 +405,10 @@ impl GameState {
         let mut acts = smallvec![];
 
         match self.phase {
-            Phase::SelectStartingCharacter { already_selected } => {
-                let player_id = Phase::select_starting_to_move(already_selected);
+            Phase::SelectStartingCharacter { state } => {
+                let player_id = state.active_player();
                 for (char_idx, _) in self.get_player(player_id).char_states.enumerate_valid() {
-                    if self.can_switch_to(player_id, char_idx) {
-                        acts.push(Input::FromPlayer(player_id, PlayerAction::SwitchCharacter(char_idx)));
-                    }
+                    acts.push(Input::FromPlayer(player_id, PlayerAction::SwitchCharacter(char_idx)));
                 }
             }
             Phase::ActionPhase {
@@ -539,9 +537,7 @@ impl GameState {
         }
 
         match self.phase {
-            Phase::SelectStartingCharacter { already_selected } => {
-                Some(Phase::select_starting_to_move(already_selected))
-            }
+            Phase::SelectStartingCharacter { state } => Some(state.active_player()),
             Phase::RollPhase { .. } => None,
             Phase::ActionPhase { active_player, .. } => {
                 let player = self.players.get(active_player);
@@ -592,9 +588,7 @@ impl GameState {
         }
 
         let res = match self.phase {
-            Phase::SelectStartingCharacter { already_selected } => {
-                self.advance_select_starting(input, already_selected)
-            }
+            Phase::SelectStartingCharacter { state } => self.advance_select_starting(input, state),
             Phase::RollPhase {
                 first_active_player: active_player,
                 roll_phase_state,
@@ -615,9 +609,9 @@ impl GameState {
     fn advance_select_starting(
         &mut self,
         input: Input,
-        already_selected: Option<PlayerId>,
+        state: SelectStartingCharacterState,
     ) -> Result<DispatchResult, DispatchError> {
-        let active_player = Phase::select_starting_to_move(already_selected);
+        let active_player = state.active_player();
         match input {
             Input::NondetResult(..) => Err(DispatchError::NondetResultNotAllowed),
             Input::FromPlayer(player_id, ..) if player_id != active_player => Err(DispatchError::InvalidPlayer),
@@ -627,12 +621,14 @@ impl GameState {
                     return Err(DispatchError::CannotSwitchInto);
                 }
                 self.get_player_mut(player_id).active_char_idx = char_idx;
-                self.phase = match already_selected {
-                    None => Phase::SelectStartingCharacter {
-                        already_selected: Some(player_id),
+                self.phase = match state {
+                    SelectStartingCharacterState::Start { to_select } => Phase::SelectStartingCharacter {
+                        state: SelectStartingCharacterState::FirstSelected {
+                            to_select: to_select.opposite(),
+                        },
                     },
-                    Some(..) => Phase::RollPhase {
-                        first_active_player: player_id.opposite(),
+                    SelectStartingCharacterState::FirstSelected { to_select } => Phase::RollPhase {
+                        first_active_player: to_select.opposite(),
                         roll_phase_state: Default::default(),
                     },
                 };

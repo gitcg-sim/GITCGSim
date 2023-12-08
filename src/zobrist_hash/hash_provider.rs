@@ -54,7 +54,7 @@ pub struct HashProvider {
     pub support_hashes: Box<ByPlayer<EnumMap<SupportSlot, EnumMap<SupportId, BoxStatusHashes>>>>,
     pub card_hashes: ByPlayer<EnumMap<CardId, [HashValue; CARD_COUNT]>>,
     pub dice_hashes: ByPlayer<[[HashValue; DICE_COUNT]; 8]>,
-    pub phase_hashes: [HashValue; 18],
+    pub phase_hashes: [HashValue; Phase::COUNT],
     pub other_hashes: ByPlayer<[HashValue; 32]>,
 }
 
@@ -130,7 +130,7 @@ impl HashProvider {
         let support_hashes = Box::new(by_player!(by_enum!(by_enum!(bs!()))));
         let card_hashes = by_player!(by_enum!(rand_array![random!(); CARD_COUNT]));
         let dice_hashes = by_player!(rand_array![[random!(); DICE_COUNT]; 8]);
-        let phase_hashes = rand_array![random!(); 18];
+        let phase_hashes = rand_array![random!(); Phase::COUNT];
         let other_hashes = by_player!(rand_array![random!(); 32]);
         Self {
             active_char_idx_hashes,

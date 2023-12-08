@@ -30,7 +30,7 @@ impl StartingCondition {
         match self.starting_phase {
             StartingPhase::RollPhase => Phase::new_roll_phase(PlayerId::PlayerFirst),
             StartingPhase::SelectStartingCharacter => Phase::SelectStartingCharacter {
-                already_selected: Default::default(),
+                state: Default::default(),
             },
         }
     }

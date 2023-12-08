@@ -131,9 +131,24 @@ pub enum RollPhaseState {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub enum SelectStartingCharacterState {
+    Start { to_select: PlayerId },
+    FirstSelected { to_select: PlayerId },
+}
+
+impl Default for SelectStartingCharacterState {
+    fn default() -> Self {
+        Self::Start {
+            to_select: PlayerId::PlayerFirst,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum Phase {
     SelectStartingCharacter {
-        already_selected: Option<PlayerId>,
+        state: SelectStartingCharacterState,
     },
     RollPhase {
         first_active_player: PlayerId,
@@ -149,6 +164,16 @@ pub enum Phase {
     WinnerDecided {
         winner: PlayerId,
     },
+}
+
+impl SelectStartingCharacterState {
+    #[inline]
+    pub fn active_player(self) -> PlayerId {
+        match self {
+            Self::Start { to_select } => to_select,
+            Self::FirstSelected { to_select } => to_select,
+        }
+    }
 }
 
 impl Phase {
@@ -169,9 +194,7 @@ impl Phase {
     #[inline]
     pub fn active_player(&self) -> Option<PlayerId> {
         match self {
-            Phase::SelectStartingCharacter { already_selected } => {
-                Some(Self::select_starting_to_move(*already_selected))
-            }
+            Phase::SelectStartingCharacter { state } => Some(state.active_player()),
             Phase::ActionPhase { active_player, .. } => Some(*active_player),
             _ => None,
         }
