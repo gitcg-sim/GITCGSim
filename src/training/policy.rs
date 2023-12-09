@@ -65,6 +65,13 @@ impl Default for PolicyNetwork {
     }
 }
 
+// pub struct SelectionPolicyState {
+//     pub mult: f32,
+//     pub y: Tensor<Rank1<K>, f32, Cpu>,
+//     pub move_evals: Vec<Tensor<Rank1<K>, f32, Cpu>>,
+//     // TODO continue
+// }
+
 impl<S: NondetState> SelectionPolicy<GameStateWrapper<S>> for PolicyNetwork {
     type State = (f32, Tensor1D<K>);
 
@@ -77,14 +84,15 @@ impl<S: NondetState> SelectionPolicy<GameStateWrapper<S>> for PolicyNetwork {
         if !ctx.is_maximize {
             gs.transpose_in_place();
         }
-        x.copy_from(&gs.features().as_slice());
+        let slice = gs.express_features().as_slice();
+        x.copy_from(&slice);
         let y = model.forward(x);
         (ctx.config.c * (n_parent as f32).sqrt(), y)
     }
 
     fn uct_child_factor(
         &self,
-        _: &SelectionPolicyContext<GameStateWrapper<S>>,
+        ctx: &SelectionPolicyContext<GameStateWrapper<S>>,
         child: &Node<GameStateWrapper<S>>,
         (f, y): &Self::State,
     ) -> f32 {
@@ -96,7 +104,13 @@ impl<S: NondetState> SelectionPolicy<GameStateWrapper<S>> for PolicyNetwork {
         let mm = y.clone().square().sum().array();
         w.axpy(1, y, 1);
         let v = w.sum().array() / (ww * mm).sqrt();
+
+        let a = if let Some(a) = ctx.config.random_playout_bias {
+            (v * a).exp().clamp(1e-2, 1e2)
+        } else {
+            v
+        };
         let n_child = child.prop.n + 1;
-        (v * f / (n_child as f32)).sqrt()
+        (a * f / (n_child as f32)).sqrt()
     }
 }

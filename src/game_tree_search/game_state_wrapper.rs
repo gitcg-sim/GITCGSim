@@ -54,7 +54,8 @@ pub fn new_standard_game(
     rng: SmallRng,
 ) -> GameStateWrapper<StandardNondetHandlerState> {
     let game_state = {
-        GameStateBuilder::new_skip_to_roll_phase(decklist1.characters.clone(), decklist2.characters.clone())
+        GameStateBuilder::new(decklist1.characters.clone(), decklist2.characters.clone())
+            .start_at_select_character()
             .enable_log(false)
             .build()
     };

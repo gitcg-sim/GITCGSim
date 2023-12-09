@@ -65,6 +65,7 @@ path = "src/lib.rs"
 [[bin]]
 name = "gitcg_sim_benchmark"
 path = "benchmark/main.rs"
+required-features = ["training"]
 
 [dependencies]
 atree = { version = "0.5.*" }

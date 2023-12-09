@@ -81,6 +81,7 @@ pub struct SearchConfig {
     #[structopt(long = "--mcts-playout-bias", help = "MCTS: random playout bias")]
     pub mcts_random_playout_bias: Option<f32>,
 
+    #[cfg(feature = "training")]
     #[structopt(long = "--mcts-policy-npz-path", help = "MCTS: Path to policy .npz file")]
     pub mcts_policy_npz_path: Option<PathBuf>,
 
@@ -148,7 +149,7 @@ pub struct SearchOpts {
 
 impl DeckGen {
     pub fn get_decks<R: Rng>(&self, rng: &mut R) -> Result<(Decklist, Decklist), std::io::Error> {
-        let mut get_deck = |path: &Option<PathBuf>| -> Result<Decklist, std::io::Error> {
+        let mut get_deck = move |path: &Option<PathBuf>| -> Result<Decklist, std::io::Error> {
             match path {
                 None => {
                     if self.random_decks {
@@ -174,11 +175,8 @@ impl SearchOpts {
 
     pub fn get_standard_game(&self, rng: Option<SmallRng>) -> Result<GameStateWrapper, std::io::Error> {
         let (d1, d2) = self.get_decks()?;
-        let mut game = new_standard_game(
-            &d1,
-            &d2,
-            rng.unwrap_or_else(|| SmallRng::seed_from_u64(self.seed.unwrap_or(100))),
-        );
+        let rng = rng.unwrap_or_else(|| SmallRng::seed_from_u64(self.seed.unwrap_or(100)));
+        let mut game = new_standard_game(&d1, &d2, rng);
         if self.tactical {
             game.convert_to_tactical_search();
         }
@@ -243,15 +241,13 @@ impl SearchConfig {
             }
             SearchAlgorithm::MCTS => {
                 let config = MCTSConfig {
-                    c: self.mcts_c.unwrap_or(3.5),
-                    random_playout_bias: self.mcts_random_playout_bias,
-                    tt_size_mb: self
-                        .tt_size_mb
-                        .unwrap_or(crate::minimax::transposition_table::DEFAULT_SIZE_MB),
+                    c: self.mcts_c.unwrap_or(2.0),
+                    tt_size_mb: self.tt_size_mb.unwrap_or(32),
                     limits,
                     parallel,
-                    random_playout_iters: self.mcts_random_playout_iters.unwrap_or(500),
-                    random_playout_cutoff: self.mcts_random_playout_max_steps.unwrap_or(200),
+                    random_playout_iters: self.mcts_random_playout_iters.unwrap_or(10),
+                    random_playout_cutoff: self.mcts_random_playout_max_steps.unwrap_or(20),
+                    random_playout_bias: self.mcts_random_playout_bias,
                     debug: self.debug,
                 };
                 #[cfg(feature = "training")]

@@ -224,19 +224,38 @@ fn main() -> Result<(), std::io::Error> {
      -> Result<(f32, Duration), std::io::Error> {
         let deck_opts = opts.deck();
         let t0 = Instant::now();
-        let opts = get_standard_search_opts();
+        let standard_opts = get_standard_search_opts();
         let (score, total_counter) = (0..rounds)
             .into_par_iter()
             .map(|i| {
                 let mut search = ByPlayer(
                     deck_opts.make_search(parallel, deck_opts.get_limits()),
-                    opts.make_search(parallel, opts.get_limits()),
+                    standard_opts.make_search(parallel, standard_opts.get_limits()),
                 );
                 let rng = SmallRng::seed_from_u64(deck_opts.seed.unwrap_or_default().overflowing_mul(i as u64).0);
                 let game = deck_opts.get_standard_game(Some(rng)).unwrap();
-                println!("Round {:3}", i + 1);
+                if i == 0 {
+                    let search_configs = ByPlayer::new(
+                        (&deck_opts.search, deck_opts.get_limits()),
+                        (&standard_opts, standard_opts.get_limits()),
+                    );
+                    dbg!(&search_configs);
+                    dbg!(&game);
+                }
+
+                println!("+ Round {:3}", i + 1);
                 let (winner, dt, c) = match_round(game, &mut search, steps);
-                println!("Round {:3} ... {winner:?} {:.2}ms", i + 1, dt.as_millis());
+                let winner_str: &'static str = match winner {
+                    None => "1/2",
+                    Some(PlayerId::PlayerFirst) => "1-0",
+                    Some(PlayerId::PlayerSecond) => "0-1",
+                };
+                println!(
+                    "- Round {:3} ... {winner_str} dt={:6.2}ms, states_visited={:8}",
+                    i + 1,
+                    dt.as_millis(),
+                    c.states_visited
+                );
                 let d_score = match winner {
                     Some(PlayerId::PlayerFirst) => 2,
                     Some(PlayerId::PlayerSecond) => 0,
