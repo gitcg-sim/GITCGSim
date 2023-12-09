@@ -19,6 +19,9 @@ use crate::{
 
 use super::{random_decklist, read_decklist_from_file, Decklist};
 
+#[cfg(feature = "training")]
+use crate::training::policy::PolicyNetwork;
+
 #[derive(Debug, Copy, Clone)]
 pub enum SearchAlgorithm {
     Minimax,
@@ -77,6 +80,9 @@ pub struct SearchConfig {
 
     #[structopt(long = "--mcts-playout-bias", help = "MCTS: random playout bias")]
     pub mcts_random_playout_bias: Option<f32>,
+
+    #[structopt(long = "--mcts-policy-npz-path", help = "MCTS: Path to policy .npz file")]
+    pub mcts_policy_npz_path: Option<PathBuf>,
 
     #[structopt(
         short = "T",
@@ -183,6 +189,8 @@ impl SearchOpts {
 pub enum GenericSearch<S: NondetState = StandardNondetHandlerState> {
     Minimax(MinimaxSearch<GameStateWrapper<S>>),
     MCTS(MCTS<GameStateWrapper<S>>),
+    #[cfg(feature = "training")]
+    MCTSPolicy(MCTS<GameStateWrapper<S>, crate::mcts::policy::DefaultEvalPolicy, PolicyNetwork>),
     RuleBasedSearch(RuleBasedSearch),
     Random,
 }
@@ -207,6 +215,8 @@ impl<S: NondetState> GameTreeSearch<GameStateWrapper<S>> for GenericSearch<S> {
         match self {
             Self::Minimax(s) => s.search(position, maximize_player),
             Self::MCTS(s) => s.search(position, maximize_player),
+            #[cfg(feature = "training")]
+            Self::MCTSPolicy(s) => s.search(position, maximize_player),
             Self::RuleBasedSearch(s) => s.search(position, maximize_player),
             Self::Random => random_search(position),
         }
@@ -244,6 +254,15 @@ impl SearchConfig {
                     random_playout_cutoff: self.mcts_random_playout_max_steps.unwrap_or(200),
                     debug: self.debug,
                 };
+                #[cfg(feature = "training")]
+                if let Some(npz_path) = &self.mcts_policy_npz_path {
+                    let selection_policy = PolicyNetwork::from_npz(npz_path).expect("Failed to load .npz.");
+                    return GenericSearch::MCTSPolicy(MCTS::new_with_eval_policy_and_selection_policy(
+                        config,
+                        Default::default(),
+                        selection_policy,
+                    ));
+                }
                 GenericSearch::MCTS(MCTS::new(config))
             }
             SearchAlgorithm::RuleBasedSearch => {

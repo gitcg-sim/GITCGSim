@@ -115,6 +115,7 @@ impl Add for SearchCounter {
 #[derive(Debug, Clone)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct SearchResult<G: Game> {
+    /// Principal Variation
     pub pv: PV<G>,
     pub eval: G::Eval,
     pub counter: SearchCounter,

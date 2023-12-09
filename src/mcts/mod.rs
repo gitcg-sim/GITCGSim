@@ -534,7 +534,7 @@ impl<G: Game, E: EvalPolicy<G>, S: SelectionPolicy<G>> MCTS<G, E, S> {
     }
 }
 
-impl<G: Game, E: EvalPolicy<G>> GameTreeSearch<G> for MCTS<G, E> {
+impl<G: Game, E: EvalPolicy<G>, S: SelectionPolicy<G>> GameTreeSearch<G> for MCTS<G, E, S> {
     fn search(&mut self, position: &G, maximize_player: PlayerId) -> SearchResult<G> {
         if position.winner().is_some() {
             return Default::default();
