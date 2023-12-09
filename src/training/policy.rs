@@ -1,9 +1,14 @@
 use dfdx::prelude::*;
 use std::path::PathBuf;
 
-use crate::training::{
-    as_slice::*,
-    features::{Features, InputFeatures},
+use crate::{
+    mcts::{policy::*, Node},
+    prelude::GameStateWrapper,
+    training::{
+        as_slice::*,
+        features::{Features, InputFeatures},
+    },
+    types::nondet::NondetState,
 };
 
 // const H: usize = 3;
@@ -15,7 +20,7 @@ pub type Model = (Linear<N, K>, Sigmoid);
 #[derive(Debug, Clone)]
 pub struct PolicyNetwork {
     pub dev: Cpu,
-    pub model: <(Linear<N, K>, Sigmoid) as dfdx::nn::BuildOnDevice<Cpu, f32>>::Built,
+    pub model: <Model as dfdx::nn::BuildOnDevice<Cpu, f32>>::Built,
 }
 
 impl PolicyNetwork {
@@ -57,5 +62,41 @@ impl PolicyNetwork {
 impl Default for PolicyNetwork {
     fn default() -> Self {
         Self::new()
+    }
+}
+
+impl<S: NondetState> SelectionPolicy<GameStateWrapper<S>> for PolicyNetwork {
+    type State = (f32, Tensor1D<K>);
+
+    fn uct_parent_factor(&self, ctx: &SelectionPolicyContext<GameStateWrapper<S>>) -> Self::State {
+        let parent = ctx.parent;
+        let n_parent = parent.prop.n;
+        let model = &self.model;
+        let mut x: Tensor<Rank1<N>, f32, Cpu> = self.dev.zeros();
+        let mut gs = parent.state.game_state.clone();
+        if !ctx.is_maximize {
+            gs.transpose_in_place();
+        }
+        x.copy_from(&gs.features().as_slice());
+        let y = model.forward(x);
+        (ctx.config.c * (n_parent as f32).sqrt(), y)
+    }
+
+    fn uct_child_factor(
+        &self,
+        _: &SelectionPolicyContext<GameStateWrapper<S>>,
+        child: &Node<GameStateWrapper<S>>,
+        (f, y): &Self::State,
+    ) -> f32 {
+        let mut w: Tensor<Rank1<K>, f32, Cpu> = self.dev.zeros();
+        if let Some(a) = child.action {
+            w.copy_from(&a.features(1f32).as_slice());
+        }
+        let ww = w.clone().square().sum().array();
+        let mm = y.clone().square().sum().array();
+        w.axpy(1, y, 1);
+        let v = w.sum().array() / (ww * mm).sqrt();
+        let n_child = child.prop.n + 1;
+        (v * f / (n_child as f32)).sqrt()
     }
 }

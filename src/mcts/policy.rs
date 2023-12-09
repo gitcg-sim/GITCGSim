@@ -14,26 +14,26 @@ impl<G: Game> EvalPolicy<G> for DefaultEvalPolicy {
     }
 }
 
+pub struct SelectionPolicyContext<'a, 'b, G: Game> {
+    pub config: &'a MCTSConfig,
+    pub parent: &'b Node<G>,
+    pub is_maximize: bool,
+}
+
 pub trait SelectionPolicy<G: Game>: Send + Sync {
-    type ParentFactor: Copy + Clone;
-    fn uct_parent_factor(&self, config: &MCTSConfig, parent: &Node<G>) -> Self::ParentFactor;
-    fn uct_child_factor(
-        &self,
-        config: &MCTSConfig,
-        parent: &Node<G>,
-        child: &Node<G>,
-        parent_factor: Self::ParentFactor,
-    ) -> f32;
+    type State;
+    fn uct_parent_factor(&self, ctx: &SelectionPolicyContext<G>) -> Self::State;
+    fn uct_child_factor(&self, ctx: &SelectionPolicyContext<G>, child: &Node<G>, state: &Self::State) -> f32;
 }
 
 #[derive(Default, Copy, Clone)]
 pub struct NoneUCT;
 impl<G: Game> SelectionPolicy<G> for NoneUCT {
-    type ParentFactor = ();
+    type State = ();
 
-    fn uct_parent_factor(&self, _: &MCTSConfig, _: &Node<G>) {}
+    fn uct_parent_factor(&self, _: &SelectionPolicyContext<G>) {}
 
-    fn uct_child_factor(&self, _: &MCTSConfig, _: &Node<G>, _: &Node<G>, _: ()) -> f32 {
+    fn uct_child_factor(&self, _: &SelectionPolicyContext<G>, _: &Node<G>, _: &Self::State) -> f32 {
         0f32
     }
 }
@@ -42,15 +42,15 @@ impl<G: Game> SelectionPolicy<G> for NoneUCT {
 pub struct UCB1;
 
 impl<G: Game> SelectionPolicy<G> for UCB1 {
-    type ParentFactor = f32;
+    type State = f32;
 
-    fn uct_parent_factor(&self, config: &MCTSConfig, parent: &Node<G>) -> f32 {
-        let n_parent = parent.prop.n;
-        config.c * (n_parent as f32).ln_1p()
+    fn uct_parent_factor(&self, ctx: &SelectionPolicyContext<G>) -> f32 {
+        let n_parent = ctx.parent.prop.n;
+        ctx.config.c * (n_parent as f32).ln_1p()
     }
 
-    fn uct_child_factor(&self, _: &MCTSConfig, _: &Node<G>, child: &Node<G>, parent_factor: f32) -> f32 {
+    fn uct_child_factor(&self, _: &SelectionPolicyContext<G>, child: &Node<G>, factor: &f32) -> f32 {
         let n_child = child.prop.n + 1;
-        (parent_factor / (n_child as f32)).sqrt()
+        (factor / (n_child as f32)).sqrt()
     }
 }

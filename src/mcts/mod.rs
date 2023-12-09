@@ -13,7 +13,7 @@ use rand::{distributions::WeightedIndex, prelude::Distribution, thread_rng, Rng}
 use rayon::prelude::*;
 use smallvec::SmallVec;
 
-use self::policy::{DefaultEvalPolicy, EvalPolicy, SelectionPolicy, UCB1};
+use self::policy::{DefaultEvalPolicy, EvalPolicy, SelectionPolicy, SelectionPolicyContext, UCB1};
 
 pub mod policy;
 
@@ -184,7 +184,7 @@ impl<G: Game, E: EvalPolicy<G> + Default> MCTS<G, E> {
     }
 }
 
-impl<G: Game, E: EvalPolicy<G>> MCTS<G, E> {
+impl<G: Game, E: EvalPolicy<G>, S: SelectionPolicy<G>> MCTS<G, E, S> {
     fn init(&mut self, init: G, maximize_player: PlayerId) -> Token {
         let hash = init.zobrist_hash();
         let root = Node::new(init, None);
@@ -225,11 +225,16 @@ impl<G: Game, E: EvalPolicy<G>> MCTS<G, E> {
         let best = {
             let Self { config, tt, tree, .. } = &self;
             let parent = &node.data;
-            let parent_factor = policy.uct_parent_factor(config, parent);
+            let ctx = SelectionPolicyContext {
+                config,
+                parent,
+                is_maximize,
+            };
+            let state = policy.uct_parent_factor(&ctx);
             node.children(tree).max_by_key(move |&child| {
                 let child_node = &child.data;
                 let (ratio, _) = child_node.ratio_with_transposition(is_maximize, tt, tt_hits.clone());
-                let uct = policy.uct_child_factor(config, parent, child_node, parent_factor);
+                let uct = policy.uct_child_factor(&ctx, child_node, &state);
                 let bandit = ratio + uct;
                 (1e6 * bandit) as u32
             })
