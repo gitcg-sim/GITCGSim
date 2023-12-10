@@ -228,27 +228,43 @@ fn main() -> Result<(), std::io::Error> {
         let (score, total_counter) = (0..rounds)
             .into_par_iter()
             .map(|i| {
+                let flip = i % 2 == 0;
                 let mut search = ByPlayer(
                     deck_opts.make_search(parallel, deck_opts.get_limits()),
                     standard_opts.make_search(parallel, standard_opts.get_limits()),
                 );
+                if flip {
+                    std::mem::swap(&mut search.0, &mut search.1);
+                }
                 let rng = SmallRng::seed_from_u64(deck_opts.seed.unwrap_or_default().overflowing_mul(i as u64).0);
                 let game = deck_opts.get_standard_game(Some(rng)).unwrap();
-                if i == 0 {
-                    let search_configs = ByPlayer::new(
-                        (&deck_opts.search, deck_opts.get_limits()),
-                        (&standard_opts, standard_opts.get_limits()),
-                    );
-                    dbg!(&search_configs);
-                    dbg!(&game);
-                }
+                // if i == 0 {
+                //     let search_configs = ByPlayer::new(
+                //         (&deck_opts.search, deck_opts.get_limits()),
+                //         (&standard_opts, standard_opts.get_limits()),
+                //     );
+                //     dbg!(&search_configs);
+                //     dbg!(&game);
+                // }
 
                 println!("+ Round {:3}", i + 1);
                 let (winner, dt, c) = match_round(game, &mut search, steps);
-                let winner_str: &'static str = match winner {
-                    None => "1/2",
-                    Some(PlayerId::PlayerFirst) => "1-0",
-                    Some(PlayerId::PlayerSecond) => "0-1",
+                let (winner_str, d_score) = match winner {
+                    Some(PlayerId::PlayerFirst) => {
+                        if flip {
+                            ("0-1", 0)
+                        } else {
+                            ("1-0", 2)
+                        }
+                    }
+                    Some(PlayerId::PlayerSecond) => {
+                        if flip {
+                            ("1-0", 2)
+                        } else {
+                            ("0-1", 0)
+                        }
+                    }
+                    None => ("1/2", 1),
                 };
                 println!(
                     "- Round {:3} ... {winner_str} dt={:6.2}ms, states_visited={:8}",
@@ -256,11 +272,6 @@ fn main() -> Result<(), std::io::Error> {
                     dt.as_millis(),
                     c.states_visited
                 );
-                let d_score = match winner {
-                    Some(PlayerId::PlayerFirst) => 2,
-                    Some(PlayerId::PlayerSecond) => 0,
-                    None => 1,
-                };
                 (d_score, c)
             })
             .reduce(|| (0, Default::default()), |(s0, c0), (s1, c1)| (s0 + s1, c0.add(c1)));
@@ -284,7 +295,7 @@ fn main() -> Result<(), std::io::Error> {
             standard_time_limit_ms,
             ..
         } => {
-            let (score, dt) = do_match(parallel, steps.unwrap_or(200), rounds.unwrap_or(100), &|| {
+            let (score, dt) = do_match(parallel, steps.unwrap_or(300), rounds.unwrap_or(100), &|| {
                 standard_search_opts(standard_algorithm, standard_time_limit_ms)
             })?;
             println!("{score}, {:.2}ms", dt.as_millis());

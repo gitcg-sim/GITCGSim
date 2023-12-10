@@ -87,7 +87,7 @@ impl<S: NondetState> SelectionPolicy<GameStateWrapper<S>> for PolicyNetwork {
         let slice = gs.express_features().as_slice();
         x.copy_from(&slice);
         let y = model.forward(x);
-        (ctx.config.c * (n_parent as f32).sqrt(), y)
+        (ctx.config.c * (n_parent as f32).ln_1p(), y)
     }
 
     fn uct_child_factor(
@@ -108,9 +108,9 @@ impl<S: NondetState> SelectionPolicy<GameStateWrapper<S>> for PolicyNetwork {
         let a = if let Some(a) = ctx.config.random_playout_bias {
             (v * a).exp().clamp(1e-2, 1e2)
         } else {
-            v
+            1e-2 + v
         };
         let n_child = child.prop.n + 1;
-        (a * f / (n_child as f32)).sqrt()
+        f * (a / (n_child as f32)).sqrt()
     }
 }

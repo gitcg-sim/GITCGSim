@@ -82,7 +82,7 @@ pub struct SearchConfig {
     pub mcts_random_playout_bias: Option<f32>,
 
     #[cfg(feature = "training")]
-    #[structopt(long = "--mcts-policy-npz-path", help = "MCTS: Path to policy .npz file")]
+    #[structopt(long = "--mcts-policy-npz", help = "MCTS: Path to policy .npz file")]
     pub mcts_policy_npz_path: Option<PathBuf>,
 
     #[structopt(
