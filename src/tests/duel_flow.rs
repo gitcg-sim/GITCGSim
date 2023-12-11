@@ -1,5 +1,3 @@
-use enumset::enum_set;
-
 use super::*;
 
 #[test]
@@ -425,4 +423,39 @@ fn skill_cast_tracker() {
         let noelle = gs.get_player(PlayerId::PlayerSecond).char_states[1];
         assert_eq!(enum_set![], noelle.flags);
     }
+}
+
+#[test]
+fn test_select_starting_plunging_attack_flags() {
+    let mut gs = GameStateBuilder::new(vector![CharId::Yoimiya], vector![CharId::Kaeya, CharId::Yoimiya])
+        .ignore_costs(true)
+        .start_at_select_character()
+        .build();
+    gs.advance(Input::FromPlayer(
+        PlayerId::PlayerFirst,
+        PlayerAction::SwitchCharacter(0),
+    ))
+    .unwrap();
+    gs.advance(Input::FromPlayer(
+        PlayerId::PlayerSecond,
+        PlayerAction::SwitchCharacter(1),
+    ))
+    .unwrap();
+    assert_eq!(0, gs.get_player(PlayerId::PlayerFirst).active_char_idx);
+    assert_eq!(1, gs.get_player(PlayerId::PlayerSecond).active_char_idx);
+    assert_eq!(enum_set![], gs.get_player(PlayerId::PlayerFirst).char_states[0].flags);
+    assert_eq!(enum_set![], gs.get_player(PlayerId::PlayerSecond).char_states[0].flags);
+    assert_eq!(enum_set![], gs.get_player(PlayerId::PlayerSecond).char_states[1].flags);
+    assert_eq!(vec![Input::NoAction], gs.available_actions().to_vec());
+    assert_eq!(Phase::new_roll_phase(PlayerId::PlayerFirst), gs.phase);
+    gs.advance_roll_phase_no_dice();
+    assert!(gs.get_player(PlayerId::PlayerFirst).char_states[0]
+        .flags
+        .contains(CharFlag::PlungingAttack));
+    assert!(!gs.get_player(PlayerId::PlayerSecond).char_states[0]
+        .flags
+        .contains(CharFlag::PlungingAttack));
+    assert!(gs.get_player(PlayerId::PlayerSecond).char_states[1]
+        .flags
+        .contains(CharFlag::PlungingAttack));
 }

@@ -3,6 +3,7 @@ use crate::cards::ids::*;
 use crate::dispatcher_ops::types::*;
 use crate::types::{dice_counter::*, enums::*, game_state::*, input::*};
 use crate::{elem_set, list8, vector};
+use enumset::enum_set;
 
 pub mod characters;
 

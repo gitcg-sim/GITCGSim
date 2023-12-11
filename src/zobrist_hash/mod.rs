@@ -290,7 +290,7 @@ impl Phase {
 }
 
 impl Enum for Phase {
-    const LENGTH: usize = 16;
+    const LENGTH: usize = Phase::COUNT;
 
     fn from_usize(value: usize) -> Self {
         Self::VALUES[value]
@@ -308,7 +308,7 @@ impl Enum for Phase {
 }
 
 impl<V> EnumArray<V> for Phase {
-    type Array = [V; 16];
+    type Array = [V; Phase::COUNT];
 }
 
 impl GameState {

@@ -63,7 +63,7 @@ impl GameState {
                         Err(DispatchError::CannotSwitchInto)
                     } else {
                         let prev_char_idx = player.active_char_idx;
-                        player.update_active_char_idx(phc!(self, player_id), char_idx);
+                        player.set_active_char_idx(phc!(self, player_id), char_idx);
                         Ok(Self::trigger_switch_cmd(player_id, prev_char_idx, char_idx))
                     }
                 }

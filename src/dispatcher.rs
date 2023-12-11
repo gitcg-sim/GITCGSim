@@ -616,12 +616,19 @@ impl GameState {
             Input::NondetResult(..) => Err(DispatchError::NondetResultNotAllowed),
             Input::FromPlayer(player_id, ..) if player_id != active_player => Err(DispatchError::InvalidPlayer),
             Input::FromPlayer(player_id, PlayerAction::SwitchCharacter(char_idx)) => {
-                let player = &self.players.get(player_id);
+                let player = self.players.get(player_id);
                 if !player.is_valid_char_idx(char_idx) {
                     return Err(DispatchError::CannotSwitchInto);
                 }
-                self.get_player_mut(player_id).active_char_idx = char_idx;
-                self.phase = match state {
+                let prev_char_idx = player.active_char_idx;
+                if prev_char_idx != char_idx {
+                    // use crate::chc;
+                    let player = self.players.get_mut(player_id);
+                    // player.char_states[prev_char_idx].remove_flag_hashed(chc!(self, player_id, prev_char_idx), CharFlag::PlungingAttack);
+                    // player.char_states[char_idx].insert_flag_hashed(chc!(self, player_id, char_idx), CharFlag::PlungingAttack);
+                    player.set_active_char_idx(phc!(self, player_id), char_idx);
+                }
+                self.set_phase(match state {
                     SelectStartingCharacterState::Start { to_select } => Phase::SelectStartingCharacter {
                         state: SelectStartingCharacterState::FirstSelected {
                             to_select: to_select.opposite(),
@@ -631,7 +638,7 @@ impl GameState {
                         first_active_player: to_select.opposite(),
                         roll_phase_state: Default::default(),
                     },
-                };
+                });
                 Ok(DispatchResult::PlayerInput(player_id.opposite()))
             }
             _ => Err(DispatchError::InvalidInput("Must select a starting character.")),
@@ -651,14 +658,19 @@ impl GameState {
                 Input::NoAction => {
                     if self.round_number == 1 {
                         self.apply_passives();
-                        let None = self
-                            .exec_commands(&cmd_list![
-                                Self::trigger_switch_cmd(PlayerId::PlayerFirst, 0, 0),
-                                Self::trigger_switch_cmd(PlayerId::PlayerSecond, 0, 0),
-                            ])
-                            .unwrap()
-                        else {
-                            unreachable!()
+                        let Ok(None) = self.exec_commands(&cmd_list![
+                            Self::trigger_switch_cmd(
+                                PlayerId::PlayerFirst,
+                                0,
+                                self.players.get(PlayerId::PlayerFirst).active_char_idx
+                            ),
+                            Self::trigger_switch_cmd(
+                                PlayerId::PlayerSecond,
+                                0,
+                                self.players.get(PlayerId::PlayerSecond).active_char_idx
+                            ),
+                        ]) else {
+                            panic!("advance_roll_phase: Start: Round number is 1 and initial switch triggers failed.")
                         };
                     }
                     let log = &mut self.log;

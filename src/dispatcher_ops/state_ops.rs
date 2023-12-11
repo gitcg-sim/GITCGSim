@@ -87,7 +87,7 @@ impl PlayerState {
         if !self.is_valid_char_idx(char_idx) || char_idx == self.active_char_idx {
             false
         } else {
-            self.update_active_char_idx(c, char_idx);
+            self.set_active_char_idx(c, char_idx);
             self.active_char_idx = char_idx;
             true
         }

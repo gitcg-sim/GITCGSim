@@ -806,7 +806,7 @@ impl GameState {
             let player = &mut self.players[player_id];
             let c = chc!(self, player_id, player.active_char_idx);
             let char = player.get_active_character_mut();
-            char.set_flags_hashed(c, char.flags - CharFlag::PlungingAttack);
+            char.remove_flag_hashed(c, CharFlag::PlungingAttack);
         }
 
         let (first_end_round, next_player) = match self.phase {

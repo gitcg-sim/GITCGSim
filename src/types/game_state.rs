@@ -177,12 +177,6 @@ impl SelectStartingCharacterState {
 }
 
 impl Phase {
-    pub fn select_starting_to_move(already_selected: Option<PlayerId>) -> PlayerId {
-        already_selected
-            .map(PlayerId::opposite)
-            .unwrap_or(PlayerId::PlayerFirst)
-    }
-
     #[inline]
     pub fn new_roll_phase(first_active_player: PlayerId) -> Phase {
         Phase::RollPhase {
