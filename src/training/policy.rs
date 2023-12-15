@@ -146,7 +146,7 @@ mod make_hard_coded_model {
 
     mod requires_model_file {
         use super::*;
-        const MODEL_PATH: &str = "./gitcg_sim_self_play/model_standard.npz";
+        const MODEL_PATH: &str = "./gitcg_sim_self_play/model_t3.npz";
 
         fn npz_path() -> PathBuf {
             PathBuf::from(std::ffi::OsStr::new(MODEL_PATH))
@@ -163,7 +163,6 @@ mod make_hard_coded_model {
             println!("// Generated code, see ./policy.rs make_hard_coded_model::gen_hard_coded_model()");
             println!("pub const LIN_WEIGHT: [f32; {}] = {lin_weight:#?};", N * K);
             println!("pub const LIN_BIAS: [f32; {K}] = {lin_bias:#?};");
-            println!("}}");
         }
 
         #[test]
