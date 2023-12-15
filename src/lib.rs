@@ -227,7 +227,6 @@ pub mod prelude {
 
 pub mod playout;
 
-#[cfg(feature = "training")]
 pub mod training;
 
 #[cfg(test)]
