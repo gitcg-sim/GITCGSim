@@ -134,10 +134,7 @@ impl<S: NondetState> SelectionPolicy<GameStateWrapper<S>> for PolicyNetwork {
             if let Some(a) = child.action {
                 w.copy_from(&a.features(1f32).as_slice());
             }
-            let (ww, yy) = (
-                w.clone().square().sum().array(),
-                y.clone().square().sum().array()
-            );
+            let (ww, yy) = (w.clone().square().sum().array(), y.clone().square().sum().array());
             let w1: Tensor<Rank1<K>, f32, _> = w.reshape();
             let y1: Tensor<Rank2<K, 1>, f32, _> = y.clone().reshape();
             let inner: Tensor<Rank1<1>, f32, _> = w1.matmul(y1);
@@ -150,9 +147,7 @@ impl<S: NondetState> SelectionPolicy<GameStateWrapper<S>> for PolicyNetwork {
             let w = child.action.map(|a| a.features(1f32).as_slice()).unwrap_or_default();
             let ww: f32 = w.iter().map(|x| x * x).sum();
             let yy: f32 = y.iter().map(|x| x * x).sum();
-            let inner: f32 = w.iter().zip(y).map(|(wi, yi)| {
-                wi * yi
-            }).sum();
+            let inner: f32 = w.iter().zip(y).map(|(wi, yi)| wi * yi).sum();
             inner / (ww * yy).sqrt()
         };
         let a = if let Some(a) = ctx.config.random_playout_bias {

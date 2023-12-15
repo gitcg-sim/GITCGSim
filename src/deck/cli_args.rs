@@ -19,7 +19,6 @@ use crate::{
 
 use super::{random_decklist, read_decklist_from_file, Decklist};
 
-#[cfg(feature = "training")]
 use crate::training::policy::PolicyNetwork;
 
 #[derive(Debug, Copy, Clone)]
@@ -84,6 +83,10 @@ pub struct SearchConfig {
     #[cfg(feature = "training")]
     #[structopt(long = "--mcts-policy-npz", help = "MCTS: Path to policy .npz file")]
     pub mcts_policy_npz_path: Option<PathBuf>,
+
+    #[cfg(not(feature = "training"))]
+    #[structopt(long = "--mcts-use-policy-network", help = "MCTS: Use hard-coded policy network")]
+    pub mcts_use_policy_network: bool,
 
     #[structopt(
         short = "T",
@@ -187,7 +190,6 @@ impl SearchOpts {
 pub enum GenericSearch<S: NondetState = StandardNondetHandlerState> {
     Minimax(MinimaxSearch<GameStateWrapper<S>>),
     MCTS(MCTS<GameStateWrapper<S>>),
-    #[cfg(feature = "training")]
     MCTSPolicy(MCTS<GameStateWrapper<S>, crate::mcts::policy::DefaultEvalPolicy, PolicyNetwork>),
     RuleBasedSearch(RuleBasedSearch),
     Random,
@@ -213,7 +215,6 @@ impl<S: NondetState> GameTreeSearch<GameStateWrapper<S>> for GenericSearch<S> {
         match self {
             Self::Minimax(s) => s.search(position, maximize_player),
             Self::MCTS(s) => s.search(position, maximize_player),
-            #[cfg(feature = "training")]
             Self::MCTSPolicy(s) => s.search(position, maximize_player),
             Self::RuleBasedSearch(s) => s.search(position, maximize_player),
             Self::Random => random_search(position),
@@ -253,6 +254,15 @@ impl SearchConfig {
                 #[cfg(feature = "training")]
                 if let Some(npz_path) = &self.mcts_policy_npz_path {
                     let selection_policy = PolicyNetwork::from_npz(npz_path).expect("Failed to load .npz.");
+                    return GenericSearch::MCTSPolicy(MCTS::new_with_eval_policy_and_selection_policy(
+                        config,
+                        Default::default(),
+                        selection_policy,
+                    ));
+                }
+                #[cfg(not(feature = "training"))]
+                if self.mcts_use_policy_network {
+                    let selection_policy = PolicyNetwork::new();
                     return GenericSearch::MCTSPolicy(MCTS::new_with_eval_policy_and_selection_policy(
                         config,
                         Default::default(),

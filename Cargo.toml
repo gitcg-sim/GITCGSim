@@ -25,10 +25,7 @@ lto = true
 test = [
     "serde"
 ]
-default = [
-    # "training",
-    # "serde"
-]
+default = []
 serde = [
     "dep:serde",
     "enumset/serde",
@@ -65,7 +62,6 @@ path = "src/lib.rs"
 [[bin]]
 name = "gitcg_sim_benchmark"
 path = "benchmark/main.rs"
-required-features = ["training"]
 
 [dependencies]
 atree = { version = "0.5.*" }
