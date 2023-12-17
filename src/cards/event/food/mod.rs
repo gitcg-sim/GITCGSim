@@ -27,7 +27,7 @@ impl CardImpl for FoodCardImpl {
         ctx: &CommandContext,
         commands: &mut crate::data_structures::CommandList<(CommandContext, Command)>,
     ) {
-        for eff in cic.card.effects.to_vec() {
+        for eff in cic.card.effects.to_vec_copy() {
             commands.push((*ctx, eff))
         }
         if let CardSelection::OwnCharacter(i) = cic.selection.unwrap() {

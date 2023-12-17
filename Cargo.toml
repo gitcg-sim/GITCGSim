@@ -67,6 +67,7 @@ path = "benchmark/main.rs"
 atree = { version = "0.5.*" }
 bitfield = { version = "0.14.*" }
 dfdx = { version = "0.13.0", features = ["numpy"], optional = true }
+constdefault = { version = "1.0.*" }
 enum-map = { version = "2.4.*" }
 enum-map-derive = { version = "0.3.*" }
 enumset = { version = "1.0.*", features = [] }

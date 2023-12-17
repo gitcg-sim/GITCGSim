@@ -237,7 +237,7 @@ impl CharState {
         let char_chrd = self.char_id.get_char_card();
         if let Some((i, _)) = char_chrd
             .skills
-            .to_vec()
+            .to_vec_copy()
             .iter()
             .copied()
             .enumerate()

@@ -19,7 +19,7 @@ pub type ActionList<T> = smallvec::SmallVec<[T; 16]>;
 #[macro_export]
 macro_rules! list8 {
     [] => ($crate::data_structures::List8::EMPTY);
-    [$($v: expr),+ $(,)?] => ($crate::data_structures::List8::from_slice(&[$($v),+]));
+    [$($v: expr),+ $(,)?] => ($crate::data_structures::List8::from_slice_copy(&[$($v),+]));
 }
 
 #[macro_export]

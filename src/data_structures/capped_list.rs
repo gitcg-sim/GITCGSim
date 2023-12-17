@@ -10,17 +10,34 @@ pub struct CappedLengthList8<T: ConstDefault> {
 }
 
 impl<T: ConstDefault> CappedLengthList8<T> {
-    pub const EMPTY: Self = Self::from_slice(&[]);
+    pub const EMPTY: Self = Self {
+        len: 0,
+        array: <[T; 8] as ConstDefault>::DEFAULT,
+    };
+
+    pub const fn is_empty(&self) -> bool {
+        self.len == 0
+    }
+
+    pub const fn len(&self) -> u8 {
+        self.len
+    }
 
     pub fn slice(&self) -> &[T] {
         &self.array[0..(self.len as usize)]
     }
+}
 
-    pub fn to_vec(&self) -> smallvec::SmallVec<[T; 8]> {
+impl<T: ConstDefault + Copy> CappedLengthList8<T> {
+    pub fn fold_copy<A, F: FnMut(A, T) -> A>(&self, init: A, f: F) -> A {
+        self.slice().iter().copied().fold(init, f)
+    }
+
+    pub fn to_vec_copy(&self) -> smallvec::SmallVec<[T; 8]> {
         self.slice().into()
     }
 
-    pub const fn from_slice(slice: &[T]) -> Self {
+    pub const fn from_slice_copy(slice: &[T]) -> Self {
         let len = slice.len();
         let len = if len > 8 { 8 } else { len as u8 };
         // mut variables are not supported in const context
@@ -113,39 +130,26 @@ impl<T: ConstDefault> CappedLengthList8<T> {
     }
 }
 
+impl<T: ConstDefault + enumset::EnumSetTypeWithRepr> CappedLengthList8<T> {
+    pub fn to_enum_set(self) -> enumset::EnumSet<T> {
+        self.fold_copy(Default::default(), |x, y| x | y)
+    }
+}
+
+// Trait impls
+impl<T: ConstDefault> ConstDefault for CappedLengthList8<T> {
+    const DEFAULT: Self = Self::EMPTY;
+}
+
 impl<T: ConstDefault> Default for CappedLengthList8<T> {
     fn default() -> Self {
         Self::EMPTY
     }
 }
 
-impl<T: ConstDefault> ConstDefault for CappedLengthList8<T> {
-    const DEFAULT: Self = Self::EMPTY;
-}
-
-impl<T: ConstDefault + enumset::EnumSetTypeWithRepr> CappedLengthList8<T> {
-    pub fn to_enum_set(self) -> enumset::EnumSet<T> {
-        self.fold(Default::default(), |x, y| x | y)
-    }
-}
-
-impl<T: ConstDefault, A: smallvec::Array<Item = T>> From<smallvec::SmallVec<A>> for CappedLengthList8<T> {
+impl<T: ConstDefault + Copy, A: smallvec::Array<Item = T>> From<smallvec::SmallVec<A>> for CappedLengthList8<T> {
     fn from(v: smallvec::SmallVec<A>) -> Self {
-        Self::from_slice(&v)
-    }
-}
-
-impl<T: ConstDefault> CappedLengthList8<T> {
-    pub const fn is_empty(&self) -> bool {
-        self.len == 0
-    }
-
-    pub const fn len(&self) -> u8 {
-        self.len
-    }
-
-    pub fn fold<A, F: FnMut(A, T) -> A>(&self, init: A, f: F) -> A {
-        self.slice().iter().copied().fold(init, f)
+        Self::from_slice_copy(&v)
     }
 }
 
@@ -157,7 +161,7 @@ mod tests {
     #[test]
     fn from_slice_values_are_preserved() {
         for len in 0..=8usize {
-            let list8 = CappedLengthList8::from_slice(&SLICE[0..len]);
+            let list8 = CappedLengthList8::from_slice_copy(&SLICE[0..len]);
             let slice = list8.slice();
             assert_eq!(len, list8.len() as usize);
             assert_eq!(&SLICE[0..len], slice);
@@ -167,8 +171,8 @@ mod tests {
     #[test]
     fn fold() {
         for len in 0..=8usize {
-            let list8 = CappedLengthList8::from_slice(&SLICE[0..len]);
-            let fold1 = list8.fold(String::default(), |a, b| format!("{a}, {b}"));
+            let list8 = CappedLengthList8::from_slice_copy(&SLICE[0..len]);
+            let fold1 = list8.fold_copy(String::default(), |a, b| format!("{a}, {b}"));
             let fold2 = SLICE[0..len].iter().fold(String::default(), |a, b| format!("{a}, {b}"));
             assert_eq!(fold1, fold2);
         }

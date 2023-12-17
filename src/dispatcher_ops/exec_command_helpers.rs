@@ -418,7 +418,7 @@ pub fn get_cast_skill_cmds(
         }
     }
 
-    for c in skill.commands.to_vec() {
+    for c in skill.commands.to_vec_copy() {
         cmds.push((*ctx, c));
     }
 

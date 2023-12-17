@@ -30,7 +30,7 @@ impl GameState {
                 }
             }
             NondetResult::ProvideSummonIds(summon_ids) => {
-                for summon_id in summon_ids.to_vec() {
+                for summon_id in summon_ids.to_vec_copy() {
                     cmds.push((ctx1, Command::Summon(summon_id)))
                 }
             }

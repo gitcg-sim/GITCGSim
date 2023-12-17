@@ -183,7 +183,7 @@ pub mod end_phase {
         }
 
         fn trigger_event(&self, e: &mut TriggerEventContext) -> Option<AppliedEffectResult> {
-            for c in self.0.to_vec() {
+            for c in self.0.to_vec_copy() {
                 e.add_cmd(c)
             }
             Some(AppliedEffectResult::ConsumeUsage)

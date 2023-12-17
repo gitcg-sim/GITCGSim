@@ -148,6 +148,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "constdefault"
+version = "1.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fb33faf09400f1adbf20825f086096d22e44d97f99f706a2fbf18618352f9370"
+
+[[package]]
 name = "crc32fast"
 version = "1.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -551,6 +557,7 @@ dependencies = [
  "atree",
  "bincode",
  "bitfield",
+ "constdefault",
  "dfdx",
  "enum-map",
  "enum-map-derive 0.3.0",

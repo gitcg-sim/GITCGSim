@@ -75,7 +75,7 @@ pub trait CardImpl {
         ctx: &CommandContext,
         commands: &mut CommandList<(CommandContext, Command)>,
     ) {
-        for eff in cic.card.effects.to_vec() {
+        for eff in cic.card.effects.to_vec_copy() {
             commands.push((*ctx, eff))
         }
     }

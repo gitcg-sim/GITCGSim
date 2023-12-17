@@ -778,7 +778,7 @@ impl GameState {
 
     pub(crate) fn add_cards_to_hand(&mut self, player_id: PlayerId, cards: &CappedLengthList8<CardId>) -> ExecResult {
         let player = self.players.get_mut(player_id);
-        for card_id in cards.to_vec() {
+        for card_id in cards.to_vec_copy() {
             player.add_card_to_hand(phc!(self, player_id), card_id);
         }
 
