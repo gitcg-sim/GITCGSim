@@ -192,7 +192,7 @@ impl<S: NondetState> Game for GameStateWrapper<S> {
         let Some(player_id) = self.to_move() else { return };
         const LOOKAHEAD: usize = 4;
         let move_chain = pv
-            .clone()
+            .into_iter()
             .take(LOOKAHEAD)
             .filter(|a| a.player() == Some(player_id))
             .collect::<smallvec::SmallVec<[_; LOOKAHEAD]>>();
@@ -201,6 +201,7 @@ impl<S: NondetState> Game for GameStateWrapper<S> {
         actions.sort_by_key(|&action| {
             let index_from_move_chain = move_chain
                 .iter()
+                .copied()
                 .copied()
                 .enumerate()
                 .find(|(_, a)| action == *a)

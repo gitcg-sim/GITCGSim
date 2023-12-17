@@ -567,7 +567,7 @@ impl<G: Game, E: EvalPolicy<G>, S: SelectionPolicy<G>> GameTreeSearch<G> for MCT
                 if self.config.debug {
                     println!(
                         "  states_visited={states_visited:8}, PV={:?} rate={:.4}Mstates/s",
-                        pv.clone().collect::<Vec<_>>(),
+                        pv.into_iter().copied().collect::<Vec<_>>(),
                         rate
                     );
                 }
@@ -582,7 +582,7 @@ impl<G: Game, E: EvalPolicy<G>, S: SelectionPolicy<G>> GameTreeSearch<G> for MCT
         let pv = self.get_pv(root);
         if self.config.debug {
             self.print_tree(root, 0, 2, 40 * self.config.random_playout_iters);
-            println!("PV = {:?}", pv.clone().collect::<Vec<_>>());
+            println!("PV = {:?}", pv.into_iter().copied().collect::<Vec<_>>());
         }
         SearchResult {
             pv,

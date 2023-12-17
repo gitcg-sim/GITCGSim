@@ -4,6 +4,7 @@ use std::sync::Arc;
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Cons<T: Clone>(pub T, pub LinkedList<T>);
 
+/// A singly linked list with pointers based on `std::sync::Arc`.
 #[derive(Debug, Clone)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct LinkedList<T: Clone>(pub Option<Arc<Cons<T>>>);
@@ -24,7 +25,7 @@ impl<T: Clone> LinkedList<T> {
     }
 
     pub fn len(&self) -> usize {
-        self.clone().fold(0, |c, _| c + 1)
+        self.into_iter().count()
     }
 
     pub fn head(&self) -> Option<T> {
@@ -36,18 +37,28 @@ impl<T: Clone> LinkedList<T> {
     }
 }
 
-impl<T: Clone> Iterator for LinkedList<T> {
-    type Item = T;
+impl<'a, T: Clone> IntoIterator for &'a LinkedList<T> {
+    type Item = &'a T;
+
+    type IntoIter = LinkedListIterView<'a, T>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        LinkedListIterView { ptr: self }
+    }
+}
+
+pub struct LinkedListIterView<'a, T: Clone> {
+    ptr: &'a LinkedList<T>,
+}
+
+impl<'a, T: Clone> Iterator for LinkedListIterView<'a, T> {
+    type Item = &'a T;
 
     fn next(&mut self) -> Option<Self::Item> {
-        match &self.0 {
-            None => None,
-            Some(rc) => {
-                let x = rc.0.clone();
-                *self = rc.1.clone();
-                Some(x)
-            }
-        }
+        let Some(cons) = &self.ptr.0 else { return None };
+        let Cons(a, b) = cons.as_ref();
+        self.ptr = b;
+        Some(a)
     }
 }
 
@@ -82,18 +93,22 @@ macro_rules! linked_list {
 }
 
 #[cfg(test)]
-mod test {
+mod tests {
+    use crate::data_structures::LinkedList;
+
     #[test]
-    pub fn test_len() {
+    pub fn len() {
+        let empty: LinkedList<()> = linked_list![];
+        assert_eq!(0, empty.len());
         let ll = linked_list![1, 2, 3];
         assert_eq!(3, ll.len())
     }
 
     #[test]
-    pub fn test_loop() {
+    pub fn iterator() {
         let ll = linked_list![45, 10, 30];
         let mut c = 0;
-        for x in ll {
+        for x in &ll {
             c += x;
         }
         assert_eq!(85, c)

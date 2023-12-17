@@ -637,7 +637,7 @@ fn minimax_iterative_deepening_aspiration_windows<G: Game>(
             pv = pv1.clone();
         }
         if config.debug {
-            let pv_vec: Vec<_> = pv.clone().collect();
+            let pv_vec = pv.into_iter().copied().collect::<Vec<_>>();
             println!(" - Depth {current_depth:2}: Eval={eval:?}, PV={pv_vec:?}");
         }
     }
