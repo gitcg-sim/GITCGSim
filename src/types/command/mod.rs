@@ -5,8 +5,7 @@ use super::enums::EquipSlot;
 use super::game_state::*;
 use super::{deal_dmg::DealDMG, enums::Element, game_state::PlayerId};
 use crate::cards::ids::*;
-use crate::data_structures::capped_list::CappedLengthList8;
-use crate::data_structures::CommandList;
+use crate::data_structures::{CommandList, ConstDefault, List8};
 pub use crate::dispatcher_ops::exec_command_helpers::RelativeCharIdx;
 use enumset::{EnumSet, EnumSetType};
 
@@ -318,13 +317,13 @@ impl CostType {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct SummonRandomSpec {
-    pub summon_ids: CappedLengthList8<SummonId>,
+    pub summon_ids: List8<SummonId>,
     pub existing_summon_ids: EnumSet<SummonId>,
     pub count: u8,
 }
 
 impl SummonRandomSpec {
-    pub fn new(summon_ids: CappedLengthList8<SummonId>, existing_summon_ids: EnumSet<SummonId>, count: u8) -> Self {
+    pub fn new(summon_ids: List8<SummonId>, existing_summon_ids: EnumSet<SummonId>, count: u8) -> Self {
         Self {
             summon_ids,
             existing_summon_ids,
@@ -411,7 +410,7 @@ pub enum Command {
     AddDice(DiceCounter),
     /// Sub Elemental Dice from the player's dice pool.
     SubtractDice(DiceCounter),
-    AddCardsToHand(CappedLengthList8<CardId>),
+    AddCardsToHand(List8<CardId>),
     DrawCards(u8, Option<CardType>),
     /// Apply a status to the player's character by index.
     ApplyCharacterStatus(StatusId, CmdCharIdx),
@@ -444,4 +443,8 @@ pub enum Command {
     ///  - "creates 1 Lightning Stiletto"
     ///  - "When Keqing uses Stellar Restoration with this card (Lightning Stiletto) in Hand: ..."
     InternalStellarRestorationFromSkill,
+}
+
+impl ConstDefault for Command {
+    const DEFAULT: Self = Self::Nop;
 }

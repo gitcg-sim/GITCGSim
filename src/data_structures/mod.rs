@@ -1,3 +1,7 @@
+pub mod const_default;
+
+pub use const_default::*;
+
 pub mod capped_list;
 
 pub mod linked_list;
@@ -14,11 +18,8 @@ pub type ActionList<T> = smallvec::SmallVec<[T; 16]>;
 
 #[macro_export]
 macro_rules! list8 {
-    [] => ($crate::data_structures::List8::L08);
-    [$v0: expr $(,)?] => ($crate::data_structures::List8::L18($v0));
-    [$v0: expr, $v1: expr $(,)?] => ($crate::data_structures::List8::L28($v0, $v1));
-    [$v0: expr, $v1: expr, $v2: expr $(,)?] => ($crate::data_structures::List8::L38($v0, $v1, $v2));
-    [$v0: expr, $v1: expr, $v2: expr, $v3: expr $(,)?] => ($crate::data_structures::List8::L48($v0, $v1, $v2, $v3));
+    [] => ($crate::data_structures::List8::EMPTY);
+    [$($v: expr),+ $(,)?] => ($crate::data_structures::List8::from_slice(&[$($v),+]));
 }
 
 #[macro_export]

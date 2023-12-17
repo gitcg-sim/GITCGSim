@@ -5,6 +5,8 @@ use enumset::EnumSetType;
 
 use std::hash::Hash;
 
+use crate::const_default_enum_impl;
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Enum)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum CharId {
@@ -59,8 +61,9 @@ pub enum CharId {
     Nilou,
     Zhongli,
 }
+const_default_enum_impl!(CharId, Yoimiya);
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Enum)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum SkillId {
     FireworkFlareUp,
@@ -220,6 +223,7 @@ pub enum SkillId {
     DominusLapidisStrikingStone,
     PlanetBefall,
 }
+const_default_enum_impl!(SkillId, FireworkFlareUp);
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Enum)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -356,6 +360,7 @@ pub enum StatusId {
     ShrineOfMaya,
     RightOfFinalInterpretation,
 }
+const_default_enum_impl!(StatusId, CrystallizeShield);
 
 #[allow(clippy::derived_hash_with_manual_eq)]
 #[derive(Debug, PartialOrd, Ord, Hash, Enum, EnumSetType)]
@@ -394,6 +399,7 @@ pub enum SummonId {
     BountifulCore,
     StoneStele,
 }
+const_default_enum_impl!(SummonId, BurningFlame);
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Enum)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -415,6 +421,7 @@ pub enum SupportId {
     SangonomiyaShrine,
     Tenshukaku,
 }
+const_default_enum_impl!(SupportId, Paimon);
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Enum)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -536,3 +543,4 @@ pub enum CardId {
     Beneficent,
     TheStarrySkiesTheirFlowersRain,
 }
+const_default_enum_impl!(CardId, BlankCard);
