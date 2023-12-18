@@ -1,6 +1,6 @@
 use instant::Instant;
 
-use std::{cell::RefCell, rc::Rc};
+use std::{cell::RefCell, ops::ControlFlow, rc::Rc};
 
 use crate::{
     cons, game_tree_search::*, linked_list, minimax::transposition_table::TTKey, transposition_table::CacheTable,
@@ -42,6 +42,12 @@ fn format_ratio(p: Proportion) -> String {
     format!("{p} = {:.2}% \u{b1} {:.2}%", 1e2 * r, 1e2 * 2.0 * p.sd())
 }
 
+enum IterationEnd {
+    WinnerFound { winner: PlayerId, depth: u8 },
+    NoChildren,
+}
+
+#[derive(Clone)]
 pub struct Node<G: Game> {
     pub state: G,
     pub action: Option<G::Action>,
@@ -52,8 +58,10 @@ pub struct Node<G: Game> {
 impl<G: Game> std::fmt::Debug for Node<G> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("Node")
+            .field("state_hash", &self.state.zobrist_hash())
             .field("q", &self.prop.q)
             .field("n", &self.prop.n)
+            .field("depth", &self.depth)
             .finish()
     }
 }
@@ -255,7 +263,7 @@ impl<G: Game, E: EvalPolicy<G>, S: SelectionPolicy<G>> MCTS<G, E, S> {
         best.and_then(|b| b.data.action.map(|a| (a, b.token())))
     }
 
-    pub fn select(&self, token: Token, path: &mut Vec<Token>, tt_hits: Rc<RefCell<u64>>) -> Token {
+    fn select(&self, token: Token, path: &mut Vec<Token>, tt_hits: Rc<RefCell<u64>>) -> Token {
         if let Some((_, token1)) = self.select_level(token, tt_hits.clone()) {
             path.push(token1);
             self.select(token1, path, tt_hits)
@@ -281,7 +289,7 @@ impl<G: Game, E: EvalPolicy<G>, S: SelectionPolicy<G>> MCTS<G, E, S> {
 
     fn get_pv_rec(&self, node: &atree::Node<Node<G>>, tt_hits: Rc<RefCell<u64>>) -> PV<G> {
         if node.is_leaf() {
-            return linked_list![];
+            return Default::default();
         }
         let is_maximize = node.data.is_maximize(self.maximize_player);
         #[cfg(any())]
@@ -318,12 +326,15 @@ impl<G: Game, E: EvalPolicy<G>, S: SelectionPolicy<G>> MCTS<G, E, S> {
 
     pub fn get_pv(&self, token: Token) -> PV<G> {
         let tt_hits: Rc<RefCell<u64>> = Rc::new(Default::default());
-        self.get_pv_rec(self.tree.get(token).expect("get_pv: node must exist"), tt_hits)
-    }
-
-    pub fn evaluate(&self, token: Token) -> G::Eval {
-        let node = self.tree.get(token).unwrap();
-        node.data.state.eval(self.maximize_player)
+        let res = self.get_pv_rec(self.tree.get(token).expect("get_pv: node must exist"), tt_hits);
+        if res.is_empty() {
+            let node = self.tree.get(token).expect("get");
+            dbg!(&node.data);
+            dbg!(&node.children(&self.tree).map(|n| n.data.clone()).collect::<Vec<_>>());
+            panic!("get_pv: empty");
+        } else {
+            res
+        }
     }
 
     fn random_playout<R: Rng>(&self, token: Token, rng: &mut R) -> (u64, bool) {
@@ -380,24 +391,38 @@ impl<G: Game, E: EvalPolicy<G>, S: SelectionPolicy<G>> MCTS<G, E, S> {
         }
     }
 
-    pub fn iteration(&mut self, root: Token, tt_hits: Rc<RefCell<u64>>) -> Option<u64> {
+    fn iteration(&mut self, root: Token, tt_hits: Rc<RefCell<u64>>) -> ControlFlow<IterationEnd, u64> {
         let random_playout_iters = self.config.random_playout_iters;
         let mut path = Vec::with_capacity(8);
-        if self.tree.get(root).and_then(|x| x.data.state.winner()).is_some() {
-            return None;
+        if let Some(winner) = self
+            .tree
+            .get(root)
+            .expect("iteration: root must exist")
+            .data
+            .state
+            .winner()
+        {
+            return ControlFlow::Break(IterationEnd::WinnerFound { winner, depth: 0 });
         }
 
         path.push(root);
         let selected = self.select(root, &mut path, tt_hits.clone());
-        let (expand_states_visited, next) = if self.tree.get(selected).unwrap().data.state.winner().is_some() {
+        let selected_data = &self.tree.get(selected).expect("iteration: selected must exist").data;
+        let (expand_states_visited, next) = if let Some(winner) = selected_data.state.winner() {
             if !path.is_empty() {
                 (0, path[path.len() - 1])
             } else {
-                return None;
+                return ControlFlow::Break(IterationEnd::WinnerFound {
+                    winner,
+                    depth: selected_data.depth,
+                });
             }
         } else {
             let expand_states_visited = self.expand(selected).unwrap_or(0);
-            (expand_states_visited, self.select_level(selected, tt_hits)?.1)
+            let Some((_, selected_token)) = self.select_level(selected, tt_hits) else {
+                return ControlFlow::Break(IterationEnd::NoChildren);
+            };
+            (expand_states_visited, selected_token)
         };
         let no_parallel = cfg!(feature = "no_parallel");
         let (states_visited, wins): (u64, u32) = if !no_parallel && self.config.parallel {
@@ -429,7 +454,7 @@ impl<G: Game, E: EvalPolicy<G>, S: SelectionPolicy<G>> MCTS<G, E, S> {
         self.backpropagate(path, (wins, random_playout_iters).into());
 
         let counter = 1 + expand_states_visited + states_visited;
-        Some(counter)
+        ControlFlow::Continue(counter)
     }
 
     pub fn dump_tree(
@@ -561,8 +586,15 @@ impl<G: Game, E: EvalPolicy<G>, S: SelectionPolicy<G>> GameTreeSearch<G> for MCT
         let mut last_print = t0;
         'iter: loop {
             for _ in 0..10 {
-                let Some(dn) = self.iteration(root, tt_hits.clone()) else {
-                    break 'iter;
+                let dn = match self.iteration(root, tt_hits.clone()) {
+                    ControlFlow::Continue(dn) => dn,
+                    ControlFlow::Break(IterationEnd::WinnerFound { winner, depth }) => {
+                        println!("winner found {winner} {depth}");
+                        break 'iter;
+                    }
+                    ControlFlow::Break(IterationEnd::NoChildren) => {
+                        panic!("search: iteration failed")
+                    }
                 };
                 states_visited += dn;
                 if states_visited >= states_limit {
@@ -572,17 +604,15 @@ impl<G: Game, E: EvalPolicy<G>, S: SelectionPolicy<G>> GameTreeSearch<G> for MCT
                     break 'iter;
                 }
             }
-            if last_print.elapsed().as_millis() >= 500 {
+            if self.config.debug && last_print.elapsed().as_millis() >= 500 {
                 last_print = Instant::now();
                 let pv = self.get_pv(root);
                 let rate = (states_visited as f64) / (t0.elapsed().as_micros() as f64);
-                if self.config.debug {
-                    println!(
-                        "  states_visited={states_visited:8}, PV={:?} rate={:.4}Mstates/s",
-                        pv.into_iter().copied().collect::<Vec<_>>(),
-                        rate
-                    );
-                }
+                println!(
+                    "  states_visited={states_visited:8}, PV={:?} rate={:.4}Mstates/s",
+                    pv.into_iter().copied().collect::<Vec<_>>(),
+                    rate
+                );
             }
         }
 
