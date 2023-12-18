@@ -133,8 +133,20 @@ pub struct MCTSConfig {
     pub random_playout_cutoff: u32,
     /// Random playout bias, None to disable bias
     pub random_playout_bias: Option<f32>,
+    pub policy_bias: Option<f32>,
     pub debug: bool,
     pub limits: Option<SearchLimits>,
+}
+
+impl MCTSConfig {
+    #[inline]
+    pub(crate) fn policy_softmax(&self, v: f32) -> f32 {
+        if let Some(a) = self.policy_bias {
+            (v * a).exp().clamp(1e-2, 1e3)
+        } else {
+            1e-2 + v
+        }
+    }
 }
 
 #[derive(Debug)]
@@ -607,7 +619,8 @@ mod tests {
         parallel: false,
         random_playout_iters: 10,
         random_playout_cutoff: 20,
-        random_playout_bias: Some(50f32),
+        random_playout_bias: Some(50.0),
+        policy_bias: None,
         debug: false,
         limits: Some(SearchLimits {
             max_time_ms: Some(100),

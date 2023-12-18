@@ -11,7 +11,7 @@ use crate::{
         as_slice::*,
         features::{Features, InputFeatures},
     },
-    types::{input::Input, nondet::NondetState},
+    types::{input::Input, nondet::NondetState}, game_tree_search::Game,
 };
 
 // const H: usize = 3;
@@ -115,14 +115,25 @@ type Action = Input;
 
 pub struct SelectionPolicyState {
     pub parent_factor: f32,
-    pub evals: FxHashMap<Action, ActionFeatures>,
+    pub evals: FxHashMap<Action, f32>,
+    pub denominator: f32,
 }
 
+#[cfg(feature = "training")]
+type Zeros = Tensor<Rank1<K>, f32, Cpu>;
+#[cfg(not(feature = "training"))]
+type Zeros = ();
+
 impl PolicyNetwork {
-    fn action_value(&self, action: Action, y: &ActionFeatures) -> f32 {
+    pub(crate) fn action_value(
+        #[allow(unused_variables)]
+        zeros: Zeros,
+        action: Action,
+        y: &ActionFeatures
+    ) -> f32 {
         #[cfg(feature = "training")]
         let v = {
-            let mut w: Tensor<Rank1<K>, f32, Cpu> = self.dev.zeros();
+            let mut w = zeros;
             w.copy_from(&action.features(1f32).as_slice());
             let (ww, yy) = (w.clone().square().sum().array(), y.clone().square().sum().array());
             let w1: Tensor<Rank1<K>, f32, _> = w.reshape();
@@ -145,36 +156,46 @@ impl PolicyNetwork {
 }
 
 impl<S: NondetState> SelectionPolicy<GameStateWrapper<S>> for PolicyNetwork {
-    #[cfg(feature = "training")]
-    type State = (f32, Tensor1D<K>);
-    #[cfg(not(feature = "training"))]
-    type State = (f32, TensorWrapper<[f32; K]>);
+    type State = SelectionPolicyState;
 
     fn uct_parent_factor(&self, ctx: &SelectionPolicyContext<GameStateWrapper<S>>) -> Self::State {
         let parent = ctx.parent;
-        let n_parent = parent.prop.n;
+        let n_parent = parent.prop.n as f32;
         let mut gs = parent.state.game_state.clone();
         if !ctx.is_maximize {
             gs.transpose_in_place();
         }
         let y = self.eval(&gs.express_features().as_slice());
-        (ctx.config.c * (n_parent as f32).ln_1p(), y)
+        let mut denominator = 0f32;
+        let state = &ctx.parent.state;
+        let evals: FxHashMap<Input, f32> = state.actions().iter().map(|&action| {
+            #[cfg(feature = "training")]
+            let zeros = self.dev.zeros();
+            #[cfg(not(feature = "training"))]
+            let zeros = ();
+            let eval = Self::action_value(zeros, action, &y);
+            let v = ctx.config.policy_softmax(eval);
+            denominator += v;
+            (action, v)
+        }).collect();
+        SelectionPolicyState {
+            parent_factor: ctx.config.c * n_parent.ln_1p(),
+            evals,
+            denominator,
+        }
     }
 
     fn uct_child_factor(
         &self,
-        ctx: &SelectionPolicyContext<GameStateWrapper<S>>,
+        _: &SelectionPolicyContext<GameStateWrapper<S>>,
         child: &Node<GameStateWrapper<S>>,
-        (f, y): &Self::State,
+        state: &Self::State,
     ) -> f32 {
-        let v = child.action.map(|a| self.action_value(a, y)).unwrap_or_default();
-        let a = if let Some(a) = ctx.config.random_playout_bias {
-            (v * a).exp().clamp(1e-2, 1e2)
-        } else {
-            1e-2 + v
-        };
-        let n_child = child.prop.n + 1;
-        f * (a / (n_child as f32)).sqrt()
+        let action = child.action.expect("PolicyNetwork: Child node must have an action");
+        let f = state.evals.get(&action).map(|x| x / state.denominator).unwrap_or_default();
+        let a = state.parent_factor;
+        let n_child = (child.prop.n + 1) as f32;
+        f * (a / n_child).sqrt()
     }
 }
 

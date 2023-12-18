@@ -80,6 +80,9 @@ pub struct SearchConfig {
     #[structopt(long = "--mcts-playout-bias", help = "MCTS: random playout bias")]
     pub mcts_random_playout_bias: Option<f32>,
 
+    #[structopt(long = "--mcts-policy-bias", help = "MCTS: policy network bias")]
+    pub mcts_policy_bias: Option<f32>,
+
     #[cfg(feature = "training")]
     #[structopt(long = "--mcts-policy-npz", help = "MCTS: Path to policy .npz file")]
     pub mcts_policy_npz_path: Option<PathBuf>,
@@ -249,6 +252,7 @@ impl SearchConfig {
                     random_playout_iters: self.mcts_random_playout_iters.unwrap_or(10),
                     random_playout_cutoff: self.mcts_random_playout_max_steps.unwrap_or(20),
                     random_playout_bias: self.mcts_random_playout_bias,
+                    policy_bias: self.mcts_policy_bias,
                     debug: self.debug,
                 };
                 #[cfg(feature = "training")]

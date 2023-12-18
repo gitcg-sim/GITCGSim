@@ -296,6 +296,7 @@ fn main_policy(deck: SearchOpts, opts: PolicyOpts) -> Result<(), std::io::Error>
         random_playout_iters: 10,
         random_playout_bias: Some(50.0),
         random_playout_cutoff: 20,
+        policy_bias: None,
         tt_size_mb: 32,
         limits: Some(SearchLimits {
             max_time_ms: Some(opts.mcts_time_limit_ms as u128),
