@@ -1,5 +1,6 @@
 #[cfg(feature = "training")]
 use dfdx::prelude::*;
+use rustc_hash::FxHashMap;
 #[cfg(feature = "training")]
 use std::path::PathBuf;
 
@@ -10,7 +11,7 @@ use crate::{
         as_slice::*,
         features::{Features, InputFeatures},
     },
-    types::nondet::NondetState,
+    types::{input::Input, nondet::NondetState},
 };
 
 // const H: usize = 3;
@@ -105,6 +106,44 @@ impl Default for PolicyNetwork {
     }
 }
 
+#[cfg(feature = "training")]
+type ActionFeatures = Tensor1D<K>;
+#[cfg(not(feature = "training"))]
+type ActionFeatures = TensorWrapper<[f32; K]>;
+
+type Action = Input;
+
+pub struct SelectionPolicyState {
+    pub parent_factor: f32,
+    pub evals: FxHashMap<Action, ActionFeatures>,
+}
+
+impl PolicyNetwork {
+    fn action_value(&self, action: Action, y: &ActionFeatures) -> f32 {
+        #[cfg(feature = "training")]
+        let v = {
+            let mut w: Tensor<Rank1<K>, f32, Cpu> = self.dev.zeros();
+            w.copy_from(&action.features(1f32).as_slice());
+            let (ww, yy) = (w.clone().square().sum().array(), y.clone().square().sum().array());
+            let w1: Tensor<Rank1<K>, f32, _> = w.reshape();
+            let y1: Tensor<Rank2<K, 1>, f32, _> = y.clone().reshape();
+            let inner: Tensor<Rank1<1>, f32, _> = w1.matmul(y1);
+            let inner_f = inner.sum().array();
+            inner_f / (ww * yy).sqrt()
+        };
+        #[cfg(not(feature = "training"))]
+        let v = {
+            let y = &y.0;
+            let w = action.features(1f32).as_slice();
+            let ww: f32 = w.iter().map(|x| x * x).sum();
+            let yy: f32 = y.iter().map(|x| x * x).sum();
+            let inner: f32 = w.iter().zip(y).map(|(wi, yi)| wi * yi).sum();
+            inner / (ww * yy).sqrt()
+        };
+        v
+    }
+}
+
 impl<S: NondetState> SelectionPolicy<GameStateWrapper<S>> for PolicyNetwork {
     #[cfg(feature = "training")]
     type State = (f32, Tensor1D<K>);
@@ -128,28 +167,7 @@ impl<S: NondetState> SelectionPolicy<GameStateWrapper<S>> for PolicyNetwork {
         child: &Node<GameStateWrapper<S>>,
         (f, y): &Self::State,
     ) -> f32 {
-        #[cfg(feature = "training")]
-        let v = {
-            let mut w: Tensor<Rank1<K>, f32, Cpu> = self.dev.zeros();
-            if let Some(a) = child.action {
-                w.copy_from(&a.features(1f32).as_slice());
-            }
-            let (ww, yy) = (w.clone().square().sum().array(), y.clone().square().sum().array());
-            let w1: Tensor<Rank1<K>, f32, _> = w.reshape();
-            let y1: Tensor<Rank2<K, 1>, f32, _> = y.clone().reshape();
-            let inner: Tensor<Rank1<1>, f32, _> = w1.matmul(y1);
-            let inner_f = inner.sum().array();
-            inner_f / (ww * yy).sqrt()
-        };
-        #[cfg(not(feature = "training"))]
-        let v = {
-            let y = &y.0;
-            let w = child.action.map(|a| a.features(1f32).as_slice()).unwrap_or_default();
-            let ww: f32 = w.iter().map(|x| x * x).sum();
-            let yy: f32 = y.iter().map(|x| x * x).sum();
-            let inner: f32 = w.iter().zip(y).map(|(wi, yi)| wi * yi).sum();
-            inner / (ww * yy).sqrt()
-        };
+        let v = child.action.map(|a| self.action_value(a, y)).unwrap_or_default();
         let a = if let Some(a) = ctx.config.random_playout_bias {
             (v * a).exp().clamp(1e-2, 1e2)
         } else {
