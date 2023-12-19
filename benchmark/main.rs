@@ -27,21 +27,21 @@ pub enum BenchmarkOpts {
     },
     #[structopt(help = "Run a game in parallel or sequential execution.")]
     Benchmark {
-        #[structopt(long)]
+        #[structopt(long = "--parallel", short = "-P")]
         parallel: bool,
         #[structopt(flatten)]
         search: SearchOpts,
     },
     #[structopt(help = "Evaluate the first move of a position.")]
     Evaluate {
-        #[structopt(long)]
+        #[structopt(long = "--parallel", short = "-P")]
         parallel: bool,
         #[structopt(flatten)]
         search: SearchOpts,
     },
     #[structopt(help = "Measure win rate against a standarized opponent.")]
     Match {
-        #[structopt(long)]
+        #[structopt(long = "--parallel", short = "-P")]
         parallel: bool,
 
         #[structopt(long)]
@@ -177,7 +177,7 @@ fn standard_search_opts(algorithm: Option<SearchAlgorithm>, standard_time_limit_
 fn main() -> Result<(), std::io::Error> {
     let opts = BenchmarkOpts::from_args();
     let steps: u32 = opts.deck().steps.unwrap_or(200);
-    let (bf, benchmark) = {
+    let (bf, benchmark_half) = {
         let deck_opts: &SearchOpts = opts.deck();
         let search_opts = &deck_opts.search;
         let depth: u8 = search_opts.search_depth.unwrap_or(8);
@@ -195,10 +195,10 @@ fn main() -> Result<(), std::io::Error> {
 
     let speedup = || {
         println!("Parallel");
-        let (dt_ns_par, c_par) = benchmark(true, steps);
+        let (dt_ns_par, c_par) = benchmark_half(true, steps);
         println!();
         println!("Sequential");
-        let (dt_ns_seq, c_seq) = benchmark(false, steps);
+        let (dt_ns_seq, c_seq) = benchmark_half(false, steps);
         println!();
         println!();
         println!("Parallel:   {:?} {}", c_par, c_par.summary(dt_ns_par));
@@ -215,7 +215,7 @@ fn main() -> Result<(), std::io::Error> {
     let benchmark = |parallel: bool, steps| {
         let s = if parallel { "Parallel" } else { "Sequential" };
         println!("{s}");
-        let (dt_ns, c) = benchmark(parallel, steps);
+        let (dt_ns, c) = benchmark_half(parallel, steps);
         println!();
         println!();
         println!("{s}:   {:?} {}", c, c.summary(dt_ns));

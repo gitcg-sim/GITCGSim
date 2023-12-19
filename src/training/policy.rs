@@ -224,7 +224,7 @@ impl<S: NondetState> SelectionPolicy<GameStateWrapper<S>> for PolicyNetwork {
         let n_child = (child.prop.n + 1) as f32;
         let fpu = if child.prop.n <= 10 * ctx.config.random_playout_iters {
             let fr = (child.prop.n as f32) / ((10 * ctx.config.random_playout_iters) as f32);
-            10.0 * (1.0 - fr)
+            0.5 * (1.0 - fr) + 0.5
         } else {
             0.0
         };
