@@ -87,7 +87,6 @@ pub struct SearchConfig {
     #[structopt(long = "--mcts-policy-npz", help = "MCTS: Path to policy .npz file")]
     pub mcts_policy_npz_path: Option<PathBuf>,
 
-    #[cfg(not(feature = "training"))]
     #[structopt(long = "--mcts-use-policy-network", help = "MCTS: Use hard-coded policy network")]
     pub mcts_use_policy_network: bool,
 
@@ -255,18 +254,17 @@ impl SearchConfig {
                     policy_bias: self.mcts_policy_bias,
                     debug: self.debug,
                 };
-                #[cfg(feature = "training")]
-                if let Some(npz_path) = &self.mcts_policy_npz_path {
-                    let selection_policy = PolicyNetwork::from_npz(npz_path).expect("Failed to load .npz.");
+                if self.mcts_use_policy_network {
+                    let selection_policy = PolicyNetwork::new_hard_coded();
                     return GenericSearch::MCTSPolicy(MCTS::new_with_eval_policy_and_selection_policy(
                         config,
                         Default::default(),
                         selection_policy,
                     ));
                 }
-                #[cfg(not(feature = "training"))]
-                if self.mcts_use_policy_network {
-                    let selection_policy = PolicyNetwork::new();
+                #[cfg(feature = "training")]
+                if let Some(npz_path) = &self.mcts_policy_npz_path {
+                    let selection_policy = PolicyNetwork::from_npz(npz_path).expect("Failed to load .npz.");
                     return GenericSearch::MCTSPolicy(MCTS::new_with_eval_policy_and_selection_policy(
                         config,
                         Default::default(),

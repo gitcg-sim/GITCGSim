@@ -25,6 +25,7 @@ pub type Model = (Linear<N, K>, Sigmoid);
 
 #[derive(Debug, Clone)]
 pub struct PolicyNetwork {
+    pub hard_coded: bool,
     #[cfg(feature = "training")]
     pub dev: Cpu,
     #[cfg(feature = "training")]
@@ -42,8 +43,12 @@ impl<T: Copy> TensorWrapper<T> {
 
 #[cfg(not(feature = "training"))]
 impl PolicyNetwork {
+    pub fn new_hard_coded() -> Self {
+        Self { hard_coded: true }
+    }
+
     pub fn new() -> Self {
-        Self {}
+        Self::new_hard_coded()
     }
 
     pub fn eval(&self, x_slice: &[f32; N]) -> TensorWrapper<[f32; K]> {
@@ -56,11 +61,22 @@ impl PolicyNetwork {
     pub fn new() -> Self {
         let dev = Cpu::default();
         Self {
+            hard_coded: false,
             dev: dev.clone(),
             model: dev.build_module::<Model, f32>(),
         }
     }
 
+    pub fn new_hard_coded() -> Self {
+        let dev = Cpu::default();
+        Self {
+            hard_coded: true,
+            dev: dev.clone(),
+            model: dev.build_module::<Model, f32>(),
+        }
+    }
+
+    #[cfg(test)]
     pub fn load_hard_coded(&mut self) {
         let (lin, _) = &mut self.model;
         lin.weight.copy_from(&super::hard_coded_model::LIN_WEIGHT);
@@ -120,34 +136,45 @@ pub struct SelectionPolicyState {
     pub denominator: f32,
 }
 
-#[cfg(feature = "training")]
-type Zeros = Tensor<Rank1<K>, f32, Cpu>;
-#[cfg(not(feature = "training"))]
-type Zeros = ();
-
 impl PolicyNetwork {
-    pub(crate) fn action_value(#[allow(unused_variables)] zeros: Zeros, action: Action, y: &ActionFeatures) -> f32 {
-        #[cfg(feature = "training")]
-        let v = {
-            let mut w = zeros;
-            w.copy_from(&action.features(1f32).as_slice());
-            let (ww, yy) = (w.clone().square().sum().array(), y.clone().square().sum().array());
-            let w1: Tensor<Rank1<K>, f32, _> = w.reshape();
-            let y1: Tensor<Rank2<K, 1>, f32, _> = y.clone().reshape();
-            let inner: Tensor<Rank1<1>, f32, _> = w1.matmul(y1);
-            let inner_f = inner.sum().array();
-            inner_f / (ww * yy).sqrt()
-        };
+    fn features_slice(action: Action) -> [f32; K] {
+        action.features(1f32).as_slice()
+    }
+
+    pub(crate) fn action_value_hard_coded(action: Action, y: &[f32; K]) -> f32 {
+        let w = Self::features_slice(action);
+        let ww: f32 = w.iter().map(|x| x * x).sum();
+        let yy: f32 = y.iter().map(|x| x * x).sum();
+        let inner: f32 = w.iter().zip(y).map(|(wi, yi)| wi * yi).sum();
+        inner / (ww * yy).sqrt()
+    }
+
+    #[cfg(feature = "training")]
+    fn action_value_tensor(&self, action: Action, y: &ActionFeatures) -> f32 {
+        let mut w: Tensor<Rank1<K>, f32, Cpu> = self.dev.zeros();
+        w.copy_from(&Self::features_slice(action));
+        let (ww, yy) = (w.clone().square().sum().array(), y.clone().square().sum().array());
+        let w1: Tensor<Rank1<K>, f32, _> = w.reshape();
+        let y1: Tensor<Rank2<K, 1>, f32, _> = y.clone().reshape();
+        let inner: Tensor<Rank1<1>, f32, _> = w1.matmul(y1);
+        let inner_f = inner.sum().array();
+        inner_f / (ww * yy).sqrt()
+    }
+
+    pub(crate) fn action_value(&self, action: Action, y: &ActionFeatures) -> f32 {
         #[cfg(not(feature = "training"))]
-        let v = {
-            let y = &y.0;
-            let w = action.features(1f32).as_slice();
-            let ww: f32 = w.iter().map(|x| x * x).sum();
-            let yy: f32 = y.iter().map(|x| x * x).sum();
-            let inner: f32 = w.iter().zip(y).map(|(wi, yi)| wi * yi).sum();
-            inner / (ww * yy).sqrt()
-        };
-        v
+        {
+            Self::action_value_hard_coded(action, &y.array())
+        }
+
+        #[cfg(feature = "training")]
+        {
+            if self.hard_coded {
+                Self::action_value_hard_coded(action, &y.array())
+            } else {
+                self.action_value_tensor(action, y)
+            }
+        }
     }
 }
 
@@ -162,17 +189,13 @@ impl<S: NondetState> SelectionPolicy<GameStateWrapper<S>> for PolicyNetwork {
             gs.transpose_in_place();
         }
         let y = self.eval(&gs.express_features().as_slice());
-        let mut denominator = 0f32;
+        let mut denominator = 1e-5;
         let state = &ctx.parent.state;
         let evals: FxHashMap<Input, f32> = state
             .actions()
             .iter()
             .map(|&action| {
-                #[cfg(feature = "training")]
-                let zeros = self.dev.zeros();
-                #[cfg(not(feature = "training"))]
-                let zeros = ();
-                let eval = Self::action_value(zeros, action, &y);
+                let eval = self.action_value(action, &y);
                 let v = ctx.config.policy_softmax(eval);
                 denominator += v;
                 (action, v)
@@ -187,7 +210,7 @@ impl<S: NondetState> SelectionPolicy<GameStateWrapper<S>> for PolicyNetwork {
 
     fn uct_child_factor(
         &self,
-        _: &SelectionPolicyContext<GameStateWrapper<S>>,
+        ctx: &SelectionPolicyContext<GameStateWrapper<S>>,
         child: &Node<GameStateWrapper<S>>,
         state: &Self::State,
     ) -> f32 {
@@ -199,7 +222,13 @@ impl<S: NondetState> SelectionPolicy<GameStateWrapper<S>> for PolicyNetwork {
             .unwrap_or_default();
         let a = state.parent_factor;
         let n_child = (child.prop.n + 1) as f32;
-        f * (a / n_child).sqrt()
+        let fpu = if child.prop.n <= 10 * ctx.config.random_playout_iters {
+            let fr = (child.prop.n as f32) / ((10 * ctx.config.random_playout_iters) as f32);
+            10.0 * (1.0 - fr)
+        } else {
+            0.0
+        };
+        f * (a / n_child).sqrt() + fpu
     }
 }
 
