@@ -22,6 +22,12 @@ pub struct SelectionPolicyContext<'a, 'b, G: Game> {
 
 pub trait SelectionPolicy<G: Game>: Send + Sync {
     type State;
+
+    /// Utility function for calculating the Cpuct
+    fn cpuct(ctx: &SelectionPolicyContext<G>, parent_n: u32) -> f32 {
+        ctx.config.cpuct.cpuct(parent_n as f32)
+    }
+
     fn uct_parent_factor(&self, ctx: &SelectionPolicyContext<G>) -> Self::State;
     fn uct_child_factor(&self, ctx: &SelectionPolicyContext<G>, child: &Node<G>, state: &Self::State) -> f32;
 }
@@ -46,7 +52,7 @@ impl<G: Game> SelectionPolicy<G> for UCB1 {
 
     fn uct_parent_factor(&self, ctx: &SelectionPolicyContext<G>) -> f32 {
         let n_parent = ctx.parent.prop.n;
-        ctx.config.c * (n_parent as f32).ln_1p()
+        ctx.config.cpuct.init * (n_parent as f32).ln_1p()
     }
 
     fn uct_child_factor(&self, _: &SelectionPolicyContext<G>, child: &Node<G>, factor: &f32) -> f32 {

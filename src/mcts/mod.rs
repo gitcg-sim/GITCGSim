@@ -130,11 +130,35 @@ impl<G: Game> Node<G> {
     }
 }
 
+/// Configuration parameters for evaluating the Cpuct factor for the UCT search algorithm.
+/// Cpuct(N) = init + factor * log2((N + base) / base)
+/// Based on Lc0 Cpuct parameters: https://lczero.org/play/configuration/flags/
+#[derive(Debug, Copy, Clone)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct CpuctConfig {
+    pub init: f32,
+    pub base: f32,
+    pub factor: f32,
+}
+
+impl CpuctConfig {
+    pub const STANDARD: Self = Self {
+        init: 2.2,
+        base: 18000.0,
+        factor: 2.8,
+    };
+
+    #[inline(always)]
+    pub fn cpuct(&self, n: f32) -> f32 {
+        let Self { init, factor: k, base } = *self;
+        init + if k >= 0.0 { f32::log2((n + base) / base) } else { 0.0 }
+    }
+}
+
 #[derive(Debug, Copy, Clone)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct MCTSConfig {
-    /// UCB constant
-    pub c: f32,
+    pub cpuct: CpuctConfig,
     pub tt_size_mb: u32,
     pub parallel: bool,
     pub random_playout_iters: u32,
@@ -639,12 +663,12 @@ impl<G: Game, E: EvalPolicy<G>, S: SelectionPolicy<G>> GameTreeSearch<G> for MCT
 mod tests {
     use crate::{
         game_tree_search::{Game, GameStateWrapper, GameTreeSearch, SearchLimits, ZobristHashable},
-        mcts::{MCTSConfig, MCTS},
+        mcts::{CpuctConfig, MCTSConfig, MCTS},
         types::{game_state::PlayerId, nondet::StandardNondetHandlerState},
     };
 
     const CONFIG: MCTSConfig = MCTSConfig {
-        c: 2.0,
+        cpuct: CpuctConfig::STANDARD,
         tt_size_mb: 0,
         parallel: false,
         random_playout_iters: 10,

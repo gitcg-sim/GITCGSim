@@ -131,7 +131,7 @@ type ActionFeatures = TensorWrapper<[f32; K]>;
 type Action = Input;
 
 pub struct SelectionPolicyState {
-    pub parent_factor: f32,
+    pub puct_mult: f32,
     pub evals: FxHashMap<Action, f32>,
     pub denominator: f32,
 }
@@ -183,7 +183,6 @@ impl<S: NondetState> SelectionPolicy<GameStateWrapper<S>> for PolicyNetwork {
 
     fn uct_parent_factor(&self, ctx: &SelectionPolicyContext<GameStateWrapper<S>>) -> Self::State {
         let parent = ctx.parent;
-        let n_parent = parent.prop.n as f32;
         let mut gs = parent.state.game_state.clone();
         if !ctx.is_maximize {
             gs.transpose_in_place();
@@ -201,8 +200,9 @@ impl<S: NondetState> SelectionPolicy<GameStateWrapper<S>> for PolicyNetwork {
                 (action, v)
             })
             .collect();
+        let children_visits = (parent.prop.n - 1).max(1);
         SelectionPolicyState {
-            parent_factor: ctx.config.c * n_parent.ln_1p(),
+            puct_mult: Self::cpuct(ctx, parent.prop.n) * f32::sqrt(children_visits as f32),
             evals,
             denominator,
         }
@@ -215,12 +215,12 @@ impl<S: NondetState> SelectionPolicy<GameStateWrapper<S>> for PolicyNetwork {
         state: &Self::State,
     ) -> f32 {
         let action = child.action.expect("PolicyNetwork: Child node must have an action");
-        let f = state
+        let policy_value = state
             .evals
             .get(&action)
             .map(|x| x / state.denominator)
             .unwrap_or_default();
-        let a = state.parent_factor;
+        let puct_mult = state.puct_mult;
         let n_child = (child.prop.n + 1) as f32;
         let fpu = if child.prop.n <= 10 * ctx.config.random_playout_iters {
             let fr = (child.prop.n as f32) / ((10 * ctx.config.random_playout_iters) as f32);
@@ -228,7 +228,7 @@ impl<S: NondetState> SelectionPolicy<GameStateWrapper<S>> for PolicyNetwork {
         } else {
             0.0
         };
-        f * (a / n_child).sqrt() + fpu
+        policy_value * f32::sqrt(puct_mult / n_child) + fpu
     }
 }
 

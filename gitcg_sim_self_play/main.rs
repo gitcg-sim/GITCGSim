@@ -2,7 +2,7 @@ use std::{cell::RefCell, ops::ControlFlow};
 
 use dfdx::{optim::Sgd, prelude::*};
 use gitcg_sim::{
-    mcts::{MCTSConfig, MCTS},
+    mcts::{CpuctConfig, MCTSConfig, MCTS},
     playout::Playout,
     rand::{rngs::SmallRng, thread_rng, Rng, SeedableRng},
     training::{
@@ -292,7 +292,7 @@ fn main_policy(deck: SearchOpts, opts: PolicyOpts) -> Result<(), std::io::Error>
     let mut seed_gen = thread_rng();
     const BATCH_SIZE: usize = 512;
     let config = MCTSConfig {
-        c: 2.0,
+        cpuct: CpuctConfig::STANDARD,
         random_playout_iters: 10,
         random_playout_bias: Some(50.0),
         random_playout_cutoff: 20,

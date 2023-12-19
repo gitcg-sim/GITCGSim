@@ -1,4 +1,5 @@
 use gitcg_sim::deck::cli_args::{SearchAlgorithm, SearchConfig};
+use gitcg_sim::mcts::CpuctConfig;
 use gitcg_sim::types::by_player::ByPlayer;
 use gitcg_sim::types::game_state::PlayerId;
 use gitcg_sim::types::nondet::NondetState;
@@ -157,7 +158,9 @@ fn match_round<S: NondetState, T: GameTreeSearch<GameStateWrapper<S>>>(
 fn standard_search_opts(algorithm: Option<SearchAlgorithm>, standard_time_limit_ms: Option<u128>) -> SearchConfig {
     SearchConfig {
         algorithm,
-        mcts_c: Some(2.0),
+        mcts_cpuct_init: Some(CpuctConfig::STANDARD.init),
+        mcts_cpuct_base: Some(CpuctConfig::STANDARD.base),
+        mcts_cpuct_factor: Some(CpuctConfig::STANDARD.factor),
         mcts_random_playout_iters: Some(10),
         mcts_random_playout_max_steps: Some(20),
         mcts_random_playout_bias: Some(50.0),

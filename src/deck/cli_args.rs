@@ -5,7 +5,7 @@ use structopt::StructOpt;
 use crate::{
     game_tree_search::*,
     linked_list,
-    mcts::{MCTSConfig, MCTS},
+    mcts::{CpuctConfig, MCTSConfig, MCTS},
     minimax::{
         search::{STATIC_SEARCH_MAX_ITERS, TACTICAL_SEARCH_DEPTH, TARGET_ROUND_DELTA},
         MinimaxConfig, MinimaxSearch,
@@ -64,8 +64,24 @@ pub struct SearchConfig {
     #[structopt(long = "--static-search-iters", help = "Minimax: static search iterations")]
     pub static_search_iters: Option<u8>,
 
-    #[structopt(short = "C", long = "--mcts-c", help = "MCTS: search constant")]
-    pub mcts_c: Option<f32>,
+    #[structopt(
+        short = "C",
+        long = "--mcts-c",
+        help = "MCTS: Cpuct base value. Higher value promotes wider search, while lower value promotes deeper search."
+    )]
+    pub mcts_cpuct_init: Option<f32>,
+
+    #[structopt(
+        long = "--mcts-c-base",
+        help = "MCTS: Cpuct growth rate scaling. Higher value reduces Cpuct growth."
+    )]
+    pub mcts_cpuct_base: Option<f32>,
+
+    #[structopt(
+        long = "--mcts-c-factor",
+        help = "MCTS: Cpuct growth rate per logarithm of number of nodes."
+    )]
+    pub mcts_cpuct_factor: Option<f32>,
 
     #[structopt(
         short = "I",
@@ -244,7 +260,7 @@ impl SearchConfig {
             }
             SearchAlgorithm::MCTS => {
                 let config = MCTSConfig {
-                    c: self.mcts_c.unwrap_or(2.0),
+                    cpuct: self.get_cpuct_config(),
                     tt_size_mb: self.tt_size_mb.unwrap_or(32),
                     limits,
                     parallel,
@@ -288,6 +304,14 @@ impl SearchConfig {
             max_time_ms: self.time_limit_ms,
             max_positions: self.max_positions,
         })
+    }
+
+    pub fn get_cpuct_config(&self) -> CpuctConfig {
+        CpuctConfig {
+            init: self.mcts_cpuct_init.unwrap_or(CpuctConfig::STANDARD.init),
+            base: self.mcts_cpuct_base.unwrap_or(CpuctConfig::STANDARD.base),
+            factor: self.mcts_cpuct_factor.unwrap_or(CpuctConfig::STANDARD.factor),
+        }
     }
 }
 
