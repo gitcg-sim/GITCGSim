@@ -1,6 +1,12 @@
 use instant::Instant;
 
-use std::{cell::RefCell, ops::ControlFlow, rc::Rc};
+use std::{
+    borrow::Borrow,
+    cell::RefCell,
+    ops::ControlFlow,
+    rc::Rc,
+    sync::{Arc, Mutex},
+};
 
 use crate::{
     cons, game_tree_search::*, linked_list, minimax::transposition_table::TTKey, transposition_table::CacheTable,
@@ -47,33 +53,44 @@ enum IterationEnd {
     NoChildren,
 }
 
-#[derive(Clone)]
-pub struct Node<G: Game> {
+#[derive(Debug, Clone, Default)]
+pub struct NodeStats {
+    pub score: f32,
+    pub ratio: f32,
+    pub uct: f32,
+}
+
+pub struct NodeData<G: Game> {
     pub state: G,
     pub action: Option<G::Action>,
     pub prop: Proportion,
     pub depth: u8,
+    /// Keeps track of mutable statistics. New instances constructed only on `NodeData::new`.
+    /// Cannot be cloned.
+    pub last_stats: Arc<Mutex<NodeStats>>,
 }
 
-impl<G: Game> std::fmt::Debug for Node<G> {
+impl<G: Game> std::fmt::Debug for NodeData<G> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("Node")
+        f.debug_struct("NodeData")
             .field("state_hash", &self.state.zobrist_hash())
             .field("q", &self.prop.q)
             .field("n", &self.prop.n)
             .field("depth", &self.depth)
+            .field("last_stats", &self.last_stats)
             .finish()
     }
 }
 
-impl<G: Game> Node<G> {
+impl<G: Game> NodeData<G> {
     #[inline]
     pub fn new(state: G, action: Option<G::Action>) -> Self {
         Self {
             state,
             action,
             prop: Default::default(),
-            depth: 0,
+            depth: Default::default(),
+            last_stats: Default::default(),
         }
     }
 
@@ -121,8 +138,9 @@ impl<G: Game> Node<G> {
             "[Root]".to_string()
         };
 
+        let stats_part: NodeStats = self.last_stats.lock().map(|s| s.clone()).unwrap_or_default();
         format!(
-            "{action_part} ({}), #children = {}, depth={}",
+            "{action_part} ({}), #children = {}, depth={}, stats={stats_part:?}",
             format_ratio(self.prop),
             children_count,
             self.depth
@@ -185,7 +203,7 @@ impl MCTSConfig {
 pub struct MCTS<G: Game, E: EvalPolicy<G> = DefaultEvalPolicy, S: SelectionPolicy<G> = UCB1> {
     pub config: MCTSConfig,
     pub maximize_player: PlayerId,
-    pub tree: Arena<Node<G>>,
+    pub tree: Arena<NodeData<G>>,
     pub tt: CacheTable<TTKey, TTValue>,
     pub root: Option<(HashValue, Token)>,
     pub eval_policy: E,
@@ -194,7 +212,7 @@ pub struct MCTS<G: Game, E: EvalPolicy<G> = DefaultEvalPolicy, S: SelectionPolic
 
 impl<G: Game, E: EvalPolicy<G>, S: SelectionPolicy<G> + Default> MCTS<G, E, S> {
     pub fn new_with_eval_policy(config: MCTSConfig, eval_policy: E) -> Self {
-        let tree = Arena::<Node<G>>::new();
+        let tree = Arena::<NodeData<G>>::new();
         Self {
             config,
             tree,
@@ -209,7 +227,7 @@ impl<G: Game, E: EvalPolicy<G>, S: SelectionPolicy<G> + Default> MCTS<G, E, S> {
 
 impl<G: Game, E: EvalPolicy<G>, S: SelectionPolicy<G>> MCTS<G, E, S> {
     pub fn new_with_eval_policy_and_selection_policy(config: MCTSConfig, eval_policy: E, selection_policy: S) -> Self {
-        let tree = Arena::<Node<G>>::new();
+        let tree = Arena::<NodeData<G>>::new();
         Self {
             config,
             tree,
@@ -231,8 +249,8 @@ impl<G: Game, E: EvalPolicy<G> + Default> MCTS<G, E> {
 impl<G: Game, E: EvalPolicy<G>, S: SelectionPolicy<G>> MCTS<G, E, S> {
     fn init(&mut self, init: G, maximize_player: PlayerId) -> Token {
         let hash = init.zobrist_hash();
-        let root = Node::new(init, None);
-        let (tree, root_token) = Arena::<Node<G>>::with_data(root);
+        let root = NodeData::new(init, None);
+        let (tree, root_token) = Arena::<NodeData<G>>::with_data(root);
         self.tree = tree;
         self.maximize_player = maximize_player;
         self.tt.clear();
@@ -254,7 +272,7 @@ impl<G: Game, E: EvalPolicy<G>, S: SelectionPolicy<G>> MCTS<G, E, S> {
         for action in actions {
             let mut next = current.clone();
             next.advance(action).unwrap();
-            let node = Node::new(next, Some(action));
+            let node = NodeData::new(next, Some(action));
             token.append(&mut self.tree, node);
             n += 1;
         }
@@ -276,11 +294,17 @@ impl<G: Game, E: EvalPolicy<G>, S: SelectionPolicy<G>> MCTS<G, E, S> {
             };
             let state = policy.uct_parent_factor(&ctx);
             node.children(tree).max_by_key(move |&child| {
-                let child_node = &child.data;
-                let (ratio, _) = child_node.ratio_with_transposition(is_maximize, tt, tt_hits.clone());
-                let uct = policy.uct_child_factor(&ctx, child_node, &state);
-                let bandit = ratio + uct;
-                (1e6 * bandit) as u32
+                let child_data = &child.data;
+                let (ratio, _) = child_data.ratio_with_transposition(is_maximize, tt, tt_hits.clone());
+                let uct = policy.uct_child_factor(&ctx, child_data, &state);
+                let score = ratio + uct;
+                if let Ok(mut st) = child_data.last_stats.lock() {
+                    st.ratio = ratio;
+                    st.uct = uct;
+                    st.score = score;
+                }
+
+                (1e8 * score) as u32
             })
         };
 
@@ -298,10 +322,10 @@ impl<G: Game, E: EvalPolicy<G>, S: SelectionPolicy<G>> MCTS<G, E, S> {
 
     fn get_best_child(
         &self,
-        node: &atree::Node<Node<G>>,
+        node: &atree::Node<NodeData<G>>,
         is_maximize: bool,
         tt_hits: Rc<RefCell<u64>>,
-    ) -> Option<&atree::Node<Node<G>>> {
+    ) -> Option<&atree::Node<NodeData<G>>> {
         node.children(&self.tree).max_by_key(|child_node| {
             let ratio = child_node
                 .data
@@ -311,7 +335,7 @@ impl<G: Game, E: EvalPolicy<G>, S: SelectionPolicy<G>> MCTS<G, E, S> {
         })
     }
 
-    fn get_pv_rec(&self, node: &atree::Node<Node<G>>, tt_hits: Rc<RefCell<u64>>) -> PV<G> {
+    fn get_pv_rec(&self, node: &atree::Node<NodeData<G>>, tt_hits: Rc<RefCell<u64>>) -> PV<G> {
         if node.is_leaf() {
             return Default::default();
         }
@@ -354,7 +378,7 @@ impl<G: Game, E: EvalPolicy<G>, S: SelectionPolicy<G>> MCTS<G, E, S> {
         if res.is_empty() {
             let node = self.tree.get(token).expect("get");
             dbg!(&node.data);
-            dbg!(&node.children(&self.tree).map(|n| n.data.clone()).collect::<Vec<_>>());
+            dbg!(&node.children(&self.tree).map(|n| &n.data).collect::<Vec<_>>());
             panic!("get_pv: empty");
         } else {
             res
@@ -540,7 +564,7 @@ impl<G: Game, E: EvalPolicy<G>, S: SelectionPolicy<G>> MCTS<G, E, S> {
         children.sort_by_cached_key(|c| (-1e6 * c.data.ratio(is_maximize)) as i32);
         let c = children.len();
         for (i, child) in children.iter().copied().enumerate() {
-            let Node { prop, .. } = child.data;
+            let NodeData { prop, .. } = child.data;
             let n = prop.n;
             if n != 0 && (c <= 1 || depth == 0 || n >= min_n || i == 0) {
                 found = depth < max_depth;
@@ -640,9 +664,11 @@ impl<G: Game, E: EvalPolicy<G>, S: SelectionPolicy<G>> GameTreeSearch<G> for MCT
             }
         }
 
+        let tt_hits_borrow: &RefCell<u64> = Rc::borrow(&tt_hits);
+        let ref_tt_hits = tt_hits_borrow.try_borrow().unwrap();
         let counter = SearchCounter {
             states_visited,
-            tt_hits: *tt_hits.borrow(),
+            tt_hits: *ref_tt_hits,
             ..Default::default()
         };
         let pv = self.get_pv(root);

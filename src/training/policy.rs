@@ -6,7 +6,7 @@ use std::path::PathBuf;
 
 use crate::{
     game_tree_search::Game,
-    mcts::{policy::*, Node},
+    mcts::{policy::*, NodeData},
     prelude::GameStateWrapper,
     training::{
         as_slice::*,
@@ -211,7 +211,7 @@ impl<S: NondetState> SelectionPolicy<GameStateWrapper<S>> for PolicyNetwork {
     fn uct_child_factor(
         &self,
         ctx: &SelectionPolicyContext<GameStateWrapper<S>>,
-        child: &Node<GameStateWrapper<S>>,
+        child: &NodeData<GameStateWrapper<S>>,
         state: &Self::State,
     ) -> f32 {
         let action = child.action.expect("PolicyNetwork: Child node must have an action");

@@ -16,7 +16,7 @@ impl<G: Game> EvalPolicy<G> for DefaultEvalPolicy {
 
 pub struct SelectionPolicyContext<'a, 'b, G: Game> {
     pub config: &'a MCTSConfig,
-    pub parent: &'b Node<G>,
+    pub parent: &'b NodeData<G>,
     pub is_maximize: bool,
 }
 
@@ -29,7 +29,7 @@ pub trait SelectionPolicy<G: Game>: Send + Sync {
     }
 
     fn uct_parent_factor(&self, ctx: &SelectionPolicyContext<G>) -> Self::State;
-    fn uct_child_factor(&self, ctx: &SelectionPolicyContext<G>, child: &Node<G>, state: &Self::State) -> f32;
+    fn uct_child_factor(&self, ctx: &SelectionPolicyContext<G>, child: &NodeData<G>, state: &Self::State) -> f32;
 }
 
 #[derive(Default, Copy, Clone)]
@@ -39,7 +39,7 @@ impl<G: Game> SelectionPolicy<G> for NoneUCT {
 
     fn uct_parent_factor(&self, _: &SelectionPolicyContext<G>) {}
 
-    fn uct_child_factor(&self, _: &SelectionPolicyContext<G>, _: &Node<G>, _: &Self::State) -> f32 {
+    fn uct_child_factor(&self, _: &SelectionPolicyContext<G>, _: &NodeData<G>, _: &Self::State) -> f32 {
         0f32
     }
 }
@@ -55,7 +55,7 @@ impl<G: Game> SelectionPolicy<G> for UCB1 {
         ctx.config.cpuct.init * (n_parent as f32).ln_1p()
     }
 
-    fn uct_child_factor(&self, _: &SelectionPolicyContext<G>, child: &Node<G>, factor: &f32) -> f32 {
+    fn uct_child_factor(&self, _: &SelectionPolicyContext<G>, child: &NodeData<G>, factor: &f32) -> f32 {
         let n_child = child.prop.n + 1;
         (factor / (n_child as f32)).sqrt()
     }
