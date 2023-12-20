@@ -50,6 +50,7 @@ pub struct NodeData<G: Game> {
     pub action: Option<G::Action>,
     pub prop: Proportion,
     pub depth: u8,
+    pub policy_cache: Mutex<smallvec::SmallVec<[f32; 16]>>,
     /// Keeps track of mutable statistics. New instances constructed only on `NodeData::new`.
     /// Cannot be cloned.
     pub last_stats: Arc<Mutex<NodeStats>>,
@@ -75,6 +76,7 @@ impl<G: Game> NodeData<G> {
             action,
             prop: Default::default(),
             depth: Default::default(),
+            policy_cache: Default::default(),
             last_stats: Default::default(),
         }
     }
@@ -268,21 +270,34 @@ impl<G: Game, E: EvalPolicy<G>, S: SelectionPolicy<G>> MCTS<G, E, S> {
                     .map(|child| child.data.action.expect("child node action must exist"))
                     .collect()
             };
-            let state = policy.on_parent(&ctx, get_children);
+            let state = &policy.on_parent(&ctx, get_children);
+            let policy_values = {
+                let mut policy_cache = parent.policy_cache.lock().expect("policy_cache unlock");
+                if policy_cache.is_empty() && !children.is_empty() {
+                    *policy_cache = children
+                        .iter()
+                        .copied()
+                        .enumerate()
+                        .map(|(index, child_node)| {
+                            let child = &child_node.data;
+                            let child_ctx = SelectionPolicyChildContext { index, child, state };
+                            policy.policy(&ctx, &child_ctx)
+                        })
+                        .collect();
+                } else if policy_cache.len() != children.len() {
+                    panic!("non-zero number of children changed");
+                }
+                policy_cache
+            };
             let result = children
                 .iter()
                 .copied()
                 .enumerate()
-                .max_by_key(move |&(index, child)| {
-                    let child = &child.data;
-                    let child_ctx = SelectionPolicyChildContext {
-                        index,
-                        child,
-                        state: &state,
-                    };
+                .max_by_key(move |&(index, child_node)| {
+                    let child = &child_node.data;
+                    let child_ctx = SelectionPolicyChildContext { index, child, state };
                     let (ratio, _) = child.ratio_with_transposition(is_maximize, tt, tt_hits.clone());
-                    let policy_value = policy.policy(&ctx, &child_ctx);
-                    let uct = policy.uct_child(&ctx, &child_ctx, policy_value);
+                    let uct = policy.uct_child(&ctx, &child_ctx, policy_values[index]);
                     let score = ratio + uct;
                     if let Ok(mut st) = child.last_stats.lock() {
                         st.ratio = ratio;
