@@ -88,8 +88,9 @@ pub mod windfavored {
             if !e.is_normal_attack() {
                 return None;
             }
+            // TODO next character, skipping dead and is cyclic
             let Some(char_idx1) =
-                tgt_chars.relative_switch_char_idx(tgt_active_char_idx, RelativeCharIdx::ImmediateNext)
+                tgt_chars.relative_switch_char_idx(tgt_active_char_idx, RelativeCharIdx::Next)
             else {
                 return None;
             };
