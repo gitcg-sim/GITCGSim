@@ -118,7 +118,7 @@ impl<G: Game> NodeData<G> {
 
 /// Configuration parameters for evaluating the Cpuct factor for the UCT search algorithm.
 /// Cpuct(N) = init + factor * log2((N + base) / base)
-/// Based on Lc0 Cpuct parameters: https://lczero.org/play/configuration/flags/
+/// Based on Lc0 Cpuct parameters: <https://lczero.org/play/configuration/flags/>
 #[derive(Debug, Copy, Clone)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct CpuctConfig {

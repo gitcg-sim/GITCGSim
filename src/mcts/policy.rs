@@ -31,7 +31,7 @@ pub struct SelectionPolicyChildContext<'a, 'b, G: Game, S> {
 /// is selected, where ratio is the MCTS win rate of the particular node
 /// and uct is a factor to encourage nodes with fewer visits to be selected.
 ///
-/// See also: https://en.wikipedia.org/wiki/Monte_Carlo_tree_search#Exploration_and_exploitation
+/// See also: <https://en.wikipedia.org/wiki/Monte_Carlo_tree_search#Exploration_and_exploitation>
 pub trait SelectionPolicy<G: Game>: Send + Sync {
     /// The state stored while evaluting the parent node and can be used
     /// by the child nodes.

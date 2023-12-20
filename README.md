@@ -1,17 +1,33 @@
-# GITCGSim
+# Genius Invokation TCG Simulator
 
-A Genius Invokation TCG simulator written in Rust.
+A library for the [Genius Invokation TCG](https://genshin-impact.fandom.com/wiki/Genius_Invokation_TCG).
 
+This crate supports the following functionalities:
+- Game state representation and evolution
+- Move generation and validation
+- Game state determinization (handling unknown/random information)
+- Minimax and MCTS search algorithms
 
-```
+Currently, the following TCG mechanics are unimplemented:
+- Mulligan at game start
+- Manually selecting Elemental Dice for cost payments (instead dice are auto-selected based on own characters elements)
+- Validation rules for decklists (Elemental Resonance, talent cards)
+
+## Running the simulator
+
+```bash
 # Run the terminal-based simulator
 cargo run --release
 
-# Run the minimax benchmark
+# Run the benchmark
 cargo run --release --bin gitcg_benchmark
 ```
 
-# Command line simulator
+### WebAssembly-based simulator
+
+Visit <https://gitcgsimwebdemo.netlify.app/> for a demo.
+
+### Command line simulator
 
 Controls:
 
@@ -23,266 +39,184 @@ Controls:
 
 ![tui_app_screenshot](./tui_app_screenshot.png)
 
-# WebAssembly build
+### Common command line flags
 
-See https://gitcgsimwebdemo.netlify.app/
+#### TCG
+ - `--random-decks`: Randomly generate decks for both players
+ - `--player1-deck, --player2-deck:` Relative paths to the player's decks
 
-# Unimplemented features
+#### Search
+ - `--algorithm [minimax|mcts]`: Game tree search algorithm
+ - `-P/--parallel`: Enable parallelism
+ - `--tt-size-mb`: Transposition table size in megabytes
+ - `-T/--time-limit-ms`: Time limit per move in milliseconds
 
- - Toggle `serde` through a feature flag
- - TCG mechanics
-    - Pick starting character
-    - Mulligan
-    - Manual dice selection for cost payments
-    - Deck validation (number of copies, Elemental Resonance, etc.)
- - Better representation of imperfect information
-    - Track cards already played by the player and opponent
-    - Sample a game state that is consistent with the information set
+### Executables
 
-# The game state
+#### `gitcg_sim_benchmark`
+Runs a computer vs. computer simulation of the TCG.
 
-The `GameState` type holds the Genius Invokation TCG game state.
+Subcommands:
 
-Actions can be performed onto the game state by calling the `advance` method with
-the input, which can be:
- - From a player: such as casting skills or switching characters
- - Non-deterministic: such as rolling Elemental Dice or drawing cards
+ - `speedup`: Compare the performances of sequential and parallel searches
+ - `benchmark`: Run a single simulation - `match`: Measure the win rate between a configured search algorithm vs.
+    a standarized search algorithm (configured with `--standard-algorithm` and `--standard-time-limit-ms`)
 
-The `NondetProvider` trait handles the non-deterministic aspects of the game.
+#### `gitcg_sim_tui_app`
+Runs the command line simulator vs. a computer opponent.
 
-The `GameStateWrapper` type contains the entire TCG game state including the decks and
-non-determinism.
+#### `gitcg_sim_self_play`
+Runs the trainer for the policy or evaluation networks.
 
-## Error handling
+## Feature flags
 
-The `GameState::advance` method returns an `Err()` if the input fails validation, such as not
-being able to pay the cost or casting a wrong skill.
+By default, all features are disabled.
 
-If an `Err()` is returned, then the game state is invalidated. For example, the
-cost is already paid but the effect did not happen.
+### `serde`
+Enables `serde` support for the relevant datatypes.
 
-The `advance` method panics if there is a bug with the card or TCG implementation.
+### `wasm`
+Required for WebAssembly builds. Also enables `serde` and `no_parallel`.
 
-## Game state mutation
+### `no_parallel`
+Disables parallelization thorugh the `rayon` dependency.
 
-Elements of card effect such as dealing DMG or healing are represented using
-`Command`s, which are executed by the TCG implementation to update the game state
-accordingly.
+### `no_static_status_impl`
+Use dynamic dispatch (`dyn StatusImpl`) instead of heavily
+inlined trait implementations for dispatching `StatusImpl`s.
 
-There is a command for triggering events such as entering the End
-Phase or after casting a skill.
+### `training`
+Enable machine learning dependencies (`dfdx` and `ndarray`) and allow
+loading policy networks from .npz files.
+Enabled by the policy network training executable.
 
-## Hashing
+## The `GameState` type
 
-An incrementally updated Zobrist hash is used to determine if two game states are equal.
+### Creation
+To construct a [`GameState`](crate::prelude::GameState), use the [`GameStateBuilder`](crate::prelude::GameStateBuilder) type.
 
-# Game state search
-
-## Information state representation
-
-All unknown cards are converted into copies of the "Blank Card", which cannot be played
-but can be used for Elemental Tuning. Applies to:
- - The player's cards to be drawn during the game state search
- - The opponent's hand
-
-The opponent's Elemental Dice and the player's future Elemental Dice are rerolled
-according to the dice probability distribution.
-
-## Minimax
-
-The heuristic is a linear function based on the following features:
- - Total HP
- - Low HP penalty
- - Elemental application
- - Total dice count
- - Number of cards on hand
- - Number of statuses, summons and equipments
-
-Features:
- - Alpha beta pruning
- - Quiescence search (search until end of TCG round)
- - Principal variation and TCG-specific move ordering
- - Aspiration window
- - Transposition table
- - Lazy SMP parallelism
-
-## Monte-Carlo Tree Search
-
-Features:
- - Leaf parallelism (parallel rollouts per leaf)
- - Transposition table and UCT based on it
- - Early rollout termination based on the position evaluation used by minimax
-
-# Implementing cards and statuses
-
-1. Declare the IDs for the new entities in the relevant enums of the `ids::enums` module.
-2. Run `code_generator.py`
-3. Fill in the implementations in the `cards` module.
-
-## Example: "Yoimiya"
+The [`new_standard_game`](crate::prelude::new_standard_game) function bypass most intermediate steps for constructing a `GameStateWrapper`.
 
 ```rust
-// cards::characters::yoimiya
-use ...;
+use gitcg_sim::prelude::*;
+use gitcg_sim::{vector, list8};
+use gitcg_sim::rand::{rngs::SmallRng, SeedableRng}; // Re-exports of rand crate
 
-pub const C: CharCard = CharCard {
-    name: "Yoimiya",
-    ...
-    skills: list8![
-        SkillId::FireworkFlareUp,
-        SkillId::NiwabiFireDance,
-        SkillId::RyuukinSaxifrage,
-    ],
-};
-
-pub const FIREWORK_FLARE_UP: Skill = skill_na(
-    "Firework Flare-Up",
-    // Dice cost 1 Pyro + 2 unaligned
-    Element::Pyro,
-    // Deal 2 Physical DMG
-    2,
-    DealDMGType::Physical
-);
-
-pub const NIWABI_FIRE_DANCE: Skill = Skill {
-    name: "Niwabi Fire-Dance",
-    skill_type: SkillType::ElementalSkill,
-    // Dice cost: 1 Pyro
-    cost: cost_elem(Element::Pyro, 1, 0, 0),
-    // This Skill does not grant Energy
-    no_energy: true,
-    // Does not deal DMG
-    deal_dmg: None,
-    // This character gains Niwabi Enshou
-    apply: Some(StatusId::NiwabiEnshou),
-    ..Skill::new(),
-};
-
-pub const RYUUKIN_SAXIFRAGE: Skill = Skill {
-    name: "Ryuukin Saxifrage",
-    skill_type: SkillType::ElementalBurst,
-    // Dice cost: 4 Pyro, energy cost: 3
-    cost: cost_elem(Element::Pyro, 4, 0, 3),
-    // Deal 4 Pyro DMG
-    deal_dmg: Some(deal_elem_dmg(Element::Pyro, 4, 0)),
-    apply: Some(StatusId::AurousBlaze),
-    // Fill in default fields
-    ..Skill::new(),
-};
+let deck1 = Decklist::new(vector![CharId::Yoimiya, CharId::KamisatoAyaka, CharId::Bennett], vec![/* CardId::... */].into());
+let deck2 = Decklist::new(vector![CharId::Fischl, CharId::RhodeiaOfLoch, CharId::FatuiPyroAgent], vec![].into());
+let rng = SmallRng::seed_from_u64(100).into();
+let game_state_wrapper = new_standard_game(&deck1, &deck2, rng);
 ```
 
-Statuses are implemented using the `StatusImpl` trait.
+### State evolution
+To advance a `GameState`, call [`GameState::advance`](crate::prelude::GameState::advance).
+To get a list of actions, [`GameState::available_actions`](crate::prelude::GameState::available_actions).
+
+If `GameState::advance` returns an `Err(..)`, then the game state is invalidated (cost payments are not reversed, for example.).
 
 ```rust
-pub const NIWABI_ENSHOU_STATUS: Status = Status::new_usages(
-    "Niwabi Enshou",
-    // Attaches to a character
-    StatusAttachMode::Character,
-    // Usage(s): 2
-    2,
-    // No specified stacking
-    None
-);
+use gitcg_sim::prelude::*;
+use gitcg_sim::vector; // SmallVec used throughout the library
+use gitcg_sim::list8; // List with up to 8 elements
 
-// This macro creates an empty struct named NiwabiEnshou
-decl_status_impl_type!(NiwabiEnshou);
-impl StatusImpl for NiwabiEnshou {
-    // This status changes outgoing damage
-    fn responds_to(&self) -> EnumSet<RespondsTo> {
-        enum_set![RespondsTo::OutgoingDMG]
-    }
+// Create a new GameState
+let mut game_state: GameState = GameStateBuilder::default()
+    .characters(
+       vector![CharId::Yoimiya, CharId::KamisatoAyaka, CharId::Bennett],
+       vector![CharId::Fischl, CharId::RhodeiaOfLoch, CharId::FatuiPyroAgent]
+    )
+    .skip_to_roll_phase()
+    .build();
 
-    fn outgoing_dmg(&self, _eff_state: &AppliedEffectState, ctx: &CommandContext, dmg: &mut DealDMG) -> Option<AppliedEffectResult> {
-        ...
-        None
-    }
-}
+// Waiting for nondeterministic input, so no player is to move
+assert_eq!(None, game_state.to_move_player());
 
-pub const AUROUS_BLAZE_STATUS: Status = Status::new_duration(
-    "Aurous Blaze",
-    // Team Combat status
-    StatusAttachMode::Team,
-    // Duration (Rounds): 2
-    2
-);
+// Required to initialize.
+game_state.advance(Input::NoAction).unwrap();
 
-decl_status_impl_type!(AurousBlaze);
-impl StatusImpl for AurousBlaze {
-    // This status has event triggers
-    fn responds_to(&self) -> EnumSet<RespondsTo> {
-        enum_set![RespondsTo::TriggerEvent]
-    }
+// Add cards to both players hands
+game_state
+    .advance(Input::NondetResult(NondetResult::ProvideCards(
+        list8![CardId::LeaveItToMe, CardId::Starsigns],
+        list8![CardId::Strategize, CardId::Paimon],
+    )))
+    .unwrap();
 
-    // The event triggers on a skill being casted
-    fn responds_to_triggers(&self) -> EnumSet<EventId> {
-        enum_set![EventId::SkillCasted]
-    }
+// Add 8 Omni dice to both players
+game_state
+    .advance(Input::NondetResult(NondetResult::ProvideDice(
+        DiceCounter::omni(8),
+        DiceCounter::omni(8),
+    )))
+    .unwrap();
 
-    fn trigger_event(&self, e: &mut TriggerEventContext) -> Option<AppliedEffectResult> {
-        ...
-    }
-}
-
+println!("{:?}", game_state.available_actions());
 ```
 
-## Example: "Leave It to Me!"
-```rust
-// cards::event::leave_it_to_me
-use ...;
+### The `Input` type
 
-pub const C: Card = Card {
-    name: "Leave It to Me!",
-    cost: Cost::ZERO,
-    effects: list8![
-        Command::ApplyStatusToTeam(StatusId::LeaveItToMe)
-    ],
-    card_type: CardType::Event,
-};
+Input provided to advancing the `GameState`, both [deterministic](crate::prelude::Input::FromPlayer) and
+[non-deterministic](crate::prelude::Input::NondetResult).
 
-decl_status_impl_type!(LeaveItToMe, I);
-impl StatusImpl for LeaveItToMe {
-    fn responds_to(&self) -> EnumSet<RespondsTo> {
-        enum_set![RespondsTo::SwitchIsFastAction]
-    }
+See [`Input`](crate::prelude::Input).
 
-    fn switch_is_fast_action(&self, _ctx: &AppliedEffectState, value: &mut bool) -> Option<AppliedEffectResult> {
-        *value = true;
-        Some(AppliedEffectResult::ConsumeUsage)
-    }
-}
-```
+### Hashing and mutation
 
-## Card implementations
-
-For cards with complex logic such as selections and activation condtions, they can implement the `CardImpl` trait.
-
-For example:
+The game state is hashed incrementally through [Zobrist hashing](https://www.chessprogramming.org/Zobrist_Hashing).
+If the game state is updated manually outside of `advance`,
+[`game_state.rehash()`](crate::prelude::GameState::rehash) must be called to recopmute the hash.
 
 ```rust
+use gitcg_sim::prelude::*;
+use gitcg_sim::{vector, list8};
 
-pub struct ElementalArtifact2 {
-    pub elem: Element,
-    pub status_id: StatusId,
-}
+// Create a new GameState
+let mut game_state: GameState = GameStateBuilder::default()
+    .characters(
+       vector![CharId::Yoimiya, CharId::KamisatoAyaka, CharId::Bennett],
+       vector![CharId::Fischl, CharId::RhodeiaOfLoch, CharId::FatuiPyroAgent]
+    )
+    // Bypass select starting character and mulligan
+    .skip_to_roll_phase()
+    .build();
 
-// Cost-2 elemental artifacts
-impl CardImpl for ElementalArtifact2 {
-    fn selection(&self) -> Option<CardSelectionSpec> {
-        Some(CardSelectionSpec::OwnCharacter)
-    }
-
-    fn get_effects(
-        &self,
-        cic: &CardImplContext,
-        ctx: &CommandContext,
-        commands: &mut CommandList<(CommandContext, Command)>
-    ) {
-        if let CardSelection::OwnCharacter(i) = cic.selection.unwrap() {
-            commands.push(
-                (*ctx, Command::ApplyEquipmentToCharacter(EquipSlot::Artifact, self.status_id, i))
-            )
-        }
-    }
-}
-
+// Get the Zobrist hash
+game_state.zobrist_hash();
+// Perform an external update
+game_state.players[PlayerId::PlayerFirst].hand.push(CardId::QuickKnit);
+// Recalculate the hash
+game_state.rehash();
 ```
+
+### Handling non-determinism
+
+The [`GameStateWrapper`](crate::prelude::GameStateWrapper) type handles non-determinism automatically using a player decks and an existing RNG.
+
+```rust
+use gitcg_sim::prelude::*;
+use gitcg_sim::{vector, list8};
+use gitcg_sim::rand::{rngs::SmallRng, SeedableRng}; // Re-exports of rand crate
+
+let deck1 = Decklist::new(vector![CharId::Yoimiya, CharId::KamisatoAyaka, CharId::Bennett], vec![/* CardId::... */].into());
+let deck2 = Decklist::new(vector![CharId::Fischl, CharId::RhodeiaOfLoch, CharId::FatuiPyroAgent], vec![].into());
+let rng = SmallRng::seed_from_u64(100).into();
+
+// Nondet provider based on deck and RNG
+let nd = NondetProvider::new(StandardNondetHandlerState::new(&deck1, &deck2, rng));
+// This nondet provider that does nothing
+// let nd_state = NondetProvider::new(EmptyNondetState());
+
+let game_state: GameState = GameStateBuilder::default()
+    .characters(deck1.characters, deck2.characters)
+    .skip_to_roll_phase()
+    .build();
+let game_state_wrapper = GameStateWrapper::new(game_state, nd);
+```
+
+### Serialization and deserialization
+
+Enable the `serde` feature to serialize and deserialize the relevant types.
+
+## Adding new cards
+
+The cards and effects are **hard-coded** in this crate. To add new cards you must acquire and modify the source code of this crate.
