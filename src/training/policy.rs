@@ -1,6 +1,5 @@
 #[cfg(feature = "training")]
 use dfdx::prelude::*;
-use rustc_hash::FxHashMap;
 #[cfg(feature = "training")]
 use std::path::PathBuf;
 
@@ -132,7 +131,7 @@ type Action = Input;
 
 pub struct SelectionPolicyState {
     pub puct_mult: f32,
-    pub evals: FxHashMap<Action, f32>,
+    pub evals: smallvec::SmallVec<[f32; 16]>,
     pub denominator: f32,
 }
 
@@ -181,7 +180,11 @@ impl PolicyNetwork {
 impl<S: NondetState> SelectionPolicy<GameStateWrapper<S>> for PolicyNetwork {
     type State = SelectionPolicyState;
 
-    fn uct_parent_factor(&self, ctx: &SelectionPolicyContext<GameStateWrapper<S>>) -> Self::State {
+    fn uct_parent_factor<F: FnOnce() -> <GameStateWrapper<S> as Game>::Actions>(
+        &self,
+        ctx: &SelectionPolicyContext<GameStateWrapper<S>>,
+        get_children: F,
+    ) -> Self::State {
         let parent = ctx.parent;
         let mut gs = parent.state.game_state.clone();
         if !ctx.is_maximize {
@@ -189,15 +192,13 @@ impl<S: NondetState> SelectionPolicy<GameStateWrapper<S>> for PolicyNetwork {
         }
         let y = self.eval(&gs.express_features().as_slice());
         let mut denominator = 1e-5;
-        let state = &ctx.parent.state;
-        let evals: FxHashMap<Input, f32> = state
-            .actions()
+        let evals = get_children()
             .iter()
             .map(|&action| {
                 let eval = self.action_value(action, &y);
                 let v = ctx.config.policy_softmax(eval);
                 denominator += v;
-                (action, v)
+                v
             })
             .collect();
         let children_visits = (parent.prop.n - 1).max(1);
@@ -211,19 +212,16 @@ impl<S: NondetState> SelectionPolicy<GameStateWrapper<S>> for PolicyNetwork {
     fn uct_child_factor(
         &self,
         ctx: &SelectionPolicyContext<GameStateWrapper<S>>,
+        index: usize,
         child: &NodeData<GameStateWrapper<S>>,
         state: &Self::State,
     ) -> f32 {
-        let action = child.action.expect("PolicyNetwork: Child node must have an action");
-        let policy_value = state
-            .evals
-            .get(&action)
-            .map(|x| x / state.denominator)
-            .unwrap_or_default();
+        let policy_value = state.evals[index] / state.denominator;
         let puct_mult = state.puct_mult;
-        let n_child = (child.prop.n + 1) as f32;
-        let fpu = if child.prop.n <= 10 * ctx.config.random_playout_iters {
-            let fr = (child.prop.n as f32) / ((10 * ctx.config.random_playout_iters) as f32);
+        let n = child.prop.n;
+        let n_child = (n + 1) as f32;
+        let fpu = if n <= 10 * ctx.config.random_playout_iters {
+            let fr = (n as f32) / ((10 * ctx.config.random_playout_iters) as f32);
             0.5 * (1.0 - fr) + 0.5
         } else {
             0.0

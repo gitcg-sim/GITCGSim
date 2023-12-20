@@ -258,20 +258,34 @@ impl<G: Game, E: EvalPolicy<G>, S: SelectionPolicy<G>> MCTS<G, E, S> {
                 parent,
                 is_maximize,
             };
-            let state = policy.uct_parent_factor(&ctx);
-            node.children(tree).max_by_key(move |&child| {
-                let child_data = &child.data;
-                let (ratio, _) = child_data.ratio_with_transposition(is_maximize, tt, tt_hits.clone());
-                let uct = policy.uct_child_factor(&ctx, child_data, &state);
-                let score = ratio + uct;
-                if let Ok(mut st) = child_data.last_stats.lock() {
-                    st.ratio = ratio;
-                    st.uct = uct;
-                    st.score = score;
-                }
+            let children = node.children(tree).collect::<smallvec::SmallVec<[_; 16]>>();
+            let get_children = || {
+                children
+                    .iter()
+                    .copied()
+                    .map(|child| child.data.action.expect("child node action must exist"))
+                    .collect()
+            };
+            let state = policy.uct_parent_factor(&ctx, get_children);
+            let result = children
+                .iter()
+                .copied()
+                .enumerate()
+                .max_by_key(move |(index, child)| {
+                    let child_data = &child.data;
+                    let (ratio, _) = child_data.ratio_with_transposition(is_maximize, tt, tt_hits.clone());
+                    let uct = policy.uct_child_factor(&ctx, *index, child_data, &state);
+                    let score = ratio + uct;
+                    if let Ok(mut st) = child_data.last_stats.lock() {
+                        st.ratio = ratio;
+                        st.uct = uct;
+                        st.score = score;
+                    }
 
-                (1e8 * score) as u32
-            })
+                    (1e8 * score) as u32
+                })
+                .map(|x| x.1);
+            result
         };
 
         best.and_then(|b| b.data.action.map(|a| (a, b.token())))

@@ -47,7 +47,7 @@ pub trait Game: ZobristHashable + Debug + Clone + Send + Sync {
     type Action: ValueTrait + std::hash::Hash + serde::Serialize + for<'de> serde::Deserialize<'de>;
     #[cfg(not(feature = "serde"))]
     type Action: ValueTrait + std::hash::Hash;
-    type Actions: IntoIterator<Item = Self::Action>;
+    type Actions: IntoIterator<Item = Self::Action> + FromIterator<Self::Action>;
     type Error: Debug;
     type Eval: Windowable + EvalTrait;
 
