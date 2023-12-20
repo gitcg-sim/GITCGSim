@@ -233,7 +233,7 @@ impl<S: NondetState> SelectionPolicy<GameStateWrapper<S>> for PolicyNetwork {
         } else {
             0.0
         };
-        policy_value * f32::sqrt(puct_mult / n_child) + fpu
+        policy_value * (puct_mult / n_child) + fpu
     }
 }
 
