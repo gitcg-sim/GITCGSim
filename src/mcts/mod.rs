@@ -447,7 +447,7 @@ impl<G: Game, E: EvalPolicy<G>, S: SelectionPolicy<G>> MCTS<G, E, S> {
 
             #[cfg(not(feature = "no_parallel"))]
             {
-                (0..random_playout_iters)
+                (0..random_playout_iters.max(1))
                     .into_par_iter()
                     .map(|_| {
                         let mut rng = thread_rng();
@@ -457,7 +457,7 @@ impl<G: Game, E: EvalPolicy<G>, S: SelectionPolicy<G>> MCTS<G, E, S> {
                     .reduce(|| (0, 0), |(a, b), (c, d)| (a + c, b + d))
             }
         } else {
-            (0..random_playout_iters)
+            (0..random_playout_iters.max(1))
                 .map(|_| {
                     let mut rng = thread_rng();
                     let (count, win) = self.random_playout(next, &mut rng);
