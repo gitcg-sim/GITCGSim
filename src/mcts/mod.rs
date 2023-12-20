@@ -319,7 +319,7 @@ impl<G: Game, E: EvalPolicy<G>, S: SelectionPolicy<G>> MCTS<G, E, S> {
                 .data
                 .ratio_with_transposition(is_maximize, &self.tt, tt_hits.clone())
                 .0;
-            (1e6 * ratio) as u32
+            (1e8 * ratio) as u32
         })
     }
 
@@ -328,35 +328,12 @@ impl<G: Game, E: EvalPolicy<G>, S: SelectionPolicy<G>> MCTS<G, E, S> {
             return Default::default();
         }
         let is_maximize = node.data.is_maximize(self.maximize_player);
-        #[cfg(any())]
-        {
-            let actions_expected = node.data.state.actions().into_iter().collect::<Vec<_>>();
-            let actions_mcts = node
-                .children(&self.tree)
-                .map(|n| n.data.action.unwrap())
-                .collect::<Vec<_>>();
-            if actions_expected != actions_mcts {
-                println!("---");
-                dbg!(&actions_expected);
-                dbg!(&actions_mcts);
-                println!("get_pv_rec: Children mismatch.");
-            }
-        }
         let best_node = self
             .get_best_child(node, is_maximize, tt_hits.clone())
             .expect("get_best_child: Must be non-empty");
         let Some(best) = best_node.data.action else {
             return linked_list![];
         };
-        #[cfg(any())]
-        {
-            let state = node.data.state.clone();
-            if !state.actions().into_iter().any(|a| a == best) {
-                dbg!(&state);
-                self.dump_tree(node.token(), 2, &|a| format!("{a:?}"));
-                panic!("get_pv: Action is not available: {best:?}");
-            }
-        }
         cons!(best, self.get_pv_rec(best_node, tt_hits))
     }
 
