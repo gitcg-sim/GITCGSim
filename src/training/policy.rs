@@ -5,7 +5,7 @@ use std::path::PathBuf;
 
 use crate::{
     game_tree_search::Game,
-    mcts::{policy::*, NodeData},
+    mcts::policy::*,
     prelude::GameStateWrapper,
     training::{
         as_slice::*,
@@ -180,7 +180,7 @@ impl PolicyNetwork {
 impl<S: NondetState> SelectionPolicy<GameStateWrapper<S>> for PolicyNetwork {
     type State = SelectionPolicyState;
 
-    fn uct_parent_factor<F: FnOnce() -> <GameStateWrapper<S> as Game>::Actions>(
+    fn on_parent<F: FnOnce() -> <GameStateWrapper<S> as Game>::Actions>(
         &self,
         ctx: &SelectionPolicyContext<GameStateWrapper<S>>,
         get_children: F,
@@ -209,16 +209,23 @@ impl<S: NondetState> SelectionPolicy<GameStateWrapper<S>> for PolicyNetwork {
         }
     }
 
-    fn uct_child_factor(
+    fn policy(
+        &self,
+        _: &SelectionPolicyContext<GameStateWrapper<S>>,
+        cctx: &SelectionPolicyChildContext<GameStateWrapper<S>, Self::State>,
+    ) -> f32 {
+        cctx.state.evals[cctx.index] / cctx.state.denominator
+    }
+
+    fn uct_child(
         &self,
         ctx: &SelectionPolicyContext<GameStateWrapper<S>>,
-        index: usize,
-        child: &NodeData<GameStateWrapper<S>>,
-        state: &Self::State,
+        cctx: &SelectionPolicyChildContext<GameStateWrapper<S>, Self::State>,
+        policy_value: f32,
     ) -> f32 {
-        let policy_value = state.evals[index] / state.denominator;
+        let state = &cctx.state;
         let puct_mult = state.puct_mult;
-        let n = child.prop.n;
+        let n = cctx.child.prop.n;
         let n_child = (n + 1) as f32;
         let fpu = if n <= 10 * ctx.config.random_playout_iters {
             let fr = (n as f32) / ((10 * ctx.config.random_playout_iters) as f32);

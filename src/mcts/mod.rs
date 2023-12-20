@@ -19,7 +19,9 @@ use rand::{distributions::WeightedIndex, prelude::Distribution, thread_rng, Rng}
 use rayon::prelude::*;
 use smallvec::SmallVec;
 
-use self::policy::{DefaultEvalPolicy, EvalPolicy, SelectionPolicy, SelectionPolicyContext, UCB1};
+use self::policy::{
+    DefaultEvalPolicy, EvalPolicy, SelectionPolicy, SelectionPolicyChildContext, SelectionPolicyContext, UCB1,
+};
 
 pub mod policy;
 
@@ -266,17 +268,23 @@ impl<G: Game, E: EvalPolicy<G>, S: SelectionPolicy<G>> MCTS<G, E, S> {
                     .map(|child| child.data.action.expect("child node action must exist"))
                     .collect()
             };
-            let state = policy.uct_parent_factor(&ctx, get_children);
+            let state = policy.on_parent(&ctx, get_children);
             let result = children
                 .iter()
                 .copied()
                 .enumerate()
-                .max_by_key(move |(index, child)| {
-                    let child_data = &child.data;
-                    let (ratio, _) = child_data.ratio_with_transposition(is_maximize, tt, tt_hits.clone());
-                    let uct = policy.uct_child_factor(&ctx, *index, child_data, &state);
+                .max_by_key(move |&(index, child)| {
+                    let child = &child.data;
+                    let child_ctx = SelectionPolicyChildContext {
+                        index,
+                        child,
+                        state: &state,
+                    };
+                    let (ratio, _) = child.ratio_with_transposition(is_maximize, tt, tt_hits.clone());
+                    let policy_value = policy.policy(&ctx, &child_ctx);
+                    let uct = policy.uct_child(&ctx, &child_ctx, policy_value);
                     let score = ratio + uct;
-                    if let Ok(mut st) = child_data.last_stats.lock() {
+                    if let Ok(mut st) = child.last_stats.lock() {
                         st.ratio = ratio;
                         st.uct = uct;
                         st.score = score;
