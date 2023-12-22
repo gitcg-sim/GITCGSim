@@ -90,7 +90,7 @@ pub struct SearchConfig {
     )]
     pub mcts_random_playout_iters: Option<u32>,
 
-    #[structopt(short = "M", long = "--mcts-max-steps", help = "MCTS: max steps per playout")]
+    #[structopt(long = "--mcts-max-steps", help = "MCTS: max steps per playout")]
     pub mcts_random_playout_max_steps: Option<u32>,
 
     #[structopt(long = "--mcts-playout-bias", help = "MCTS: random playout bias")]
@@ -129,7 +129,7 @@ pub struct DeckGen {
         parse(from_os_str),
         short = "a",
         long = "--player1-deck",
-        help = "Path to the deck for Player 1."
+        help = "Path to the deck for Player 1. Within the file, the card names areseparated by line break and there is a blank line between character cards and the deck cards."
     )]
     pub player1_deck: Option<PathBuf>,
 
@@ -137,7 +137,7 @@ pub struct DeckGen {
         parse(from_os_str),
         short = "b",
         long = "--player2-deck",
-        help = "Path to the deck for Player 2."
+        help = "Path to the deck for Player 2. Within the file, the card names areseparated by line break and there is a blank line between character cards and the deck cards."
     )]
     pub player2_deck: Option<PathBuf>,
 
@@ -147,6 +147,13 @@ pub struct DeckGen {
         help = "Randomize both players characters and decks"
     )]
     pub random_decks: bool,
+
+    #[structopt(
+        short = "M",
+        long = "--mirror-match",
+        help = "Player 2's deck will copy player 1's deck (can be random or specified)"
+    )]
+    pub mirror_match: bool,
 }
 
 #[derive(Debug, StructOpt, Clone)]
@@ -160,10 +167,12 @@ pub struct SearchOpts {
     #[structopt(short = "S", long = "--seed", help = "Random seed for the game states")]
     pub seed: Option<u64>,
 
-    #[structopt(long = "--tactical", help = "Tactical mode")]
+    #[structopt(
+        long = "--tactical",
+        help = "Tactical mode for search (a special mode that ignores cards, Elemental Tuning and dice management)"
+    )]
     pub tactical: bool,
 
-    // TODO split up
     #[structopt(flatten)]
     pub search: SearchConfig,
 }
@@ -183,7 +192,11 @@ impl DeckGen {
             }
         };
         let deck1 = get_deck(&self.player1_deck)?;
-        let deck2 = get_deck(&self.player2_deck)?;
+        let deck2 = if self.mirror_match {
+            deck1.clone()
+        } else {
+            get_deck(&self.player2_deck)?
+        };
         Ok((deck1, deck2))
     }
 }
