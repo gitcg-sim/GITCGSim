@@ -5,7 +5,7 @@ use std::{
     cell::RefCell,
     ops::ControlFlow,
     rc::Rc,
-    sync::{Arc, Mutex},
+    sync::{Arc, Mutex, RwLock},
 };
 
 use crate::{
@@ -40,9 +40,16 @@ enum IterationEnd {
 
 #[derive(Debug, Clone, Default)]
 pub struct NodeStats {
+    pub policy: f32,
     pub score: f32,
     pub ratio: f32,
     pub uct: f32,
+}
+
+#[derive(Debug, Clone, Default)]
+pub struct SelectionState {
+    pub selected_token: Option<atree::Token>,
+    pub visits_remaining: u32,
 }
 
 pub struct NodeData<G: Game> {
@@ -51,6 +58,7 @@ pub struct NodeData<G: Game> {
     pub prop: Proportion,
     pub depth: u8,
     pub policy_cache: Mutex<smallvec::SmallVec<[f32; 16]>>,
+    pub selection_state: RwLock<SelectionState>,
     /// Keeps track of mutable statistics. New instances constructed only on `NodeData::new`.
     /// Cannot be cloned.
     pub last_stats: Arc<Mutex<NodeStats>>,
@@ -77,6 +85,7 @@ impl<G: Game> NodeData<G> {
             prop: Default::default(),
             depth: Default::default(),
             policy_cache: Default::default(),
+            selection_state: Default::default(),
             last_stats: Default::default(),
         }
     }
@@ -250,68 +259,106 @@ impl<G: Game, E: EvalPolicy<G>, S: SelectionPolicy<G>> MCTS<G, E, S> {
     }
 
     fn select_level(&self, token: Token, tt_hits: Rc<RefCell<u64>>) -> Option<(G::Action, Token)> {
-        let node = self.tree.get(token)?;
-        node.data.state.to_move()?;
-        let is_maximize = node.data.is_maximize(self.maximize_player);
+        let parent_node = self.tree.get(token)?;
+        let parent = &parent_node.data;
+        parent.state.to_move()?;
+        {
+            let sel = parent_node
+                .data
+                .selection_state
+                .try_read()
+                .expect("select_level: retrieve selection");
+            if sel.visits_remaining > 0 {
+                let token = sel.selected_token.expect("selected_token");
+                let action = self.tree.get(token).expect("get").data.action.expect("get: action");
+                return Some((action, token));
+            }
+        }
+
+        let is_maximize = parent.is_maximize(self.maximize_player);
         let policy = &self.selection_policy;
-        let best = {
-            let Self { config, tt, tree, .. } = &self;
-            let parent = &node.data;
-            let ctx = SelectionPolicyContext {
-                config,
-                parent,
-                is_maximize,
-            };
-            let children = node.children(tree).collect::<smallvec::SmallVec<[_; 16]>>();
-            let get_children = || {
-                children
-                    .iter()
-                    .copied()
-                    .map(|child| child.data.action.expect("child node action must exist"))
-                    .collect()
-            };
-            let state = &policy.on_parent(&ctx, get_children);
-            let policy_values = {
-                let mut policy_cache = parent.policy_cache.lock().expect("policy_cache unlock");
-                if policy_cache.is_empty() && !children.is_empty() {
-                    *policy_cache = children
-                        .iter()
-                        .copied()
-                        .enumerate()
-                        .map(|(index, child_node)| {
-                            let child = &child_node.data;
-                            let child_ctx = SelectionPolicyChildContext { index, child, state };
-                            policy.policy(&ctx, &child_ctx)
-                        })
-                        .collect();
-                } else if policy_cache.len() != children.len() {
-                    panic!("non-zero number of children changed");
-                }
-                policy_cache
-            };
-            let result = children
+        let Self { config, tt, tree, .. } = &self;
+        let ctx = SelectionPolicyContext {
+            config,
+            parent,
+            is_maximize,
+        };
+        let children = parent_node.children(tree).collect::<smallvec::SmallVec<[_; 16]>>();
+        let get_children = || {
+            children
                 .iter()
                 .copied()
-                .enumerate()
-                .max_by_key(move |&(index, child_node)| {
-                    let child = &child_node.data;
-                    let child_ctx = SelectionPolicyChildContext { index, child, state };
-                    let (ratio, _) = child.ratio_with_transposition(is_maximize, tt, tt_hits.clone());
-                    let uct = policy.uct_child(&ctx, &child_ctx, policy_values[index]);
-                    let score = ratio + uct;
-                    if let Ok(mut st) = child.last_stats.lock() {
-                        st.ratio = ratio;
-                        st.uct = uct;
-                        st.score = score;
-                    }
-
-                    (1e8 * score) as u32
-                })
-                .map(|x| x.1);
-            result
+                .map(|child| child.data.action.expect("child node action must exist"))
+                .collect()
         };
+        let state = &policy.on_parent(&ctx, get_children);
+        let policy_values = {
+            let mut policy_cache = parent.policy_cache.lock().expect("policy_cache unlock");
+            if policy_cache.is_empty() && !children.is_empty() {
+                *policy_cache = children
+                    .iter()
+                    .copied()
+                    .enumerate()
+                    .map(|(index, child_node)| {
+                        let child = &child_node.data;
+                        let child_ctx = SelectionPolicyChildContext { index, child, state };
+                        policy.policy(&ctx, &child_ctx)
+                    })
+                    .collect();
+            } else if policy_cache.len() != children.len() {
+                panic!("non-zero number of children changed");
+            }
+            policy_cache
+        };
+        let (mut best, mut best_score, mut second_best_score) = (None, f32::MIN, None);
+        for (index, child_node) in children.iter().copied().enumerate() {
+            let child = &child_node.data;
+            let child_ctx = SelectionPolicyChildContext { index, child, state };
+            let (ratio, _) = child.ratio_with_transposition(is_maximize, tt, tt_hits.clone());
+            let policy_value = policy_values[index];
+            let uct = policy.uct_child(&ctx, &child_ctx, policy_value);
+            let score = ratio + uct;
+            if let Ok(mut st) = child.last_stats.lock() {
+                st.policy = policy_value;
+                st.ratio = ratio;
+                st.uct = uct;
+                st.score = score;
+            }
 
-        best.and_then(|b| b.data.action.map(|a| (a, b.token())))
+            if score >= best_score {
+                second_best_score = Some(best_score);
+                best_score = score;
+                best = Some(child_node);
+            }
+        }
+        let best = best?;
+        let best_action = best.data.action.expect("best.data.action");
+        {
+            let mut sel = parent_node
+                .data
+                .selection_state
+                .try_write()
+                .expect("select_level: get selection");
+            const MAX_VISITS: u32 = 100;
+            // Estimate the number of visits for the 2nd best score to overtake the best score.
+            // P(Q - x, N) + Puct(N0 + x) - second_best_score = 0
+            // Linear approximation at x=0, P(Q - x, N) -> P(Q, N) - x/N and Puct(N0 + x) -> Puct(N0)
+            // -x / N + (Q / n) + Puct(N0) - second_best_score + O(n^2) = 0
+            // (score - second_best_score) - x / N = 0
+            // x = N * (score - second_best_score)
+
+            sel.visits_remaining = match second_best_score {
+                None => MAX_VISITS,
+                Some(second_best_score) => {
+                    let delta = best_score - second_best_score;
+                    let n = (best.data.prop.n + 1) as f32;
+                    // Multiply by 0.7 to further reduce the estimate
+                    ((0.7 * delta * n) as u32).max(1).min(MAX_VISITS)
+                }
+            };
+            sel.selected_token = Some(best.token());
+        }
+        Some((best_action, best.token()))
     }
 
     fn select(&self, token: Token, path: &mut Vec<Token>, tt_hits: Rc<RefCell<u64>>) -> Token {
@@ -416,6 +463,11 @@ impl<G: Game, E: EvalPolicy<G>, S: SelectionPolicy<G>> MCTS<G, E, S> {
             let prop0: Proportion = self.tt.get(&key).unwrap_or_default();
             let n0 = prop0.n;
             self.tt.replace_if(&key, prop0 + dprop, |pt| pt.n <= n0);
+            let mut sel = data
+                .selection_state
+                .try_write()
+                .expect("backpropagate: lock selection_state");
+            sel.visits_remaining = sel.visits_remaining.saturating_sub(1);
         }
     }
 
