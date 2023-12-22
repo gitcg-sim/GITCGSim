@@ -24,7 +24,8 @@ pub type Model = (Linear<N, K>, Sigmoid);
 
 #[derive(Debug, Clone)]
 pub struct PolicyNetwork {
-    pub hard_coded: bool,
+    /// Use hard-coded model
+    pub(crate) hard_coded: bool,
     #[cfg(feature = "training")]
     pub dev: Cpu,
     #[cfg(feature = "training")]
