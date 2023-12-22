@@ -28,13 +28,13 @@ fn widen_aspiration_window<G: Game>(
 ) -> (G::Eval, G::Eval) {
     let (alpha, beta) = window;
     if value <= alpha {
-        #[cfg(detailed_search_stats)]
+        #[cfg(feature = "detailed_search_stats")]
         {
             counter.aw_fail_lows += 1;
         }
         (value.minus_unit(step), beta)
     } else {
-        #[cfg(detailed_search_stats)]
+        #[cfg(feature = "detailed_search_stats")]
         {
             counter.aw_fail_highs += 1;
         }
@@ -240,7 +240,7 @@ fn minimax<G: Game>(
         let (eval, pv_rest) = minimax(&game, maximize_player, (alpha, beta), new_depth, &pv_inner, ctx, dts);
 
         if eval >= beta {
-            #[cfg(detailed_search_stats)]
+            #[cfg(feature = "detailed_search_stats")]
             {
                 ctx.counter.beta_prunes += 1;
             }
@@ -266,7 +266,7 @@ fn minimax<G: Game>(
         }
     }
 
-    #[cfg(detailed_search_stats)]
+    #[cfg(feature = "detailed_search_stats")]
     if best <= alpha {
         ctx.counter.all_nodes += 1;
     }
@@ -605,7 +605,7 @@ fn minimax_iterative_deepening_aspiration_windows<G: Game>(
                     last_visited = next_visited;
                 }
 
-                #[cfg(detailed_search_stats)]
+                #[cfg(feature = "detailed_search_stats")]
                 {
                     ctx0.counter.aw_iters += 1;
                 }

@@ -43,6 +43,7 @@ wasm = [
 ]
 no_static_status_impl = []
 no_parallel = []
+detailed_search_stats = []
 training = [
     "serde",
     "dep:dfdx",
