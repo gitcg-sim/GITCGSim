@@ -178,6 +178,14 @@ impl MCTSConfig {
     }
 }
 
+#[cfg(feature = "training")]
+#[derive(Debug)]
+pub struct SelfPlayDataPoint<G: Game> {
+    pub state: G,
+    pub action_weights: Vec<(G::Action, f32)>,
+    pub depth: u8,
+}
+
 #[derive(Debug)]
 pub struct MCTS<G: Game, E: EvalPolicy<G> = DefaultEvalPolicy, S: SelectionPolicy<G> = UCB1> {
     pub config: MCTSConfig,
@@ -295,6 +303,7 @@ impl<G: Game, E: EvalPolicy<G>, S: SelectionPolicy<G>> MCTS<G, E, S> {
         let policy_values = {
             let mut policy_cache = parent.policy_cache.lock().expect("policy_cache unlock");
             if policy_cache.is_empty() && !children.is_empty() {
+                let mut tot = 0.0;
                 *policy_cache = children
                     .iter()
                     .copied()
@@ -302,9 +311,16 @@ impl<G: Game, E: EvalPolicy<G>, S: SelectionPolicy<G>> MCTS<G, E, S> {
                     .map(|(index, child_node)| {
                         let child = &child_node.data;
                         let child_ctx = SelectionPolicyChildContext { index, child, state };
-                        policy.policy(&ctx, &child_ctx)
+                        let val = policy.policy(&ctx, &child_ctx);
+                        tot += val;
+                        val
                     })
                     .collect();
+                if tot >= 0.0 {
+                    for v in policy_cache.iter_mut() {
+                        *v /= tot;
+                    }
+                }
             } else if policy_cache.len() != children.len() {
                 panic!("non-zero number of children changed");
             }
@@ -538,11 +554,11 @@ impl<G: Game, E: EvalPolicy<G>, S: SelectionPolicy<G>> MCTS<G, E, S> {
     }
 
     #[cfg(feature = "training")]
-    pub fn get_self_play_data_points(
+    pub fn get_self_play_policy_data_points(
         &self,
         maximize_player: PlayerId,
         min_depth: u8,
-        vec: &mut Vec<(G, G::Action, u8)>,
+        vec: &mut Vec<SelfPlayDataPoint<G>>,
     ) {
         fn traverse<D, F: FnMut(Token, u8)>(tree: &Arena<D>, token: Token, f: &mut F) -> u8 {
             let Some(node) = tree.get(token) else { return 0 };
@@ -555,20 +571,34 @@ impl<G: Game, E: EvalPolicy<G>, S: SelectionPolicy<G>> MCTS<G, E, S> {
             depth
         }
 
+        let tree = &self.tree;
+        let tt = &self.tt;
         let Some((_, root)) = self.root else { return };
         traverse(&self.tree, root, &mut |token, depth| {
             if depth < min_depth {
                 return;
             }
 
-            let Some(node) = self.tree.get(token) else { return };
+            let Some(node) = tree.get(token) else { return };
             let is_maximize = node.data.is_maximize(maximize_player);
-            if let Some(best_move) = self
-                .get_best_child(node, is_maximize, Default::default())
-                .and_then(|node| node.data.action)
-            {
-                vec.push((node.data.state.clone(), best_move, depth));
-            }
+            let action_weights = node
+                .children(tree)
+                .map(|child| {
+                    (
+                        child.data.action.unwrap(),
+                        child
+                            .data
+                            .ratio_with_transposition(is_maximize, tt, Default::default())
+                            .0,
+                    )
+                })
+                .collect::<Vec<_>>();
+            let state = node.data.state.clone();
+            vec.push(SelfPlayDataPoint {
+                state,
+                action_weights,
+                depth,
+            });
         });
     }
 }

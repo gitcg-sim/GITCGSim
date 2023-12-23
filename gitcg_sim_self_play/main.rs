@@ -2,7 +2,7 @@ use std::{cell::RefCell, ops::ControlFlow};
 
 use dfdx::{optim::Sgd, prelude::*};
 use gitcg_sim::{
-    mcts::{CpuctConfig, MCTSConfig, MCTS},
+    mcts::{CpuctConfig, MCTSConfig, SelfPlayDataPoint, MCTS},
     playout::Playout,
     rand::{rngs::SmallRng, thread_rng, Rng, SeedableRng},
     training::{
@@ -268,18 +268,29 @@ fn generate_batch<S: NondetState>(
         run_playout(initial, searches, 300, |searches, _game_state, _input| {
             let player_id = PlayerId::PlayerFirst;
             let mcts: &MCTS<GameStateWrapper<S>> = searches.get(player_id);
-            let mut vec = vec![];
-            mcts.get_self_play_data_points(player_id, mcts_min_depth, &mut vec);
-            for (gs, input, depth) in vec {
-                if input.player() != Some(PlayerId::PlayerFirst) {
-                    continue;
-                }
+            let mut vec = Vec::with_capacity(batch_size);
+            mcts.get_self_play_policy_data_points(player_id, mcts_min_depth, &mut vec);
+            for SelfPlayDataPoint {
+                state: gs,
+                action_weights,
+                depth,
+                ..
+            } in vec
+            {
                 let features = gs.features();
-                let input_features = input.features(1f32);
                 if data_points.len() >= batch_size {
                     return ControlFlow::Break(());
                 }
-                data_points.push((features, input_features, depth));
+                let mut tot = <InputFeatures<f32> as AsSlice<f32>>::Slice::default();
+                let total_weight: f32 = action_weights.iter().map(|&(_, w)| w).sum();
+                for (act, weight) in action_weights {
+                    let input_features = act.features(1.0).as_slice();
+                    for (yi, xi) in tot.iter_mut().zip(input_features) {
+                        *yi += weight * xi / total_weight;
+                    }
+                }
+
+                data_points.push((features, InputFeatures::from_slice(tot), depth));
             }
             ControlFlow::Continue(())
         });
@@ -296,7 +307,7 @@ fn main_policy(deck: SearchOpts, opts: PolicyOpts) -> Result<(), std::io::Error>
         random_playout_iters: 10,
         random_playout_bias: Some(50.0),
         random_playout_cutoff: 20,
-        policy_bias: None,
+        policy_bias: Some(0.1),
         tt_size_mb: 32,
         limits: Some(SearchLimits {
             max_time_ms: Some(opts.mcts_time_limit_ms as u128),

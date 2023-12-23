@@ -208,9 +208,9 @@ impl<S: NondetState> SelectionPolicy<GameStateWrapper<S>> for PolicyNetwork {
                 v
             })
             .collect();
-        let children_visits = (parent.prop.n - 1).max(1);
+        let n = parent.prop.n + 1;
         SelectionPolicyState {
-            puct_mult: Self::cpuct(ctx, parent.prop.n) * f32::sqrt(children_visits as f32),
+            puct_mult: Self::cpuct(ctx, parent.prop.n) * (n as f32).sqrt(),
             evals,
             denominator,
         }
@@ -226,21 +226,15 @@ impl<S: NondetState> SelectionPolicy<GameStateWrapper<S>> for PolicyNetwork {
 
     fn uct_child(
         &self,
-        ctx: &SelectionPolicyContext<GameStateWrapper<S>>,
+        _: &SelectionPolicyContext<GameStateWrapper<S>>,
         cctx: &SelectionPolicyChildContext<GameStateWrapper<S>, Self::State>,
         policy_value: f32,
     ) -> f32 {
         let state = &cctx.state;
         let puct_mult = state.puct_mult;
         let n = cctx.child.prop.n;
-        let n_child = (n + 1) as f32;
-        let fpu = if n <= 10 * ctx.config.random_playout_iters {
-            let fr = (n as f32) / ((10 * ctx.config.random_playout_iters) as f32);
-            0.5 * (1.0 - fr) + 0.5
-        } else {
-            0.0
-        };
-        policy_value * (puct_mult / n_child) + fpu
+        let fpu = if n < 1 { 1.0 } else { 0.0 };
+        policy_value * puct_mult / ((n + 1) as f32) + fpu
     }
 }
 
@@ -340,7 +334,7 @@ mod make_hard_coded_model {
 
     mod requires_model_file {
         use super::*;
-        const MODEL_PATH: &str = "./gitcg_sim_self_play/model_t4.npz";
+        const MODEL_PATH: &str = "./gitcg_sim_self_play/model_t5.npz";
 
         fn npz_path() -> PathBuf {
             PathBuf::from(std::ffi::OsStr::new(MODEL_PATH))
