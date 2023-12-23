@@ -140,9 +140,9 @@ pub struct CpuctConfig {
 
 impl CpuctConfig {
     pub const STANDARD: Self = Self {
-        init: 2.2,
-        base: 18000.0,
-        factor: 2.8,
+        init: 4.0,
+        base: 20000.0,
+        factor: 4.0,
     };
 
     #[inline(always)]

@@ -11,6 +11,7 @@ use crate::{
         MinimaxConfig, MinimaxSearch,
     },
     rule_based::RuleBasedSearch,
+    training::policy::search::PolicyNetworkBasedSearch,
     types::{
         game_state::PlayerId,
         nondet::{NondetState, StandardNondetHandlerState},
@@ -25,7 +26,8 @@ use crate::training::policy::PolicyNetwork;
 pub enum SearchAlgorithm {
     Minimax,
     MCTS,
-    RuleBasedSearch,
+    RuleBased,
+    PolicyBased,
     Random,
 }
 
@@ -36,7 +38,8 @@ impl FromStr for SearchAlgorithm {
         match s.to_lowercase().as_str() {
             "minimax" => Ok(Self::Minimax),
             "mcts" => Ok(Self::MCTS),
-            "rule-based" => Ok(Self::RuleBasedSearch),
+            "rule-based" => Ok(Self::RuleBased),
+            "policy-based" => Ok(Self::PolicyBased),
             "random" => Ok(Self::Random),
             _ => Err(""),
         }
@@ -105,6 +108,9 @@ pub struct SearchConfig {
 
     #[structopt(long = "--mcts-use-policy-network", help = "MCTS: Use hard-coded policy network")]
     pub mcts_use_policy_network: bool,
+
+    #[structopt(long = "--policy-based-bias", help = "Policy-based: softmax bias")]
+    pub policy_based_bias: Option<f32>,
 
     #[structopt(
         short = "T",
@@ -223,6 +229,7 @@ pub enum GenericSearch<S: NondetState = StandardNondetHandlerState> {
     MCTS(MCTS<GameStateWrapper<S>>),
     MCTSPolicy(MCTS<GameStateWrapper<S>, crate::mcts::policy::DefaultEvalPolicy, PolicyNetwork>),
     RuleBasedSearch(RuleBasedSearch),
+    PolicyBasedSearch(PolicyNetworkBasedSearch<SmallRng>),
     Random,
 }
 
@@ -248,6 +255,7 @@ impl<S: NondetState> GameTreeSearch<GameStateWrapper<S>> for GenericSearch<S> {
             Self::MCTS(s) => s.search(position, maximize_player),
             Self::MCTSPolicy(s) => s.search(position, maximize_player),
             Self::RuleBasedSearch(s) => s.search(position, maximize_player),
+            Self::PolicyBasedSearch(s) => s.search(position, maximize_player),
             Self::Random => random_search(position),
         }
     }
@@ -302,9 +310,12 @@ impl SearchConfig {
                 }
                 GenericSearch::MCTS(MCTS::new(config))
             }
-            SearchAlgorithm::RuleBasedSearch => {
-                GenericSearch::RuleBasedSearch(RuleBasedSearch::new(Default::default()))
-            }
+            SearchAlgorithm::PolicyBased => GenericSearch::PolicyBasedSearch(PolicyNetworkBasedSearch::new(
+                SmallRng::from_entropy(),
+                self.policy_based_bias,
+                PolicyNetwork::new_hard_coded(),
+            )),
+            SearchAlgorithm::RuleBased => GenericSearch::RuleBasedSearch(RuleBasedSearch::new(Default::default())),
             SearchAlgorithm::Random => GenericSearch::Random,
         }
     }

@@ -4,14 +4,14 @@ use dfdx::prelude::*;
 use std::path::PathBuf;
 
 use crate::{
-    game_tree_search::Game,
+    game_tree_search::{Game, GameTreeSearch, SearchResult},
     mcts::policy::*,
     prelude::GameStateWrapper,
     training::{
         as_slice::*,
         features::{Features, InputFeatures},
     },
-    types::{input::Input, nondet::NondetState},
+    types::{input::Input, nondet::NondetState}, game_state_types::PlayerId,
 };
 
 // const H: usize = 3;
@@ -24,8 +24,9 @@ pub type Model = (Linear<N, K>, Sigmoid);
 
 #[derive(Debug, Clone)]
 pub struct PolicyNetwork {
+    #[allow(dead_code)]
     /// Use hard-coded model
-    pub(crate) hard_coded: bool,
+    hard_coded: bool,
     #[cfg(feature = "training")]
     pub dev: Cpu,
     #[cfg(feature = "training")]
@@ -74,6 +75,10 @@ impl PolicyNetwork {
             dev: dev.clone(),
             model: dev.build_module::<Model, f32>(),
         }
+    }
+
+    pub fn is_hard_coded(&self) -> bool {
+        self.hard_coded
     }
 
     #[cfg(test)]
@@ -235,6 +240,76 @@ impl<S: NondetState> SelectionPolicy<GameStateWrapper<S>> for PolicyNetwork {
             0.0
         };
         policy_value * (puct_mult / n_child) + fpu
+    }
+}
+
+pub mod search {
+    use crate::linked_list;
+
+    use super::*;
+
+    use rand::{Rng, distributions::WeightedIndex};
+    use smallvec::SmallVec;
+
+    #[derive(Debug, Clone)]
+    pub struct PolicyNetworkBasedSearch<R: Rng> {
+        pub rng: R,
+        pub softmax_bias: Option<f32>,
+        pub policy_network: PolicyNetwork,
+    }
+
+    impl<R: Rng> PolicyNetworkBasedSearch<R> {
+        pub fn new(rng: R, softmax_bias: Option<f32>, policy_network: PolicyNetwork) -> Self { Self { rng, softmax_bias, policy_network } }
+    }
+
+    impl<R: Rng, S: NondetState> GameTreeSearch<GameStateWrapper<S>> for PolicyNetworkBasedSearch<R> {
+        fn search(&mut self, position: &GameStateWrapper<S>, maximize_player: PlayerId) -> SearchResult<GameStateWrapper<S>> {
+            let mut gs: &GameStateWrapper<S> = position;
+            let Some(to_move) = gs.to_move() else {
+                return Default::default();
+            };
+            #[allow(unused_assignments)]
+            let mut transposed_opt = None;
+            if to_move != maximize_player {
+                let mut transposed = position.clone();
+                transposed.game_state.transpose_in_place();
+                transposed_opt = Some(transposed);
+                gs = transposed_opt.as_ref().unwrap();
+            }
+
+            let y = self.policy_network.eval(&gs.game_state.express_features().as_slice());
+            let evals: SmallVec<[_; 16]> = position.actions()
+                .iter()
+                .map(|&action| {
+                    let eval = self.policy_network.action_value(action, &y);
+                    (action, eval)
+                })
+                .collect();
+            if evals.is_empty() {
+                return Default::default()
+            }
+
+            let weights: SmallVec<[_; 16]> = if let Some(bias) = self.softmax_bias {
+                evals.iter().map(|&(_, w)| (w * bias).exp().clamp(0.0, 1e6)).collect()
+            } else {
+                evals.iter().map(|&(_, w)| w).collect()
+            };
+            let selected = match WeightedIndex::new(weights) {
+                Ok(dist) => {
+                    self.rng.sample(dist)
+                },
+                Err(rand::distributions::WeightedError::AllWeightsZero) => {
+                    self.rng.gen_range(0..evals.len())
+                },
+                Err(e) => panic!("{e:?}"),
+            };
+            let pv = linked_list![evals[selected].0];
+            SearchResult {
+                pv,
+                eval: Default::default(),
+                counter: Default::default(),
+            }
+        }
     }
 }
 
