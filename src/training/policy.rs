@@ -4,6 +4,7 @@ use dfdx::prelude::*;
 use std::path::PathBuf;
 
 use crate::{
+    game_state_types::PlayerId,
     game_tree_search::{Game, GameTreeSearch, SearchResult},
     mcts::policy::*,
     prelude::GameStateWrapper,
@@ -11,7 +12,7 @@ use crate::{
         as_slice::*,
         features::{Features, InputFeatures},
     },
-    types::{input::Input, nondet::NondetState}, game_state_types::PlayerId,
+    types::{input::Input, nondet::NondetState},
 };
 
 // const H: usize = 3;
@@ -248,7 +249,7 @@ pub mod search {
 
     use super::*;
 
-    use rand::{Rng, distributions::WeightedIndex};
+    use rand::{distributions::WeightedIndex, Rng};
     use smallvec::SmallVec;
 
     #[derive(Debug, Clone)]
@@ -259,11 +260,21 @@ pub mod search {
     }
 
     impl<R: Rng> PolicyNetworkBasedSearch<R> {
-        pub fn new(rng: R, softmax_bias: Option<f32>, policy_network: PolicyNetwork) -> Self { Self { rng, softmax_bias, policy_network } }
+        pub fn new(rng: R, softmax_bias: Option<f32>, policy_network: PolicyNetwork) -> Self {
+            Self {
+                rng,
+                softmax_bias,
+                policy_network,
+            }
+        }
     }
 
     impl<R: Rng, S: NondetState> GameTreeSearch<GameStateWrapper<S>> for PolicyNetworkBasedSearch<R> {
-        fn search(&mut self, position: &GameStateWrapper<S>, maximize_player: PlayerId) -> SearchResult<GameStateWrapper<S>> {
+        fn search(
+            &mut self,
+            position: &GameStateWrapper<S>,
+            maximize_player: PlayerId,
+        ) -> SearchResult<GameStateWrapper<S>> {
             let mut gs: &GameStateWrapper<S> = position;
             let Some(to_move) = gs.to_move() else {
                 return Default::default();
@@ -278,7 +289,8 @@ pub mod search {
             }
 
             let y = self.policy_network.eval(&gs.game_state.express_features().as_slice());
-            let evals: SmallVec<[_; 16]> = position.actions()
+            let evals: SmallVec<[_; 16]> = position
+                .actions()
                 .iter()
                 .map(|&action| {
                     let eval = self.policy_network.action_value(action, &y);
@@ -286,7 +298,7 @@ pub mod search {
                 })
                 .collect();
             if evals.is_empty() {
-                return Default::default()
+                return Default::default();
             }
 
             let weights: SmallVec<[_; 16]> = if let Some(bias) = self.softmax_bias {
@@ -295,12 +307,8 @@ pub mod search {
                 evals.iter().map(|&(_, w)| w).collect()
             };
             let selected = match WeightedIndex::new(weights) {
-                Ok(dist) => {
-                    self.rng.sample(dist)
-                },
-                Err(rand::distributions::WeightedError::AllWeightsZero) => {
-                    self.rng.gen_range(0..evals.len())
-                },
+                Ok(dist) => self.rng.sample(dist),
+                Err(rand::distributions::WeightedError::AllWeightsZero) => self.rng.gen_range(0..evals.len()),
                 Err(e) => panic!("{e:?}"),
             };
             let pv = linked_list![evals[selected].0];
@@ -332,13 +340,13 @@ mod make_hard_coded_model {
 
     mod requires_model_file {
         use super::*;
-        const MODEL_PATH: &str = "./gitcg_sim_self_play/model_t3.npz";
+        const MODEL_PATH: &str = "./gitcg_sim_self_play/model_t4.npz";
 
         fn npz_path() -> PathBuf {
             PathBuf::from(std::ffi::OsStr::new(MODEL_PATH))
         }
 
-        // Uncomment this method to generate
+        /// Run this test to generate the contents of the hard_coded_model.rs
         #[test]
         fn gen_hard_coded_model() {
             let mut model = PolicyNetwork::new();
