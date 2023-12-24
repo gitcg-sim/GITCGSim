@@ -525,34 +525,34 @@ mod tests {
 
     use super::RelativeCharIdx;
 
-    const N: u8 = 15;
+    const N_CHARS: u8 = 15;
 
     fn arb_relative_switch_type_expect_immediate_next() -> impl Strategy<Value = RelativeCharIdx> {
         prop_oneof![
             Just(RelativeCharIdx::Previous),
             Just(RelativeCharIdx::Next),
-            (0..N).prop_map(RelativeCharIdx::ClosestTo),
+            (0..N_CHARS).prop_map(RelativeCharIdx::ClosestTo),
         ]
     }
     proptest! {
         #[test]
-        fn indexing_seq_has_length_of_n(n in 1..N, s in arb_relative_switch_type_expect_immediate_next(), char_idx in 0..N) {
+        fn indexing_seq_has_length_of_n(n in 1..N_CHARS, s in arb_relative_switch_type_expect_immediate_next(), char_idx in 0..N_CHARS) {
             prop_assume!(char_idx < n);
             assert_eq!(n, s.indexing_seq(char_idx, n).collect::<Vec<_>>().len() as u8);
         }
 
         #[test]
-        fn indexing_seq_is_a_permutation_of_range_from_zero_to_n(n in 1..N, s in arb_relative_switch_type_expect_immediate_next(), char_idx in 0..N) {
+        fn indexing_seq_is_a_permutation_of_range_from_zero_to_n(n in 1..N_CHARS, s in arb_relative_switch_type_expect_immediate_next(), char_idx in 0..N_CHARS) {
             prop_assume!(char_idx < n);
-            let perm = s.indexing_seq(char_idx, N).collect::<Vec<_>>();
+            let perm = s.indexing_seq(char_idx, N_CHARS).collect::<Vec<_>>();
             let sorted = { let mut sorted = perm.clone(); sorted.sort(); sorted };
-            assert_eq!((0..N).collect::<Vec<_>>(), sorted, "{perm:?}, s={s:?} char_idx={char_idx}");
+            assert_eq!((0..N_CHARS).collect::<Vec<_>>(), sorted, "{perm:?}, s={s:?} char_idx={char_idx}");
         }
 
         #[test]
-        fn indexing_seq_for_closest_to(char_idx in 0..N) {
-            let perm = RelativeCharIdx::ImmediateNext.indexing_seq(char_idx, N).take(2).collect::<Vec<_>>();
-            if char_idx + 1 < N {
+        fn indexing_seq_for_closest_to(char_idx in 0..N_CHARS) {
+            let perm = RelativeCharIdx::ImmediateNext.indexing_seq(char_idx, N_CHARS).take(2).collect::<Vec<_>>();
+            if char_idx + 1 < N_CHARS {
                 assert_eq!(vec![char_idx + 1, char_idx], perm);
             } else {
                 assert_eq!(vec![char_idx, char_idx], perm);

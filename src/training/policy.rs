@@ -15,13 +15,13 @@ use crate::{
     types::{input::Input, nondet::NondetState},
 };
 
-// const H: usize = 3;
-// type Model = (Linear<N, H>, Sigmoid, Linear<H, K>, Sigmoid);
-pub const N: usize = <Features as AsSlice<f32>>::LENGTH;
-pub const K: usize = <InputFeatures<f32> as AsSlice<f32>>::LENGTH;
+// const HIDDEN: usize = 3;
+// type Model = (Linear<N_IN, HIDDEN>, Sigmoid, Linear<HIDDEN, N_OUT>, Sigmoid);
+pub const N_IN: usize = <Features as AsSlice<f32>>::LENGTH;
+pub const N_OUT: usize = <InputFeatures<f32> as AsSlice<f32>>::LENGTH;
 
 #[cfg(feature = "training")]
-pub type Model = (Linear<N, K>, Sigmoid);
+pub type Model = (Linear<N_IN, N_OUT>, Sigmoid);
 
 #[derive(Debug, Clone)]
 pub struct PolicyNetwork {
@@ -53,7 +53,7 @@ impl PolicyNetwork {
         Self::new_hard_coded()
     }
 
-    pub fn eval(&self, x_slice: &[f32; N]) -> TensorWrapper<[f32; K]> {
+    pub fn eval(&self, x_slice: &[f32; N_IN]) -> TensorWrapper<[f32; N_OUT]> {
         TensorWrapper(evaluate_hard_coded_policy(x_slice))
     }
 }
@@ -99,15 +99,15 @@ impl PolicyNetwork {
         self.model.alloc_grads()
     }
 
-    pub fn alloc_x<const BATCH_SIZE: usize>(&self) -> Tensor<Rank2<BATCH_SIZE, N>, f32, Cpu> {
+    pub fn alloc_x<const BATCH_SIZE: usize>(&self) -> Tensor<Rank2<BATCH_SIZE, N_IN>, f32, Cpu> {
         self.dev.zeros()
     }
 
-    pub fn alloc_y<const BATCH_SIZE: usize>(&self) -> Tensor<Rank2<BATCH_SIZE, K>, f32, Cpu> {
+    pub fn alloc_y<const BATCH_SIZE: usize>(&self) -> Tensor<Rank2<BATCH_SIZE, N_OUT>, f32, Cpu> {
         self.dev.zeros()
     }
 
-    pub fn eval(&self, x_slice: &[f32; N]) -> Tensor<Rank1<K>, f32, Cpu> {
+    pub fn eval(&self, x_slice: &[f32; N_IN]) -> Tensor<Rank1<N_OUT>, f32, Cpu> {
         let model = &self.model;
         let mut x = self.alloc_x::<1>();
         x.copy_from(x_slice);
@@ -130,9 +130,9 @@ impl Default for PolicyNetwork {
 }
 
 #[cfg(feature = "training")]
-type ActionFeatures = Tensor1D<K>;
+type ActionFeatures = Tensor1D<N_OUT>;
 #[cfg(not(feature = "training"))]
-type ActionFeatures = TensorWrapper<[f32; K]>;
+type ActionFeatures = TensorWrapper<[f32; N_OUT]>;
 
 type Action = Input;
 
@@ -143,11 +143,11 @@ pub struct SelectionPolicyState {
 }
 
 impl PolicyNetwork {
-    fn features_slice(action: Action) -> [f32; K] {
+    fn features_slice(action: Action) -> [f32; N_OUT] {
         action.features(1f32).as_slice()
     }
 
-    pub(crate) fn action_value_hard_coded(action: Action, y: &[f32; K]) -> f32 {
+    pub(crate) fn action_value_hard_coded(action: Action, y: &[f32; N_OUT]) -> f32 {
         let w = Self::features_slice(action);
         let ww: f32 = w.iter().map(|x| x * x).sum();
         let yy: f32 = y.iter().map(|x| x * x).sum();
@@ -157,11 +157,11 @@ impl PolicyNetwork {
 
     #[cfg(feature = "training")]
     fn action_value_tensor(&self, action: Action, y: &ActionFeatures) -> f32 {
-        let mut w: Tensor<Rank1<K>, f32, Cpu> = self.dev.zeros();
+        let mut w: Tensor<Rank1<N_OUT>, f32, Cpu> = self.dev.zeros();
         w.copy_from(&Self::features_slice(action));
         let (ww, yy) = (w.clone().square().sum().array(), y.clone().square().sum().array());
-        let w1: Tensor<Rank1<K>, f32, _> = w.reshape();
-        let y1: Tensor<Rank2<K, 1>, f32, _> = y.clone().reshape();
+        let w1: Tensor<Rank1<N_OUT>, f32, _> = w.reshape();
+        let y1: Tensor<Rank2<N_OUT, 1>, f32, _> = y.clone().reshape();
         let inner: Tensor<Rank1<1>, f32, _> = w1.matmul(y1);
         let inner_f = inner.sum().array();
         inner_f / (ww * yy).sqrt()
@@ -332,7 +332,7 @@ fn evaluate_layer<const IN: usize, const OUT: usize, const WEIGHT: usize>(
     y
 }
 
-pub fn evaluate_hard_coded_policy(input: &[f32; N]) -> [f32; K] {
+pub fn evaluate_hard_coded_policy(input: &[f32; N_IN]) -> [f32; N_OUT] {
     evaluate_layer(
         &super::hard_coded_model::LIN_WEIGHT,
         &super::hard_coded_model::LIN_BIAS,
@@ -359,11 +359,11 @@ mod make_hard_coded_model {
             let mut model = PolicyNetwork::new();
             model.load_from_npz(&npz_path()).unwrap();
             let lin = &model.model.0;
-            let lin_weight = lin.weight.clone().reshape::<Rank1<{ N * K }>>().array();
+            let lin_weight = lin.weight.clone().reshape::<Rank1<{ N_IN * N_OUT }>>().array();
             let lin_bias = lin.bias.array();
             println!("// Generated code, see ./policy.rs make_hard_coded_model::gen_hard_coded_model()");
-            println!("pub const LIN_WEIGHT: [f32; {}] = {lin_weight:#?};", N * K);
-            println!("pub const LIN_BIAS: [f32; {K}] = {lin_bias:#?};");
+            println!("pub const LIN_WEIGHT: [f32; {}] = {lin_weight:#?};", N_IN * N_OUT);
+            println!("pub const LIN_BIAS: [f32; {N_OUT}] = {lin_bias:#?};");
         }
 
         #[test]
@@ -379,10 +379,10 @@ mod make_hard_coded_model {
         }
     }
 
-    fn rand_input(seed: u64) -> [f32; N] {
+    fn rand_input(seed: u64) -> [f32; N_IN] {
         use rand::{rngs::SmallRng, Rng, SeedableRng};
         let mut rng = SmallRng::seed_from_u64(seed);
-        let mut input: [f32; N] = [0.0; N];
+        let mut input: [f32; N_IN] = [0.0; N_IN];
         for xi in input.iter_mut() {
             *xi = rng.gen_range(0f32..1f32);
         }

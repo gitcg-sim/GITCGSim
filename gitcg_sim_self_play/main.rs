@@ -21,7 +21,7 @@ use gitcg_sim::{
     deck::cli_args::SearchOpts,
     game_tree_search::*,
     prelude::*,
-    training::{eval::*, policy::N},
+    training::{eval::*, policy::N_IN},
     types::{by_player::ByPlayer, nondet::NondetState},
 };
 
@@ -360,8 +360,8 @@ fn main_policy(deck: SearchOpts, opts: PolicyOpts) -> Result<(), std::io::Error>
                 .unwrap()
         }
 
-        let input_data = t_batched::<N>(inputs);
-        let output_data = t_batched::<K>(outputs);
+        let input_data = t_batched::<N_IN>(inputs);
+        let output_data = t_batched::<N_OUT>(outputs);
 
         let dev = &model.dev;
         let x = {
@@ -370,7 +370,7 @@ fn main_policy(deck: SearchOpts, opts: PolicyOpts) -> Result<(), std::io::Error>
             x
         };
         let y = model.model.forward_mut(x.traced(grads));
-        let mut y0: Tensor<Rank2<BATCH_SIZE, K>, f32, _> = dev.zeros();
+        let mut y0: Tensor<Rank2<BATCH_SIZE, N_OUT>, f32, _> = dev.zeros();
         y0.copy_from(output_data.as_slice().unwrap());
         let loss = (y - y0).square().mean();
         let loss_value = loss.array();
