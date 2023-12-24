@@ -21,7 +21,7 @@ use gitcg_sim::{
     deck::cli_args::SearchOpts,
     game_tree_search::*,
     prelude::*,
-    training::eval::*,
+    training::{eval::*, policy::N},
     types::{by_player::ByPlayer, nondet::NondetState},
 };
 
@@ -125,7 +125,6 @@ fn run_playout<
     states
 }
 
-const N: usize = gitcg_sim::training::policy::N;
 fn winner_eval(winner: PlayerId, player_id: PlayerId) -> (f32, Features) {
     (
         if winner == player_id {

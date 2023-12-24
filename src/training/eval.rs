@@ -12,7 +12,7 @@ use crate::{
 };
 
 /// Evaluates sigmoid(a * dot(x, w)) and its gradients over `x`.
-pub fn sigmoid_dot<const N: usize>(x: &[f32; N], w: &[f32; N], a: f32) -> (f32, [f32; N]) {
+pub fn sigmoid_dot<const LEN: usize>(x: &[f32; LEN], w: &[f32; LEN], a: f32) -> (f32, [f32; LEN]) {
     // Let $f(x; w) = sigmoid(a * (x.w))$
     // $df/dx_i = (d[sigmoid(a * (x.w))] / d[a * (x.w)]) (d[a * (x.w)] / dx_i) = a * sigmoid'(x . w) * w_i$
     let dot: f32 = a * x
@@ -24,7 +24,7 @@ pub fn sigmoid_dot<const N: usize>(x: &[f32; N], w: &[f32; N], a: f32) -> (f32, 
     let y = 1f32 / (1f32 + exp);
     let exp1 = exp + 1f32;
     let dy = exp / (exp1 * exp1);
-    let mut grads = [0f32; N];
+    let mut grads = [0f32; LEN];
     for (v, wi) in grads.iter_mut().zip(w.iter().copied()) {
         *v = a * dy * wi;
     }
