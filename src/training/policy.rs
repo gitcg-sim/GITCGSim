@@ -197,7 +197,7 @@ impl<S: NondetState> SelectionPolicy<GameStateWrapper<S>> for PolicyNetwork {
         if !ctx.is_maximize {
             gs.transpose_in_place();
         }
-        let y = self.eval(&gs.express_features().as_slice());
+        let y = self.eval(&gs.features().as_slice());
         let mut denominator = 1e-5;
         let evals = get_children()
             .iter()
@@ -282,7 +282,7 @@ pub mod search {
                 gs = transposed_opt.as_ref().unwrap();
             }
 
-            let y = self.policy_network.eval(&gs.game_state.express_features().as_slice());
+            let y = self.policy_network.eval(&gs.game_state.features().as_slice());
             let evals: SmallVec<[_; 16]> = position
                 .actions()
                 .iter()

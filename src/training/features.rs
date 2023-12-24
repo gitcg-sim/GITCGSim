@@ -298,14 +298,15 @@ impl GameState {
         }
     }
 
-    pub fn features(&self) -> GameStateFeatures<f32> {
+    // Unused
+    pub fn extended_features(&self) -> GameStateFeatures<f32> {
         GameStateFeatures {
             p1: self.player_state_features(PlayerId::PlayerFirst),
             p2: self.player_state_features(PlayerId::PlayerSecond),
         }
     }
 
-    pub fn express_features(&self) -> ExpressGameStateFeatures<f32> {
+    pub fn features(&self) -> ExpressGameStateFeatures<f32> {
         ExpressGameStateFeatures {
             p1: self.express_player_state_features(PlayerId::PlayerFirst),
             p2: self.express_player_state_features(PlayerId::PlayerSecond),
@@ -320,7 +321,7 @@ impl<S: NondetState> crate::game_tree_search::GameStateWrapper<S> {
     }
 
     pub fn features(&self) -> ExpressGameStateFeatures<f32> {
-        self.game_state.express_features()
+        self.game_state.features()
     }
 }
 
@@ -376,10 +377,10 @@ impl Input {
                 PlayerAction::PlayCard(card_id, target) => Self::play_card_features(card_id, target, value),
                 PlayerAction::ElementalTuning(..) => vf!(InputFeatures, elemental_tuning: value),
                 PlayerAction::CastSkill(skill_id) => Self::cast_skill_features(skill_id, value),
-                PlayerAction::SwitchCharacter(char_idx) | PlayerAction::PostDeathSwitch(char_idx) => InputFeatures {
-                    switch: Self::from_char_idx(char_idx, value),
-                    ..Default::default()
-                },
+                PlayerAction::SwitchCharacter(char_idx) | PlayerAction::PostDeathSwitch(char_idx) => vf!(
+                    InputFeatures,
+                    switch: Self::from_char_idx(char_idx, value)
+                ),
             },
         }
     }
@@ -402,10 +403,7 @@ impl Input {
                         CardSelection::OwnSummon(..) | CardSelection::OpponentSummon(..) => Default::default(),
                     })
                     .unwrap_or_default();
-                PlayCardFeatures {
-                    weapon_or_artifact: targeting,
-                    ..Default::default()
-                }
+                vf!(PlayCardFeatures, weapon_or_artifact: targeting)
             }
         };
         InputFeatures {
