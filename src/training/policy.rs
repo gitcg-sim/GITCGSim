@@ -315,16 +315,29 @@ pub mod search {
     }
 }
 
-pub fn evaluate_hard_coded_policy(input: &[f32; N]) -> [f32; K] {
-    let mut y = [0f32; K];
+/// `WEIGHT = {IN * OUT}`
+fn evaluate_layer<const IN: usize, const OUT: usize, const WEIGHT: usize>(
+    weight: &[f32; WEIGHT],
+    bias: &[f32; OUT],
+    input: &[f32; IN],
+) -> [f32; OUT] {
+    let mut y = [0f32; OUT];
     for (i, yi) in y.iter_mut().enumerate() {
-        let mut s = super::hard_coded_model::LIN_BIAS[i];
+        let mut s = bias[i];
         for (j, xj) in input.iter().copied().enumerate() {
-            s += super::hard_coded_model::LIN_WEIGHT[i * N + j] * xj;
+            s += weight[i * IN + j] * xj;
         }
         *yi = 1.0 / (1.0 + (-s).exp());
     }
     y
+}
+
+pub fn evaluate_hard_coded_policy(input: &[f32; N]) -> [f32; K] {
+    evaluate_layer(
+        &super::hard_coded_model::LIN_WEIGHT,
+        &super::hard_coded_model::LIN_BIAS,
+        input,
+    )
 }
 
 #[cfg(feature = "training")]
