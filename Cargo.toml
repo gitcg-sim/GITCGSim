@@ -25,7 +25,9 @@ lto = true
 test = [
     "serde"
 ]
-default = []
+default = [
+    "hidden_layer"
+]
 serde = [
     "dep:serde",
     "enumset/serde",
@@ -49,6 +51,7 @@ training = [
     "dep:dfdx",
     "dep:ndarray"
 ]
+hidden_layer = []
 
 [workspace]
 members = [

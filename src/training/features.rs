@@ -434,7 +434,7 @@ impl Input {
 pub type Features = ExpressGameStateFeatures<f32>;
 
 #[cfg(test)]
-mod tests {
+mod test {
     use super::*;
     use proptest::prelude::*;
 

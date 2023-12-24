@@ -85,14 +85,14 @@ pub struct PolicyOpts {
 #[derive(Debug, StructOpt, Clone)]
 #[structopt(about = "Genius Invokation TCG simulator - self-play")]
 pub enum SelfPlayOpts {
-    #[structopt(help = "Run temporal different learning")]
+    #[structopt(help = "Run temporal difference learning for evaluation")]
     TDL {
         #[structopt(flatten)]
         search: SearchOpts,
         #[structopt(flatten)]
         tdl: TDLOpts,
     },
-    #[structopt(help = "Run policy learning")]
+    #[structopt(help = "Run policy learning for policy")]
     Policy {
         #[structopt(flatten)]
         search: SearchOpts,
@@ -302,12 +302,12 @@ fn main_policy(deck: SearchOpts, opts: PolicyOpts) -> Result<(), std::io::Error>
     let mut seed_gen = thread_rng();
     const BATCH_SIZE: usize = 512;
     let config = MCTSConfig {
-        cpuct: CpuctConfig::STANDARD,
-        random_playout_iters: 10,
-        random_playout_bias: Some(50.0),
-        random_playout_cutoff: 20,
-        policy_bias: Some(0.1),
-        tt_size_mb: 32,
+        cpuct: deck.search.get_cpuct_config(),
+        random_playout_iters: deck.search.mcts_random_playout_iters.unwrap_or(1),
+        random_playout_bias: deck.search.mcts_random_playout_bias,
+        random_playout_cutoff: deck.search.mcts_random_playout_max_steps.unwrap_or(20),
+        policy_bias: deck.search.mcts_policy_bias,
+        tt_size_mb: deck.search.tt_size_mb.unwrap_or(32),
         limits: Some(SearchLimits {
             max_time_ms: Some(opts.mcts_time_limit_ms as u128),
             max_positions: None,

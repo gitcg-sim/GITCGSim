@@ -15,12 +15,15 @@ use crate::{
     types::{input::Input, nondet::NondetState},
 };
 
-// const HIDDEN: usize = 3;
-// type Model = (Linear<N_IN, HIDDEN>, Sigmoid, Linear<HIDDEN, N_OUT>, Sigmoid);
 pub const N_IN: usize = <Features as AsSlice<f32>>::LENGTH;
 pub const N_OUT: usize = <InputFeatures<f32> as AsSlice<f32>>::LENGTH;
 
-#[cfg(feature = "training")]
+#[cfg(all(feature = "hidden_layer", feature = "training"))]
+const N_HIDDEN: usize = 24;
+#[cfg(all(feature = "hidden_layer", feature = "training"))]
+type Model = (Linear<N_IN, N_HIDDEN>, Sigmoid, Linear<N_HIDDEN, N_OUT>, Sigmoid);
+
+#[cfg(all(not(feature = "hidden_layer"), feature = "training"))]
 pub type Model = (Linear<N_IN, N_OUT>, Sigmoid);
 
 #[derive(Debug, Clone)]
@@ -82,11 +85,22 @@ impl PolicyNetwork {
         self.hard_coded
     }
 
-    #[cfg(test)]
+    #[cfg(all(test, not(feature = "hidden_layer")))]
     pub fn load_hard_coded(&mut self) {
         let (lin, _) = &mut self.model;
         lin.weight.copy_from(&super::hard_coded_model::LIN_WEIGHT);
         lin.bias.copy_from(&super::hard_coded_model::LIN_BIAS);
+    }
+
+    #[cfg(all(test, feature = "hidden_layer"))]
+    pub fn load_hard_coded(&mut self) {
+        let (lin1, _, lin2, _) = &mut self.model;
+        lin1.weight
+            .copy_from(&super::hard_coded_model_hidden_layer::LIN_WEIGHT1);
+        lin1.bias.copy_from(&super::hard_coded_model_hidden_layer::LIN_BIAS1);
+        lin2.weight
+            .copy_from(&super::hard_coded_model_hidden_layer::LIN_WEIGHT2);
+        lin2.bias.copy_from(&super::hard_coded_model_hidden_layer::LIN_BIAS2);
     }
 
     pub fn from_npz(path: &PathBuf) -> Result<Self, String> {
@@ -332,11 +346,26 @@ fn evaluate_layer<const IN: usize, const OUT: usize, const WEIGHT: usize>(
     y
 }
 
+#[cfg(not(feature = "hidden_layer"))]
 pub fn evaluate_hard_coded_policy(input: &[f32; N_IN]) -> [f32; N_OUT] {
     evaluate_layer(
         &super::hard_coded_model::LIN_WEIGHT,
         &super::hard_coded_model::LIN_BIAS,
         input,
+    )
+}
+
+#[cfg(feature = "hidden_layer")]
+pub fn evaluate_hard_coded_policy(input: &[f32; N_IN]) -> [f32; N_OUT] {
+    let hidden = evaluate_layer(
+        &super::hard_coded_model_hidden_layer::LIN_WEIGHT1,
+        &super::hard_coded_model_hidden_layer::LIN_BIAS1,
+        input,
+    );
+    evaluate_layer(
+        &super::hard_coded_model_hidden_layer::LIN_WEIGHT2,
+        &super::hard_coded_model_hidden_layer::LIN_BIAS2,
+        &hidden,
     )
 }
 
@@ -346,24 +375,62 @@ mod make_hard_coded_model {
     use super::*;
 
     mod requires_model_file {
+        use std::{fs::File, io::Write};
+
         use super::*;
-        const MODEL_PATH: &str = "./gitcg_sim_self_play/model_t5.npz";
+        const MODEL_PATH: &str = "./gitcg_sim_self_play/model_h1.npz";
+
+        #[cfg(feature = "hidden_layer")]
+        const OUTPUT_PATH: &str = "./src/training/hard_coded_model_hidden_layer.rs";
+
+        #[cfg(not(feature = "hidden_layer"))]
+        const OUTPUT_PATH: &str = "./src/training/hard_coded_model.rs";
 
         fn npz_path() -> PathBuf {
             PathBuf::from(std::ffi::OsStr::new(MODEL_PATH))
         }
 
-        /// Run this test to generate the contents of the hard_coded_model.rs
+        /// Run this test to generate the contents of the hard coded model
+        /// Overwrites the corresponding Rust file.
         #[test]
-        fn gen_hard_coded_model() {
+        fn gen_hard_coded_model() -> Result<(), std::io::Error> {
             let mut model = PolicyNetwork::new();
             model.load_from_npz(&npz_path()).unwrap();
-            let lin = &model.model.0;
-            let lin_weight = lin.weight.clone().reshape::<Rank1<{ N_IN * N_OUT }>>().array();
-            let lin_bias = lin.bias.array();
-            println!("// Generated code, see ./policy.rs make_hard_coded_model::gen_hard_coded_model()");
-            println!("pub const LIN_WEIGHT: [f32; {}] = {lin_weight:#?};", N_IN * N_OUT);
-            println!("pub const LIN_BIAS: [f32; {N_OUT}] = {lin_bias:#?};");
+            let mut f = File::options().write(true).truncate(true).open(OUTPUT_PATH)?;
+            let buf = &mut f;
+            writeln!(
+                buf,
+                "// Generated code, see ./policy.rs make_hard_coded_model::gen_hard_coded_model()"
+            )?;
+            #[cfg(feature = "hidden_layer")]
+            {
+                let (lin1, _, lin2, _) = &model.model;
+                let lin_weight1 = lin1.weight.clone().reshape::<Rank1<{ N_IN * N_HIDDEN }>>().array();
+                let lin_bias1 = lin1.bias.array();
+                let lin_weight2 = lin2.weight.clone().reshape::<Rank1<{ N_HIDDEN * N_OUT }>>().array();
+                let lin_bias2 = lin2.bias.array();
+                writeln!(
+                    buf,
+                    "pub const LIN_WEIGHT1: [f32; {}] = {lin_weight1:#?};",
+                    N_IN * N_HIDDEN
+                )?;
+                writeln!(buf, "pub const LIN_BIAS1: [f32; {N_HIDDEN}] = {lin_bias1:#?};")?;
+                writeln!(
+                    buf,
+                    "pub const LIN_WEIGHT2: [f32; {}] = {lin_weight2:#?};",
+                    N_HIDDEN * N_OUT
+                )?;
+                writeln!(buf, "pub const LIN_BIAS2: [f32; {N_OUT}] = {lin_bias2:#?};")?;
+            }
+            #[cfg(not(feature = "hidden_layer"))]
+            {
+                let (lin, _) = &model.model;
+                let lin_weight = lin.weight.clone().reshape::<Rank1<{ N_IN * N_OUT }>>().array();
+                let lin_bias = lin.bias.array();
+                writeln!(buf, "pub const LIN_WEIGHT: [f32; {}] = {lin_weight:#?};", N_IN * N_OUT)?;
+                writeln!(buf, "pub const LIN_BIAS: [f32; {N_OUT}] = {lin_bias:#?};")?;
+            }
+            Ok(())
         }
 
         #[test]
