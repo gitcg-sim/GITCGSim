@@ -1,5 +1,14 @@
-use std::{cell::RefCell, ops::ControlFlow, borrow::Borrow, sync::{mpsc::Sender, Arc, atomic::{AtomicU32, Ordering}}};
 use std::sync::mpsc::channel;
+use std::{
+    borrow::Borrow,
+    cell::RefCell,
+    ops::ControlFlow,
+    sync::{
+        atomic::{AtomicU32, Ordering},
+        mpsc::Sender,
+        Arc,
+    },
+};
 
 use dfdx::{optim::Sgd, prelude::*};
 use gitcg_sim::{
@@ -273,7 +282,10 @@ fn generate_data_points_mcts<I: FnMut() -> GameStateWrapper<S>, S: NondetState>(
     let mut rng = thread_rng();
     let mut initial = get_initial();
     for i in 0..iterations {
-        println!("{}", json!({ "gen_iter": i, "new_playout": true, "initial_state": initial.game_state }));
+        println!(
+            "{}",
+            json!({ "gen_iter": i, "new_playout": true, "initial_state": initial.game_state })
+        );
         let game_states = run_playout(&initial, searches, 300, |searches, _game_state, _input| {
             let player_id = PlayerId::PlayerFirst;
             let mcts: &MCTS<GameStateWrapper<S>> = searches.get(player_id);
@@ -300,7 +312,8 @@ fn generate_data_points_mcts<I: FnMut() -> GameStateWrapper<S>, S: NondetState>(
             } in vec
             {
                 let mut weighted_features = <InputFeatures<f32> as AsSlice<f32>>::Slice::default();
-                let avg_w = action_weights.iter().copied().map(|(_, w)| w).sum::<f32>() / (weighted_features.len() as f32);
+                let avg_w =
+                    action_weights.iter().copied().map(|(_, w)| w).sum::<f32>() / (weighted_features.len() as f32);
                 for (i, wi) in weighted_features.iter_mut().enumerate() {
                     let mut unit: <InputFeatures<f32> as AsSlice<f32>>::Slice = Default::default();
                     unit[i] = 1.0;
@@ -316,7 +329,8 @@ fn generate_data_points_mcts<I: FnMut() -> GameStateWrapper<S>, S: NondetState>(
                 }
 
                 let game_state_features = gs.features();
-                tx.send((game_state_features, InputFeatures::from_slice(weighted_features), depth)).unwrap();
+                tx.send((game_state_features, InputFeatures::from_slice(weighted_features), depth))
+                    .unwrap();
             }
             ControlFlow::Continue(())
         });
@@ -364,7 +378,8 @@ fn main_policy(deck: SearchOpts, opts: PolicyOpts) -> Result<(), std::io::Error>
                 seed_gen.gen_range(0..255);
                 deck.seed = Some(seed_gen.gen());
                 games.fetch_add(1, Ordering::AcqRel);
-                deck.get_standard_game(Some(SmallRng::from_seed(seed_gen.gen()))).unwrap()
+                deck.get_standard_game(Some(SmallRng::from_seed(seed_gen.gen())))
+                    .unwrap()
             };
             let make_search = move || MCTS::new(*config);
             let searches = RefCell::new(ByPlayer::new(make_search(), make_search()));
@@ -396,9 +411,10 @@ fn main_policy(deck: SearchOpts, opts: PolicyOpts) -> Result<(), std::io::Error>
         let mut opt = Sgd::new(
             &model.model,
             SgdConfig {
-                lr: 1e-1,
+                lr: 1e-2,
+                momentum: Some(Momentum::Classic(0.5)),
                 weight_decay: opts.l2_regularization.map(WeightDecay::L2),
-                ..Default::default()
+                // ..Default::default()
             },
         );
 

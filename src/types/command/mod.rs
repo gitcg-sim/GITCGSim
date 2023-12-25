@@ -365,6 +365,8 @@ impl From<u8> for CmdCharIdx {
 /// When a command refers to "active character", it is the source player's active character
 /// OR the character chosen by the player by card's targeting.
 /// See also: `CommandContext`.
+///
+/// This type is public due to `GameState.pending_cmds` exposing the commands.
 #[derive(Debug, Clone, Copy, Default)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum Command {

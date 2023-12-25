@@ -1,3 +1,5 @@
+use crate::{training::policy::SelectionPolicyState, types::nondet::NondetState};
+
 use super::*;
 
 pub trait EvalPolicy<G: Game>: Send + Sync {
@@ -91,5 +93,60 @@ impl<G: Game> SelectionPolicy<G> for UCB1 {
         let factor = *cctx.state;
         let n_child = cctx.child.prop.n + 1;
         (factor / (n_child as f32)).sqrt()
+    }
+}
+
+#[derive(Default, Copy, Clone)]
+pub struct RuleBasedPuct;
+
+impl<S: NondetState> SelectionPolicy<GameStateWrapper<S>> for RuleBasedPuct {
+    type State = SelectionPolicyState;
+
+    fn on_parent<F: FnOnce() -> <GameStateWrapper<S> as Game>::Actions>(
+        &self,
+        ctx: &SelectionPolicyContext<GameStateWrapper<S>>,
+        get_children: F,
+    ) -> Self::State {
+        let parent = ctx.parent;
+        let mut gs = parent.state.game_state.clone();
+        if !ctx.is_maximize {
+            gs.transpose_in_place();
+        }
+        let actions = get_children();
+        let evals = parent
+            .state
+            .action_weights(&actions)
+            .iter()
+            .copied()
+            .map(|(_, x)| ctx.config.policy_softmax(x))
+            .collect::<smallvec::SmallVec<_>>();
+        let denominator = 1e-5 + evals.iter().sum::<f32>();
+        let n = parent.prop.n + 1;
+        SelectionPolicyState {
+            puct_mult: Self::cpuct(ctx, parent.prop.n) * (n as f32).sqrt(),
+            evals,
+            denominator,
+        }
+    }
+
+    fn policy(
+        &self,
+        _: &SelectionPolicyContext<GameStateWrapper<S>>,
+        cctx: &SelectionPolicyChildContext<GameStateWrapper<S>, Self::State>,
+    ) -> f32 {
+        cctx.state.evals[cctx.index] / cctx.state.denominator
+    }
+
+    fn uct_child(
+        &self,
+        _: &SelectionPolicyContext<GameStateWrapper<S>>,
+        cctx: &SelectionPolicyChildContext<GameStateWrapper<S>, Self::State>,
+        policy_value: f32,
+    ) -> f32 {
+        let state = &cctx.state;
+        let puct_mult = state.puct_mult;
+        let n = cctx.child.prop.n;
+        let fpu = if n < 1 { 1.0 } else { 0.0 };
+        policy_value * puct_mult / ((n + 1) as f32) + fpu
     }
 }

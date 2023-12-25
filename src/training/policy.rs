@@ -19,7 +19,7 @@ pub const N_IN: usize = <Features as AsSlice<f32>>::LENGTH;
 pub const N_OUT: usize = <InputFeatures<f32> as AsSlice<f32>>::LENGTH;
 
 #[cfg(all(feature = "hidden_layer", feature = "training"))]
-const N_HIDDEN: usize = 64;
+const N_HIDDEN: usize = 256;
 #[cfg(all(feature = "hidden_layer", feature = "training"))]
 type Model = (Linear<N_IN, N_HIDDEN>, Sigmoid, Linear<N_HIDDEN, N_OUT>, Sigmoid);
 
@@ -163,22 +163,17 @@ impl PolicyNetwork {
 
     pub(crate) fn action_value_hard_coded(action: Action, y: &[f32; N_OUT]) -> f32 {
         let w = Self::features_slice(action);
-        let ww: f32 = w.iter().map(|x| x * x).sum();
-        let yy: f32 = y.iter().map(|x| x * x).sum();
-        let inner: f32 = w.iter().zip(y).map(|(wi, yi)| wi * yi).sum();
-        inner / (ww * yy).sqrt()
+        w.iter().zip(y).map(|(wi, yi)| wi * yi).sum()
     }
 
     #[cfg(feature = "training")]
     fn action_value_tensor(&self, action: Action, y: &ActionFeatures) -> f32 {
         let mut w: Tensor<Rank1<N_OUT>, f32, Cpu> = self.dev.zeros();
         w.copy_from(&Self::features_slice(action));
-        let (ww, yy) = (w.clone().square().sum().array(), y.clone().square().sum().array());
         let w1: Tensor<Rank1<N_OUT>, f32, _> = w.reshape();
         let y1: Tensor<Rank2<N_OUT, 1>, f32, _> = y.clone().reshape();
         let inner: Tensor<Rank1<1>, f32, _> = w1.matmul(y1);
-        let inner_f = inner.sum().array();
-        inner_f / (ww * yy).sqrt()
+        inner.sum().array()
     }
 
     pub(crate) fn action_value(&self, action: Action, y: &ActionFeatures) -> f32 {
@@ -330,6 +325,7 @@ pub mod search {
 }
 
 /// `WEIGHT = {IN * OUT}`
+#[allow(dead_code)]
 fn evaluate_layer<const IN: usize, const OUT: usize, const WEIGHT: usize>(
     weight: &[f32; WEIGHT],
     bias: &[f32; OUT],
@@ -378,7 +374,7 @@ mod make_hard_coded_model {
         use std::{fs::File, io::Write};
 
         use super::*;
-        const MODEL_PATH: &str = "./gitcg_sim_self_play/model_h1.npz";
+        const MODEL_PATH: &str = "./gitcg_sim_self_play/model_h3.npz";
 
         #[cfg(feature = "hidden_layer")]
         const OUTPUT_PATH: &str = "./src/training/hard_coded_model_hidden_layer.rs";

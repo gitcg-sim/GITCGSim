@@ -554,14 +554,23 @@ impl<G: Game, E: EvalPolicy<G>, S: SelectionPolicy<G>> MCTS<G, E, S> {
     }
 
     #[cfg(feature = "training")]
-    pub fn get_self_play_policy_data_points<FnCheck: Fn(u8, usize) -> bool, FnPush: FnMut(SelfPlayDataPoint<G>) -> ControlFlow<()>>(
+    pub fn get_self_play_policy_data_points<
+        FnCheck: Fn(u8, usize) -> bool,
+        FnPush: FnMut(SelfPlayDataPoint<G>) -> ControlFlow<()>,
+    >(
         &self,
         maximize_player: PlayerId,
         should_include: FnCheck,
         mut push_data_point: FnPush,
     ) {
-        fn traverse<D, F: FnMut(Token, u8) -> ControlFlow<()>>(tree: &Arena<D>, token: Token, f: &mut F) -> ControlFlow<(), u8> {
-            let Some(node) = tree.get(token) else { return ControlFlow::Continue(0) };
+        fn traverse<D, F: FnMut(Token, u8) -> ControlFlow<()>>(
+            tree: &Arena<D>,
+            token: Token,
+            f: &mut F,
+        ) -> ControlFlow<(), u8> {
+            let Some(node) = tree.get(token) else {
+                return ControlFlow::Continue(0);
+            };
             let mut depth = 0;
             for token in node.children_tokens(tree) {
                 let d = traverse(tree, token, f)?;

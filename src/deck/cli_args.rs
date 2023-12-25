@@ -5,7 +5,7 @@ use structopt::StructOpt;
 use crate::{
     game_tree_search::*,
     linked_list,
-    mcts::{CpuctConfig, MCTSConfig, MCTS},
+    mcts::{policy::RuleBasedPuct, CpuctConfig, MCTSConfig, MCTS},
     minimax::{
         search::{STATIC_SEARCH_MAX_ITERS, TACTICAL_SEARCH_DEPTH, TARGET_ROUND_DELTA},
         MinimaxConfig, MinimaxSearch,
@@ -108,6 +108,12 @@ pub struct SearchConfig {
 
     #[structopt(long = "--mcts-use-policy-network", help = "MCTS: Use hard-coded policy network")]
     pub mcts_use_policy_network: bool,
+
+    #[structopt(
+        long = "--mcts-use-rule-based-policy",
+        help = "MCTS: Use rule-based search as policy"
+    )]
+    pub mcts_use_rule_based_policy: bool,
 
     #[structopt(long = "--policy-based-bias", help = "Policy-based: softmax bias")]
     pub policy_based_bias: Option<f32>,
@@ -227,6 +233,7 @@ impl SearchOpts {
 pub enum GenericSearch<S: NondetState = StandardNondetHandlerState> {
     Minimax(MinimaxSearch<GameStateWrapper<S>>),
     MCTS(MCTS<GameStateWrapper<S>>),
+    MCTSRuleBasedPolicy(MCTS<GameStateWrapper<S>, crate::mcts::policy::DefaultEvalPolicy, RuleBasedPuct>),
     MCTSPolicy(MCTS<GameStateWrapper<S>, crate::mcts::policy::DefaultEvalPolicy, PolicyNetwork>),
     RuleBasedSearch(RuleBasedSearch),
     PolicyBasedSearch(PolicyNetworkBasedSearch<SmallRng>),
@@ -253,6 +260,7 @@ impl<S: NondetState> GameTreeSearch<GameStateWrapper<S>> for GenericSearch<S> {
         match self {
             Self::Minimax(s) => s.search(position, maximize_player),
             Self::MCTS(s) => s.search(position, maximize_player),
+            Self::MCTSRuleBasedPolicy(s) => s.search(position, maximize_player),
             Self::MCTSPolicy(s) => s.search(position, maximize_player),
             Self::RuleBasedSearch(s) => s.search(position, maximize_player),
             Self::PolicyBasedSearch(s) => s.search(position, maximize_player),
@@ -291,6 +299,14 @@ impl SearchConfig {
                     policy_bias: self.mcts_policy_bias,
                     debug: self.debug,
                 };
+                if self.mcts_use_rule_based_policy {
+                    let selection_policy = Default::default();
+                    return GenericSearch::MCTSRuleBasedPolicy(MCTS::new_with_eval_policy_and_selection_policy(
+                        config,
+                        Default::default(),
+                        selection_policy,
+                    ));
+                }
                 if self.mcts_use_policy_network {
                     let selection_policy = PolicyNetwork::new_hard_coded();
                     return GenericSearch::MCTSPolicy(MCTS::new_with_eval_policy_and_selection_policy(

@@ -76,6 +76,8 @@ pub mod enumset {
 
 pub mod game_state_types {
     pub use crate::types::dice_counter::DiceCounter;
+    pub use crate::types::game_state::PendingCommands;
+    pub use crate::types::game_state::SuspendedState;
     pub use crate::types::game_state::{
         CharState, GameState, Phase, PlayerFlag, PlayerId, PlayerState, StatusCollection,
     };
@@ -92,6 +94,9 @@ pub mod prelude {
     pub use crate::ids::*;
     pub use crate::types::input::{Input, NondetResult, PlayerAction};
     pub use crate::types::nondet::*;
+    pub mod command {
+        pub use crate::types::command::*;
+    }
 }
 
 pub mod playout;

@@ -1,5 +1,7 @@
 use std::ops::Add;
 
+use enum_map::Enum;
+
 use crate::cards::ids::{CardId, GetCard, GetSkill};
 use crate::impl_as_slice;
 use crate::prelude::*;
@@ -127,6 +129,8 @@ pub struct ExpressPlayerStateFeatures<T> {
     pub team_status_count: T,
     pub active_char: ExpressCharFeatures<T>,
     pub inactive_chars: [ExpressCharFeatures<T>; N_CHARS],
+    // serde-compatible way for [T; 128]
+    pub char_ids: [[[T; 32]; 4]; N_CHARS],
 }
 
 #[repr(C)]
@@ -264,6 +268,16 @@ impl GameState {
         let mut active_char = Default::default();
         std::mem::swap(&mut active_char, &mut chars[active_char_idx as usize]);
 
+        let mut char_ids = [[[0.0; 32]; 4]; N_CHARS];
+        for (i, n) in player_state
+            .char_states
+            .iter_all()
+            .map(|s| s.char_id.into_usize())
+            .enumerate()
+        {
+            char_ids[i][n / 32][n % 32] = 1.0;
+        }
+
         ExpressPlayerStateFeatures {
             // can_perform: self.can_perform_features(player_id),
             turn: self.turn_features(player_id),
@@ -273,6 +287,7 @@ impl GameState {
             team_status_count: player_state.team_features().total(),
             active_char,
             inactive_chars: chars,
+            char_ids,
         }
     }
 

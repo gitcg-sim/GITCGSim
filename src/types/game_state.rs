@@ -40,6 +40,10 @@ pub struct GameState {
     pub phase: Phase,
     /// 0 (PlayerFirst) goes first at turn 1
     pub players: ByPlayer<PlayerState>,
+
+    // Transient states below
+
+    // TODO use a Box<dyn> event log handler instead
     pub log: Box<EventLog>,
     /// If this field is set to `true`, costs (dice and energy) will not
     /// be checked and will not be paid. Effects that reduce costs will never be consumed.
