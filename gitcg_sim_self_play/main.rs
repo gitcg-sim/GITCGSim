@@ -2,7 +2,7 @@ use std::{cell::RefCell, ops::ControlFlow};
 
 use dfdx::{optim::Sgd, prelude::*};
 use gitcg_sim::{
-    mcts::{CpuctConfig, MCTSConfig, SelfPlayDataPoint, MCTS},
+    mcts::{MCTSConfig, SelfPlayDataPoint, MCTS},
     playout::Playout,
     rand::{rngs::SmallRng, thread_rng, Rng, SeedableRng},
     training::{
@@ -15,7 +15,7 @@ use serde::Serialize;
 use serde_json::json;
 use structopt::StructOpt;
 
-use ndarray::{Array1, Array2};
+use ndarray::Array1;
 
 use gitcg_sim::{
     deck::cli_args::SearchOpts,
@@ -72,8 +72,12 @@ pub struct TDLOpts {
 pub struct PolicyOpts {
     #[structopt(default_value = "250", long = "--mcts-time-limit-ms")]
     pub mcts_time_limit_ms: f32,
-    #[structopt(default_value = "4", long = "--min-depth")]
-    pub mcts_min_depth: u8,
+    #[structopt(
+        default_value = "4",
+        long = "--min-depth",
+        help = "Search depth condition to include as training data. Negative: at least abs(min depth) + PV depth, Positive: depth >= min depth, Zero: include all depths"
+    )]
+    pub mcts_min_depth: i8,
     #[structopt(long = "--l2-regularization", help = "L2 regularization coefficient")]
     pub l2_regularization: Option<f64>,
     #[structopt(long = "--save-npz")]
@@ -145,7 +149,7 @@ struct DebugEntry {
     pub game_state: Features,
 }
 
-fn run_self_play<
+fn run_tdl_self_play<
     T: GameTreeSearch<GameStateWrapper<S>> + GetSelfPlayModel,
     S: NondetState,
     F: Fn(PlayerId, Features) -> DebugEntry,
@@ -243,7 +247,7 @@ fn main_tdl(mut deck: SearchOpts, opts: TDLOpts) -> Result<(), std::io::Error> {
         } else {
             None
         };
-        run_self_play(
+        run_tdl_self_play(
             &initial,
             &searches,
             learning_rate,
@@ -255,20 +259,38 @@ fn main_tdl(mut deck: SearchOpts, opts: TDLOpts) -> Result<(), std::io::Error> {
     Ok(())
 }
 
-fn generate_batch<S: NondetState>(
+fn generate_batch_mcts<S: NondetState>(
     initial: &GameStateWrapper<S>,
     data_points: &mut Vec<(Features, InputFeatures<f32>, u8)>,
     searches: &RefCell<ByPlayer<MCTS<GameStateWrapper<S>>>>,
-    mcts_min_depth: u8,
+    mcts_min_depth: i8,
+    cutoff_per_iter: usize,
     batch_size: usize,
-) -> bool {
+) -> (bool, Option<GameStateWrapper<S>>) {
     let mut batch_generated = false;
+    let mut game_state_so_far = None;
     while data_points.len() < batch_size {
-        run_playout(initial, searches, 300, |searches, _game_state, _input| {
+        println!("{}", json!({ "new_playout": true, "initial_state": initial.game_state }));
+        let game_states = run_playout(initial, searches, 300, |searches, _game_state, _input| {
             let player_id = PlayerId::PlayerFirst;
             let mcts: &MCTS<GameStateWrapper<S>> = searches.get(player_id);
             let mut vec = Vec::with_capacity(batch_size);
-            mcts.get_self_play_policy_data_points(player_id, mcts_min_depth, &mut vec);
+            let should_include = |depth: u8, pv_depth: usize| -> bool {
+                match mcts_min_depth {
+                    0 => true,
+                    _ if mcts_min_depth < 0 => (depth as usize) >= pv_depth - ((-mcts_min_depth) as usize),
+                    _ => depth >= (mcts_min_depth as u8),
+                }
+            };
+            let push_data_point = |x| {
+                if vec.len() >= cutoff_per_iter {
+                    ControlFlow::Break(())
+                } else {
+                    vec.push(x);
+                    ControlFlow::Continue(())
+                }
+            };
+            mcts.get_self_play_policy_data_points(player_id, should_include, push_data_point);
             for SelfPlayDataPoint {
                 state: gs,
                 action_weights,
@@ -293,14 +315,24 @@ fn generate_batch<S: NondetState>(
             }
             ControlFlow::Continue(())
         });
+        if game_states.is_empty() {
+            break;
+        }
+        if !game_states.is_empty() {
+            let last_game_state = game_states.last().unwrap().clone();
+            if last_game_state.winner().is_none() {
+                game_state_so_far = Some(last_game_state);
+            }
+        }
         batch_generated = true;
     }
-    batch_generated
+    (batch_generated, game_state_so_far)
 }
 
 fn main_policy(deck: SearchOpts, opts: PolicyOpts) -> Result<(), std::io::Error> {
     let mut seed_gen = thread_rng();
-    const BATCH_SIZE: usize = 512;
+    const BATCH_SIZE: usize = 64;
+    const CUTOFF_PER_ITER: usize = 5;
     let config = MCTSConfig {
         cpuct: deck.search.get_cpuct_config(),
         random_playout_iters: deck.search.mcts_random_playout_iters.unwrap_or(1),
@@ -339,10 +371,25 @@ fn main_policy(deck: SearchOpts, opts: PolicyOpts) -> Result<(), std::io::Error>
         },
     );
     let mut data_points: Vec<(Features, InputFeatures<f32>, u8)> = vec![];
+    let mut total_data_points = 0;
+    let mut deck = deck;
+    let mut next_game_state: Option<GameStateWrapper<_>> = None;
+    let mut games = 0;
     for iter in 0..250 {
         let searches = RefCell::new(ByPlayer::new(make_search(), make_search()));
-        let initial = deck.get_standard_game(Some(SmallRng::from_seed(seed_gen.gen())))?;
-        let batch_generated = generate_batch(&initial, &mut data_points, &searches, opts.mcts_min_depth, BATCH_SIZE);
+        seed_gen.gen_range(0..255);
+        deck.seed = Some(seed_gen.gen());
+        let initial = match next_game_state {
+            Some(game_state) => game_state.clone(),
+            None => {
+                games += 1;
+                deck.get_standard_game(Some(SmallRng::from_seed(seed_gen.gen())))?
+            }
+        };
+        let (batch_generated, tmp_next_game_state) =
+            generate_batch_mcts(&initial, &mut data_points, &searches, opts.mcts_min_depth, CUTOFF_PER_ITER, BATCH_SIZE);
+        next_game_state = tmp_next_game_state;
+
         let batch = (0..BATCH_SIZE).map(|_| data_points.pop().unwrap()).collect::<Vec<_>>();
         let (inputs, outputs): (Vec<_>, Vec<_>) = batch
             .iter()
@@ -350,14 +397,16 @@ fn main_policy(deck: SearchOpts, opts: PolicyOpts) -> Result<(), std::io::Error>
             .map(|(x, y, _)| (x.as_slice(), y.as_slice()))
             .unzip();
         let (inputs, outputs) = (inputs.concat(), outputs.concat());
+        total_data_points += batch.len();
 
         fn t_batched<const L: usize>(inputs: Vec<f32>) -> Array1<f32> {
-            Array2::from_shape_vec((L, BATCH_SIZE), inputs)
-                .unwrap()
-                .t()
-                .to_owned()
-                .into_shape((BATCH_SIZE * L,))
-                .unwrap()
+            Array1::from_shape_vec(BATCH_SIZE * L, inputs).unwrap()
+            // Array2::from_shape_vec((BATCH_SIZE, L), inputs)
+            //     .unwrap()
+            //     .t()
+            //     .to_owned()
+            //     .into_shape((BATCH_SIZE * L,))
+            //     .unwrap()
         }
 
         let input_data = t_batched::<N_IN>(inputs);
@@ -382,12 +431,12 @@ fn main_policy(deck: SearchOpts, opts: PolicyOpts) -> Result<(), std::io::Error>
                 "loss": loss_value,
                 "iter": iter,
                 "batch_generated": batch_generated,
+                "total_data_points": total_data_points,
+                "games": games,
             })
         );
-        if iter % 5 == 0 {
-            if let Some(npz_path) = &opts.save_npz {
-                model.save_npz(npz_path).unwrap();
-            }
+        if let Some(npz_path) = &opts.save_npz {
+            model.save_npz(npz_path).unwrap();
         }
     }
     Ok(())

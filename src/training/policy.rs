@@ -19,7 +19,7 @@ pub const N_IN: usize = <Features as AsSlice<f32>>::LENGTH;
 pub const N_OUT: usize = <InputFeatures<f32> as AsSlice<f32>>::LENGTH;
 
 #[cfg(all(feature = "hidden_layer", feature = "training"))]
-const N_HIDDEN: usize = 24;
+const N_HIDDEN: usize = 64;
 #[cfg(all(feature = "hidden_layer", feature = "training"))]
 type Model = (Linear<N_IN, N_HIDDEN>, Sigmoid, Linear<N_HIDDEN, N_OUT>, Sigmoid);
 

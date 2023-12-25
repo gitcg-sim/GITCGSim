@@ -554,32 +554,39 @@ impl<G: Game, E: EvalPolicy<G>, S: SelectionPolicy<G>> MCTS<G, E, S> {
     }
 
     #[cfg(feature = "training")]
-    pub fn get_self_play_policy_data_points(
+    pub fn get_self_play_policy_data_points<FnCheck: Fn(u8, usize) -> bool, FnPush: FnMut(SelfPlayDataPoint<G>) -> ControlFlow<()>>(
         &self,
         maximize_player: PlayerId,
-        min_depth: u8,
-        vec: &mut Vec<SelfPlayDataPoint<G>>,
+        should_include: FnCheck,
+        mut push_data_point: FnPush,
     ) {
-        fn traverse<D, F: FnMut(Token, u8)>(tree: &Arena<D>, token: Token, f: &mut F) -> u8 {
-            let Some(node) = tree.get(token) else { return 0 };
-            let depth = node
-                .children_tokens(tree)
-                .map(|token| 1 + traverse(tree, token, f))
-                .max()
-                .unwrap_or_default();
-            f(token, depth);
-            depth
+        fn traverse<D, F: FnMut(Token, u8) -> ControlFlow<()>>(tree: &Arena<D>, token: Token, f: &mut F) -> ControlFlow<(), u8> {
+            let Some(node) = tree.get(token) else { return ControlFlow::Continue(0) };
+            let mut depth = 0;
+            for token in node.children_tokens(tree) {
+                let d = traverse(tree, token, f)?;
+                let d1 = 1 + d;
+                if d1 > depth {
+                    depth = d1;
+                }
+            }
+            if let ControlFlow::Break(_) = f(token, depth) {
+                ControlFlow::Break(())
+            } else {
+                ControlFlow::Continue(depth)
+            }
         }
 
         let tree = &self.tree;
         let tt = &self.tt;
         let Some((_, root)) = self.root else { return };
-        traverse(&self.tree, root, &mut |token, depth| {
-            if depth < min_depth {
-                return;
+        let pv_depth = self.get_pv(root).len();
+        let _ = traverse(&self.tree, root, &mut |token, depth| {
+            let node = tree.get(token).expect("get");
+            if !should_include(depth, pv_depth) {
+                return ControlFlow::Continue(());
             }
 
-            let Some(node) = tree.get(token) else { return };
             let is_maximize = node.data.is_maximize(maximize_player);
             let action_weights = node
                 .children(tree)
@@ -594,11 +601,11 @@ impl<G: Game, E: EvalPolicy<G>, S: SelectionPolicy<G>> MCTS<G, E, S> {
                 })
                 .collect::<Vec<_>>();
             let state = node.data.state.clone();
-            vec.push(SelfPlayDataPoint {
+            push_data_point(SelfPlayDataPoint {
                 state,
                 action_weights,
                 depth,
-            });
+            })
         });
     }
 }
