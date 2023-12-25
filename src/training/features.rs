@@ -343,6 +343,9 @@ pub struct CastSkillFeatures<T> {
     pub elemental_burst: T,
 }
 
+/// Struct for the feature vector describing a player action.
+/// Invariant: For any given player action, only ONE field of the features is non-zero.
+/// TODO write a property test on this invariant
 #[repr(C)]
 #[derive(Default, Copy, Clone)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]

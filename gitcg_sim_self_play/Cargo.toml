@@ -11,9 +11,10 @@ name = "gitcg_sim_self_play"
 path = "main.rs"
 
 [dependencies]
-gitcg_sim = { path = "..", features = ["training"] }
+gitcg_sim = { path = "..", features = ["training", "serde"] }
 dfdx = { version = "0.13.0", features = ["numpy"] }
 ndarray = { version = "*" }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = { version = "1.0.94" }
 structopt = { version = "0.3.*" }
+rayon = { version = "^1.7.0" }
