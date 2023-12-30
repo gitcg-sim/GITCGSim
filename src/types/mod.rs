@@ -25,6 +25,7 @@ pub mod game_state;
 pub mod input;
 pub mod logging;
 pub mod nondet;
+pub mod status_collection;
 mod status_spec_modifier;
 pub use status_spec_modifier::*;
 pub(crate) mod status_impl;

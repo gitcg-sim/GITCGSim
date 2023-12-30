@@ -37,6 +37,7 @@ proptest! {
         let ser = serde_json::to_string_pretty(&gs).unwrap();
         let mut gs1: GameStateWrapper<StandardNondetHandlerState> = serde_json::from_str(&ser).unwrap();
         gs1.game_state.rehash();
+        println!("{ser}");
         assert_eq!(gs.zobrist_hash(), gs1.zobrist_hash());
     }
 }

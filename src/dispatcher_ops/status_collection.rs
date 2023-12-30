@@ -316,10 +316,12 @@ impl StatusCollection {
             .collect()
     }
 
+    /// Update `responds_to`, `respond_to_triggers` and `responds_to_events`.
+    /// Should be called every time `_status_entries` was changed directly.
     pub(crate) fn refresh_responds_to(&mut self) {
         let mut m1 = enum_set![];
         let mut t1 = enum_set![];
-        let mut e1 = Default::default();
+        let mut e1 = enum_set![];
         for e in &self._status_entries {
             let si: StaticStatusImpl = match e.key {
                 StatusKey::Team(status_id)
