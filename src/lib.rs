@@ -47,6 +47,8 @@ pub(crate) mod status_impls;
 /// Datatypes for the Genious Invokation TCG domain
 pub mod tcg_model;
 
+pub(crate) mod builder_macros;
+
 pub mod types;
 
 pub(crate) mod zobrist_hash;

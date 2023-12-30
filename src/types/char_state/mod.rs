@@ -9,6 +9,8 @@ use crate::{cards::ids::*, data_structures::Vector};
 pub use crate::types::applied_effect_state::AppliedEffectState;
 use crate::types::ElementSet;
 
+pub mod builder;
+
 #[derive(Debug, EnumSetType)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[enumset(repr = "u8")]
@@ -26,7 +28,12 @@ impl CharFlag {
 }
 
 #[derive(Copy, Clone)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(
+    feature = "serde",
+    derive(serde::Serialize, serde::Deserialize),
+    serde(from = "builder::CharStateBuilder"),
+    serde(into = "builder::CharStateBuilder")
+)]
 pub struct CharState {
     pub char_id: CharId,
     _hp_and_energy: u8,

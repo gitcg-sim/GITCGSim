@@ -2,10 +2,17 @@ use std::cmp::{max, min};
 
 /// State variable for an applied effect (status or summon).
 #[derive(Clone, Copy, Default, PartialEq, Eq)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(
+    feature = "serde",
+    derive(serde::Serialize, serde::Deserialize),
+    serde(from = "builder::AppliedEffectStateBuilder"),
+    serde(into = "builder::AppliedEffectStateBuilder")
+)]
 pub struct AppliedEffectState {
     _repr: u8,
 }
+
+pub mod builder;
 
 // Data layout
 //  _repr           :  ? ? ? ? ? ? ? ?
@@ -28,12 +35,33 @@ impl From<u8> for AppliedEffectState {
 }
 
 impl AppliedEffectState {
+    pub const DEFAULT: Self = Self { _repr: 0 };
     pub const MAX_COUNTER: u8 = 15;
     pub const MAX_USAGES: u8 = 7;
     pub const MAX_DURATION: u8 = 7;
 
     #[inline]
-    pub fn from_fields(usages: u8, duration: u8, once_per_round: bool) -> AppliedEffectState {
+    pub(crate) const fn from_decomposed(once_per_round: bool, counter: u8, usages_or_duration: u8) -> Self {
+        let mut val = 0;
+        val |= usages_or_duration & USAGES_MASK;
+        val |= (counter << COUNTER_SHIFT) & COUNTER_MASK;
+        val |= (once_per_round as u8) * ONCE_PER_ROUND_MASK;
+        Self { _repr: val }
+    }
+
+    #[inline]
+    pub(crate) const fn decompose(self) -> (bool, u8, u8) {
+        let value = self._repr;
+        (
+            value & ONCE_PER_ROUND_MASK != 0,
+            (value & COUNTER_MASK) >> COUNTER_SHIFT,
+            value & USAGES_MASK,
+        )
+    }
+
+    /// Panics: when inputs are out of range
+    #[inline]
+    pub fn from_fields(usages: u8, duration: u8, once_per_round: bool) -> Self {
         let usages = min(Self::MAX_USAGES, usages);
         let duration = min(Self::MAX_DURATION, duration);
         if usages > 0 && duration > 0 {
@@ -45,7 +73,7 @@ impl AppliedEffectState {
         if once_per_round {
             val |= ONCE_PER_ROUND_MASK
         }
-        AppliedEffectState { _repr: val }
+        Self { _repr: val }
     }
 
     #[inline]

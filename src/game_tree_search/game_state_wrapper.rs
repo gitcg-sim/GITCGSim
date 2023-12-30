@@ -19,6 +19,7 @@ use crate::{
 #[derive(Clone)]
 pub struct GameStateWrapper<S: NondetState = StandardNondetHandlerState> {
     pub game_state: GameState,
+    #[cfg_attr(feature = "serde", serde(rename = "nondet"))]
     pub nd: NondetProvider<S>,
 }
 
