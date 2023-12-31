@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use enumset::EnumSetType;
 
 #[allow(clippy::derived_hash_with_manual_eq)]
@@ -145,3 +147,26 @@ pub enum EquipSlot {
     Weapon,
     Talent,
 }
+
+impl Display for SkillType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match *self {
+            SkillType::NormalAttack => write!(f, "Normal Attack"),
+            SkillType::ElementalSkill => write!(f, "Elemental Skill"),
+            SkillType::ElementalBurst => write!(f, "Elemental Burst"),
+        }
+    }
+}
+
+impl Display for Reaction {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match *self {
+            Reaction::ElectroCharged => write!(f, "Electro-Charged"),
+            r => write!(f, "{r:?}"),
+        }
+    }
+}
+
+crate::impl_display_from_debug!(
+    Element WeaponType Faction StatusAttachMode EquipSlot
+);

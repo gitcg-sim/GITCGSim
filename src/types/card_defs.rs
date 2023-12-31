@@ -501,3 +501,19 @@ impl Status {
             .unwrap_or_else(|| panic!("Must declare casted_by_character for status: {}", self.name))
     }
 }
+
+impl std::fmt::Display for CardType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match *self {
+            CardType::Event => write!(f, "Event"),
+            CardType::Food => write!(f, "Food"),
+            CardType::ElementalResonance(elem) => write!(f, "Elemental Resonance: {elem}"),
+            CardType::Support(t) => write!(f, "Support: {t}"),
+            CardType::Weapon(t) => write!(f, "Weapon: {t}"),
+            CardType::Artifact => write!(f, "Artifact"),
+            CardType::Talent(char_id) => write!(f, "Talent: {}", char_id.get_char_card().name),
+        }
+    }
+}
+
+crate::impl_display_from_debug!(SupportType);

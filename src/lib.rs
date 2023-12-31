@@ -1,5 +1,19 @@
 #![doc = include_str!("../README.md")]
 
+#[macro_export]
+macro_rules! impl_display_from_debug {
+    (@single $Type: ident) => {
+        impl std::fmt::Display for $Type {
+            fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                write!(f, "{:?}", self)
+            }
+        }
+    };
+    ($($Type: ident)+) => {
+        $(impl_display_from_debug!(@single $Type);)+
+    };
+}
+
 pub(crate) mod card_impls;
 pub mod cards;
 
