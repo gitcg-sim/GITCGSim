@@ -344,7 +344,7 @@ fn evaluate_layer<const IN: usize, const OUT: usize, const WEIGHT: usize>(
 
 #[cfg(not(feature = "hidden_layer"))]
 pub fn evaluate_hard_coded_policy(input: &[f32; N_IN]) -> [f32; N_OUT] {
-    evaluate_layer(
+    evaluate_layer::<N_IN, N_OUT, { N_IN * N_OUT }>(
         &super::hard_coded_model::LIN_WEIGHT,
         &super::hard_coded_model::LIN_BIAS,
         input,
@@ -371,15 +371,15 @@ mod make_hard_coded_model {
     use super::*;
 
     mod requires_model_file {
-        use std::{fs::File, io::Write};
-
         use super::*;
-        const MODEL_PATH: &str = "./gitcg_sim_self_play/model_h3.npz";
+        const MODEL_PATH: &str = "./gitcg_sim_self_play/model_h6.npz";
 
         #[cfg(feature = "hidden_layer")]
+        #[allow(dead_code)]
         const OUTPUT_PATH: &str = "./src/training/hard_coded_model_hidden_layer.rs";
 
         #[cfg(not(feature = "hidden_layer"))]
+        #[allow(dead_code)]
         const OUTPUT_PATH: &str = "./src/training/hard_coded_model.rs";
 
         fn npz_path() -> PathBuf {
@@ -388,8 +388,10 @@ mod make_hard_coded_model {
 
         /// Run this test to generate the contents of the hard coded model
         /// Overwrites the corresponding Rust file.
+        #[cfg(any())]
         #[test]
         fn gen_hard_coded_model() -> Result<(), std::io::Error> {
+            use std::{fs::File, io::Write};
             let mut model = PolicyNetwork::new();
             model.load_from_npz(&npz_path()).unwrap();
             let mut f = File::options().write(true).truncate(true).open(OUTPUT_PATH)?;

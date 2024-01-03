@@ -25,9 +25,7 @@ lto = true
 test = [
     "serde"
 ]
-default = [
-    "hidden_layer"
-]
+default = []
 serde = [
     "dep:serde",
     "enumset/serde",
