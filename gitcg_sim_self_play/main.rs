@@ -29,12 +29,12 @@ use structopt::StructOpt;
 use ndarray::Array1;
 
 use gitcg_sim::{
-    deck::cli_args::SearchOpts,
     game_tree_search::*,
     prelude::*,
     training::{eval::*, policy::N_IN},
     types::{by_player::ByPlayer, nondet::NondetState},
 };
+use gitcg_sim_cli_utils::cli_args::SearchOpts;
 
 #[derive(Debug, StructOpt, Copy, Clone)]
 pub struct Regularization {

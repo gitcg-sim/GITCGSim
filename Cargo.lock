@@ -575,8 +575,27 @@ dependencies = [
  "serde",
  "serde_json",
  "smallvec",
- "structopt",
  "wasm-bindgen",
+]
+
+[[package]]
+name = "gitcg_sim_benchmark"
+version = "0.1.0"
+dependencies = [
+ "gitcg_sim",
+ "gitcg_sim_cli_utils",
+ "instant",
+ "lazy_static",
+ "rayon",
+ "structopt",
+]
+
+[[package]]
+name = "gitcg_sim_cli_utils"
+version = "0.1.0"
+dependencies = [
+ "gitcg_sim",
+ "structopt",
 ]
 
 [[package]]
@@ -585,6 +604,7 @@ version = "0.1.0"
 dependencies = [
  "dfdx",
  "gitcg_sim",
+ "gitcg_sim_cli_utils",
  "ndarray",
  "rayon",
  "serde",
@@ -598,6 +618,7 @@ version = "0.1.0"
 dependencies = [
  "crossterm",
  "gitcg_sim",
+ "gitcg_sim_cli_utils",
  "structopt",
  "tui",
 ]

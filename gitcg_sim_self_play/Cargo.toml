@@ -12,6 +12,7 @@ path = "main.rs"
 
 [dependencies]
 gitcg_sim = { path = "..", features = ["training", "serde"] }
+gitcg_sim_cli_utils = { path = "../gitcg_sim_cli_utils" }
 dfdx = { version = "0.13.0", features = ["numpy"] }
 ndarray = { version = "*" }
 serde = { version = "1.0", features = ["derive"] }

@@ -92,10 +92,9 @@ pub mod enumset {
 
 pub mod game_state_types {
     pub use crate::types::dice_counter::DiceCounter;
-    pub use crate::types::game_state::PendingCommands;
-    pub use crate::types::game_state::SuspendedState;
     pub use crate::types::game_state::{
-        CharState, GameState, Phase, PlayerFlag, PlayerId, PlayerState, StatusCollection,
+        CharState, GameState, PendingCommands, Phase, PlayerFlag, PlayerId, PlayerState, StatusCollection,
+        SuspendedState,
     };
     pub use crate::types::logging::EventLog;
     pub use crate::types::status_impl::RespondsTo;

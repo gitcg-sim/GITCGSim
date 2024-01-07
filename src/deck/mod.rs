@@ -12,8 +12,6 @@ type DeckVec<T> = SmallVec<[T; 32]>;
 mod parser;
 pub use parser::*;
 
-pub mod cli_args;
-
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Decklist {

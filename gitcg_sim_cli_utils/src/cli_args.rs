@@ -1,8 +1,8 @@
-use rand::{rngs::SmallRng, thread_rng, Rng, SeedableRng};
 use std::{fs::File, path::PathBuf, str::FromStr};
 use structopt::StructOpt;
 
-use crate::{
+use gitcg_sim::{
+    deck::{random_decklist, read_decklist_from_file, Decklist},
     game_tree_search::*,
     linked_list,
     mcts::{policy::RuleBasedPuct, CpuctConfig, MCTSConfig, MCTS},
@@ -10,17 +10,14 @@ use crate::{
         search::{STATIC_SEARCH_MAX_ITERS, TACTICAL_SEARCH_DEPTH, TARGET_ROUND_DELTA},
         MinimaxConfig, MinimaxSearch,
     },
+    rand::{rngs::SmallRng, thread_rng, Rng, SeedableRng},
     rule_based::RuleBasedSearch,
-    training::policy::search::PolicyNetworkBasedSearch,
+    training::policy::{search::PolicyNetworkBasedSearch, PolicyNetwork},
     types::{
         game_state::PlayerId,
         nondet::{NondetState, StandardNondetHandlerState},
     },
 };
-
-use super::{random_decklist, read_decklist_from_file, Decklist};
-
-use crate::training::policy::PolicyNetwork;
 
 #[derive(Debug, Copy, Clone)]
 pub enum SearchAlgorithm {
@@ -233,8 +230,8 @@ impl SearchOpts {
 pub enum GenericSearch<S: NondetState = StandardNondetHandlerState> {
     Minimax(MinimaxSearch<GameStateWrapper<S>>),
     MCTS(MCTS<GameStateWrapper<S>>),
-    MCTSRuleBasedPolicy(MCTS<GameStateWrapper<S>, crate::mcts::policy::DefaultEvalPolicy, RuleBasedPuct>),
-    MCTSPolicy(MCTS<GameStateWrapper<S>, crate::mcts::policy::DefaultEvalPolicy, PolicyNetwork>),
+    MCTSRuleBasedPolicy(MCTS<GameStateWrapper<S>, gitcg_sim::mcts::policy::DefaultEvalPolicy, RuleBasedPuct>),
+    MCTSPolicy(MCTS<GameStateWrapper<S>, gitcg_sim::mcts::policy::DefaultEvalPolicy, PolicyNetwork>),
     RuleBasedSearch(RuleBasedSearch),
     PolicyBasedSearch(PolicyNetworkBasedSearch<SmallRng>),
     Random,
@@ -279,7 +276,7 @@ impl SearchConfig {
                     limits,
                     tt_size_mb: self
                         .tt_size_mb
-                        .unwrap_or(crate::minimax::transposition_table::DEFAULT_SIZE_MB),
+                        .unwrap_or(gitcg_sim::minimax::transposition_table::DEFAULT_SIZE_MB),
                     debug: self.debug,
                     tactical_depth: self.tactical_depth.unwrap_or(TACTICAL_SEARCH_DEPTH),
                     target_round_delta: self.target_round_delta.unwrap_or(TARGET_ROUND_DELTA),

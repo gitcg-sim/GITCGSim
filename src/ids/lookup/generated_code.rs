@@ -77,7 +77,9 @@ macro_rules! __generated_skills_cases {
             SkillId::ClawAndThunder => &CLAW_AND_THUNDER,
             SkillId::CloudPartingStar => &CLOUD_PARTING_STAR,
             SkillId::CuttingTorrent => &CUTTING_TORRENT,
-            SkillId::DanceOfAbzendegiDistantDreamsListeningSpring => &DANCE_OF_ABZENDEGI_DISTANT_DREAMS_LISTENING_SPRING,
+            SkillId::DanceOfAbzendegiDistantDreamsListeningSpring => {
+                &DANCE_OF_ABZENDEGI_DISTANT_DREAMS_LISTENING_SPRING
+            }
             SkillId::DanceOfHaftkarsvar => &DANCE_OF_HAFTKARSVAR,
             SkillId::DanceOfSamser => &DANCE_OF_SAMSER,
             SkillId::DandelionBreeze => &DANDELION_BREEZE,
@@ -727,4 +729,3 @@ macro_rules! __generated_enum_cases {
         }
     };
 }
-

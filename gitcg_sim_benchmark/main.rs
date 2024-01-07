@@ -1,12 +1,12 @@
-use gitcg_sim::deck::cli_args::{SearchAlgorithm, SearchConfig};
 use gitcg_sim::mcts::CpuctConfig;
+use gitcg_sim::rand::rngs::SmallRng;
+use gitcg_sim::rand::SeedableRng;
 use gitcg_sim::types::by_player::ByPlayer;
 use gitcg_sim::types::game_state::PlayerId;
 use gitcg_sim::types::nondet::NondetState;
+use gitcg_sim_cli_utils::cli_args::{SearchAlgorithm, SearchConfig};
 use instant::Duration;
 use lazy_static::__Deref;
-use rand::rngs::SmallRng;
-use rand::SeedableRng;
 use rayon::prelude::{IntoParallelIterator, ParallelIterator};
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -14,8 +14,8 @@ use std::sync::atomic::{AtomicI32, Ordering};
 use std::time::Instant;
 use structopt::StructOpt;
 
-use gitcg_sim::deck::cli_args::SearchOpts;
 use gitcg_sim::game_tree_search::*;
+use gitcg_sim_cli_utils::cli_args::SearchOpts;
 
 #[derive(Debug, StructOpt, Clone)]
 #[structopt(about = "Genius Invokation TCG simulator")]

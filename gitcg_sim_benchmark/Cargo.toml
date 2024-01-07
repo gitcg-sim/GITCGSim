@@ -1,15 +1,16 @@
 [package]
-name = "gitcg_sim_tui_app"
+name = "gitcg_sim_benchmark"
 version = "0.1.0"
 edition = "2021"
 
 [[bin]]
-name = "gitcg_sim_tui_app"
+name = "gitcg_sim_benchmark"
 path = "main.rs"
 
 [dependencies]
 gitcg_sim = { path = ".." }
 gitcg_sim_cli_utils = { path = "../gitcg_sim_cli_utils" }
-tui = { version = "0.19" }
-crossterm = { version = "0.25" }
 structopt = { version = "0.3.*" }
+instant = { version = "0.1" }
+lazy_static = { version = "1.4.*" }
+rayon = { version = "^1.7.0" }

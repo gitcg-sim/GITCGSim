@@ -2,7 +2,6 @@
 name = "gitcg_sim"
 version = "0.1.0"
 edition = "2021"
-default-run = "gitcg_sim_benchmark"
 
 [profile.dev]
 debug = true
@@ -53,17 +52,15 @@ hidden_layer = []
 
 [workspace]
 members = [
+    "gitcg_sim_cli_utils",
     "gitcg_sim_tui_app",
-    "gitcg_sim_self_play"
+    "gitcg_sim_self_play",
+    "gitcg_sim_benchmark",
 ]
 
 [lib]
 name = "gitcg_sim"
 path = "src/lib.rs"
-
-[[bin]]
-name = "gitcg_sim_benchmark"
-path = "benchmark/main.rs"
 
 [dependencies]
 atree = { version = "0.5.*" }
@@ -84,7 +81,6 @@ rustc-hash = { version = "1.1.*" }
 ndarray = { version = "*", optional = true }
 serde = { version = "1.0", features = ["derive", "rc"], optional = true }
 smallvec = { version = "1.10.*", features = [] }
-structopt = { version = "0.3.*" }
 wasm-bindgen = { version = "0.2.*", optional = true }
 
 [dev-dependencies]

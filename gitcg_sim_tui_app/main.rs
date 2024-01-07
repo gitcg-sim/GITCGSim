@@ -3,13 +3,13 @@ use crossterm::{
     execute,
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
-use gitcg_sim::deck::cli_args::{GenericSearch, SearchOpts};
 use gitcg_sim::ids::GetStatus;
 use gitcg_sim::rand::{rngs::SmallRng, SeedableRng};
 use gitcg_sim::smallvec::SmallVec;
 use gitcg_sim::types::deal_dmg::DealDMG;
 use gitcg_sim::types::logging;
 use gitcg_sim::types::nondet::StandardNondetHandlerState;
+use gitcg_sim_cli_utils::cli_args::{GenericSearch, SearchOpts};
 use grid::{GridConstraint, GridLayout};
 use std::collections::HashMap;
 use std::{cmp::max, collections::VecDeque, io, time::Duration};
