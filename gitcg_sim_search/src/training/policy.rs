@@ -4,16 +4,19 @@ use dfdx::prelude::*;
 use std::path::PathBuf;
 
 use crate::{
-    game_state_types::PlayerId,
-    game_tree_search::{Game, GameTreeSearch, SearchResult},
     mcts::policy::*,
-    prelude::GameStateWrapper,
     training::{
         as_slice::*,
         features::{Features, InputFeatures},
     },
-    types::{input::Input, nondet::NondetState},
 };
+use gitcg_sim::{
+    game_tree_search::{Game, GameTreeSearch, SearchResult},
+    prelude::{GameStateWrapper, Input, NondetState, PlayerId},
+    smallvec::SmallVec,
+};
+
+use super::features::{game_state_features, input_features};
 
 pub const N_IN: usize = <Features as AsSlice<f32>>::LENGTH;
 pub const N_OUT: usize = <InputFeatures<f32> as AsSlice<f32>>::LENGTH;
@@ -152,13 +155,13 @@ type Action = Input;
 
 pub struct SelectionPolicyState {
     pub puct_mult: f32,
-    pub evals: smallvec::SmallVec<[f32; 16]>,
+    pub evals: SmallVec<[f32; 16]>,
     pub denominator: f32,
 }
 
 impl PolicyNetwork {
     fn features_slice(action: Action) -> [f32; N_OUT] {
-        action.features(1f32).as_slice()
+        input_features::input_features(action, 1f32).as_slice()
     }
 
     pub(crate) fn action_value_hard_coded(action: Action, y: &[f32; N_OUT]) -> f32 {
@@ -206,7 +209,7 @@ impl<S: NondetState> SelectionPolicy<GameStateWrapper<S>> for PolicyNetwork {
         if !ctx.is_maximize {
             gs.transpose_in_place();
         }
-        let y = self.eval(&gs.features().as_slice());
+        let y = self.eval(&game_state_features::features(&gs).as_slice());
         let mut denominator = 1e-5;
         let evals = get_children()
             .iter()
@@ -248,12 +251,12 @@ impl<S: NondetState> SelectionPolicy<GameStateWrapper<S>> for PolicyNetwork {
 }
 
 pub mod search {
-    use crate::linked_list;
-
     use super::*;
 
-    use rand::{distributions::WeightedIndex, Rng};
-    use smallvec::SmallVec;
+    use gitcg_sim::{
+        linked_list,
+        rand::{distributions::WeightedIndex, Rng},
+    };
 
     #[derive(Debug, Clone)]
     pub struct PolicyNetworkBasedSearch<R: Rng> {
@@ -291,7 +294,9 @@ pub mod search {
                 gs = transposed_opt.as_ref().unwrap();
             }
 
-            let y = self.policy_network.eval(&gs.game_state.features().as_slice());
+            let y = self
+                .policy_network
+                .eval(&game_state_features::features(&gs.game_state).as_slice());
             let evals: SmallVec<[_; 16]> = position
                 .actions()
                 .iter()
@@ -311,7 +316,9 @@ pub mod search {
             };
             let selected = match WeightedIndex::new(weights) {
                 Ok(dist) => self.rng.sample(dist),
-                Err(rand::distributions::WeightedError::AllWeightsZero) => self.rng.gen_range(0..evals.len()),
+                Err(gitcg_sim::rand::distributions::WeightedError::AllWeightsZero) => {
+                    self.rng.gen_range(0..evals.len())
+                }
                 Err(e) => panic!("{e:?}"),
             };
             let pv = linked_list![evals[selected].0];
@@ -445,7 +452,7 @@ mod make_hard_coded_model {
     }
 
     fn rand_input(seed: u64) -> [f32; N_IN] {
-        use rand::{rngs::SmallRng, Rng, SeedableRng};
+        use gitcg_sim::rand::{rngs::SmallRng, Rng, SeedableRng};
         let mut rng = SmallRng::seed_from_u64(seed);
         let mut input: [f32; N_IN] = [0.0; N_IN];
         for xi in input.iter_mut() {

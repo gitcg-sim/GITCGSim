@@ -554,23 +554,16 @@ dependencies = [
 name = "gitcg_sim"
 version = "0.1.0"
 dependencies = [
- "atree",
  "bincode",
  "bitfield",
  "constdefault",
- "dfdx",
  "enum-map",
  "enum-map-derive 0.3.0",
  "enumset",
- "flurry",
  "getrandom",
- "instant",
- "itertools",
  "lazy_static",
- "ndarray",
  "proptest",
  "rand",
- "rayon",
  "rustc-hash",
  "serde",
  "serde_json",
@@ -584,6 +577,7 @@ version = "0.1.0"
 dependencies = [
  "gitcg_sim",
  "gitcg_sim_cli_utils",
+ "gitcg_sim_search",
  "instant",
  "lazy_static",
  "rayon",
@@ -595,7 +589,26 @@ name = "gitcg_sim_cli_utils"
 version = "0.1.0"
 dependencies = [
  "gitcg_sim",
+ "gitcg_sim_search",
  "structopt",
+]
+
+[[package]]
+name = "gitcg_sim_search"
+version = "0.1.0"
+dependencies = [
+ "atree",
+ "dfdx",
+ "flurry",
+ "getrandom",
+ "gitcg_sim",
+ "instant",
+ "itertools",
+ "ndarray",
+ "proptest",
+ "rayon",
+ "serde",
+ "wasm-bindgen",
 ]
 
 [[package]]
@@ -605,6 +618,7 @@ dependencies = [
  "dfdx",
  "gitcg_sim",
  "gitcg_sim_cli_utils",
+ "gitcg_sim_search",
  "ndarray",
  "rayon",
  "serde",
@@ -619,6 +633,7 @@ dependencies = [
  "crossterm",
  "gitcg_sim",
  "gitcg_sim_cli_utils",
+ "gitcg_sim_search",
  "structopt",
  "tui",
 ]

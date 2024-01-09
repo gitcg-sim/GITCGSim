@@ -1,4 +1,5 @@
-use crate::{training::policy::SelectionPolicyState, types::nondet::NondetState};
+use crate::training::policy::SelectionPolicyState;
+use gitcg_sim::prelude::NondetState;
 
 use super::*;
 
@@ -119,7 +120,7 @@ impl<S: NondetState> SelectionPolicy<GameStateWrapper<S>> for RuleBasedPuct {
             .iter()
             .copied()
             .map(|(_, x)| ctx.config.policy_softmax(x))
-            .collect::<smallvec::SmallVec<_>>();
+            .collect::<SmallVec<_>>();
         let denominator = 1e-5 + evals.iter().sum::<f32>();
         let n = parent.prop.n + 1;
         SelectionPolicyState {

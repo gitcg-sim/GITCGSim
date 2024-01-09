@@ -11,6 +11,7 @@ use crate::{
     data_structures::ActionList,
     deck::Decklist,
     dispatcher_ops::types::DispatchError,
+    game_tree_search::Game,
     rule_based::RuleBasedSearchConfig,
     types::{game_state::*, input::*, nondet::*},
 };
@@ -77,7 +78,7 @@ impl<S: NondetState> Game for GameStateWrapper<S> {
 
     type Actions = ActionList<Input>;
 
-    type Eval = crate::minimax::Eval;
+    type Eval = minimax_types::Eval;
 
     type Error = DispatchError;
 

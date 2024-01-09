@@ -5,4 +5,5 @@ edition = "2021"
 
 [dependencies]
 gitcg_sim = { path = ".." }
+gitcg_sim_search = { path = "../gitcg_sim_search" }
 structopt = { version = "0.3.*" }

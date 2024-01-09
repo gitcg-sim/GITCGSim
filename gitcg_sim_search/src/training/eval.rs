@@ -1,15 +1,18 @@
 use std::ops::Neg;
 
 use crate::{
-    game_tree_search::*,
-    linked_list,
     mcts::{policy::EvalPolicy, MCTS},
     minimax::Eval,
+    training::{as_slice::AsSlice, features::Features},
+};
+use gitcg_sim::{
+    game_tree_search::*,
+    linked_list,
     prelude::*,
     rand::{distributions::WeightedIndex, prelude::Distribution, thread_rng, Rng},
-    training::{as_slice::AsSlice, features::Features},
-    types::nondet::NondetState,
 };
+
+use super::features::game_state_features;
 
 /// Evaluates sigmoid(a * dot(x, w)) and its gradients over `x`.
 pub fn sigmoid_dot<const LEN: usize>(x: &[f32; LEN], w: &[f32; LEN], a: f32) -> (f32, [f32; LEN]) {
@@ -49,7 +52,7 @@ impl SelfPlayModel {
     }
 
     pub fn evaluate<S: NondetState>(&self, game_state: &GameStateWrapper<S>) -> (f32, Features) {
-        let features = game_state.features();
+        let features = game_state_features::features(&game_state.game_state);
         let x = <Features as AsSlice<f32>>::as_slice(features);
         let w = <Features as AsSlice<f32>>::as_slice_ref(&self.weights);
         let (y, grad) = sigmoid_dot(w, &x, Self::MULT);

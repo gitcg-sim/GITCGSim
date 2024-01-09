@@ -1,0 +1,43 @@
+[package]
+name = "gitcg_sim_search"
+version = "0.1.0"
+edition = "2021"
+
+[features]
+default = []
+serde = [
+    "dep:serde",
+    "gitcg_sim/serde"
+]
+wasm = [
+    "no_parallel",
+    "instant/stdweb",
+    "instant/wasm-bindgen",
+    "getrandom/js",
+    "dep:wasm-bindgen",
+    "serde",
+    "gitcg_sim/wasm"
+]
+no_parallel = []
+training = [
+    "serde",
+    "dep:dfdx",
+    "dep:ndarray"
+]
+hidden_layer = []
+
+[dependencies]
+gitcg_sim = { path = ".." }
+rayon = { version = "^1.7.0" }
+wasm-bindgen = { version = "0.2.*", optional = true }
+getrandom = { version = "0.2" }
+flurry = { version = "0.4.*" }
+instant = { version = "0.1" }
+dfdx = { version = "0.13.0", features = ["numpy"], optional = true }
+atree = { version = "0.5.*" }
+serde = { version = "1.0", features = ["derive", "rc"], optional = true }
+ndarray = { version = "*", optional = true }
+
+itertools = { version = "0.11.*" }
+[dev-dependencies]
+proptest = "1.0.0"

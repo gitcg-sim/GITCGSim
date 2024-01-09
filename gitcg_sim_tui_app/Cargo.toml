@@ -9,6 +9,7 @@ path = "main.rs"
 
 [dependencies]
 gitcg_sim = { path = ".." }
+gitcg_sim_search = { path = "../gitcg_sim_search" }
 gitcg_sim_cli_utils = { path = "../gitcg_sim_cli_utils" }
 tui = { version = "0.19" }
 crossterm = { version = "0.25" }

@@ -11,10 +11,12 @@ use std::{
 };
 
 use dfdx::{optim::Sgd, prelude::*};
-use gitcg_sim::{
+use gitcg_sim::rand::{rngs::SmallRng, thread_rng, Rng, SeedableRng};
+use gitcg_sim_search::training::features::game_state_features;
+use gitcg_sim_search::training::features::input_features::input_features;
+use gitcg_sim_search::{
     mcts::{MCTSConfig, SelfPlayDataPoint, MCTS},
     playout::Playout,
-    rand::{rngs::SmallRng, thread_rng, Rng, SeedableRng},
     training::{
         as_slice::*,
         features::{Features, InputFeatures},
@@ -28,13 +30,9 @@ use structopt::StructOpt;
 
 use ndarray::Array1;
 
-use gitcg_sim::{
-    game_tree_search::*,
-    prelude::*,
-    training::{eval::*, policy::N_IN},
-    types::{by_player::ByPlayer, nondet::NondetState},
-};
+use gitcg_sim::{game_tree_search::*, prelude::*};
 use gitcg_sim_cli_utils::cli_args::SearchOpts;
+use gitcg_sim_search::training::{eval::*, policy::N_IN};
 
 #[derive(Debug, StructOpt, Copy, Clone)]
 pub struct Regularization {
@@ -320,7 +318,7 @@ fn generate_data_points_mcts<I: FnMut() -> GameStateWrapper<S>, S: NondetState>(
                     let mut tot_dot = 0.0;
                     let mut tot_weight = 0.0;
                     for (act, weight) in action_weights.iter().copied() {
-                        let input_features = act.features(1.0).as_slice();
+                        let input_features = input_features(act, 1.0).as_slice();
                         let dot: f32 = unit.iter().copied().zip(input_features).map(|(a, b)| a * b).sum();
                         tot_weight += dot * weight;
                         tot_dot += dot;
@@ -328,7 +326,7 @@ fn generate_data_points_mcts<I: FnMut() -> GameStateWrapper<S>, S: NondetState>(
                     *wi = if tot_dot < 1e-3 { avg_w } else { tot_weight / tot_dot };
                 }
 
-                let game_state_features = gs.features();
+                let game_state_features = game_state_features::features(&gs.game_state);
                 tx.send((game_state_features, InputFeatures::from_slice(weighted_features), depth))
                     .unwrap();
             }

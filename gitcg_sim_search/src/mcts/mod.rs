@@ -8,16 +8,21 @@ use std::{
     sync::{Arc, Mutex, RwLock},
 };
 
-use crate::{
-    cons, game_tree_search::*, linked_list, minimax::transposition_table::TTKey, transposition_table::CacheTable,
-    types::game_state::PlayerId, zobrist_hash::HashValue,
-};
+use crate::{minimax::transposition_table::TTKey, transposition_table::CacheTable};
 use atree::{Arena, Token};
-use rand::{distributions::WeightedIndex, prelude::Distribution, thread_rng, Rng};
+use gitcg_sim::{
+    cons,
+    game_tree_search::*,
+    linked_list,
+    prelude::{HashValue, PlayerId},
+};
+use gitcg_sim::{
+    rand::{distributions::WeightedIndex, prelude::Distribution, thread_rng, Rng},
+    smallvec::SmallVec,
+};
 
 #[cfg(not(feature = "no_parallel"))]
 use rayon::prelude::*;
-use smallvec::SmallVec;
 
 use self::policy::{
     DefaultEvalPolicy, EvalPolicy, SelectionPolicy, SelectionPolicyChildContext, SelectionPolicyContext, UCB1,
@@ -57,7 +62,7 @@ pub struct NodeData<G: Game> {
     pub action: Option<G::Action>,
     pub prop: Proportion,
     pub depth: u8,
-    pub policy_cache: Mutex<smallvec::SmallVec<[f32; 16]>>,
+    pub policy_cache: Mutex<SmallVec<[f32; 16]>>,
     pub selection_state: RwLock<SelectionState>,
     /// Keeps track of mutable statistics. New instances constructed only on `NodeData::new`.
     /// Cannot be cloned.
@@ -291,7 +296,7 @@ impl<G: Game, E: EvalPolicy<G>, S: SelectionPolicy<G>> MCTS<G, E, S> {
             parent,
             is_maximize,
         };
-        let children = parent_node.children(tree).collect::<smallvec::SmallVec<[_; 16]>>();
+        let children = parent_node.children(tree).collect::<SmallVec<[_; 16]>>();
         let get_children = || {
             children
                 .iter()

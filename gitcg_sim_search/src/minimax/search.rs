@@ -5,20 +5,16 @@ use std::{
 #[cfg(not(feature = "no_parallel"))]
 use {rayon::prelude::*, std::ops::Add};
 
-use rand::thread_rng;
-
-use crate::{
+use gitcg_sim::{
     cons,
-    minimax::{transposition_table::TTEntry, Windowable},
+    game_tree_search::*,
+    game_tree_search::{EvalTrait, Game, SearchCounter, Windowable},
+    linked_list,
+    prelude::PlayerId,
+    rand::thread_rng,
 };
-use crate::{game_tree_search::*, types::game_state::PlayerId};
 
-use crate::linked_list;
-
-use super::{
-    transposition_table::{TTFlag, TT},
-    EvalTrait, Game, SearchCounter,
-};
+use crate::minimax::transposition_table::{TTEntry, TTFlag, TT};
 
 fn widen_aspiration_window<G: Game>(
     value: G::Eval,

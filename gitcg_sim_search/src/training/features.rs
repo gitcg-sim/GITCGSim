@@ -1,15 +1,11 @@
 use std::ops::Add;
 
-use enum_map::Enum;
-
-use crate::cards::ids::{CardId, GetCard, GetSkill};
 use crate::impl_as_slice;
-use crate::prelude::*;
-use crate::status_impls::prelude::*;
-use crate::types::card_defs::CardType;
-use crate::types::game_state::*;
-use crate::types::input::PlayerAction;
-use crate::types::nondet::NondetState;
+use gitcg_sim::{
+    enum_map::Enum,
+    prelude::*,
+    types::{card_defs::CardType, enums::*, status_collection::CardSelection},
+};
 
 /// Number of characters to be included in features.
 pub const N_CHARS: usize = 3;
@@ -160,48 +156,49 @@ impl BoolValue for bool {
     }
 }
 
-impl PlayerState {
-    fn char_status_features(&self, char_idx: u8) -> CharStatusFeatures<f32> {
-        let sc = &self.status_collection;
+pub mod player_state_features {
+    use super::*;
+
+    fn char_status_features(player_state: &PlayerState, char_idx: u8) -> CharStatusFeatures<f32> {
+        let sc = &player_state.status_collection;
         CharStatusFeatures {
             equip_count: sc.equipment_count(char_idx) as f32,
             status_count: sc.character_status_count(char_idx) as f32,
         }
     }
 
-    fn char_features(&self, char_idx: u8) -> CharFeatures<f32> {
-        if !self.is_valid_char_idx(char_idx) {
+    pub fn char_features(player_state: &PlayerState, char_idx: u8) -> CharFeatures<f32> {
+        if !player_state.is_valid_char_idx(char_idx) {
             return Default::default();
         }
 
-        let char_state = &self.char_states[char_idx];
+        let char_state = &player_state.char_states[char_idx];
         CharFeatures {
-            is_active: (self.active_char_idx == char_idx).bv(),
+            is_active: (player_state.active_char_idx == char_idx).bv(),
             is_alive: true.bv(),
             hp: char_state.get_hp() as f32,
             energy: char_state.get_energy() as f32,
             applied_count: char_state.applied.len() as f32,
-            status: self.char_status_features(char_idx),
+            status: char_status_features(player_state, char_idx),
         }
     }
 
-    fn express_char_features(&self, char_idx: u8) -> ExpressCharFeatures<f32> {
-        if !self.is_valid_char_idx(char_idx) {
+    pub fn express_char_features(player_state: &PlayerState, char_idx: u8) -> ExpressCharFeatures<f32> {
+        if !player_state.is_valid_char_idx(char_idx) {
             return Default::default();
         }
 
-        let char_state = &self.char_states[char_idx];
+        let char_state = &player_state.char_states[char_idx];
         ExpressCharFeatures {
             has_applied: if char_state.applied.is_empty() { 0.0 } else { 1.0 },
             hp: char_state.get_hp() as f32,
             energy: char_state.get_energy() as f32,
-            // status: self.char_status_features(char_idx),
-            status_count: self.char_status_features(char_idx).total(),
+            status_count: char_status_features(player_state, char_idx).total(),
         }
     }
 
-    fn team_features(&self) -> TeamStatusFeatures<f32> {
-        let sc = &self.status_collection;
+    pub fn team_features(player_state: &PlayerState) -> TeamStatusFeatures<f32> {
+        let sc = &player_state.status_collection;
         TeamStatusFeatures {
             status_count: sc.team_status_count() as f32,
             summon_count: sc.summon_count() as f32,
@@ -209,9 +206,9 @@ impl PlayerState {
         }
     }
 
-    fn dice_features(&self) -> DiceFeatures<f32> {
-        let dice_counter = &self.dice;
-        let es = self.get_element_priority().elems();
+    pub fn dice_features(player_state: &PlayerState) -> DiceFeatures<f32> {
+        let dice_counter = &player_state.dice;
+        let es = player_state.get_element_priority().elems();
         let off_count: u8 = Element::VALUES
             .iter()
             .copied()
@@ -227,13 +224,16 @@ impl PlayerState {
     }
 }
 
-impl GameState {
-    fn can_perform_features(&self, player_id: PlayerId) -> CanPerformFeatures<f32> {
-        if self.to_move_player() != Some(player_id) {
+pub mod game_state_features {
+    use super::*;
+    use player_state_features::*;
+
+    fn can_perform_features(game_state: &GameState, player_id: PlayerId) -> CanPerformFeatures<f32> {
+        if game_state.to_move_player() != Some(player_id) {
             return Default::default();
         }
 
-        let actions = self.available_actions();
+        let actions = game_state.available_actions();
         CanPerformFeatures {
             switch: actions
                 .iter()
@@ -250,19 +250,19 @@ impl GameState {
         }
     }
 
-    fn turn_features(&self, player_id: PlayerId) -> TurnFeatures<f32> {
+    fn turn_features(game_state: &GameState, player_id: PlayerId) -> TurnFeatures<f32> {
         TurnFeatures {
-            own_turn: (self.to_move_player() == Some(player_id)).bv(),
-            opp_ended_round: self.phase.opponent_ended_round(player_id).bv(),
+            own_turn: (game_state.to_move_player() == Some(player_id)).bv(),
+            opp_ended_round: game_state.phase.opponent_ended_round(player_id).bv(),
         }
     }
 
-    fn express_player_state_features(&self, player_id: PlayerId) -> ExpressPlayerStateFeatures<f32> {
-        let player_state = self.players.get(player_id);
+    fn express_player_state_features(game_state: &GameState, player_id: PlayerId) -> ExpressPlayerStateFeatures<f32> {
+        let player_state = game_state.players.get(player_id);
         let active_char_idx = player_state.active_char_idx;
         let mut chars: [ExpressCharFeatures<f32>; N_CHARS] = Default::default();
         for (char_idx, c) in chars.iter_mut().enumerate() {
-            *c = player_state.express_char_features(char_idx as u8);
+            *c = express_char_features(player_state, char_idx as u8);
         }
 
         let mut active_char = Default::default();
@@ -280,65 +280,65 @@ impl GameState {
 
         ExpressPlayerStateFeatures {
             // can_perform: self.can_perform_features(player_id),
-            turn: self.turn_features(player_id),
-            dice: player_state.dice_features(),
+            turn: turn_features(game_state, player_id),
+            dice: dice_features(player_state),
             hand_count: player_state.hand.len() as f32,
             // team: player_state.team_features(),
-            team_status_count: player_state.team_features().total(),
+            team_status_count: team_features(player_state).total(),
             active_char,
             inactive_chars: chars,
             char_ids,
         }
     }
 
-    fn player_state_features(&self, player_id: PlayerId) -> PlayerStateFeatures<f32> {
-        let player_state = self.players.get(player_id);
+    fn player_state_features(game_state: &GameState, player_id: PlayerId) -> PlayerStateFeatures<f32> {
+        let player_state = game_state.players.get(player_id);
         let switch_is_fast_action = (0u8..(N_CHARS as u8))
-            .any(|char_idx| self.check_switch_is_fast_action(player_id, char_idx))
+            .any(|char_idx| game_state.check_switch_is_fast_action(player_id, char_idx))
             .bv();
 
         let mut chars: [CharFeatures<f32>; N_CHARS] = Default::default();
         for (char_idx, c) in chars.iter_mut().enumerate() {
-            *c = player_state.char_features(char_idx as u8);
+            *c = char_features(player_state, char_idx as u8);
         }
 
         PlayerStateFeatures {
-            can_perform: self.can_perform_features(player_id),
-            turn: self.turn_features(player_id),
+            can_perform: can_perform_features(game_state, player_id),
+            turn: turn_features(game_state, player_id),
             switch_is_fast_action,
-            dice: player_state.dice_features(),
+            dice: dice_features(player_state),
             hand_count: player_state.hand.len() as f32,
-            team: player_state.team_features(),
+            team: team_features(player_state),
             chars,
         }
     }
 
     // Unused
-    pub fn extended_features(&self) -> GameStateFeatures<f32> {
+    pub fn extended_features(game_state: &GameState) -> GameStateFeatures<f32> {
         GameStateFeatures {
-            p1: self.player_state_features(PlayerId::PlayerFirst),
-            p2: self.player_state_features(PlayerId::PlayerSecond),
+            p1: player_state_features(game_state, PlayerId::PlayerFirst),
+            p2: player_state_features(game_state, PlayerId::PlayerSecond),
         }
     }
 
-    pub fn features(&self) -> ExpressGameStateFeatures<f32> {
+    pub fn features(game_state: &GameState) -> ExpressGameStateFeatures<f32> {
         ExpressGameStateFeatures {
-            p1: self.express_player_state_features(PlayerId::PlayerFirst),
-            p2: self.express_player_state_features(PlayerId::PlayerSecond),
+            p1: express_player_state_features(game_state, PlayerId::PlayerFirst),
+            p2: express_player_state_features(game_state, PlayerId::PlayerSecond),
         }
     }
 }
 
-impl<S: NondetState> crate::game_tree_search::GameStateWrapper<S> {
-    #[cfg(any())]
-    pub fn features(&self) -> GameStateFeatures<f32> {
-        self.game_state.features()
-    }
-
-    pub fn features(&self) -> ExpressGameStateFeatures<f32> {
-        self.game_state.features()
-    }
-}
+// impl<S: NondetState> gitcg_sim::game_tree_search::GameStateWrapper<S> {
+//     #[cfg(any())]
+//     pub fn features(&self) -> GameStateFeatures<f32> {
+//         self.game_state.features()
+//     }
+//
+//     pub fn features(&self) -> ExpressGameStateFeatures<f32> {
+//         self.game_state.features()
+//     }
+// }
 
 #[repr(C)]
 #[derive(Default, Copy, Clone)]
@@ -385,19 +385,21 @@ macro_rules! vf {
     };
 }
 
-impl Input {
-    pub fn features<T: Copy + Default>(self, value: T) -> InputFeatures<T> {
-        match self {
+pub mod input_features {
+    use super::*;
+
+    pub fn input_features<T: Copy + Default>(input: Input, value: T) -> InputFeatures<T> {
+        match input {
             Input::NoAction => Default::default(),
             Input::NondetResult(_) => Default::default(),
             Input::FromPlayer(_, x) => match x {
                 PlayerAction::EndRound => vf!(InputFeatures, end_round: value),
-                PlayerAction::PlayCard(card_id, target) => Self::play_card_features(card_id, target, value),
+                PlayerAction::PlayCard(card_id, target) => play_card_features(card_id, target, value),
                 PlayerAction::ElementalTuning(..) => vf!(InputFeatures, elemental_tuning: value),
-                PlayerAction::CastSkill(skill_id) => Self::cast_skill_features(skill_id, value),
+                PlayerAction::CastSkill(skill_id) => cast_skill_features(skill_id, value),
                 PlayerAction::SwitchCharacter(char_idx) | PlayerAction::PostDeathSwitch(char_idx) => vf!(
                     InputFeatures,
-                    switch: Self::from_char_idx(char_idx, value)
+                    switch: from_char_idx(char_idx, value)
                 ),
             },
         }
@@ -417,7 +419,7 @@ impl Input {
             CardType::Weapon(..) | CardType::Artifact => {
                 let targeting = target
                     .map(|t| match t {
-                        CardSelection::OwnCharacter(char_idx) => Self::from_char_idx(char_idx, value),
+                        CardSelection::OwnCharacter(char_idx) => from_char_idx(char_idx, value),
                         CardSelection::OwnSummon(..) | CardSelection::OpponentSummon(..) => Default::default(),
                     })
                     .unwrap_or_default();
@@ -454,9 +456,8 @@ pub type Features = ExpressGameStateFeatures<f32>;
 #[cfg(test)]
 mod test {
     use super::*;
-    use proptest::prelude::*;
-
     use crate::training::as_slice::AsSlice;
+    use proptest::prelude::*;
 
     type Slice = <InputFeatures<f32> as AsSlice<f32>>::Slice;
 

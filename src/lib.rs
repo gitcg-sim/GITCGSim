@@ -25,8 +25,6 @@ pub(crate) mod dispatcher;
 pub(crate) mod dispatcher_ops;
 pub mod game_tree_search;
 
-pub mod transposition_table;
-
 /// Module containing `enums` that identify Genios Invokation TCG entities.
 ///
 /// They include:
@@ -40,12 +38,6 @@ pub mod transposition_table;
 /// This module affects generated code related to ID lookups and card effect implementations.
 /// After adding a new entry to the enum, run `code_generator.py` to update the generated code.
 pub mod ids;
-
-/// Implementation for Monte-Carlo Tree Search
-pub mod mcts;
-
-/// Implementation for minimax search
-pub mod minimax;
 
 /// Elemental reaction
 pub mod reaction;
@@ -107,16 +99,14 @@ pub mod prelude {
     pub use crate::game_state_types::*;
     pub use crate::game_tree_search::{new_standard_game, GameStateWrapper};
     pub use crate::ids::*;
+    pub use crate::types::by_player::ByPlayer;
     pub use crate::types::input::{Input, NondetResult, PlayerAction};
     pub use crate::types::nondet::*;
+    pub use crate::zobrist_hash::HashValue;
     pub mod command {
         pub use crate::types::command::*;
     }
 }
-
-pub mod playout;
-
-pub mod training;
 
 #[cfg(test)]
 mod tests;

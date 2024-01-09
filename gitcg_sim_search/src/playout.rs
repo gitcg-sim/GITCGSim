@@ -1,10 +1,7 @@
 use std::cell::RefCell;
 
-use crate::{
-    game_tree_search::{Game, GameTreeSearch},
-    prelude::PlayerId,
-    types::by_player::ByPlayer,
-};
+use gitcg_sim::game_tree_search::{Game, GameTreeSearch};
+use gitcg_sim::prelude::{ByPlayer, PlayerId};
 
 #[derive(Debug, Copy, Clone)]
 pub enum PlayoutError<E> {

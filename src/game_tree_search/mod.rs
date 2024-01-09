@@ -7,6 +7,8 @@ pub use game_trait::*;
 mod game_state_wrapper;
 pub use game_state_wrapper::*;
 
+pub mod minimax_types;
+
 use crate::{data_structures::LinkedList, linked_list, types::game_state::PlayerId};
 
 /// Principal Variation: A sequence of moves known to be best and is used to guide the search to be more efficient at pruning.
@@ -129,7 +131,7 @@ impl<G: Game> Default for SearchResult<G> {
 
 impl<G: Game> SearchResult<G> {
     #[inline]
-    pub(crate) fn new(pv: PV<G>, eval: G::Eval, counter: SearchCounter) -> Self {
+    pub fn new(pv: PV<G>, eval: G::Eval, counter: SearchCounter) -> Self {
         SearchResult { pv, eval, counter }
     }
 }
