@@ -16,10 +16,9 @@ use crate::{
     data_structures::{capped_list::CappedLengthList8, Vector},
     deck::*,
     dispatcher_ops::types::NondetRequest,
-    game_tree_search::ZobristHashable,
     list8,
+    prelude::{HashValue, ZobristHashable},
     rng::RngState,
-    zobrist_hash::HashValue,
 };
 
 use super::{

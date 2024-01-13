@@ -4,10 +4,9 @@ use rand::{rngs::SmallRng, Rng, SeedableRng};
 use smallvec::SmallVec;
 
 use crate::{
-    cards::ids::{CardId, GetCard, GetCharCard, GetSkill, SkillId},
+    cards::ids::*,
     data_structures::ActionList,
-    game_tree_search::*,
-    linked_list,
+    game_state_wrapper::*,
     reaction::check_reaction,
     tcg_model::enums::*,
     types::{
@@ -236,14 +235,12 @@ impl RuleBasedSearch {
             rng: SmallRng::seed_from_u64(10),
         }
     }
-}
 
-impl<S: NondetState> GameTreeSearch<GameStateWrapper<S>> for RuleBasedSearch {
-    fn search(
+    pub fn search_and_select<S: NondetState>(
         &mut self,
         position: &GameStateWrapper<S>,
         maximize_player: PlayerId,
-    ) -> SearchResult<GameStateWrapper<S>> {
+    ) -> (ActionList<(Input, u8)>, usize) {
         let mut action_scores = self
             .config
             .action_scores(position, &position.actions(), maximize_player);
@@ -261,12 +258,6 @@ impl<S: NondetState> GameTreeSearch<GameStateWrapper<S>> for RuleBasedSearch {
                 .collect();
             idxs[rng.gen_range(0..idxs.len())]
         };
-        let mut counter = SearchCounter::default();
-        counter.states_visited += 1;
-        SearchResult {
-            pv: linked_list![action_scores[i].0],
-            eval: Default::default(),
-            counter,
-        }
+        (action_scores, i)
     }
 }

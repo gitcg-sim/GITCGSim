@@ -26,12 +26,13 @@ use tui::{
     Frame, Terminal,
 };
 
-use gitcg_sim::game_tree_search::*;
 use gitcg_sim::{
     action_list,
     ids::*,
+    prelude::*,
     types::{card_defs::*, dice_counter::*, enums::*, game_state::*, input::*, nondet::*},
 };
+use gitcg_sim_search::prelude::*;
 
 mod grid;
 

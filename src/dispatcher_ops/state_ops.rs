@@ -277,7 +277,7 @@ impl GameState {
         gs1
     }
 
-    pub(crate) fn convert_to_tactical_search(&mut self) {
+    pub fn convert_to_tactical_search(&mut self) {
         self.log.enabled = false;
         for player in [&mut self.players.0, &mut self.players.1] {
             player.set_tactical(phc!(self, PlayerId::PlayerFirst), true);

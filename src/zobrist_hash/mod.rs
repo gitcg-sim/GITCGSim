@@ -475,6 +475,10 @@ impl StatusCollection {
     }
 }
 
+pub trait ZobristHashable {
+    fn zobrist_hash(&self) -> HashValue;
+}
+
 #[cfg(test)]
 #[test]
 fn to_index_roundtrip() {

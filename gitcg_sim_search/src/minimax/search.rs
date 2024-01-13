@@ -5,14 +5,9 @@ use std::{
 #[cfg(not(feature = "no_parallel"))]
 use {rayon::prelude::*, std::ops::Add};
 
-use gitcg_sim::{
-    cons,
-    game_tree_search::*,
-    game_tree_search::{EvalTrait, Game, SearchCounter, Windowable},
-    linked_list,
-    prelude::PlayerId,
-    rand::thread_rng,
-};
+use gitcg_sim::{cons, linked_list, prelude::*, rand::thread_rng};
+
+use crate::*;
 
 use crate::minimax::transposition_table::{TTEntry, TTFlag, TT};
 

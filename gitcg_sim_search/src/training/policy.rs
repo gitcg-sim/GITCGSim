@@ -9,12 +9,9 @@ use crate::{
         as_slice::*,
         features::{Features, InputFeatures},
     },
+    Game,
 };
-use gitcg_sim::{
-    game_tree_search::{Game, GameTreeSearch, SearchResult},
-    prelude::{GameStateWrapper, Input, NondetState, PlayerId},
-    smallvec::SmallVec,
-};
+use gitcg_sim::{prelude::*, smallvec::SmallVec};
 
 use super::features::{game_state_features, input_features};
 
@@ -251,6 +248,8 @@ impl<S: NondetState> SelectionPolicy<GameStateWrapper<S>> for PolicyNetwork {
 }
 
 pub mod search {
+    use crate::{GameTreeSearch, SearchResult};
+
     use super::*;
 
     use gitcg_sim::{

@@ -23,7 +23,6 @@ pub mod deck;
 pub mod dice_counter;
 pub(crate) mod dispatcher;
 pub(crate) mod dispatcher_ops;
-pub mod game_tree_search;
 
 /// Module containing `enums` that identify Genios Invokation TCG entities.
 ///
@@ -59,6 +58,8 @@ pub mod types;
 
 pub(crate) mod zobrist_hash;
 
+pub mod game_state_wrapper;
+
 /// Builder for `GameState`s
 pub mod builder;
 
@@ -82,6 +83,9 @@ pub mod enumset {
     pub use enumset::*;
 }
 
+// TODO move this
+pub mod minimax_eval;
+
 pub mod game_state_types {
     pub use crate::types::dice_counter::DiceCounter;
     pub use crate::types::game_state::{
@@ -97,12 +101,12 @@ pub mod prelude {
     pub use crate::deck::Decklist;
     pub use crate::dispatcher_ops::types::DispatchError;
     pub use crate::game_state_types::*;
-    pub use crate::game_tree_search::{new_standard_game, GameStateWrapper};
+    pub use crate::game_state_wrapper::{new_standard_game, GameStateWrapper};
     pub use crate::ids::*;
     pub use crate::types::by_player::ByPlayer;
     pub use crate::types::input::{Input, NondetResult, PlayerAction};
     pub use crate::types::nondet::*;
-    pub use crate::zobrist_hash::HashValue;
+    pub use crate::zobrist_hash::{HashValue, ZobristHashable};
     pub mod command {
         pub use crate::types::command::*;
     }

@@ -10,7 +10,7 @@ use crate::builder::GameStateBuilder;
 use crate::cards::ids::{CardId, SummonId};
 use crate::types::input::{Input, PlayerAction};
 use crate::types::{game_state::*, nondet::*};
-use crate::{cards::ids::CharId, data_structures::*, deck::Decklist, game_tree_search::*};
+use crate::{cards::ids::CharId, data_structures::*, deck::Decklist, game_state_wrapper::*};
 
 pub fn arb_enum<E: std::fmt::Debug + Enum>() -> impl Strategy<Value = E> {
     (0..E::LENGTH).prop_map(E::from_usize)

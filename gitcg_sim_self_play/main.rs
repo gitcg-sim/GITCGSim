@@ -17,6 +17,7 @@ use gitcg_sim_search::training::features::input_features::input_features;
 use gitcg_sim_search::{
     mcts::{MCTSConfig, SelfPlayDataPoint, MCTS},
     playout::Playout,
+    prelude::*,
     training::{
         as_slice::*,
         features::{Features, InputFeatures},
@@ -30,7 +31,7 @@ use structopt::StructOpt;
 
 use ndarray::Array1;
 
-use gitcg_sim::{game_tree_search::*, prelude::*};
+use gitcg_sim::prelude::*;
 use gitcg_sim_cli_utils::cli_args::SearchOpts;
 use gitcg_sim_search::training::{eval::*, policy::N_IN};
 

@@ -1,8 +1,6 @@
 use std::{fmt::Debug, ops::Neg};
 
-use rand::rngs::ThreadRng;
-
-use crate::{types::game_state::PlayerId, zobrist_hash::HashValue};
+use gitcg_sim::{prelude::PlayerId, rand::rngs::ThreadRng};
 
 use super::PV;
 
@@ -38,9 +36,7 @@ pub trait Windowable: Sized {
     fn null_window(self) -> (Self, Self);
 }
 
-pub trait ZobristHashable {
-    fn zobrist_hash(&self) -> HashValue;
-}
+pub use gitcg_sim::prelude::ZobristHashable;
 
 pub trait Game: ZobristHashable + Debug + Clone + Send + Sync {
     #[cfg(feature = "serde")]

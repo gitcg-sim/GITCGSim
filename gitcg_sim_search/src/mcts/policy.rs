@@ -1,5 +1,6 @@
-use crate::training::policy::SelectionPolicyState;
 use gitcg_sim::prelude::NondetState;
+
+use crate::training::policy::SelectionPolicyState;
 
 use super::*;
 
