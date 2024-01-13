@@ -30,9 +30,9 @@ use gitcg_sim::{
     action_list,
     ids::*,
     prelude::*,
-    types::{card_defs::*, dice_counter::*, enums::*, game_state::*, input::*, nondet::*},
+    types::{card_defs::*, dice_counter::*, enums::*},
 };
-use gitcg_sim_search::prelude::*;
+use gitcg_sim_search::{prelude::*, Game};
 
 mod grid;
 

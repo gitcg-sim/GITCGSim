@@ -89,8 +89,8 @@ pub mod minimax_eval;
 pub mod game_state_types {
     pub use crate::types::dice_counter::DiceCounter;
     pub use crate::types::game_state::{
-        CharState, GameState, PendingCommands, Phase, PlayerFlag, PlayerId, PlayerState, StatusCollection,
-        SuspendedState,
+        AppliedEffectState, CardSelection, CharState, GameState, PendingCommands, Phase, PlayerFlag, PlayerId,
+        PlayerState, StatusCollection, SuspendedState,
     };
     pub use crate::types::logging::EventLog;
     pub use crate::types::status_impl::RespondsTo;

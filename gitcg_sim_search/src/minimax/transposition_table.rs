@@ -1,8 +1,9 @@
 #[cfg(feature = "old_tt")]
 use flurry::{HashMap, HashMapRef};
 
+use crate::linked_list::LinkedList;
 use crate::transposition_table::CacheTable;
-use gitcg_sim::{data_structures::LinkedList, prelude::HashValue};
+use gitcg_sim::prelude::HashValue;
 
 #[derive(Debug, Copy, Clone)]
 pub enum TTFlag {

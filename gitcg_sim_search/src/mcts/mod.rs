@@ -9,17 +9,13 @@ use std::{
 };
 
 use crate::{
-    minimax::transposition_table::TTKey, transposition_table::CacheTable, Game, GameTreeSearch, SearchCounter,
-    SearchLimits, SearchResult, PV,
+    cons, linked_list, minimax::transposition_table::TTKey, transposition_table::CacheTable, Game, GameTreeSearch,
+    SearchCounter, SearchLimits, SearchResult, PV,
 };
 use atree::{Arena, Token};
 use gitcg_sim::{
-    cons,
     game_state_wrapper::*,
-    linked_list,
     prelude::{HashValue, PlayerId},
-};
-use gitcg_sim::{
     rand::{distributions::WeightedIndex, prelude::Distribution, thread_rng, Rng},
     smallvec::SmallVec,
 };

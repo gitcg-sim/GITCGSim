@@ -4,10 +4,6 @@ pub use const_default::*;
 
 pub mod capped_list;
 
-pub mod linked_list;
-
-pub use linked_list::*;
-
 pub type List8<T> = capped_list::CappedLengthList8<T>;
 
 pub type CommandList<T> = smallvec::SmallVec<[T; 8]>;

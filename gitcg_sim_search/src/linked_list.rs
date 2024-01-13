@@ -65,23 +65,21 @@ impl<'a, T: Clone> Iterator for LinkedListIterView<'a, T> {
 #[macro_export]
 macro_rules! cons {
     ($x: expr, $xs: expr) => {
-        $crate::data_structures::linked_list::LinkedList(Some(::std::sync::Arc::new(
-            $crate::data_structures::linked_list::Cons($x, $xs),
-        )))
+        $crate::linked_list::LinkedList(Some(::std::sync::Arc::new($crate::linked_list::Cons($x, $xs))))
     };
 }
 
 #[macro_export]
 macro_rules! linked_list {
     ($(,)?) => {
-        $crate::data_structures::linked_list::LinkedList(
+        $crate::linked_list::LinkedList(
             None
         )
     };
     ($x: expr $(,)?) => {
-        $crate::data_structures::linked_list::LinkedList(
+        $crate::linked_list::LinkedList(
             Some(::std::sync::Arc::new(
-                $crate::data_structures::linked_list::Cons(
+                $crate::linked_list::Cons(
                     $x, linked_list![]
                 )
             ))
@@ -94,7 +92,7 @@ macro_rules! linked_list {
 
 #[cfg(test)]
 mod tests {
-    use crate::data_structures::LinkedList;
+    use crate::LinkedList;
 
     #[test]
     pub fn len() {

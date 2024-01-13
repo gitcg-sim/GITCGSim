@@ -1,13 +1,13 @@
 use std::ops::Neg;
 
 use crate::{
+    linked_list,
     mcts::{policy::EvalPolicy, MCTS},
     minimax::Eval,
     training::{as_slice::AsSlice, features::Features},
     Game, GameTreeSearch, SearchResult,
 };
 use gitcg_sim::{
-    linked_list,
     prelude::*,
     rand::{distributions::WeightedIndex, prelude::Distribution, thread_rng, Rng},
 };

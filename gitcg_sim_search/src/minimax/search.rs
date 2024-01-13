@@ -5,7 +5,7 @@ use std::{
 #[cfg(not(feature = "no_parallel"))]
 use {rayon::prelude::*, std::ops::Add};
 
-use gitcg_sim::{cons, linked_list, prelude::*, rand::thread_rng};
+use gitcg_sim::{prelude::*, rand::thread_rng};
 
 use crate::*;
 

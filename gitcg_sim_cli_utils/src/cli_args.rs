@@ -1,14 +1,14 @@
 use std::{fs::File, path::PathBuf, str::FromStr};
 use structopt::StructOpt;
 
+use gitcg_sim::deck::*;
 use gitcg_sim::{
-    deck::*,
-    linked_list,
     prelude::*,
     rand::{rngs::SmallRng, thread_rng, Rng, SeedableRng},
     rule_based::RuleBasedSearch,
 };
 use gitcg_sim_search::{
+    linked_list,
     mcts::{policy::RuleBasedPuct, CpuctConfig, MCTSConfig, MCTS},
     minimax::{
         search::{STATIC_SEARCH_MAX_ITERS, TACTICAL_SEARCH_DEPTH, TARGET_ROUND_DELTA},

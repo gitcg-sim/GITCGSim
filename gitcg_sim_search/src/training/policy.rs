@@ -248,14 +248,11 @@ impl<S: NondetState> SelectionPolicy<GameStateWrapper<S>> for PolicyNetwork {
 }
 
 pub mod search {
-    use crate::{GameTreeSearch, SearchResult};
-
     use super::*;
 
-    use gitcg_sim::{
-        linked_list,
-        rand::{distributions::WeightedIndex, Rng},
-    };
+    use gitcg_sim::rand::{distributions::WeightedIndex, Rng};
+
+    use crate::{linked_list, GameTreeSearch, SearchResult};
 
     #[derive(Debug, Clone)]
     pub struct PolicyNetworkBasedSearch<R: Rng> {
