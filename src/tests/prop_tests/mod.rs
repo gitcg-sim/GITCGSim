@@ -3,11 +3,7 @@ use generator::*;
 
 use proptest::prelude::*;
 
-use crate::cards::ids::*;
-
-use crate::prelude::*;
-
-use crate::{dispatcher_ops::types::DispatchResult, types::input::Input};
+use crate::{cards::ids::*, list8, prelude::*};
 
 pub(crate) const CASES: u32 = 5_000;
 // pub(crate) const CASES: u32 = 50_000;

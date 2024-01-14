@@ -1,4 +1,4 @@
-use crate::game_state_types::{CharState, PlayerState};
+use crate::prelude::{CharState, PlayerState};
 
 type HV = i16;
 

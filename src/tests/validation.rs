@@ -1,9 +1,6 @@
-use crate::{
-    dispatcher_ops::types::DispatchError,
-    types::{dice_counter::DiceCounter, enums::Dice},
-};
-
 use super::*;
+
+use crate::prelude::*;
 
 #[test]
 fn switch_character_validation() {

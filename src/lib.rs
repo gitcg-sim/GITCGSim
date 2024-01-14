@@ -86,26 +86,22 @@ pub mod enumset {
 // TODO move this
 pub mod minimax_eval;
 
-pub mod game_state_types {
+pub mod prelude {
+    pub use crate::builder::*;
+    pub use crate::deck::Decklist;
+    pub use crate::dispatcher_ops::{DispatchError, DispatchResult, NondetRequest};
+    pub use crate::game_state_wrapper::{new_standard_game, GameStateWrapper};
+    pub use crate::ids::*;
+    pub use crate::types::by_player::ByPlayer;
     pub use crate::types::dice_counter::DiceCounter;
     pub use crate::types::game_state::{
         AppliedEffectState, CardSelection, CharState, GameState, PendingCommands, Phase, PlayerFlag, PlayerId,
         PlayerState, StatusCollection, SuspendedState,
     };
-    pub use crate::types::logging::EventLog;
-    pub use crate::types::status_impl::RespondsTo;
-}
-
-pub mod prelude {
-    pub use crate::builder::*;
-    pub use crate::deck::Decklist;
-    pub use crate::dispatcher_ops::types::DispatchError;
-    pub use crate::game_state_types::*;
-    pub use crate::game_state_wrapper::{new_standard_game, GameStateWrapper};
-    pub use crate::ids::*;
-    pub use crate::types::by_player::ByPlayer;
     pub use crate::types::input::{Input, NondetResult, PlayerAction};
+    pub use crate::types::logging::EventLog;
     pub use crate::types::nondet::*;
+    pub use crate::types::status_impl::RespondsTo;
     pub use crate::zobrist_hash::{HashValue, ZobristHashable};
     pub mod command {
         pub use crate::types::command::*;

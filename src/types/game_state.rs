@@ -6,13 +6,13 @@ use enumset::{enum_set, EnumSet, EnumSetType};
 
 use smallvec::SmallVec;
 
-use crate::cards::ids::CardId;
-use crate::data_structures::{CommandList, Vector};
-
-use crate::cards::ids::*;
-use crate::dispatcher_ops::types::NondetRequest;
-use crate::vector;
-use crate::zobrist_hash::ZobristHasher;
+use crate::{
+    cards::ids::*,
+    data_structures::{CommandList, Vector},
+    dispatcher_ops::NondetRequest,
+    vector,
+    zobrist_hash::ZobristHasher,
+};
 
 use super::by_player::ByPlayer;
 

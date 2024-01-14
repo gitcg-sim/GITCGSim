@@ -3,24 +3,30 @@ use std::collections::VecDeque;
 
 use smallvec::{smallvec, SmallVec};
 
-use crate::data_structures::capped_list::CappedLengthList8;
-use crate::data_structures::{CommandList, Vector};
-use crate::dispatcher::cmd_trigger_event;
-use crate::dispatcher_ops::exec_command_helpers::ExecResult;
-use crate::tcg_model::enums::*;
+use crate::{
+    cards::ids::{lookup::*, *},
+    chc, cmd_list,
+    data_structures::{capped_list::CappedLengthList8, CommandList, Vector},
+    dispatcher::cmd_trigger_event,
+    dispatcher_ops::{DispatchError, ExecResult},
+    mutate_statuses, mutate_statuses_1, phc,
+    reaction::find_reaction,
+    tcg_model::enums::*,
+    types::{
+        card_defs::*,
+        command::*,
+        deal_dmg::*,
+        dice_counter::DiceCounter,
+        game_state::*,
+        logging::Event,
+        status_impl::{RespondsTo, StatusImpl},
+    },
+    view,
+    zobrist_hash::ZobristHasher,
+};
 
 use super::exec_command_helpers::*;
 use super::types::{DispatchResult, NondetRequest};
-use crate::types::status_impl::RespondsTo;
-use crate::types::status_impl::StatusImpl;
-use crate::zobrist_hash::ZobristHasher;
-use crate::{
-    cards::ids::{lookup::*, *},
-    dispatcher_ops::types::DispatchError,
-    reaction::find_reaction,
-    types::{card_defs::*, command::*, deal_dmg::*, dice_counter::DiceCounter, game_state::*, logging::Event},
-};
-use crate::{chc, cmd_list, mutate_statuses, mutate_statuses_1, phc, view};
 
 impl GameState {
     /// Attempt to pay the cost. Succeeds without cost payment if `ignore_costs` is true.

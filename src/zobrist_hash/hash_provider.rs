@@ -4,7 +4,7 @@ use rand::prelude::*;
 use rand::rngs::SmallRng;
 use rustc_hash::FxHasher;
 
-use crate::dispatcher_ops::types::NondetRequest;
+use crate::dispatcher_ops::NondetRequest;
 use crate::types::by_player::ByPlayer;
 use crate::types::ElementSet;
 

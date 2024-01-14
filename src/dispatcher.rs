@@ -1,20 +1,27 @@
 use smallvec::{smallvec, SmallVec};
 
-use crate::cards::event::DefaultCardImpl;
-use crate::cards::ids::lookup::GetCard;
-use crate::cards::ids::{CardId, GetCharCard, GetSkill};
-use crate::data_structures::ActionList;
-use crate::dispatcher_ops::exec_command_helpers::{augment_cost_immutable, can_pay_dice_cost};
-use crate::dispatcher_ops::types::NondetRequest;
-use crate::types::card_impl::{CardImpl, CardImplContext};
-use crate::types::input::{Input, NondetResult, PlayerAction};
-use crate::{cards::ids::SkillId, cmd_list, vector};
-use crate::{mutate_statuses, phc};
-
-use crate::dispatcher_ops::types::*;
-use crate::types::command::*;
-use crate::types::game_state::*;
-use crate::types::{card_defs::Cost, logging::Event};
+use crate::{
+    cards::{
+        event::DefaultCardImpl,
+        ids::{CardId, GetCard, GetCharCard, GetSkill, SkillId},
+    },
+    cmd_list,
+    data_structures::ActionList,
+    dispatcher_ops::{
+        exec_command_helpers::{augment_cost_immutable, can_pay_dice_cost},
+        *,
+    },
+    mutate_statuses, phc,
+    types::{
+        card_defs::Cost,
+        card_impl::{CardImpl, CardImplContext},
+        command::*,
+        game_state::*,
+        input::{Input, NondetResult, PlayerAction},
+        logging::Event,
+    },
+    vector,
+};
 
 const SWITCHING_COST: Cost = Cost {
     elem_cost: None,

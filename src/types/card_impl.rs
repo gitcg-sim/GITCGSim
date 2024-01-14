@@ -1,4 +1,4 @@
-use crate::{cards::ids::CardId, data_structures::CommandList, dispatcher_ops::types::DispatchError};
+use crate::{cards::ids::CardId, data_structures::CommandList, dispatcher_ops::DispatchError};
 
 use crate::types::{
     card_defs::Card,

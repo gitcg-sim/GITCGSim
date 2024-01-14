@@ -15,9 +15,8 @@ use crate::{
     cards::ids::*,
     data_structures::{capped_list::CappedLengthList8, Vector},
     deck::*,
-    dispatcher_ops::types::NondetRequest,
     list8,
-    prelude::{HashValue, ZobristHashable},
+    prelude::{HashValue, NondetRequest, ZobristHashable},
     rng::RngState,
 };
 
