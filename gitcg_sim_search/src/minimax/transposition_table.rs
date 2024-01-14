@@ -1,8 +1,7 @@
 #[cfg(feature = "old_tt")]
 use flurry::{HashMap, HashMapRef};
 
-use crate::linked_list::LinkedList;
-use crate::transposition_table::CacheTable;
+use crate::{linked_list::LinkedList, transposition_table::CacheTable};
 use gitcg_sim::prelude::HashValue;
 
 #[derive(Debug, Copy, Clone)]

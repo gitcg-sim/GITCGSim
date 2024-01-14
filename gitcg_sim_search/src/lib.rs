@@ -47,5 +47,5 @@ pub use search::*;
 
 pub mod prelude {
     pub use crate::linked_list::*;
-    pub use crate::{EvalTrait, GameTreeSearch, SearchCounter, SearchLimits, SearchResult};
+    pub use crate::{EvalTrait, Game, GameTreeSearch, SearchCounter, SearchLimits, SearchResult};
 }

@@ -17,9 +17,7 @@ pub mod card_selection;
 pub mod applied_effect_state;
 pub(crate) mod card_impl;
 pub(crate) mod command;
-pub mod dice_counter {
-    pub use crate::dice_counter::*;
-}
+pub use crate::dice_counter;
 pub mod char_state;
 pub mod game_state;
 pub mod input;

@@ -93,7 +93,11 @@ pub mod prelude {
     pub use crate::game_state_wrapper::{new_standard_game, GameStateWrapper};
     pub use crate::ids::*;
     pub use crate::types::by_player::ByPlayer;
-    pub use crate::types::dice_counter::DiceCounter;
+    pub use crate::types::deal_dmg::{DealDMG, DealDMGType};
+    pub use crate::types::dice_counter::{
+        distribution::{DiceDeterminization, DiceDistribution},
+        DiceCounter, ElementPriority,
+    };
     pub use crate::types::game_state::{
         AppliedEffectState, CardSelection, CharState, GameState, PendingCommands, Phase, PlayerFlag, PlayerId,
         PlayerState, StatusCollection, SuspendedState,
@@ -103,8 +107,18 @@ pub mod prelude {
     pub use crate::types::nondet::*;
     pub use crate::types::status_impl::RespondsTo;
     pub use crate::zobrist_hash::{HashValue, ZobristHashable};
+
+    // Modules
     pub mod command {
         pub use crate::types::command::*;
+    }
+    pub use crate::types::dice_counter;
+    pub use crate::types::logging;
+    pub mod tcg_model {
+        pub use crate::tcg_model::{deal_dmg::*, enums::*};
+    }
+    pub mod card_defs {
+        pub use crate::types::{card_defs::*, deal_dmg::*, enums::*};
     }
 }
 
