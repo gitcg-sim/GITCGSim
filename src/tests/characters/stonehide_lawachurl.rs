@@ -17,7 +17,7 @@ fn stonehide_consumes_2_usages_for_geo_dmg() {
             .unwrap()
             .get_usages()
     );
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::EndRound),
         Input::FromPlayer(
             PlayerId::PlayerSecond,
@@ -52,7 +52,7 @@ fn stonehide_removes_stone_force_at_zero_usages() {
             .unwrap()
             .get_usages()
     );
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::EndRound),
         Input::FromPlayer(
             PlayerId::PlayerSecond,
@@ -98,7 +98,7 @@ fn stone_force_infuses_geo() {
         .status_collection
         .get(StatusKey::Character(0, StatusId::StoneForce))
         .is_some());
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::PlamaLawa),
     )]);
@@ -108,7 +108,7 @@ fn stone_force_infuses_geo() {
         .get(StatusKey::Team(StatusId::CrystallizeShield))
         .is_some());
     assert_eq!(6, gs.get_player(PlayerId::PlayerSecond).char_states[0].get_hp());
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::PlamaLawa)),
     ]);

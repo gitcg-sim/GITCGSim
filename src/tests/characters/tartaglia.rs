@@ -21,7 +21,7 @@ fn foul_legacy_raging_tide_melee_stance_and_riptide_transfer() {
         assert!(p.has_active_character_status(StatusId::RangedStance));
         assert!(!p.has_active_character_status(StatusId::MeleeStance));
     }
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(
             PlayerId::PlayerFirst,
             PlayerAction::CastSkill(SkillId::FoulLegacyRagingTide),
@@ -38,7 +38,7 @@ fn foul_legacy_raging_tide_melee_stance_and_riptide_transfer() {
         .get_player(PlayerId::PlayerFirst)
         .flags
         .contains(PlayerFlag::ChargedAttack));
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::CuttingTorrent)),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
     ]);
@@ -46,7 +46,7 @@ fn foul_legacy_raging_tide_melee_stance_and_riptide_transfer() {
         let p2 = gs.get_player(PlayerId::PlayerSecond);
         assert!(p2.has_character_status(1, StatusId::Riptide));
     }
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::CuttingTorrent)),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::PostDeathSwitch(0)),
     ]);

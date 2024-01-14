@@ -8,7 +8,7 @@ fn guoba_attack_deals_dmg_at_end_phase() {
             .ignore_costs(true)
             .build();
     gs.advance_roll_phase_no_dice();
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::GuobaAttack)),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::SwitchCharacter(1)),
@@ -32,7 +32,7 @@ fn talent_card_deals_pyro_dmg_on_skill_cast() {
             .build();
     gs.advance_roll_phase_no_dice();
     gs.get_player_mut(PlayerId::PlayerFirst).hand.push(CardId::Crossfire);
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::PlayCard(CardId::Crossfire, Some(CardSelection::OwnCharacter(0))),
     )]);
@@ -54,7 +54,7 @@ fn pyronado_deals_dmg_on_skill_cast() {
     .ignore_costs(true)
     .build();
     gs.advance_roll_phase_no_dice();
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::Pyronado)),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::SwitchCharacter(1)),
     ]);
@@ -66,7 +66,7 @@ fn pyronado_deals_dmg_on_skill_cast() {
     );
     {
         let mut gs = gs.clone();
-        gs.advance_multiple(&vec![Input::FromPlayer(
+        gs.advance_multiple([Input::FromPlayer(
             PlayerId::PlayerFirst,
             PlayerAction::CastSkill(SkillId::DoughFu),
         )]);
@@ -76,7 +76,7 @@ fn pyronado_deals_dmg_on_skill_cast() {
     }
     {
         let mut gs = gs.clone();
-        gs.advance_multiple(&vec![Input::FromPlayer(
+        gs.advance_multiple([Input::FromPlayer(
             PlayerId::PlayerFirst,
             PlayerAction::CastSkill(SkillId::GuobaAttack),
         )]);
@@ -86,7 +86,7 @@ fn pyronado_deals_dmg_on_skill_cast() {
     }
     {
         let mut gs = gs.clone();
-        gs.advance_multiple(&vec![
+        gs.advance_multiple([
             Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::SwitchCharacter(1)),
             Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
             Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::BoltsOfDownfall)),
@@ -97,7 +97,7 @@ fn pyronado_deals_dmg_on_skill_cast() {
     }
     {
         let mut gs = gs.clone();
-        gs.advance_multiple(&vec![
+        gs.advance_multiple([
             Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::SwitchCharacter(1)),
             Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::CastSkill(SkillId::GuhuaStyle)),
         ]);

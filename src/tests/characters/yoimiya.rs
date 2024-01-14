@@ -8,7 +8,7 @@ fn niwabi_fire_dance_status() {
         .build();
 
     gs.advance_roll_phase_no_dice();
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::NiwabiFireDance),
     )]);
@@ -20,7 +20,7 @@ fn niwabi_fire_dance_status() {
             .get(StatusKey::Character(0, StatusId::NiwabiEnshou))
             .is_some());
     }
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::FireworkFlareUp)),
     ]);
@@ -30,7 +30,7 @@ fn niwabi_fire_dance_status() {
         assert_eq!(elem_set![Element::Pyro], ganyu.applied);
         assert_eq!(7, ganyu.get_hp());
     }
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::FireworkFlareUp),
     )]);
@@ -38,7 +38,7 @@ fn niwabi_fire_dance_status() {
         let ganyu = gs.get_player(PlayerId::PlayerSecond).get_active_character();
         assert_eq!(4, ganyu.get_hp());
     }
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::FireworkFlareUp),
     )]);
@@ -63,7 +63,7 @@ fn ryuukin_saxifrage_trigger_duration() {
     .ignore_costs(true)
     .build();
     gs.advance_roll_phase_no_dice();
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::RyuukinSaxifrage),
     )]);
@@ -72,7 +72,7 @@ fn ryuukin_saxifrage_trigger_duration() {
         .status_collection
         .get(StatusKey::Team(StatusId::AurousBlaze))
         .is_some());
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::SwitchCharacter(1)),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::FireworkFlareUp)),
     ]);
@@ -81,7 +81,7 @@ fn ryuukin_saxifrage_trigger_duration() {
         assert_eq!(elem_set![], kaeya.applied);
         assert_eq!(8, kaeya.get_hp());
     }
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::SwitchCharacter(1)),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::BoltsOfDownfall)),
@@ -105,7 +105,7 @@ fn talent_card_costs_niwabi_enshou_and_increases_dmg() {
     .build();
     gs.players.0.hand.push(CardId::NaganoharaMeteorSwarm);
     gs.advance_roll_phase_no_dice();
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::PlayCard(CardId::NaganoharaMeteorSwarm, Some(CardSelection::OwnCharacter(0))),
     )]);
@@ -119,7 +119,7 @@ fn talent_card_costs_niwabi_enshou_and_increases_dmg() {
         assert_eq!(0, yoimiya.get_energy());
         assert!(yoimiya.has_talent_equipped());
     }
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::FireworkFlareUp)),
     ]);

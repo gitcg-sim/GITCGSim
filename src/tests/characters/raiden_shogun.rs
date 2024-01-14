@@ -11,7 +11,7 @@ fn secret_art_musou_shinsetsu_increases_energy() {
     .build();
 
     gs.advance_roll_phase_no_dice();
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::SecretArtMusouShinsetsu),
     )]);
@@ -44,7 +44,7 @@ fn eye_of_stormy_judgment_increases_burst_dmg() {
     .build();
 
     gs.advance_roll_phase_no_dice();
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(
             PlayerId::PlayerFirst,
             PlayerAction::CastSkill(SkillId::TranscendenceBalefulOmen),
@@ -56,7 +56,7 @@ fn eye_of_stormy_judgment_increases_burst_dmg() {
     ]);
     // Not buffed
     assert_eq!(9, gs.get_player(PlayerId::PlayerSecond).char_states[1].get_hp());
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::SweepingTime),
     )]);
@@ -81,7 +81,7 @@ fn chakra_desiderata_buffs_burst() {
     assert!(gs
         .get_player(PlayerId::PlayerFirst)
         .has_character_status(2, StatusId::ChakraDesiderata));
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::SweepingTime)),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::SwitchCharacter(1)),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::SwitchCharacter(1)),
@@ -95,7 +95,7 @@ fn chakra_desiderata_buffs_burst() {
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
     ]);
     gs.get_player_mut(PlayerId::PlayerSecond).char_states[0].set_hp(10);
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::SecretArtMusouShinsetsu),
     )]);
@@ -126,7 +126,7 @@ fn chakra_desiderata_under_talent_card_buffs_burst_twice() {
     assert!(gs
         .get_player(PlayerId::PlayerFirst)
         .has_character_status(2, StatusId::ChakraDesiderata));
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::SweepingTime)),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::SwitchCharacter(1)),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::SwitchCharacter(1)),
@@ -140,7 +140,7 @@ fn chakra_desiderata_under_talent_card_buffs_burst_twice() {
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
     ]);
     gs.get_player_mut(PlayerId::PlayerSecond).char_states[0].set_hp(10);
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::PlayCard(CardId::WishesUnnumbered, Some(CardSelection::OwnCharacter(2))),
     )]);
@@ -158,7 +158,7 @@ fn chakra_desiderata_counter_not_increased() {
     assert!(gs
         .get_player(PlayerId::PlayerFirst)
         .has_character_status(0, StatusId::ChakraDesiderata));
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::SecretArtMusouShinsetsu),
     )]);

@@ -13,7 +13,7 @@ fn swirl_deals_swirl_dmg_and_applies_element() {
             .applied
             .insert(e);
         gs.advance_roll_phase_no_dice();
-        gs.advance_multiple(&vec![Input::FromPlayer(
+        gs.advance_multiple([Input::FromPlayer(
             PlayerId::PlayerFirst,
             PlayerAction::CastSkill(SkillId::AstableAnemohypostasisCreation6308),
         )]);
@@ -45,7 +45,7 @@ fn swirl_triggers_secondary_reactions_melt_vaporize() {
     }
     gs.advance_roll_phase_no_dice();
 
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::AstableAnemohypostasisCreation6308),
     )]);
@@ -76,7 +76,7 @@ fn swirl_triggers_secondary_reactions_electro_charged_superconduct() {
         }
         gs.advance_roll_phase_no_dice();
 
-        gs.advance_multiple(&vec![Input::FromPlayer(
+        gs.advance_multiple([Input::FromPlayer(
             PlayerId::PlayerFirst,
             PlayerAction::CastSkill(SkillId::AstableAnemohypostasisCreation6308),
         )]);
@@ -108,7 +108,7 @@ fn swirl_triggers_secondary_reactions_bloom_frozen() {
     }
     gs.advance_roll_phase_no_dice();
 
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::AstableAnemohypostasisCreation6308),
     )]);
@@ -143,7 +143,7 @@ fn swirl_triggers_secondary_reactions_quicken() {
     }
     gs.advance_roll_phase_no_dice();
 
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::AstableAnemohypostasisCreation6308),
     )]);
@@ -173,7 +173,7 @@ fn swirl_triggers_secondary_reactions_burning() {
     }
     gs.advance_roll_phase_no_dice();
 
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::AstableAnemohypostasisCreation6308),
     )]);
@@ -202,7 +202,7 @@ fn swirl_triggers_secondary_reactions_overloaded_no_forced_switch() {
     }
     gs.advance_roll_phase_no_dice();
 
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         // Different skill from above
         Input::FromPlayer(
             PlayerId::PlayerFirst,

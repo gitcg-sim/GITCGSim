@@ -8,7 +8,7 @@ fn passive_switch_character_away_is_fast_action_once_per_round() {
             .ignore_costs(true)
             .build();
     gs.advance_roll_phase_no_dice();
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         // consumed
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::SwitchCharacter(1)),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::SwitchCharacter(0)),
@@ -23,7 +23,7 @@ fn passive_switch_character_away_is_fast_action_once_per_round() {
     ]);
     gs.advance_roll_phase_no_dice();
     assert_eq!(2, gs.round_number);
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(
             PlayerId::PlayerSecond,
             PlayerAction::CastSkill(SkillId::BoltsOfDownfall),
@@ -47,12 +47,12 @@ fn reflection_expires_without_usage_being_consumed() {
         .build();
 
     gs.advance_roll_phase_no_dice();
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::MirrorReflectionOfDoom),
     )]);
     assert!(gs.get_player(PlayerId::PlayerFirst).has_summon(SummonId::Reflection));
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::EndRound),
         Input::NoAction,
@@ -72,7 +72,7 @@ fn reflection_reduces_dmg_and_remains_until_end_phase() {
         .build();
 
     gs.advance_roll_phase_no_dice();
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::MirrorReflectionOfDoom),
     )]);
@@ -85,7 +85,7 @@ fn reflection_reduces_dmg_and_remains_until_end_phase() {
             .unwrap()
             .get_usages()
     );
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerSecond,
         PlayerAction::CastSkill(SkillId::BoltsOfDownfall),
     )]);
@@ -98,12 +98,12 @@ fn reflection_reduces_dmg_and_remains_until_end_phase() {
             .get_usages()
     );
     assert_eq!(9, gs.get_player(PlayerId::PlayerFirst).get_active_character().get_hp());
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::EndRound),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
     ]);
     gs.get_player_mut(PlayerId::PlayerSecond).char_states[0].applied.clear();
-    gs.advance_multiple(&vec![Input::NoAction]);
+    gs.advance_multiple([Input::NoAction]);
     gs.advance_roll_phase_no_dice();
     assert!(!gs.get_player(PlayerId::PlayerFirst).has_summon(SummonId::Reflection));
     let fischl = gs.get_player(PlayerId::PlayerSecond).get_active_character();
@@ -125,7 +125,7 @@ fn stellaris_phantasm_doubles_dmg() {
     gs.get_player_mut(PlayerId::PlayerFirst)
         .hand
         .push(CardId::SacrificialSword);
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(
             PlayerId::PlayerFirst,
             PlayerAction::PlayCard(CardId::SacrificialSword, Some(CardSelection::OwnCharacter(1))),
@@ -144,7 +144,7 @@ fn stellaris_phantasm_doubles_dmg() {
     assert!(!gs
         .get_player(PlayerId::PlayerFirst)
         .has_team_status(StatusId::IllusoryBubble));
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::GuhuaStyle)),
     ]);
@@ -165,7 +165,7 @@ fn stellaris_phantasm_doubles_dmg_for_reaction_post_reaction_bonus() {
     gs.get_player_mut(PlayerId::PlayerSecond).char_states[1]
         .applied
         .insert(Element::Hydro);
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(
             PlayerId::PlayerFirst,
             PlayerAction::CastSkill(SkillId::StellarisPhantasm),
@@ -191,7 +191,7 @@ fn stellaris_phantasm_does_not_double_summon_dmg() {
     .build();
     gs.advance_roll_phase_no_dice();
     gs.ignore_costs = true;
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::GuobaAttack)),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::SwitchCharacter(1)),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::SwitchCharacter(1)),
@@ -210,7 +210,7 @@ fn stellaris_phantasm_does_not_double_summon_dmg() {
     assert_eq!(10, gs.get_player(PlayerId::PlayerSecond).char_states[1].get_hp());
     assert_eq!(10, gs.get_player(PlayerId::PlayerSecond).char_states[2].get_hp());
 
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
         Input::NoAction,
     ]);

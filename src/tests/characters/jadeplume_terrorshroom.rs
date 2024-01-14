@@ -26,7 +26,7 @@ pub fn test_3_radical_vitality_stacks_clear_on_end_phase() {
     gs.advance_roll_phase_no_dice();
     set_stacks(&mut gs, 3);
 
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::EndRound),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
         Input::NoAction,
@@ -48,19 +48,19 @@ pub fn test_radival_vitality_stacks_increases_on_own_elemental_dmg_dealt() {
     assert_eq!(0, get_stacks(&gs));
 
     // Physical DMG
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::MajesticDance)),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
     ]);
     assert_eq!(0, get_stacks(&gs));
     // Elemental DMG
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::VolatileSporeCloud),
     )]);
     assert_eq!(1, get_stacks(&gs));
     // Other character dealt Elemental DMG
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::SwitchCharacter(1)),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::Frostgnaw)),
     ]);
@@ -80,18 +80,18 @@ pub fn test_radival_vitality_stacks_increases_on_own_elemental_dmg_received() {
     assert_eq!(0, get_stacks(&gs));
 
     // Received Geo DMG
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::EndRound),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::CastSkill(SkillId::Breastplate)),
     ]);
     // Received Physical DMG
     assert_eq!(1, get_stacks(&gs));
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerSecond,
         PlayerAction::CastSkill(SkillId::FavoniusBladeworkMaid),
     )]);
     assert_eq!(1, get_stacks(&gs));
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
         Input::NoAction,
     ]);
@@ -99,7 +99,7 @@ pub fn test_radival_vitality_stacks_increases_on_own_elemental_dmg_received() {
     gs.advance_roll_phase_no_dice();
     assert_eq!(1, get_stacks(&gs));
     // Other received Geo DMG
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::SwitchCharacter(1)),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::CastSkill(SkillId::Breastplate)),
     ]);
@@ -118,7 +118,7 @@ pub fn test_feather_spreading_consumes_radical_vitality_stacks() {
     gs.advance_roll_phase_no_dice();
     set_stacks(&mut gs, 2);
 
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::FeatherSpreading),
     )]);

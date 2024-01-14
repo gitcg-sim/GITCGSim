@@ -15,7 +15,7 @@ fn zobrist_hash() {
             .ignore_costs(true)
             .build();
     gs.advance_roll_phase_no_dice();
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::BoltsOfDownfall)),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::CastSkill(SkillId::GlacialWaltz)),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::BoltsOfDownfall)),
@@ -26,7 +26,7 @@ fn zobrist_hash() {
         h.finish()
     };
     dbg!(h);
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerSecond,
         PlayerAction::SwitchCharacter(1),
     )]);

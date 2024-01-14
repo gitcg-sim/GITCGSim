@@ -11,7 +11,7 @@ fn playing_up_to_4_supports() {
     gs.players.0.hand.push(CardId::Katheryne);
     gs.players.0.hand.push(CardId::Paimon);
     gs.players.0.hand.push(CardId::DawnWinery);
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::PlayCard(CardId::Paimon, None)),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::PlayCard(CardId::Paimon, None)),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::PlayCard(CardId::DawnWinery, None)),
@@ -45,7 +45,7 @@ fn paimon_adds_omni_dice() {
     gs.players.0.dice.add_in_place(&DiceCounter::omni(3));
     gs.advance_roll_phase_no_dice();
     gs.players.0.hand.push(CardId::Paimon);
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::PlayCard(CardId::Paimon, None)),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::EndRound),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
@@ -55,7 +55,7 @@ fn paimon_adds_omni_dice() {
     gs.advance_roll_phase_no_dice();
     assert_eq!(2, gs.round_number);
     assert_eq!(2, gs.players.0.dice[Dice::Omni]);
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::EndRound),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
         Input::NoAction,
@@ -64,7 +64,7 @@ fn paimon_adds_omni_dice() {
     gs.advance_roll_phase_no_dice();
     assert_eq!(3, gs.round_number);
     assert_eq!(4, gs.players.0.dice[Dice::Omni]);
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::EndRound),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
         Input::NoAction,
@@ -85,7 +85,7 @@ fn multiple_paimon_adds_additional_omni_dice() {
     gs.advance_roll_phase_no_dice();
     gs.players.0.hand.push(CardId::Paimon);
     gs.players.0.hand.push(CardId::Paimon);
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::PlayCard(CardId::Paimon, None)),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::PlayCard(CardId::Paimon, None)),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::EndRound),
@@ -96,7 +96,7 @@ fn multiple_paimon_adds_additional_omni_dice() {
     gs.advance_roll_phase_no_dice();
     assert_eq!(2, gs.round_number);
     assert_eq!(4, gs.players.0.dice[Dice::Omni]);
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::EndRound),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
         Input::NoAction,
@@ -113,7 +113,7 @@ fn jade_chamber_guarantees_dice_with_active_character_elem() {
     gs.advance_roll_phase_no_dice();
     gs.players.0.dice.add_in_place(&DiceCounter::omni(4));
     gs.players.0.hand.push(CardId::JadeChamber);
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::PlayCard(CardId::JadeChamber, None),
     )]);
@@ -132,7 +132,7 @@ fn jade_chamber_guarantees_dice_with_active_character_elem() {
             .fixed_count_for_elem(Element::Electro)
     );
 
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::SwitchCharacter(1),
     )]);
@@ -153,7 +153,7 @@ fn knights_of_favonius_library_updates_reroll_counts() {
     gs.advance_roll_phase_no_dice();
     gs.players.0.dice.add_in_place(&DiceCounter::omni(4));
     gs.players.0.hand.push(CardId::KnightsOfFavoniusLibrary);
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::PlayCard(CardId::KnightsOfFavoniusLibrary, None),
     )]);
@@ -179,7 +179,7 @@ fn liben() {
         .dice
         .add_in_place(&DiceCounter::new(&vec![(Dice::Omni, 1), (Dice::CRYO, 2)]));
     gs.players.0.hand.push(CardId::Liben);
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::PlayCard(CardId::Liben, None)),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::EndRound),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
@@ -199,7 +199,7 @@ fn liben() {
     assert_eq!(1, gs.players.0.dice[Dice::CRYO]);
     assert_eq!(2, gs.round_number);
     gs.advance_roll_phase_no_dice();
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::EndRound),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
         Input::NoAction,

@@ -8,7 +8,7 @@ fn icetide_vortex() {
         .build();
 
     gs.advance_roll_phase_no_dice();
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::IcetideVortex),
     )]);
@@ -17,7 +17,7 @@ fn icetide_vortex() {
         .status_collection
         .get(StatusKey::Character(0, StatusId::Grimheart))
         .is_some());
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::IcetideVortex)),
     ]);
@@ -39,7 +39,7 @@ fn glacial_illumination_prevents_energy_gain_and_increments_counter_and_deals_ph
     .build();
 
     gs.advance_roll_phase_no_dice();
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::GlacialIllumination),
     )]);
@@ -60,7 +60,7 @@ fn glacial_illumination_prevents_energy_gain_and_increments_counter_and_deals_ph
             .get_counter()
     };
     assert_eq!(0, get_counter(&gs));
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::SwitchCharacter(1)),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::IcetideVortex)),
     ]);
@@ -74,7 +74,7 @@ fn glacial_illumination_prevents_energy_gain_and_increments_counter_and_deals_ph
         gs.get_player(PlayerId::PlayerFirst).get_active_character().get_energy()
     );
     assert_eq!(2, get_counter(&gs));
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::SwitchCharacter(2)),
         Input::FromPlayer(
             PlayerId::PlayerFirst,
@@ -100,7 +100,7 @@ fn glacial_illumination_prevents_energy_gain_and_increments_counter_and_deals_ph
     }
 
     // Run burst
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::SwitchCharacter(0)),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::EndRound),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
@@ -122,7 +122,7 @@ fn glacial_illumination_does_not_accumulate_counter_on_others() {
             .build();
 
     gs.advance_roll_phase_no_dice();
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(
             PlayerId::PlayerFirst,
             PlayerAction::CastSkill(SkillId::GlacialIllumination),

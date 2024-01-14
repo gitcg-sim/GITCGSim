@@ -9,7 +9,7 @@ fn elemental_resonance_sprawling_greenery_does_not_increase_non_reaction_dmg() {
     gs.players.0.hand.push(CardId::ElementalResonanceSprawlingGreenery);
     gs.advance_roll_phase_no_dice();
 
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(
             PlayerId::PlayerFirst,
             PlayerAction::PlayCard(CardId::ElementalResonanceSprawlingGreenery, None),
@@ -39,7 +39,7 @@ fn elemental_resonance_sprawling_greenery_increases_reaction_dmg() {
         yoimiya.applied.insert(Element::Pyro);
     }
     gs.advance_roll_phase_no_dice();
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::PlayCard(CardId::ElementalResonanceSprawlingGreenery, None),
     )]);
@@ -49,7 +49,7 @@ fn elemental_resonance_sprawling_greenery_increases_reaction_dmg() {
         .status_collection
         .has_team_status(StatusId::ElementalResonanceSprawlingGreenery));
 
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::Nightrider),
     )]);
@@ -68,7 +68,7 @@ fn elemental_resonance_sprawling_greenery_increases_usages_of_catalyzing_field()
             .build();
     gs.players.0.hand.push(CardId::ElementalResonanceSprawlingGreenery);
     gs.advance_roll_phase_no_dice();
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::Nightrider)),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::SwitchCharacter(1)),
@@ -83,7 +83,7 @@ fn elemental_resonance_sprawling_greenery_increases_usages_of_catalyzing_field()
             .unwrap()
             .get_usages()
     );
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::PlayCard(CardId::ElementalResonanceSprawlingGreenery, None),
     )]);

@@ -8,7 +8,7 @@ fn breastplate_shield_points() {
         .build();
 
     gs.advance_roll_phase_no_dice();
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(
             PlayerId::PlayerFirst,
             PlayerAction::CastSkill(SkillId::FavoniusBladeworkMaid),
@@ -22,7 +22,7 @@ fn breastplate_shield_points() {
         let noelle = gs.get_player(PlayerId::PlayerFirst).get_active_character();
         assert_eq!(8, noelle.get_hp());
     }
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::Breastplate),
     )]);
@@ -30,7 +30,7 @@ fn breastplate_shield_points() {
         .get_player(PlayerId::PlayerFirst)
         .has_team_status(StatusId::FullPlate));
 
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerSecond,
         PlayerAction::CastSkill(SkillId::FrostflakeArrow),
     )]);
@@ -59,7 +59,7 @@ fn talent_card_heals_all() {
     }
 
     gs.advance_roll_phase_no_dice();
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(
             PlayerId::PlayerFirst,
             PlayerAction::PlayCard(CardId::IGotYourBack, Some(CardSelection::OwnCharacter(0))),
@@ -79,7 +79,7 @@ fn talent_card_heals_all() {
         assert_eq!(6, c.get_hp())
     }
 
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::FavoniusBladeworkMaid),
     )]);
@@ -102,12 +102,12 @@ fn sweeping_time_reduces_cost_for_na() {
         p.char_states[0].set_energy(3);
     }
 
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::SweepingTime)),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
     ]);
     assert_eq!(4, gs.get_player(PlayerId::PlayerFirst).dice.total());
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::FavoniusBladeworkMaid),
     )]);

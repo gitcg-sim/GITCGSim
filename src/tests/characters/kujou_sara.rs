@@ -11,7 +11,7 @@ fn tengu_juurai_ambush_applies_crowfeather_cover_end_phase() {
     .build();
 
     gs.advance_roll_phase_no_dice();
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::TenguStormcall),
     )]);
@@ -20,7 +20,7 @@ fn tengu_juurai_ambush_applies_crowfeather_cover_end_phase() {
         .status_collection
         .get(StatusKey::Summon(SummonId::TenguJuuraiAmbush))
         .is_some());
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::SwitchCharacter(1)),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::EndRound),
@@ -32,7 +32,7 @@ fn tengu_juurai_ambush_applies_crowfeather_cover_end_phase() {
         .status_collection
         .get(StatusKey::Character(1, StatusId::CrowfeatherCover))
         .is_some());
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::SwitchCharacter(1)),
         Input::FromPlayer(
             PlayerId::PlayerFirst,
@@ -50,7 +50,7 @@ fn tengu_juurai_ambush_applies_crowfeather_cover_end_phase() {
     );
     assert_eq!(8, gs.get_player(PlayerId::PlayerSecond).char_states[1].get_hp(),);
     let gs0 = gs.clone();
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::Frostgnaw)),
     ]);
@@ -64,7 +64,7 @@ fn tengu_juurai_ambush_applies_crowfeather_cover_end_phase() {
         .is_none());
 
     let mut gs = gs0;
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::GlacialWaltz)),
     ]);

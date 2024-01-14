@@ -22,7 +22,7 @@ fn indwelling_level_increase_at_end_phase() {
     for i in 0..=5 {
         gs.advance_roll_phase_no_dice();
         assert_counter!(i);
-        gs.advance_multiple(&vec![
+        gs.advance_multiple([
             Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::EndRound),
             Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
             Input::NoAction,
@@ -31,7 +31,7 @@ fn indwelling_level_increase_at_end_phase() {
 
     gs.advance_roll_phase_no_dice();
     assert_counter!(6 - 4);
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::EndRound),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
         Input::NoAction,
@@ -47,7 +47,7 @@ fn indwelling_level_ge_2_electro_infusion() {
         .build();
 
     gs.advance_roll_phase_no_dice();
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::InvokersSpear)),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
     ]);
@@ -64,7 +64,7 @@ fn indwelling_level_ge_2_electro_infusion() {
             .get_mut(StatusKey::Character(0, StatusId::PactswornPathclearer))
             .unwrap()
             .set_counter(level);
-        gs.advance_multiple(&vec![Input::FromPlayer(
+        gs.advance_multiple([Input::FromPlayer(
             PlayerId::PlayerFirst,
             PlayerAction::CastSkill(SkillId::InvokersSpear),
         )]);
@@ -84,7 +84,7 @@ fn indwelling_level_ge_4_increases_dmg_by_2() {
         .build();
 
     gs.advance_roll_phase_no_dice();
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::InvokersSpear)),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
     ]);
@@ -98,7 +98,7 @@ fn indwelling_level_ge_4_increases_dmg_by_2() {
 
         {
             let mut gs = gs.clone();
-            gs.advance_multiple(&vec![Input::FromPlayer(
+            gs.advance_multiple([Input::FromPlayer(
                 PlayerId::PlayerFirst,
                 PlayerAction::CastSkill(SkillId::InvokersSpear),
             )]);
@@ -106,7 +106,7 @@ fn indwelling_level_ge_4_increases_dmg_by_2() {
         }
         {
             let mut gs = gs.clone();
-            gs.advance_multiple(&vec![Input::FromPlayer(
+            gs.advance_multiple([Input::FromPlayer(
                 PlayerId::PlayerFirst,
                 PlayerAction::CastSkill(SkillId::SecretRiteChasmicSoulfarer),
             )]);
@@ -131,7 +131,7 @@ fn sacred_rite_wolfs_swiftness_uses_indwelling_level_pre_increase_and_increases_
             .unwrap()
             .set_counter(level);
 
-        gs.advance_multiple(&vec![Input::FromPlayer(
+        gs.advance_multiple([Input::FromPlayer(
             PlayerId::PlayerFirst,
             PlayerAction::CastSkill(SkillId::SacredRiteWolfsSwiftness),
         )]);

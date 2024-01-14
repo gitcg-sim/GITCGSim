@@ -15,7 +15,7 @@ fn quicken() {
         let yoimiya = &mut gs.players.1.char_states[0];
         yoimiya.applied |= Element::Electro;
     }
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::FloralBrush),
     )]);
@@ -31,7 +31,7 @@ fn quicken() {
             .get_usages()
     );
     assert_eq!(6, gs.get_player(PlayerId::PlayerSecond).get_active_character().get_hp());
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::SwitchCharacter(1)),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::FloralBrush)),
     ]);
@@ -44,7 +44,7 @@ fn quicken() {
             .get_usages()
     );
     assert_eq!(6, gs.get_player(PlayerId::PlayerSecond).get_active_character().get_hp());
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::SwitchCharacter(1)),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::BoltsOfDownfall)),
@@ -69,7 +69,7 @@ fn burning_max_2_stacks() {
     gs.get_player_mut(PlayerId::PlayerSecond).char_states[0]
         .applied
         .insert(Element::Pyro);
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::FloralBrush)),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
     ]);
@@ -84,7 +84,7 @@ fn burning_max_2_stacks() {
     gs.get_player_mut(PlayerId::PlayerSecond).char_states[0]
         .applied
         .insert(Element::Pyro);
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::FloralBrush),
     )]);
@@ -99,7 +99,7 @@ fn burning_max_2_stacks() {
     gs.get_player_mut(PlayerId::PlayerSecond).char_states[0]
         .applied
         .insert(Element::Pyro);
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::FloralBrush),
     )]);
@@ -123,7 +123,7 @@ fn bloom_dendro_core_increases_summon_dmg() {
     .build();
     gs.advance_roll_phase_no_dice();
 
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::Nightrider)),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::SwitchCharacter(1)),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::SwitchCharacter(1)),
@@ -142,7 +142,7 @@ fn bloom_dendro_core_increases_summon_dmg() {
             .unwrap()
             .get_usages()
     );
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::EndRound),
         Input::NoAction,

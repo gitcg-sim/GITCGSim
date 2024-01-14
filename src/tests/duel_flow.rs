@@ -50,7 +50,7 @@ fn action_phase_and_first_player_to_end_round() {
         gs.phase
     );
 
-    gs.advance_multiple(&vec![NO_ACTION]);
+    gs.advance_multiple([NO_ACTION]);
     assert_eq!(2, gs.round_number);
     assert_eq!(
         Phase::RollPhase {
@@ -85,7 +85,7 @@ fn post_death_switch() {
         p1.char_states[2].set_hp(1);
     }
     gs.advance_roll_phase_no_dice();
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::BoltsOfDownfall)),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::PostDeathSwitch(2)),
         Input::FromPlayer(
@@ -110,7 +110,7 @@ fn piercing_dmg_victory() {
         p1.char_states[2].set_hp(1);
     }
     gs.advance_roll_phase_no_dice();
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::FrostflakeArrow),
     )]);
@@ -137,7 +137,7 @@ fn piercing_dmg_causing_post_death_switch() {
         p1.char_states[2].set_hp(8);
     }
     gs.advance_roll_phase_no_dice();
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::FrostflakeArrow)),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::PostDeathSwitch(2)),
     ]);
@@ -155,7 +155,7 @@ fn trigger_effects_after_post_death_switch() {
         p1.char_states[1].set_hp(1);
     }
     gs.advance_roll_phase_no_dice();
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::BoltsOfDownfall)),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::CastSkill(SkillId::GlacialWaltz)),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::BoltsOfDownfall)),
@@ -178,7 +178,7 @@ fn end_phase_post_death_switch() {
         yoimiya.set_hp(6);
     }
     gs.advance_roll_phase_no_dice();
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::EndRound),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::CastSkill(SkillId::Nightrider)),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::SwitchCharacter(1)),
@@ -209,7 +209,7 @@ fn end_phase_winner_decided() {
         yoimiya.set_hp(6);
     }
     gs.advance_roll_phase_no_dice();
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::EndRound),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::CastSkill(SkillId::Nightrider)),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::SwitchCharacter(1)),
@@ -242,13 +242,13 @@ fn play_card() {
     gs.players.0.dice[Dice::PYRO] = 1;
     gs.players.0.dice[Dice::DENDRO] = 1;
     assert_eq!(0, gs.players.0.dice.omni);
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::PlayCard(CardId::TheBestestTravelCompanion, None),
     )]);
     assert_eq!(2, gs.players.0.dice.omni);
     assert_eq!(0, gs.players.0.get_active_character().get_energy());
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::PlayCard(CardId::Starsigns, None),
     )]);
@@ -267,7 +267,7 @@ fn elemental_tuning() {
         CardId::TheBestestTravelCompanion,
         CardId::BlankCard
     ];
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::ElementalTuning(CardId::TheBestestTravelCompanion),
     )]);
@@ -282,7 +282,7 @@ fn artifact_equip_replace() {
         .build();
     gs.advance_roll_phase_no_dice();
     gs.players.0.hand = vector![CardId::WitchsScorchingHat, CardId::BrokenRimesEcho];
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::PlayCard(CardId::BrokenRimesEcho, Some(CardSelection::OwnCharacter(0))),
     )]);
@@ -295,7 +295,7 @@ fn artifact_equip_replace() {
             .key
     );
 
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::PlayCard(CardId::WitchsScorchingHat, Some(CardSelection::OwnCharacter(0))),
     )]);
@@ -316,7 +316,7 @@ fn weapon_equip_replace() {
         .build();
     gs.advance_roll_phase_no_dice();
     gs.players.0.hand = vector![CardId::SkywardHarp, CardId::SacrificialBow];
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::PlayCard(CardId::SacrificialBow, Some(CardSelection::OwnCharacter(0))),
     )]);
@@ -329,7 +329,7 @@ fn weapon_equip_replace() {
             .key
     );
 
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::PlayCard(CardId::SkywardHarp, Some(CardSelection::OwnCharacter(0))),
     )]);
@@ -353,7 +353,7 @@ fn skill_cast_tracker() {
     .build();
 
     gs.advance_roll_phase_no_dice();
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::FrostflakeArrow)),
         Input::FromPlayer(
             PlayerId::PlayerSecond,
@@ -377,7 +377,7 @@ fn skill_cast_tracker() {
         assert_eq!(enum_set![], noelle.flags);
     }
 
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::FrostflakeArrow)),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::CastSkill(SkillId::Nightrider)),
     ]);
@@ -392,7 +392,7 @@ fn skill_cast_tracker() {
             fischl.flags
         );
     }
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::SwitchCharacter(1)),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::NiwabiFireDance)),
@@ -401,7 +401,7 @@ fn skill_cast_tracker() {
         let yoimiya = gs.get_player(PlayerId::PlayerFirst).char_states[1];
         assert_eq!(enum_set![CharFlag::SkillCastedThisTurn1], yoimiya.flags);
     }
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::EndRound),
         Input::NoAction,
         Input::NoAction,

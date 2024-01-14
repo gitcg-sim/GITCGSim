@@ -7,7 +7,7 @@ fn astable_anemohypostasis_creation_6308_forces_switch_1_character() {
         .ignore_costs(true)
         .build();
     gs.advance_roll_phase_no_dice();
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::AstableAnemohypostasisCreation6308),
     )]);
@@ -29,12 +29,12 @@ fn astable_anemohypostasis_creation_6308_forces_switch_to_prev() {
     .ignore_costs(true)
     .build();
     gs.advance_roll_phase_no_dice();
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::AstableAnemohypostasisCreation6308),
     )]);
     assert_eq!(2, gs.get_player(PlayerId::PlayerSecond).active_char_idx);
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
         Input::FromPlayer(
             PlayerId::PlayerFirst,
@@ -42,13 +42,13 @@ fn astable_anemohypostasis_creation_6308_forces_switch_to_prev() {
         ),
     ]);
     assert_eq!(1, gs.get_player(PlayerId::PlayerSecond).active_char_idx);
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::AstableAnemohypostasisCreation6308),
     )]);
     assert_eq!(0, gs.get_player(PlayerId::PlayerSecond).active_char_idx);
     gs.get_player_mut(PlayerId::PlayerSecond).char_states[2].set_hp(0);
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::AstableAnemohypostasisCreation6308),
     )]);
@@ -63,7 +63,7 @@ fn large_wind_spirit_deals_anemo_dmg_without_infusion() {
             .ignore_costs(true)
             .build();
     gs.advance_roll_phase_no_dice();
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::ForbiddenCreationIsomer75TypeII),
     )]);
@@ -79,7 +79,7 @@ fn large_wind_spirit_deals_anemo_dmg_without_infusion() {
             .unwrap();
         assert_eq!(3, summon_state.get_usages());
     }
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::EndRound),
         Input::NoAction,
@@ -103,7 +103,7 @@ fn large_wind_spirit_deals_infuses_after_swirling() {
             .ignore_costs(true)
             .build();
     gs.advance_roll_phase_no_dice();
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::ForbiddenCreationIsomer75TypeII),
     )]);
@@ -116,7 +116,7 @@ fn large_wind_spirit_deals_infuses_after_swirling() {
         .unwrap()
         .applied
         .insert(Element::Pyro);
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::EndRound),
         Input::NoAction,
@@ -146,7 +146,7 @@ fn large_wind_spirit_deals_infuses_after_swirling() {
         .unwrap()
         .applied
         .insert(Element::Cryo);
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::EndRound),
         Input::NoAction,
@@ -176,7 +176,7 @@ fn large_wind_spirit_infused_dmg_after_own_character_swirling() {
     .ignore_costs(true)
     .build();
     gs.advance_roll_phase_no_dice();
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::ForbiddenCreationIsomer75TypeII),
     )]);
@@ -191,7 +191,7 @@ fn large_wind_spirit_infused_dmg_after_own_character_swirling() {
         .insert(Element::Pyro);
     {
         let mut gs = gs.clone();
-        gs.advance_multiple(&vec![
+        gs.advance_multiple([
             Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
             Input::FromPlayer(
                 PlayerId::PlayerFirst,
@@ -210,7 +210,7 @@ fn large_wind_spirit_infused_dmg_after_own_character_swirling() {
 
     {
         let mut gs = gs.clone();
-        gs.advance_multiple(&vec![
+        gs.advance_multiple([
             Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
             Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::SwitchCharacter(1)),
             Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::GaleBlade)),
@@ -233,7 +233,7 @@ fn large_wind_spirit_does_not_infuse_after_opponent_summon_swirling() {
         .ignore_costs(true)
         .build();
     gs.advance_roll_phase_no_dice();
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(
             PlayerId::PlayerFirst,
             PlayerAction::CastSkill(SkillId::ForbiddenCreationIsomer75TypeII),
@@ -254,7 +254,7 @@ fn large_wind_spirit_does_not_infuse_after_opponent_summon_swirling() {
         .unwrap()
         .applied
         .insert(Element::Pyro);
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::EndRound),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
         Input::NoAction,
@@ -290,7 +290,7 @@ fn large_wind_spirit_does_not_infuse_after_opponent_skill_swirling() {
         .ignore_costs(true)
         .build();
     gs.advance_roll_phase_no_dice();
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::ForbiddenCreationIsomer75TypeII),
     )]);
@@ -303,7 +303,7 @@ fn large_wind_spirit_does_not_infuse_after_opponent_skill_swirling() {
         .applied
         .insert(Element::Pyro);
     // Opponent Swirled Pyro
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerSecond,
         PlayerAction::CastSkill(SkillId::WindSpiritCreation),
     )]);

@@ -10,7 +10,7 @@ fn game_state_after_stellar_restoration() -> GameState {
     .build();
 
     gs.advance_roll_phase_no_dice();
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::StellarRestoration),
     )]);
@@ -35,7 +35,7 @@ fn stellar_restoration_creates_lightning_stiletto() {
 #[test]
 fn lightning_stiletto_switches_to_keqing_and_casts_skill() {
     let mut gs = game_state_after_stellar_restoration();
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::SwitchCharacter(1)),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::SwitchCharacter(1)),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
@@ -62,7 +62,7 @@ fn lightning_stiletto_switches_to_keqing_and_casts_skill() {
 #[test]
 fn lightning_stiletto_casts_skill_when_keqing_is_active() {
     let mut gs = game_state_after_stellar_restoration();
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::SwitchCharacter(1)),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::SwitchCharacter(1)),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
@@ -90,7 +90,7 @@ fn lightning_stiletto_casts_skill_when_keqing_is_active() {
 #[test]
 fn lightning_stiletto_cannot_be_played_with_dead_keqing() {
     let mut gs = game_state_after_stellar_restoration();
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::SwitchCharacter(1)),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::SwitchCharacter(1)),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
@@ -107,7 +107,7 @@ fn lightning_stiletto_cannot_be_played_with_dead_keqing() {
 #[test]
 fn stellar_restoration_grants_electro_infusion_by_consuming_lightning_stiletto_on_hand() {
     let mut gs = game_state_after_stellar_restoration();
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::SwitchCharacter(1)),
         Input::FromPlayer(
             PlayerId::PlayerFirst,
@@ -131,7 +131,7 @@ fn stellar_restoration_grants_electro_infusion_by_consuming_lightning_stiletto_o
 fn talent_card_increases_electro_infusion_duration() {
     let mut gs = game_state_after_stellar_restoration();
     gs.players.0.hand.push(CardId::ThunderingPenance);
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::SwitchCharacter(1)),
         Input::FromPlayer(
             PlayerId::PlayerFirst,

@@ -11,7 +11,7 @@ fn seed_of_skandha_receive_pd() {
     .build();
 
     gs.advance_roll_phase_no_dice();
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(
             PlayerId::PlayerFirst,
             PlayerAction::CastSkill(SkillId::AllSchemesToKnowTathata),
@@ -35,7 +35,7 @@ fn seed_of_skandha_receive_pd() {
     gs.get_player_mut(PlayerId::PlayerSecond).char_states[0]
         .applied
         .insert(Element::Pyro);
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::SwitchCharacter(1)),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::RippleOfFate)),
     ]);
@@ -59,7 +59,7 @@ fn shrine_of_maya_increases_outgoing_reaction_dmg() {
     .build();
 
     gs.advance_roll_phase_no_dice();
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::IllusoryHeart)),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
     ]);
@@ -70,7 +70,7 @@ fn shrine_of_maya_increases_outgoing_reaction_dmg() {
         elem_set![Element::Dendro],
         gs.get_player(PlayerId::PlayerSecond).char_states[0].applied
     );
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::SwitchCharacter(1)),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::RippleOfFate)),
     ]);

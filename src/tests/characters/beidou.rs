@@ -9,7 +9,7 @@ fn tidecaller_prepared_skill_not_discarded_by_lost_shield_points() {
             .build();
 
     gs.advance_roll_phase_no_dice();
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::Tidecaller),
     )]);
@@ -21,7 +21,7 @@ fn tidecaller_prepared_skill_not_discarded_by_lost_shield_points() {
         .get_player(PlayerId::PlayerFirst)
         .status_collection
         .has_shield_points());
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerSecond,
         PlayerAction::CastSkill(SkillId::BoltsOfDownfall),
     )]);
@@ -34,7 +34,7 @@ fn tidecaller_prepared_skill_not_discarded_by_lost_shield_points() {
         .has_shield_points());
     assert_eq!(10, gs.get_player(PlayerId::PlayerFirst).char_states[0].get_hp());
     assert_eq!(None, gs.to_move_player());
-    gs.advance_multiple(&vec![Input::NoAction]);
+    gs.advance_multiple([Input::NoAction]);
     assert_eq!(Some(PlayerId::PlayerSecond), gs.to_move_player());
     assert_eq!(8, gs.get_player(PlayerId::PlayerSecond).char_states[0].get_hp());
     assert_eq!(
@@ -52,7 +52,7 @@ fn tidecaller_prepared_skill_interrupted_by_overload() {
             .build();
 
     gs.advance_roll_phase_no_dice();
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::Tidecaller),
     )]);
@@ -67,7 +67,7 @@ fn tidecaller_prepared_skill_interrupted_by_overload() {
         .get_player(PlayerId::PlayerFirst)
         .status_collection
         .has_shield_points());
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerSecond,
         PlayerAction::CastSkill(SkillId::Nightrider),
     )]);
@@ -95,7 +95,7 @@ fn tidecaller_prepared_skill_frozen() {
     .build();
 
     gs.advance_roll_phase_no_dice();
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::Tidecaller),
     )]);
@@ -110,7 +110,7 @@ fn tidecaller_prepared_skill_frozen() {
         .get_player(PlayerId::PlayerFirst)
         .status_collection
         .has_shield_points());
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerSecond,
         PlayerAction::CastSkill(SkillId::TheShapeOfWater),
     )]);
@@ -119,7 +119,7 @@ fn tidecaller_prepared_skill_frozen() {
         .get_player(PlayerId::PlayerFirst)
         .has_character_status(0, StatusId::TidecallerSurfEmbrace));
     assert_eq!(None, gs.to_move_player());
-    gs.advance_multiple(&vec![Input::NoAction]);
+    gs.advance_multiple([Input::NoAction]);
     assert!(!gs
         .get_player(PlayerId::PlayerFirst)
         .has_character_status(0, StatusId::TidecallerSurfEmbrace));

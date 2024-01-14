@@ -11,7 +11,7 @@ fn glacial_waltz_switch_trigger() {
     .build();
 
     gs.advance_roll_phase_no_dice();
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::GlacialWaltz)),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::SwitchCharacter(1)),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::SwitchCharacter(1)),
@@ -36,7 +36,7 @@ fn talent_card() {
 
     gs.players.0.char_states[0].set_hp(5);
     gs.advance_roll_phase_no_dice();
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(
             PlayerId::PlayerFirst,
             PlayerAction::PlayCard(CardId::ColdBloodedStrike, Some(CardSelection::OwnCharacter(0))),
@@ -50,7 +50,7 @@ fn talent_card() {
         .get(StatusKey::Equipment(0, EquipSlot::Talent, StatusId::ColdBloodedStrike))
         .is_some());
     assert_eq!(7, gs.players.0.char_states[0].get_hp());
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::Frostgnaw),
     )]);

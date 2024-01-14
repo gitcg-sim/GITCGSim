@@ -8,7 +8,7 @@ fn searing_onslaught_increases_dmg_every_3rd_use_per_round() {
         .build();
     gs.advance_roll_phase_no_dice();
     for r in 2..=3 {
-        gs.advance_multiple(&vec![
+        gs.advance_multiple([
             Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::TemperedSword)),
             Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
         ]);
@@ -17,7 +17,7 @@ fn searing_onslaught_increases_dmg_every_3rd_use_per_round() {
             kaeya.set_hp(10);
         }
         for i in 1..=8 {
-            gs.advance_multiple(&vec![Input::FromPlayer(
+            gs.advance_multiple([Input::FromPlayer(
                 PlayerId::PlayerFirst,
                 PlayerAction::CastSkill(SkillId::SearingOnslaught),
             )]);
@@ -32,13 +32,13 @@ fn searing_onslaught_increases_dmg_every_3rd_use_per_round() {
             assert_eq!(if i == 3 { 5 } else { 7 }, kaeya.get_hp());
             kaeya.set_hp(10);
         }
-        gs.advance_multiple(&vec![
+        gs.advance_multiple([
             Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::EndRound),
             Input::NoAction,
         ]);
         gs.advance_roll_phase_no_dice();
         assert_eq!(r, gs.round_number);
-        gs.advance_multiple(&vec![Input::FromPlayer(
+        gs.advance_multiple([Input::FromPlayer(
             PlayerId::PlayerSecond,
             PlayerAction::CastSkill(SkillId::CeremonialBladework),
         )]);
@@ -53,12 +53,12 @@ fn dawn_grants_pyro_infusion() {
             .ignore_costs(true)
             .build();
     gs.advance_roll_phase_no_dice();
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::Dawn)),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::SwitchCharacter(1)),
     ]);
     assert_eq!(2, gs.get_player(PlayerId::PlayerSecond).char_states[0].get_hp());
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::TemperedSword),
     )]);

@@ -9,7 +9,7 @@ fn frozen_cannot_perform_action() {
     .ignore_costs(true)
     .build();
     gs.advance_roll_phase_no_dice();
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::FatalRainscreen)),
         Input::FromPlayer(
             PlayerId::PlayerSecond,
@@ -34,7 +34,7 @@ fn frozen_cannot_perform_action() {
 
     // switch character and end round only
     assert_eq!(2, gs.available_actions().len());
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::SwitchCharacter(1)),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::SwitchCharacter(2)),
     ]);
@@ -51,7 +51,7 @@ fn frozen_broken_by_pyro() {
     .ignore_costs(true)
     .build();
     gs.advance_roll_phase_no_dice();
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::FatalRainscreen)),
         Input::FromPlayer(
             PlayerId::PlayerSecond,
@@ -71,7 +71,7 @@ fn frozen_broken_by_pyro() {
     // Reset health to prevent death
     gs.players.1.char_states[0].set_hp(10);
     assert!(gs.players.1.has_active_character_status(StatusId::Frozen));
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::SwitchCharacter(2)),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::NiwabiFireDance)),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::FireworkFlareUp)),
@@ -92,7 +92,7 @@ fn frozen_broken_by_physical() {
     .ignore_costs(true)
     .build();
     gs.advance_roll_phase_no_dice();
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::FatalRainscreen)),
         Input::FromPlayer(
             PlayerId::PlayerSecond,
@@ -111,7 +111,7 @@ fn frozen_broken_by_physical() {
     ]);
     // Reset health to prevent death
     gs.players.1.char_states[0].set_hp(10);
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::SwitchCharacter(2)),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::FireworkFlareUp)),
     ]);
@@ -131,7 +131,7 @@ fn frozen_unapplied_end_of_turn() {
     .ignore_costs(true)
     .build();
     gs.advance_roll_phase_no_dice();
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::FatalRainscreen)),
         Input::FromPlayer(
             PlayerId::PlayerSecond,
@@ -151,7 +151,7 @@ fn frozen_unapplied_end_of_turn() {
     ]);
     assert!(matches![gs.phase, Phase::EndPhase { .. }]);
     assert!(gs.players.1.has_active_character_status(StatusId::Frozen));
-    gs.advance_multiple(&vec![Input::NoAction]);
+    gs.advance_multiple([Input::NoAction]);
     assert_eq!(2, gs.round_number);
     assert!(!gs.players.1.has_active_character_status(StatusId::Frozen));
 }
@@ -165,7 +165,7 @@ fn frozen_unapplied_end_of_turn_non_active_character() {
     .ignore_costs(true)
     .build();
     gs.advance_roll_phase_no_dice();
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::FatalRainscreen)),
         Input::FromPlayer(
             PlayerId::PlayerSecond,
@@ -186,7 +186,7 @@ fn frozen_unapplied_end_of_turn_non_active_character() {
     ]);
     assert!(matches![gs.phase, Phase::EndPhase { .. }]);
     assert!(gs.players.1.has_character_status(0, StatusId::Frozen));
-    gs.advance_multiple(&vec![Input::NoAction]);
+    gs.advance_multiple([Input::NoAction]);
     assert_eq!(2, gs.round_number);
     assert!(!gs.players.1.has_character_status(0, StatusId::Frozen));
 }

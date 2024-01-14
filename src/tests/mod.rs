@@ -27,6 +27,7 @@ pub mod prop_tests;
 pub const NO_ACTION: Input = Input::NoAction;
 
 impl GameState {
+    /// Panics: If `advance` causes an error.
     fn advance_roll_phase_no_dice(self: &mut GameState) {
         self.advance(NO_ACTION).unwrap();
         self.advance(Input::NondetResult(NondetResult::ProvideCards(list8![], list8![])))
@@ -38,9 +39,10 @@ impl GameState {
         .unwrap();
     }
 
-    fn advance_multiple(self: &mut GameState, inputs: &Vec<Input>) {
-        for input in inputs {
-            self.advance(*input).unwrap();
+    /// Panics: If `advance` causes an error.
+    fn advance_multiple<T: IntoIterator<Item = Input>>(self: &mut GameState, inputs: T) {
+        for input in inputs.into_iter() {
+            self.advance(input).unwrap();
         }
     }
 }

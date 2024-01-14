@@ -7,7 +7,7 @@ fn gale_blade_forces_switch_1_character() {
         .ignore_costs(true)
         .build();
     gs.advance_roll_phase_no_dice();
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::GaleBlade),
     )]);
@@ -29,17 +29,17 @@ fn gale_blade_forces_switch_to_prev() {
     .ignore_costs(true)
     .build();
     gs.advance_roll_phase_no_dice();
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::GaleBlade),
     )]);
     assert_eq!(1, gs.get_player(PlayerId::PlayerSecond).active_char_idx);
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::GaleBlade)),
     ]);
     assert_eq!(2, gs.get_player(PlayerId::PlayerSecond).active_char_idx);
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::GaleBlade),
     )]);
@@ -62,7 +62,7 @@ fn dandelion_breeze_heals_all_and_summons_dandelion_field() {
         player.char_states[1].reduce_hp(5);
         player.char_states[2].reduce_hp(5);
     }
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::DandelionBreeze),
     )]);
@@ -72,7 +72,7 @@ fn dandelion_breeze_heals_all_and_summons_dandelion_field() {
         assert_eq!(7, player.char_states[1].get_hp());
         assert_eq!(7, player.char_states[2].get_hp());
     }
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::SwitchCharacter(1)),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::EndRound),

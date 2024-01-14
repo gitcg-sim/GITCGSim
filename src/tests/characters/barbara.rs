@@ -11,7 +11,7 @@ fn melody_loop_heals_and_applies_hydro_to_active_character() {
     .build();
 
     gs.advance_roll_phase_no_dice();
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::LetTheShowBegin)),
         Input::FromPlayer(
             PlayerId::PlayerSecond,
@@ -37,7 +37,7 @@ fn melody_loop_heals_and_applies_hydro_to_active_character() {
     assert!(gs.get_player(PlayerId::PlayerFirst).has_summon(SummonId::MelodyLoop));
     assert_eq!(4, gs.get_player(PlayerId::PlayerFirst).char_states[0].get_hp());
     assert_eq!(8, gs.get_player(PlayerId::PlayerFirst).char_states[1].get_hp());
-    gs.advance_multiple(&vec![Input::NoAction]);
+    gs.advance_multiple([Input::NoAction]);
     assert_eq!(5, gs.get_player(PlayerId::PlayerFirst).char_states[0].get_hp());
     assert_eq!(9, gs.get_player(PlayerId::PlayerFirst).char_states[1].get_hp());
     assert_eq!(

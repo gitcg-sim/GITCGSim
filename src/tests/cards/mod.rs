@@ -17,7 +17,7 @@ fn changing_shifts() {
     gs.advance_roll_phase_no_dice();
     assert_eq!(0, gs.players.0.dice.total());
     gs.players.0.hand.push(CardId::ChangingShifts);
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(
             PlayerId::PlayerFirst,
             PlayerAction::PlayCard(CardId::ChangingShifts, None),
@@ -38,7 +38,7 @@ fn changing_shifts_not_cleared() {
     gs.advance_roll_phase_no_dice();
     assert_eq!(0, gs.players.0.dice.total());
     gs.players.0.hand.push(CardId::ChangingShifts);
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(
             PlayerId::PlayerFirst,
             PlayerAction::PlayCard(CardId::ChangingShifts, None),
@@ -63,12 +63,12 @@ fn leave_it_to_me() {
     gs.advance_roll_phase_no_dice();
     gs.players.0.dice.omni += 2;
     gs.players.0.hand.push(CardId::LeaveItToMe);
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::PlayCard(CardId::LeaveItToMe, None)),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::SwitchCharacter(1)),
     ]);
     assert_eq!(Some(PlayerId::PlayerFirst), gs.to_move_player());
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::SwitchCharacter(0),
     )]);
@@ -124,7 +124,7 @@ fn food() {
     ))
     .unwrap();
     assert_eq!(6, gs.players.0.char_states[0].get_hp());
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::EndRound),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
         NO_ACTION,
@@ -149,7 +149,7 @@ fn i_havent_lost_yet_activation_condition() {
     gs.players.0.hand.push(CardId::IHaventLostYet);
     gs.players.0.try_get_character_mut(1).unwrap().set_hp(1);
     gs.advance_roll_phase_no_dice();
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::SwitchCharacter(1)),
         Input::FromPlayer(
             PlayerId::PlayerSecond,
@@ -162,7 +162,7 @@ fn i_havent_lost_yet_activation_condition() {
         PlayerId::PlayerFirst,
         PlayerAction::PlayCard(CardId::IHaventLostYet, None)
     )));
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::EndRound),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
         NO_ACTION,
@@ -191,7 +191,7 @@ fn strategize() {
     gs.players.0.hand.push(CardId::IHaventLostYet);
     gs.players.0.hand.push(CardId::Strategize);
     gs.advance_roll_phase_no_dice();
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::PlayCard(CardId::Strategize, None),
     )]);
@@ -210,7 +210,7 @@ fn quick_knit() {
         .build();
     gs.players.0.hand.push(CardId::QuickKnit);
     gs.advance_roll_phase_no_dice();
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::Nightrider)),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
         Input::FromPlayer(
@@ -236,7 +236,7 @@ fn send_off() {
         .build();
     gs.players.0.hand.push(CardId::SendOff);
     gs.advance_roll_phase_no_dice();
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::NiwabiFireDance)),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::CastSkill(SkillId::Nightrider)),
     ]);
@@ -246,7 +246,7 @@ fn send_off() {
         .status_collection
         .get(StatusKey::Summon(SummonId::Oz))
         .is_some());
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::PlayCard(CardId::SendOff, Some(CardSelection::OpponentSummon(SummonId::Oz))),
     )]);
@@ -274,7 +274,7 @@ fn calxs_arts() {
     }
     gs.ignore_costs = true;
     gs.advance_roll_phase_no_dice();
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::PlayCard(CardId::CalxsArts, None),
     )]);

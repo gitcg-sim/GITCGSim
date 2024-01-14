@@ -13,7 +13,7 @@ fn _initial_gs() -> GameState {
         vector![CharId::Diona, CharId::Ningguang, CharId::Noelle],
     )
     .build();
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::NoAction,
         Input::NondetResult(NondetResult::ProvideCards(
             list8![CardId::Paimon, CardId::BrokenRimesEcho, CardId::Strategize],

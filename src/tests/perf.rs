@@ -35,7 +35,7 @@ fn get_game_state_for_zobrist_hash() -> GameState {
     gs.players.0.hand.push(CardId::SacrificialBow);
     gs.players.0.hand.push(CardId::LeaveItToMe);
     gs.players.0.hand.push(CardId::SacrificialBow);
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::NiwabiFireDance)),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::CastSkill(SkillId::Nightrider)),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::FireworkFlareUp)),
@@ -61,7 +61,7 @@ fn bench_cast_skill() {
 #[test]
 fn bench_yoimiya_na_after_niwabi_fire_dance() {
     let mut gs = get_game_state();
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::FireworkFlareUp)),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::CastSkill(SkillId::Nightrider)),
     ]);
@@ -80,7 +80,7 @@ fn bench_yoimiya_na_after_niwabi_fire_dance() {
 #[test]
 fn bench_zobrist_hash() {
     let mut gs = get_game_state();
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::NiwabiFireDance)),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::CastSkill(SkillId::Nightrider)),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::FireworkFlareUp)),

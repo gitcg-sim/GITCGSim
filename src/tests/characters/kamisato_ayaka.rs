@@ -10,7 +10,7 @@ fn cryo_infusion() {
     .ignore_costs(true)
     .build();
     gs.advance_roll_phase_no_dice();
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::SwitchCharacter(1)),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
         Input::FromPlayer(
@@ -23,7 +23,7 @@ fn cryo_infusion() {
         assert_eq!(elem_set![Element::Cryo], fischl.applied);
         assert_eq!(8, fischl.get_hp());
     }
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(
             PlayerId::PlayerFirst,
             PlayerAction::CastSkill(SkillId::KamisatoArtKabuki),
@@ -38,9 +38,9 @@ fn cryo_infusion() {
         let fischl = gs.get_player(PlayerId::PlayerSecond).get_active_character();
         assert_eq!(4, fischl.get_hp());
     }
-    gs.advance_multiple(&vec![NO_ACTION]);
+    gs.advance_multiple([NO_ACTION]);
     gs.advance_roll_phase_no_dice();
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::SwitchCharacter(1)),
         Input::FromPlayer(
             PlayerId::PlayerFirst,
@@ -61,7 +61,7 @@ fn cryo_infusion_at_duel_start() {
         .ignore_costs(true)
         .build();
     gs.advance_roll_phase_no_dice();
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::KamisatoArtKabuki),
     )]);
@@ -80,7 +80,7 @@ fn kamisato_art_soumetsu_summon() {
         .build();
     gs.advance_roll_phase_no_dice();
 
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::KamisatoArtSoumetsu),
     )]);
@@ -91,7 +91,7 @@ fn kamisato_art_soumetsu_summon() {
     }
     assert!(gs.players.0.has_summon(SummonId::FrostflakeSekiNoTo));
 
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::EndRound),
         NO_ACTION,
@@ -104,7 +104,7 @@ fn kamisato_art_soumetsu_summon() {
     }
     assert!(gs.players.0.has_summon(SummonId::FrostflakeSekiNoTo));
 
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::EndRound),
         NO_ACTION,
@@ -116,7 +116,7 @@ fn kamisato_art_soumetsu_summon() {
         assert_eq!(2, fischl.get_hp());
     }
 
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::EndRound),
         NO_ACTION,
@@ -141,7 +141,7 @@ fn cryo_infusion_under_talent_card() {
     .build();
     gs.advance_roll_phase_no_dice();
     gs.players.0.hand.push(CardId::KantenSenmyouBlessing);
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(
             PlayerId::PlayerFirst,
             PlayerAction::PlayCard(CardId::KantenSenmyouBlessing, Some(CardSelection::OwnCharacter(1))),
@@ -158,7 +158,7 @@ fn cryo_infusion_under_talent_card() {
         assert_eq!(elem_set![Element::Cryo], fischl.applied);
         assert_eq!(7, fischl.get_hp());
     }
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::KamisatoArtKabuki),
     )]);
@@ -167,7 +167,7 @@ fn cryo_infusion_under_talent_card() {
         assert_eq!(elem_set![Element::Cryo], fischl.applied);
         assert_eq!(5, fischl.get_hp());
     }
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::EndRound),
         NO_ACTION,
     ]);
@@ -178,7 +178,7 @@ fn cryo_infusion_under_talent_card() {
         .status_collection
         .get(StatusKey::Character(1, StatusId::CryoElementalInfusion))
         .is_none());
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::SwitchCharacter(1)),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::SwitchCharacter(0)),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),

@@ -11,7 +11,7 @@ fn golden_chalices_bounty_generates_bountiful_core_when_meeting_requirements() {
     .build();
 
     gs.advance_roll_phase_no_dice();
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(
             PlayerId::PlayerFirst,
             PlayerAction::CastSkill(SkillId::DanceOfHaftkarsvar),
@@ -34,7 +34,7 @@ fn when_team_has_non_dendro_or_hydro_chars_golden_chalices_bounty_does_not_gener
     .build();
 
     gs.advance_roll_phase_no_dice();
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::DanceOfHaftkarsvar),
     )]);
@@ -53,7 +53,7 @@ fn gs_bountiful_core() -> GameState {
     .build();
 
     gs.advance_roll_phase_no_dice();
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(
             PlayerId::PlayerFirst,
             PlayerAction::CastSkill(SkillId::DanceOfHaftkarsvar),
@@ -75,7 +75,7 @@ fn golden_chalices_bounty_generates_bountiful_cores() {
 fn bountiful_cores_deals_dmg_end_phase() {
     let mut gs = gs_bountiful_core();
     assert_eq!(5, gs.get_player(PlayerId::PlayerSecond).get_active_character().get_hp());
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::EndRound),
         Input::NoAction,
     ]);
@@ -94,7 +94,7 @@ fn bountiful_cores_deals_dmg_end_of_round_given_usages() {
     .build();
 
     gs.advance_roll_phase_no_dice();
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(
             PlayerId::PlayerFirst,
             PlayerAction::CastSkill(SkillId::DanceOfHaftkarsvar),
@@ -113,7 +113,7 @@ fn bountiful_cores_deals_dmg_end_of_round_given_usages() {
         bountiful_core.set_usages(3);
     }
     assert_eq!(5, gs.get_player(PlayerId::PlayerSecond).get_active_character().get_hp());
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::CastSkill(SkillId::LiutianArchery)),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::EndRound),
     ]);
@@ -142,7 +142,7 @@ fn talent_card_increases_bountiful_core_dmg() {
         .hand
         .push(CardId::TheStarrySkiesTheirFlowersRain);
     gs.advance_roll_phase_no_dice();
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(
             PlayerId::PlayerFirst,
             PlayerAction::PlayCard(
@@ -164,7 +164,7 @@ fn talent_card_increases_bountiful_core_dmg() {
         bountiful_core.set_usages(3);
     }
     assert_eq!(5, gs.get_player(PlayerId::PlayerSecond).get_active_character().get_hp());
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::CastSkill(SkillId::LiutianArchery)),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::EndRound),
     ]);
@@ -179,7 +179,7 @@ fn talent_card_increases_bountiful_core_dmg() {
             .unwrap();
         assert_eq!(2, bountiful_core.get_usages());
     }
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
         Input::NoAction,
     ]);
@@ -205,7 +205,7 @@ fn lingering_aeon_receives_dmg_end_phase() {
     .build();
 
     gs.advance_roll_phase_no_dice();
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(
             PlayerId::PlayerFirst,
             PlayerAction::CastSkill(SkillId::DanceOfAbzendegiDistantDreamsListeningSpring),
@@ -222,7 +222,7 @@ fn lingering_aeon_receives_dmg_end_phase() {
         assert_eq!(elem_set![Element::Hydro], ganyu.applied);
     }
 
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::EndRound),
         Input::NoAction,
     ]);

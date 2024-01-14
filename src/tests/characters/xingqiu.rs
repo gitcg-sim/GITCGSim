@@ -6,7 +6,7 @@ fn fatal_rainscreen_applies_hydro_to_self_and_creates_rain_sword() {
         .ignore_costs(true)
         .build();
     gs.advance_roll_phase_no_dice();
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::FatalRainscreen),
     )]);
@@ -39,7 +39,7 @@ fn talent_card_increases_fatal_rainscreen_usages() {
         .build();
     gs.advance_roll_phase_no_dice();
     gs.players.0.hand.push(CardId::TheScentRemained);
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::PlayCard(CardId::TheScentRemained, Some(CardSelection::OwnCharacter(0))),
     )]);
@@ -66,7 +66,7 @@ fn rain_sword_reduces_dmg_above_3_by_1() {
     .ignore_costs(true)
     .build();
     gs.advance_roll_phase_no_dice();
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::FatalRainscreen)),
         Input::FromPlayer(
             PlayerId::PlayerSecond,
@@ -83,7 +83,7 @@ fn rain_sword_reduces_dmg_above_3_by_1() {
             .get_usages()
     );
     assert_eq!(10, gs.get_player(PlayerId::PlayerFirst).char_states[1].get_hp());
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::SwitchCharacter(1)),
         Input::FromPlayer(
             PlayerId::PlayerSecond,
@@ -108,7 +108,7 @@ fn raincutter_applies_hydro_to_self_and_creates_rainbow_bladework() {
         .ignore_costs(true)
         .build();
     gs.advance_roll_phase_no_dice();
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::Raincutter),
     )]);
@@ -143,7 +143,7 @@ fn rainbow_bladework_procs_on_normal_attacks() {
     .ignore_costs(true)
     .build();
     gs.advance_roll_phase_no_dice();
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::Raincutter)),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::SwitchCharacter(1)),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::SwitchCharacter(1)),
@@ -165,7 +165,7 @@ fn rainbow_bladework_procs_on_normal_attacks() {
         elem_set![],
         gs.get_player(PlayerId::PlayerSecond).get_active_character().applied
     );
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(
             PlayerId::PlayerSecond,
             PlayerAction::CastSkill(SkillId::FavoniusBladeworkMaid),

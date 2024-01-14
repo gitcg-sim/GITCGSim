@@ -8,13 +8,13 @@ fn charged_attack_affected_by_explosive_spark() {
 
     gs.advance_roll_phase_no_dice();
     gs.players.0.dice.add_in_place(&DiceCounter::omni(9));
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::JumpyDumpty)),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
     ]);
     assert_eq!(6, gs.players.0.dice.total());
     assert_eq!(7, gs.players.1.char_states[0].get_hp());
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::Kaboom),
     )]);
@@ -32,7 +32,7 @@ fn normal_attack_not_affected_by_explosive_spark() {
 
     gs.advance_roll_phase_no_dice();
     gs.players.0.dice.add_in_place(&DiceCounter::omni(8));
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::JumpyDumpty)),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
     ]);
@@ -47,7 +47,7 @@ fn normal_attack_not_affected_by_explosive_spark() {
     );
     assert_eq!(5, gs.players.0.dice.total());
     assert_eq!(7, gs.players.1.char_states[0].get_hp());
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::Kaboom),
     )]);
@@ -65,7 +65,7 @@ fn talent_card_increases_explosive_spark_usages() {
     gs.advance_roll_phase_no_dice();
     gs.players.0.hand.push(CardId::PoundingSurprise);
     gs.players.0.dice.add_in_place(&DiceCounter::omni(8));
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::PlayCard(CardId::PoundingSurprise, Some(CardSelection::OwnCharacter(0))),
     )]);
@@ -89,18 +89,18 @@ fn klee_take_damage() {
             .build();
 
     gs.advance_roll_phase_no_dice();
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::SparksNSplash),
     )]);
     assert_eq!(7, gs.players.1.char_states[0].get_hp());
     assert!(gs.players.1.has_team_status(StatusId::SparksNSplash));
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerSecond,
         PlayerAction::CastSkill(SkillId::BoltsOfDownfall),
     )]);
     assert_eq!(5, gs.players.1.char_states[0].get_hp());
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::EndRound),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::SwitchCharacter(1)),
         Input::FromPlayer(

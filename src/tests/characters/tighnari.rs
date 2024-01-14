@@ -7,7 +7,7 @@ fn vijnana_phala_mine_charged_attack() {
         .ignore_costs(true)
         .build();
     gs.advance_roll_phase_no_dice();
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(
             PlayerId::PlayerFirst,
             PlayerAction::CastSkill(SkillId::VijnanaPhalaMine),
@@ -28,7 +28,7 @@ fn vijnana_phala_mine_charged_attack() {
         .flags
         .contains(PlayerFlag::ChargedAttack));
 
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::KhandaBarrierBuster),
     )]);
@@ -53,7 +53,7 @@ fn vijnana_phala_mine_non_charged_attack() {
         .get_mut(PlayerId::PlayerFirst)
         .dice
         .add_in_place(&DiceCounter::omni(1));
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(
             PlayerId::PlayerFirst,
             PlayerAction::CastSkill(SkillId::VijnanaPhalaMine),
@@ -74,7 +74,7 @@ fn vijnana_phala_mine_non_charged_attack() {
         .flags
         .contains(PlayerFlag::ChargedAttack));
 
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::KhandaBarrierBuster),
     )]);
@@ -102,7 +102,7 @@ fn talent_card_charged_attack() {
     }
     gs.players.get_mut(PlayerId::PlayerFirst).hand.push(CardId::KeenSight);
     dbg!(&gs.get_player(PlayerId::PlayerFirst).dice);
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(
             PlayerId::PlayerFirst,
             PlayerAction::PlayCard(CardId::KeenSight, Some(CardSelection::OwnCharacter(0))),
@@ -117,7 +117,7 @@ fn talent_card_charged_attack() {
         .flags
         .contains(PlayerFlag::ChargedAttack));
 
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::KhandaBarrierBuster),
     )]);

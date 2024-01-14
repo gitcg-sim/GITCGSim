@@ -10,7 +10,7 @@ fn frostflake_arrow_piercing_dmg() {
     .ignore_costs(true)
     .build();
     gs.advance_roll_phase_no_dice();
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::FrostflakeArrow),
     )]);
@@ -42,7 +42,7 @@ fn talent_card_does_not_increase_frostflake_arrow_dmg_first_cast() {
     .build();
     gs.players.0.hand.push(CardId::UndividedHeart);
     gs.advance_roll_phase_no_dice();
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::PlayCard(CardId::UndividedHeart, Some(CardSelection::OwnCharacter(0))),
     )]);
@@ -74,7 +74,7 @@ fn talent_card_increases_frostflake_arrow_dmg_subsequent_cast() {
     .build();
     gs.players.0.hand.push(CardId::UndividedHeart);
     gs.advance_roll_phase_no_dice();
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::FrostflakeArrow)),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::EndRound),
@@ -89,7 +89,7 @@ fn talent_card_increases_frostflake_arrow_dmg_subsequent_cast() {
     }
     assert_eq!(2, gs.round_number);
     gs.advance_roll_phase_no_dice();
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
         Input::FromPlayer(
             PlayerId::PlayerFirst,

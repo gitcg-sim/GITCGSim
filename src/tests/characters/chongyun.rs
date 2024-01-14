@@ -11,7 +11,7 @@ fn chonghuas_frost_field_infusion_applies_to_swords() {
     .build();
 
     gs.advance_roll_phase_no_dice();
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(
             PlayerId::PlayerFirst,
             PlayerAction::CastSkill(SkillId::ChonghuasLayeredFrost),
@@ -35,7 +35,7 @@ fn chonghuas_frost_field_infusion_applies_to_polarms() {
     .build();
 
     gs.advance_roll_phase_no_dice();
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(
             PlayerId::PlayerFirst,
             PlayerAction::CastSkill(SkillId::ChonghuasLayeredFrost),
@@ -59,7 +59,7 @@ fn chonghuas_frost_field_infusion_applies_to_claymores() {
     .build();
 
     gs.advance_roll_phase_no_dice();
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(
             PlayerId::PlayerFirst,
             PlayerAction::CastSkill(SkillId::ChonghuasLayeredFrost),
@@ -87,7 +87,7 @@ fn chonghuas_frost_field_infusion_does_not_apply_to_bows() {
     .build();
 
     gs.advance_roll_phase_no_dice();
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(
             PlayerId::PlayerFirst,
             PlayerAction::CastSkill(SkillId::ChonghuasLayeredFrost),
@@ -111,7 +111,7 @@ fn chonghuas_frost_field_infusion_does_not_apply_to_catalysts() {
     .build();
 
     gs.advance_roll_phase_no_dice();
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(
             PlayerId::PlayerFirst,
             PlayerAction::CastSkill(SkillId::ChonghuasLayeredFrost),
@@ -138,7 +138,7 @@ fn chonghuas_frost_field_infusion_does_not_apply_to_others() {
     .build();
 
     gs.advance_roll_phase_no_dice();
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(
             PlayerId::PlayerFirst,
             PlayerAction::CastSkill(SkillId::ChonghuasLayeredFrost),
@@ -163,7 +163,7 @@ fn talent_card_affects_chonghuas_frost_field() {
 
     gs.advance_roll_phase_no_dice();
     gs.players.0.hand.push(CardId::SteadyBreathing);
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(
             PlayerId::PlayerFirst,
             PlayerAction::PlayCard(CardId::SteadyBreathing, Some(CardSelection::OwnCharacter(0))),
@@ -201,7 +201,7 @@ fn talent_card_on_different_character_doesnt_affect_chonghuas_frost_field() {
 
     gs.advance_roll_phase_no_dice();
     gs.players.0.hand.push(CardId::IGotYourBack);
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(
             PlayerId::PlayerFirst,
             PlayerAction::PlayCard(CardId::IGotYourBack, Some(CardSelection::OwnCharacter(0))),
@@ -219,7 +219,7 @@ fn talent_card_on_different_character_doesnt_affect_chonghuas_frost_field() {
     assert_eq!(10, gs.players.1.char_states[1].get_hp());
     assert_eq!(elem_set![], gs.players.1.char_states[1].applied);
 
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
         Input::FromPlayer(
             PlayerId::PlayerFirst,
@@ -237,7 +237,7 @@ fn talent_card_on_different_character_doesnt_affect_chonghuas_frost_field() {
     );
     assert_eq!(8, gs.players.1.char_states[1].get_hp());
     assert_eq!(elem_set![Element::Cryo], gs.players.1.char_states[1].applied);
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::SwitchCharacter(1)),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::Demonbane)),
     ]);

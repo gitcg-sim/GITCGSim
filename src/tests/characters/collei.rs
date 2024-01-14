@@ -10,12 +10,12 @@ fn talent_card() {
 
     gs.players.0.hand.push(CardId::FloralSidewinder);
     gs.advance_roll_phase_no_dice();
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::PlayCard(CardId::FloralSidewinder, Some(CardSelection::OwnCharacter(0))),
     )]);
     assert!(gs.players.0.has_team_status(StatusId::Sprout));
-    gs.advance_multiple(&vec![
+    gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::SwitchCharacter(1)),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::Nightrider)),
@@ -40,7 +40,7 @@ fn talent_card_immediate_reaction() {
     gs.players.0.hand.push(CardId::FloralSidewinder);
     gs.players.1.char_states[0].applied |= Element::Electro;
     gs.advance_roll_phase_no_dice();
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::PlayCard(CardId::FloralSidewinder, Some(CardSelection::OwnCharacter(0))),
     )]);
@@ -63,13 +63,13 @@ fn talent_card_does_not_trigger_on_incoming_dendro_reaction() {
 
     gs.players.0.hand.push(CardId::FloralSidewinder);
     gs.advance_roll_phase_no_dice();
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::PlayCard(CardId::FloralSidewinder, Some(CardSelection::OwnCharacter(0))),
     )]);
     assert!(gs.players.get(PlayerId::PlayerFirst).has_team_status(StatusId::Sprout));
     gs.players.get_mut(PlayerId::PlayerFirst).char_states[0].applied |= Element::Electro;
-    gs.advance_multiple(&vec![Input::FromPlayer(
+    gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerSecond,
         PlayerAction::CastSkill(SkillId::FloralBrush),
     )]);
