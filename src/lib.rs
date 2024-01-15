@@ -83,6 +83,8 @@ pub mod enumset {
     pub use enumset::*;
 }
 
+pub(crate) mod iter_helpers;
+
 // TODO move this
 pub mod minimax_eval;
 

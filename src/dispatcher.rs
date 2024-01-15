@@ -1,10 +1,7 @@
 use smallvec::{smallvec, SmallVec};
 
 use crate::{
-    cards::{
-        event::DefaultCardImpl,
-        ids::{CardId, GetCard, GetCharCard, GetSkill, SkillId},
-    },
+    cards::{event::DefaultCardImpl, ids::*},
     cmd_list,
     data_structures::ActionList,
     dispatcher_ops::{
@@ -362,6 +359,20 @@ impl GameState {
             .unwrap_or_else(|| smallvec![None])
     }
 
+    fn iter_available_card_selections(&self, card_id: CardId) -> impl Iterator<Item = Option<CardSelection>> + '_ {
+        use crate::iter_helpers::IterSwitch;
+        let none = IterSwitch::Right([None].iter().copied());
+        let Some(player_id) = self.phase.active_player() else {
+            return none;
+        };
+        let Some(ci) = card_id.get_card_impl() else { return none };
+        let Some(spec) = ci.selection() else { return none };
+        IterSwitch::Left(
+            spec.iter_available_selections(&self.players, player_id)
+                .map(Option::Some),
+        )
+    }
+
     /// Determine the cost of the action and whether it is a Fast Action
     /// Precondition (not checked): `self.available_actions().contains(input)`
     pub fn action_info(&self, input: Input) -> (Cost, bool) {
@@ -424,16 +435,110 @@ impl GameState {
             } => {
                 self.available_actions_action_phase(player_id, &mut acts);
             }
-            Phase::WinnerDecided { .. } => {}
-            Phase::EndPhase { .. } => {}
-            Phase::RollPhase { .. } => {}
-        }
-
-        if acts.is_empty() {
-            acts.push(Input::NoAction);
+            Phase::WinnerDecided { .. } | Phase::EndPhase { .. } | Phase::RollPhase { .. } => {
+                acts.push(Input::NoAction);
+            }
         }
 
         acts
+    }
+
+    pub fn iter_available_actions(&self) -> impl Iterator<Item = Input> + '_ {
+        enum IterAvailableActions<P, S, A> {
+            PendingCmds(P),
+            SelectStartingCharacter(S),
+            ActionPhase(A),
+            NoAction,
+        }
+        impl<P: Iterator<Item = Input>, S: Iterator<Item = Input>, A: Iterator<Item = Input>> Iterator
+            for IterAvailableActions<P, S, A>
+        {
+            type Item = Input;
+
+            fn next(&mut self) -> Option<Self::Item> {
+                match self {
+                    IterAvailableActions::PendingCmds(p) => p.next(),
+                    IterAvailableActions::SelectStartingCharacter(s) => s.next(),
+                    IterAvailableActions::ActionPhase(a) => a.next(),
+                    IterAvailableActions::NoAction => None,
+                }
+            }
+        }
+
+        #[derive(Default)]
+        enum IterChainNoActionIfEmptyState {
+            #[default]
+            Start,
+            Iterating,
+            End,
+        }
+        struct IterChainNoActionIfEmpty<T: Iterator<Item = Input>> {
+            iter: T,
+            state: IterChainNoActionIfEmptyState,
+        }
+
+        impl<T: Iterator<Item = Input>> IterChainNoActionIfEmpty<T> {
+            fn new(iter: T) -> Self {
+                Self {
+                    iter,
+                    state: Default::default(),
+                }
+            }
+        }
+
+        impl<P: Iterator<Item = Input>> Iterator for IterChainNoActionIfEmpty<P> {
+            type Item = Input;
+
+            fn next(&mut self) -> Option<Self::Item> {
+                use IterChainNoActionIfEmptyState::*;
+                match self.state {
+                    Start => {
+                        let ret = self.iter.next();
+                        if ret.is_none() {
+                            self.state = End;
+                            Some(Input::NoAction)
+                        } else {
+                            self.state = Iterating;
+                            ret
+                        }
+                    }
+                    Iterating => {
+                        let ret = self.iter.next();
+                        if ret.is_none() {
+                            self.state = End;
+                        }
+                        ret
+                    }
+                    End => None,
+                }
+            }
+        }
+
+        if let Some(pc) = &self.pending_cmds {
+            return IterChainNoActionIfEmpty::new(IterAvailableActions::PendingCmds(
+                pc.suspended_state.iter_available_actions(self),
+            ));
+        }
+
+        let it = match self.phase {
+            Phase::SelectStartingCharacter { state } => {
+                let player_id = state.active_player();
+                let it = self
+                    .get_player(player_id)
+                    .char_states
+                    .enumerate_valid()
+                    .map(move |(char_idx, _)| Input::FromPlayer(player_id, PlayerAction::SwitchCharacter(char_idx)));
+                IterAvailableActions::SelectStartingCharacter(it)
+            }
+            Phase::ActionPhase {
+                active_player: player_id,
+                ..
+            } => IterAvailableActions::ActionPhase(self.iter_available_actions_action_phase(player_id)),
+            Phase::WinnerDecided { .. } | Phase::EndPhase { .. } | Phase::RollPhase { .. } => {
+                IterAvailableActions::NoAction
+            }
+        };
+        IterChainNoActionIfEmpty::new(it)
     }
 
     fn available_actions_action_phase(&self, player_id: PlayerId, acts: &mut ActionList<Input>) {
@@ -501,6 +606,64 @@ impl GameState {
         }
 
         acts.push(Input::FromPlayer(player_id, PlayerAction::EndRound));
+    }
+
+    fn iter_available_actions_action_phase(&self, player_id: PlayerId) -> impl Iterator<Item = Input> + '_ {
+        use crate::iter_helpers::*;
+
+        let player = self.get_player(player_id);
+        let iter_cast_skill = 'a: {
+            let player_id = player_id;
+            let Some(cs) = self.get_active_character() else {
+                break 'a None;
+            };
+            if player.is_preparing_skill() {
+                break 'a None;
+            }
+
+            let skills = &cs.char_id.get_char_card().skills;
+            let n = skills.len() as usize;
+            let mut skills = skills.array;
+            skills[0..n].reverse();
+            Some(IterSliceCopied::new(skills, n).filter_map(move |skill_id| {
+                self.can_cast_skill(player_id, skill_id)
+                    .then_some(Input::FromPlayer(player_id, PlayerAction::CastSkill(skill_id)))
+            }))
+        };
+        let iter_cast_skill = IterOption::new(iter_cast_skill);
+
+        let iter_play_card = {
+            IterDistinct::new(player.hand.iter().copied()).flat_map(move |card_id| {
+                self.iter_available_card_selections(card_id)
+                    .filter_map(move |selection| {
+                        self.can_play_card(card_id, selection)
+                            .then_some(Input::FromPlayer(player_id, PlayerAction::PlayCard(card_id, selection)))
+                    })
+            })
+        };
+
+        let iter_switch = player.char_states.enumerate_valid().filter_map(move |(char_idx, _)| {
+            self.can_switch_to(player_id, char_idx)
+                .then_some(Input::FromPlayer(player_id, PlayerAction::SwitchCharacter(char_idx)))
+        });
+
+        let iter_et = IterDistinct::new(player.hand.iter().copied()).flat_map(move |card_id| {
+            self.can_perform_elemental_tuning(card_id)
+                .then_some(Input::FromPlayer(player_id, PlayerAction::ElementalTuning(card_id)))
+        });
+
+        // let cond = !player.is_tactical();
+        let end_round = [()]
+            .iter()
+            .map(move |_| Input::FromPlayer(player_id, PlayerAction::EndRound));
+
+        let head = iter_cast_skill.chain(iter_play_card).chain(iter_switch);
+        IterCondChain::new(
+            head,
+            iter_et,
+            |is_non_empty| if player.is_tactical() { !is_non_empty } else { true },
+        )
+        .chain(end_round)
     }
 
     fn apply_passives(&mut self) {

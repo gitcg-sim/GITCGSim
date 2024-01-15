@@ -86,4 +86,37 @@ impl CardSelectionSpec {
             }
         }
     }
+
+    #[inline]
+    pub(crate) fn iter_available_selections(
+        self,
+        players: &ByPlayer<PlayerState>,
+        player_id: PlayerId,
+    ) -> impl Iterator<Item = CardSelection> + '_ {
+        use crate::iter_helpers::IterSwitch;
+        let player = players.get(player_id);
+        match self {
+            Self::OwnCharacter => {
+                IterSwitch::<IterSwitch<_, _, CardSelection>, _, CardSelection>::Left(IterSwitch::Left(
+                    player
+                        .char_states
+                        .enumerate_valid()
+                        .map(|(i, _)| CardSelection::OwnCharacter(i)),
+                ))
+            }
+            Self::OwnSummon => IterSwitch::Left(IterSwitch::Right(
+                player
+                    .status_collection
+                    .iter_entries()
+                    .filter_map(|entry| entry.key.summon_id().map(CardSelection::OwnSummon)),
+            )),
+            Self::OpponentSummon => IterSwitch::Right(
+                players
+                    .get(player_id.opposite())
+                    .status_collection
+                    .iter_entries()
+                    .filter_map(|entry| entry.key.summon_id().map(CardSelection::OpponentSummon)),
+            ),
+        }
+    }
 }

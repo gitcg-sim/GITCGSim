@@ -44,6 +44,21 @@ impl SuspendedState {
             SuspendedState::NondetRequest(..) => acts,
         }
     }
+
+    pub fn iter_available_actions<'a>(&'a self, game_state: &'a GameState) -> impl Iterator<Item = Input> + 'a {
+        use crate::iter_helpers::IterSwitch;
+        match *self {
+            SuspendedState::PostDeathSwitch { player_id, .. } => {
+                let it = game_state
+                    .get_player(player_id)
+                    .char_states
+                    .enumerate_valid()
+                    .map(move |(char_idx, _)| Input::FromPlayer(player_id, PlayerAction::PostDeathSwitch(char_idx)));
+                IterSwitch::Left(it)
+            }
+            SuspendedState::NondetRequest(..) => IterSwitch::Right(std::iter::empty()),
+        }
+    }
 }
 
 impl GameState {
