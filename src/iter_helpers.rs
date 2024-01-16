@@ -1,4 +1,4 @@
-use smallvec::SmallVec;
+use enumset::{EnumSet, EnumSetType};
 
 /// Iterate through a slice, with the iterator owning it.
 pub struct IterSliceCopied<V: Copy, const N: usize> {
@@ -8,14 +8,14 @@ pub struct IterSliceCopied<V: Copy, const N: usize> {
 }
 
 /// Iterate through the provided iterator if exists.
-pub struct IterOption<T: Iterator<Item = V>, V: Eq + Copy> {
+pub struct IterOption<T: Iterator<Item = V>, V> {
     iter: Option<T>,
 }
 
 /// Iterate through an iterator, discarding already-seen items.
-/// Already-seen items are kept track in a [smallvec::SmallVec].
-pub struct IterDistinct<T: Iterator<Item = V>, V: Eq + Copy> {
-    existing: SmallVec<[V; 16]>,
+/// Already-seen items are kept track in an [enumset::EnumSet].
+pub struct IterDistinct<T: Iterator<Item = V>, V: EnumSetType> {
+    existing: EnumSet<V>,
     iter: T,
 }
 
@@ -44,13 +44,19 @@ pub struct IterCondChain<A: Iterator<Item = C>, B: Iterator<Item = C>, C, F: Fn(
     state: IterCondChainState,
 }
 
+pub struct IterLazyChain<A: Iterator<Item = C>, B: Iterator<Item = C>, C, F: Fn(bool) -> B> {
+    iter: IterSwitch<A, B, C>,
+    get_second: F,
+    found: bool,
+}
+
 impl<V: Eq + Copy, const N: usize> IterSliceCopied<V, N> {
     pub fn new(slice: [V; N], len: usize) -> Self {
         Self { slice, index: 0, len }
     }
 }
 
-impl<T: Iterator<Item = V>, V: Eq + Copy> IterDistinct<T, V> {
+impl<T: Iterator<Item = V>, V: EnumSetType> IterDistinct<T, V> {
     pub fn new(iter: T) -> Self {
         Self {
             existing: Default::default(),
@@ -59,7 +65,7 @@ impl<T: Iterator<Item = V>, V: Eq + Copy> IterDistinct<T, V> {
     }
 }
 
-impl<T: Iterator<Item = V>, V: Eq + Copy> IterOption<T, V> {
+impl<T: Iterator<Item = V>, V> IterOption<T, V> {
     pub fn new(iter: Option<T>) -> Self {
         Self { iter }
     }
@@ -76,22 +82,36 @@ impl<A: Iterator<Item = C>, B: Iterator<Item = C>, C, F: Fn(bool) -> bool> IterC
     }
 }
 
-impl<T: Iterator<Item = V>, V: Eq + Copy> Iterator for IterDistinct<T, V> {
+impl<A: Iterator<Item = C>, B: Iterator<Item = C>, C, F: Fn(bool) -> B> IterLazyChain<A, B, C, F> {
+    pub fn new(iter: A, get_second: F) -> Self {
+        Self {
+            iter: IterSwitch::Left(iter),
+            get_second,
+            found: Default::default(),
+        }
+    }
+}
+
+impl<T: Iterator<Item = V>, V: EnumSetType> Iterator for IterDistinct<T, V> {
     type Item = V;
 
     fn next(&mut self) -> Option<Self::Item> {
         loop {
             let value = self.iter.next()?;
-            if self.existing.contains(&value) {
+            if self.existing.contains(value) {
                 continue;
             }
-            self.existing.push(value);
+            self.existing.insert(value);
             return Some(value);
         }
     }
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        self.iter.size_hint()
+    }
 }
 
-impl<T: Iterator<Item = V>, V: Eq + Copy> Iterator for IterOption<T, V> {
+impl<T: Iterator<Item = V>, V> Iterator for IterOption<T, V> {
     type Item = V;
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -99,6 +119,13 @@ impl<T: Iterator<Item = V>, V: Eq + Copy> Iterator for IterOption<T, V> {
             return None;
         };
         it.next()
+    }
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        let Some(it) = &self.iter else {
+            return (0, Some(0));
+        };
+        it.size_hint()
     }
 }
 
@@ -113,6 +140,10 @@ impl<V: Copy, const N: usize> Iterator for IterSliceCopied<V, N> {
         self.index += 1;
         Some(self.slice[i])
     }
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        (self.len.saturating_sub(self.index), None)
+    }
 }
 
 impl<A, B, C> Iterator for IterSwitch<A, B, C>
@@ -126,6 +157,13 @@ where
         match self {
             IterSwitch::Left(a) => a.next(),
             IterSwitch::Right(b) => b.next(),
+        }
+    }
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        match self {
+            IterSwitch::Left(a) => a.size_hint(),
+            IterSwitch::Right(b) => b.size_hint(),
         }
     }
 }
@@ -178,8 +216,35 @@ impl<A: Iterator<Item = C>, B: Iterator<Item = C>, C, F: Fn(bool) -> bool> Itera
     }
 }
 
+impl<A: Iterator<Item = C>, B: Iterator<Item = C>, C, F: Fn(bool) -> B> Iterator for IterLazyChain<A, B, C, F> {
+    type Item = C;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        match &mut self.iter {
+            IterSwitch::Left(a) => {
+                let ret = a.next();
+                if ret.is_some() {
+                    self.found = true;
+                    ret
+                } else {
+                    let mut b = (self.get_second)(self.found);
+                    let ret = b.next();
+                    self.iter = IterSwitch::Right(b);
+                    ret
+                }
+            }
+            IterSwitch::Right(b) => b.next(),
+        }
+    }
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        (self.iter.size_hint().0, None)
+    }
+}
+
 #[cfg(test)]
 mod tests {
+
     use super::*;
     const EMPTY: [usize; 0] = [];
 
@@ -219,52 +284,72 @@ mod tests {
 
     #[test]
     fn iter_distinct() {
+        use crate::status_impls::prelude::Element;
+
         assert_eq!(
-            Vec::<usize>::default(),
-            IterDistinct::new(EMPTY.iter().copied()).collect::<Vec<usize>>()
+            Vec::<Element>::default(),
+            IterDistinct::new(EMPTY.iter().copied().map(|_| unreachable!())).collect::<Vec<Element>>()
         );
         assert_eq!(
-            vec![1usize],
-            IterDistinct::new([1usize].iter().copied()).collect::<Vec<_>>()
+            vec![Element::Pyro],
+            IterDistinct::new([Element::Pyro].iter().copied()).collect::<Vec<_>>()
         );
         assert_eq!(
-            vec![1usize, 2, 3, 4],
-            IterDistinct::new([1usize, 2, 3, 2, 1, 4].iter().copied()).collect::<Vec<_>>()
+            vec![Element::Pyro, Element::Geo, Element::Cryo],
+            IterDistinct::new(
+                [
+                    Element::Pyro,
+                    Element::Geo,
+                    Element::Geo,
+                    Element::Cryo,
+                    Element::Pyro,
+                    Element::Cryo,
+                    Element::Pyro
+                ]
+                .iter()
+                .copied()
+            )
+            .collect::<Vec<_>>()
         );
     }
 
     #[test]
-    fn iter_iter_cond_chain() {
+    fn iter_lazy_chain() {
         assert_eq!(
             Vec::<usize>::default(),
-            IterCondChain::new(EMPTY.iter().copied(), EMPTY.iter().copied(), |_| true).collect::<Vec<usize>>()
+            IterLazyChain::new(EMPTY.iter().copied(), |_| EMPTY.iter().copied()).collect::<Vec<usize>>()
+        );
+        assert_eq!(
+            vec![1usize, 2],
+            IterLazyChain::new(EMPTY.iter().copied(), |_| [1usize, 2usize].iter().copied()).collect::<Vec<usize>>()
         );
         assert_eq!(
             Vec::<usize>::default(),
-            IterCondChain::new(EMPTY.iter().copied(), EMPTY.iter().copied(), |_| false).collect::<Vec<usize>>()
-        );
-        assert_eq!(
-            Vec::<usize>::default(),
-            IterCondChain::new(EMPTY.iter().copied(), [1usize, 2usize].iter().copied(), |_| false)
-                .collect::<Vec<usize>>()
-        );
-        assert_eq!(
-            vec![1usize, 2usize],
-            IterCondChain::new(EMPTY.iter().copied(), [1usize, 2usize].iter().copied(), |x| !x).collect::<Vec<usize>>()
-        );
-        assert_eq!(
-            vec![3usize, 4usize],
-            IterCondChain::new(
-                [3usize, 4usize].iter().copied(),
-                [1usize, 2usize].iter().copied(),
-                |x| !x
-            )
+            IterLazyChain::new(EMPTY.iter().copied(), |has_elems| IterOption::new(
+                has_elems.then_some([1usize, 2usize].iter().copied())
+            ))
             .collect::<Vec<usize>>()
         );
         assert_eq!(
-            vec![3usize, 4usize],
-            IterCondChain::new([3usize, 4usize].iter().copied(), EMPTY.iter().copied(), |_| false)
-                .collect::<Vec<usize>>()
+            vec![3usize, 4],
+            IterLazyChain::new([3usize, 4].iter().copied(), |has_elems| IterOption::new(
+                (!has_elems).then_some([1usize, 2].iter().copied())
+            ),)
+            .collect::<Vec<usize>>()
+        );
+        assert_eq!(
+            vec![1usize, 2],
+            IterLazyChain::new(EMPTY.iter().copied(), |has_elems| IterOption::new(
+                (!has_elems).then_some([1usize, 2].iter().copied())
+            ))
+            .collect::<Vec<usize>>()
+        );
+        assert_eq!(
+            vec![3usize, 4, 1, 2],
+            IterLazyChain::new([3usize, 4].iter().copied(), |has_elems| IterOption::new(
+                has_elems.then_some([1usize, 2].iter().copied())
+            ))
+            .collect::<Vec<usize>>()
         );
     }
 }

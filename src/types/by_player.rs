@@ -22,7 +22,7 @@ impl<T> From<ByPlayer<T>> for (T, T) {
 
 impl<T> ByPlayer<T> {
     #[inline]
-    pub fn new(a: T, b: T) -> Self {
+    pub const fn new(a: T, b: T) -> Self {
         Self(a, b)
     }
 

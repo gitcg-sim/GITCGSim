@@ -5,8 +5,8 @@ use proptest::prelude::*;
 
 use crate::{cards::ids::*, list8, prelude::*};
 
-pub(crate) const CASES: u32 = 5_000;
-// pub(crate) const CASES: u32 = 50_000;
+// pub(crate) const CASES: u32 = 5_000;
+pub(crate) const CASES: u32 = 50_000;
 // pub(crate) const CASES: u32 = 500_000;
 // pub(crate) const CASES: u32 = 5_000_000;
 

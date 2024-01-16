@@ -423,7 +423,9 @@ pub enum SupportId {
 }
 const_default_enum_impl!(SupportId, Paimon);
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Enum)]
+#[allow(clippy::derived_hash_with_manual_eq)]
+#[derive(Debug, PartialOrd, Ord, Hash, Enum, EnumSetType)]
+#[enumset(repr = "u128")]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum CardId {
     BlankCard,
