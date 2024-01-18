@@ -2,11 +2,13 @@ use std::{hint::black_box, time::Instant};
 
 use crate::zobrist_hash::ZobristHasher;
 
+use self::prop_tests::generator::arb_reachable_game_state;
+
 use super::*;
 
 fn iter<F: Fn()>(f: F) {
     let t1 = Instant::now();
-    let runs = 200_000;
+    let runs = 1_000_000;
     for _ in 0..runs {
         f()
     }
@@ -41,6 +43,25 @@ fn get_game_state_for_zobrist_hash() -> GameState {
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::FireworkFlareUp)),
     ]);
     gs
+}
+
+fn get_random_game_states() -> smallvec::SmallVec<[GameState; 15]> {
+    use proptest::prelude::*;
+    use proptest::{
+        strategy::ValueTree,
+        test_runner::{TestRng, TestRunner},
+    };
+    let arb = arb_reachable_game_state();
+    let config: ProptestConfig = Default::default();
+    let mut runner = TestRunner::new(config);
+    let rng = runner.rng();
+    *rng = TestRng::from_seed(
+        proptest::test_runner::RngAlgorithm::XorShift,
+        &[123, 45, 67, 89, 0, 2, 5, 10, 123, 45, 67, 89, 0, 2, 5, 10],
+    );
+    rng.gen_bool(0.5);
+    let tree = arb.new_tree(&mut runner).unwrap();
+    (0..16).map(|_| tree.current()).collect()
 }
 
 #[test]
@@ -159,4 +180,61 @@ fn bench_zobrist_hash_for_dice() {
             h.finish()
         });
     })
+}
+
+mod available_actions {
+    use super::*;
+    fn bench_iter_available_actions<const N: usize, A: smallvec::Array<Item = Input>>() {
+        let gss = get_random_game_states();
+        iter(move || {
+            for gs in &gss {
+                black_box(gs.iter_available_actions().take(N).collect::<smallvec::SmallVec<A>>());
+            }
+        })
+    }
+
+    fn bench_available_actions<const N: usize, A: smallvec::Array<Item = Input>>() {
+        let gss = get_random_game_states();
+        iter(move || {
+            for gs in &gss {
+                black_box(
+                    gs.available_actions()
+                        .iter()
+                        .take(N)
+                        .copied()
+                        .collect::<smallvec::SmallVec<A>>(),
+                );
+            }
+        })
+    }
+
+    #[test]
+    fn bench_first_1_available_actions() {
+        bench_available_actions::<1, [Input; 1]>();
+    }
+
+    #[test]
+    fn bench_first_1_iter_available_actions() {
+        bench_iter_available_actions::<1, [Input; 1]>();
+    }
+
+    #[test]
+    fn bench_first_4_available_actions() {
+        bench_available_actions::<4, [Input; 4]>();
+    }
+
+    #[test]
+    fn bench_first_4_iter_available_actions() {
+        bench_iter_available_actions::<4, [Input; 4]>();
+    }
+
+    #[test]
+    fn bench_first_8_available_actions() {
+        bench_available_actions::<8, [Input; 8]>();
+    }
+
+    #[test]
+    fn bench_first_8_iter_available_actions() {
+        bench_iter_available_actions::<8, [Input; 8]>();
+    }
 }

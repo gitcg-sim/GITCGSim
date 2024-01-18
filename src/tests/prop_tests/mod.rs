@@ -1,4 +1,4 @@
-mod generator;
+pub(crate) mod generator;
 use generator::*;
 
 use proptest::prelude::*;

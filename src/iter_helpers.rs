@@ -25,29 +25,25 @@ pub enum IterSwitch<A: Iterator<Item = C>, B: Iterator<Item = C>, C> {
     Right(B),
 }
 
-#[derive(Default)]
-enum IterCondChainState {
-    #[default]
-    IterFirst,
-    IterFirstFound,
-    IterSecond,
-    End,
-}
-
-/// Iterate through the first iterator.
-/// Then evaluate a function with a boolean argument for whether the first iterator was empty.
-/// Iterate through the second iterator if and only if the result is true.
-pub struct IterCondChain<A: Iterator<Item = C>, B: Iterator<Item = C>, C, F: Fn(bool) -> bool> {
-    iter_first: A,
-    iter_second: B,
-    check: F,
-    state: IterCondChainState,
-}
-
 pub struct IterLazyChain<A: Iterator<Item = C>, B: Iterator<Item = C>, C, F: Fn(bool) -> B> {
     iter: IterSwitch<A, B, C>,
-    get_second: F,
     found: bool,
+    get_second: F,
+}
+
+pub struct IterLazyChain3<
+    A: Iterator<Item = Item>,
+    B: Iterator<Item = Item>,
+    C: Iterator<Item = Item>,
+    Item,
+    Env: Copy,
+    F: FnMut(Env) -> B,
+    G: FnMut(Env) -> C,
+> {
+    iter: IterSwitch<A, IterSwitch<B, C, Item>, Item>,
+    env: Env,
+    get_second: F,
+    get_third: G,
 }
 
 impl<V: Eq + Copy, const N: usize> IterSliceCopied<V, N> {
@@ -71,23 +67,32 @@ impl<T: Iterator<Item = V>, V> IterOption<T, V> {
     }
 }
 
-impl<A: Iterator<Item = C>, B: Iterator<Item = C>, C, F: Fn(bool) -> bool> IterCondChain<A, B, C, F> {
-    pub fn new(iter_first: A, iter_second: B, check: F) -> Self {
-        Self {
-            iter_first,
-            iter_second,
-            check,
-            state: Default::default(),
-        }
-    }
-}
-
 impl<A: Iterator<Item = C>, B: Iterator<Item = C>, C, F: Fn(bool) -> B> IterLazyChain<A, B, C, F> {
     pub fn new(iter: A, get_second: F) -> Self {
         Self {
             iter: IterSwitch::Left(iter),
             get_second,
             found: Default::default(),
+        }
+    }
+}
+
+impl<
+        A: Iterator<Item = Item>,
+        B: Iterator<Item = Item>,
+        C: Iterator<Item = Item>,
+        Item,
+        Env: Copy,
+        F: FnMut(Env) -> B,
+        G: FnMut(Env) -> C,
+    > IterLazyChain3<A, B, C, Item, Env, F, G>
+{
+    pub fn new(iter: A, get_second: F, get_third: G, env: Env) -> Self {
+        Self {
+            iter: IterSwitch::Left(iter),
+            env,
+            get_second,
+            get_third,
         }
     }
 }
@@ -168,54 +173,6 @@ where
     }
 }
 
-impl<A: Iterator<Item = C>, B: Iterator<Item = C>, C, F: Fn(bool) -> bool> Iterator for IterCondChain<A, B, C, F> {
-    type Item = C;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        use IterCondChainState::*;
-        let check = &mut self.check;
-        match self.state {
-            IterFirst => {
-                let ret = self.iter_first.next();
-                if ret.is_some() {
-                    self.state = IterFirstFound;
-                    return ret;
-                }
-                if check(false) {
-                    let ret = self.iter_second.next();
-                    self.state = IterSecond;
-                    ret
-                } else {
-                    self.state = End;
-                    None
-                }
-            }
-            IterFirstFound => {
-                let ret = self.iter_first.next();
-                if ret.is_some() {
-                    return ret;
-                }
-                if check(true) {
-                    let ret = self.iter_second.next();
-                    self.state = IterSecond;
-                    ret
-                } else {
-                    self.state = End;
-                    None
-                }
-            }
-            IterSecond => {
-                let ret = self.iter_second.next();
-                if ret.is_none() {
-                    self.state = End
-                }
-                ret
-            }
-            End => None,
-        }
-    }
-}
-
 impl<A: Iterator<Item = C>, B: Iterator<Item = C>, C, F: Fn(bool) -> B> Iterator for IterLazyChain<A, B, C, F> {
     type Item = C;
 
@@ -239,6 +196,46 @@ impl<A: Iterator<Item = C>, B: Iterator<Item = C>, C, F: Fn(bool) -> B> Iterator
 
     fn size_hint(&self) -> (usize, Option<usize>) {
         (self.iter.size_hint().0, None)
+    }
+}
+
+impl<
+        A: Iterator<Item = Item>,
+        B: Iterator<Item = Item>,
+        C: Iterator<Item = Item>,
+        Item,
+        Env: Copy,
+        F: FnMut(Env) -> B,
+        G: FnMut(Env) -> C,
+    > Iterator for IterLazyChain3<A, B, C, Item, Env, F, G>
+{
+    type Item = Item;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        loop {
+            match &mut self.iter {
+                IterSwitch::Left(a) => {
+                    let ret = a.next();
+                    if ret.is_some() {
+                        return ret;
+                    } else {
+                        self.iter = IterSwitch::Right(IterSwitch::Left((self.get_second)(self.env)));
+                    }
+                }
+                IterSwitch::Right(IterSwitch::Left(b)) => {
+                    let ret = b.next();
+                    if ret.is_some() {
+                        return ret;
+                    } else {
+                        self.iter = IterSwitch::Right(IterSwitch::Right((self.get_third)(self.env)));
+                    }
+                }
+                IterSwitch::Right(IterSwitch::Right(c)) => {
+                    let ret = c.next();
+                    return if ret.is_some() { ret } else { None };
+                }
+            }
+        }
     }
 }
 

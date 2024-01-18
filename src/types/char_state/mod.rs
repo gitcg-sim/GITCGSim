@@ -95,14 +95,17 @@ impl CharStates {
         self.char_states.len() as u8
     }
 
+    #[inline]
     pub fn iter_all(&self) -> impl Iterator<Item = &CharState> {
         self.char_states.iter()
     }
 
+    #[inline]
     pub fn iter_all_mut(&mut self) -> impl Iterator<Item = &mut CharState> {
         self.char_states.iter_mut()
     }
 
+    #[inline]
     pub fn enumerate_valid(&self) -> impl Iterator<Item = (u8, &CharState)> {
         self.char_states
             .iter()
@@ -111,6 +114,7 @@ impl CharStates {
             .map(|(i, v)| (i as u8, v))
     }
 
+    #[inline]
     pub fn enumerate_valid_mut(&mut self) -> impl Iterator<Item = (u8, &mut CharState)> {
         self.char_states
             .iter_mut()
@@ -119,6 +123,7 @@ impl CharStates {
             .map(|(i, v)| (i as u8, v))
     }
 
+    #[inline]
     pub fn iter_valid(&self) -> impl Iterator<Item = &CharState> {
         self.char_states
             .iter()
@@ -127,6 +132,7 @@ impl CharStates {
             .map(|(_, v)| v)
     }
 
+    #[inline]
     pub fn iter_valid_mut(&mut self) -> impl Iterator<Item = &mut CharState> {
         self.char_states
             .iter_mut()
