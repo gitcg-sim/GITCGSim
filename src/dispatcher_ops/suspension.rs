@@ -31,7 +31,6 @@ impl SuspendedState {
         }
     }
 
-    // #[deprecated]
     pub fn available_actions(&self, game_state: &GameState) -> ActionList<Input> {
         let mut acts = action_list![];
         match *self {
