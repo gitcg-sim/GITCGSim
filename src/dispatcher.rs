@@ -1,5 +1,5 @@
 use enumset::EnumSet;
-use smallvec::{smallvec, SmallVec};
+use smallvec::{smallvec, Array, SmallVec};
 
 use crate::{
     cards::{event::DefaultCardImpl, ids::*},
@@ -360,20 +360,6 @@ impl GameState {
             .unwrap_or_else(|| smallvec![None])
     }
 
-    fn iter_available_card_selections(&self, card_id: CardId) -> impl Iterator<Item = Option<CardSelection>> + '_ {
-        use crate::iter_helpers::IterSwitch;
-        let none = IterSwitch::Right([None].iter().copied());
-        let Some(player_id) = self.phase.active_player() else {
-            return none;
-        };
-        let Some(ci) = card_id.get_card_impl() else { return none };
-        let Some(spec) = ci.selection() else { return none };
-        IterSwitch::Left(
-            spec.iter_available_selections(&self.players, player_id)
-                .map(Option::Some),
-        )
-    }
-
     /// Determine the cost of the action and whether it is a Fast Action
     /// Precondition (not checked): `self.available_actions().contains(input)`
     pub fn action_info(&self, input: Input) -> (Cost, bool) {
@@ -573,7 +559,7 @@ impl GameState {
     }
 
     #[inline(always)]
-    fn available_actions_play_card(&self, player_id: PlayerId, acts: &mut SmallVec<[Input; 16]>) {
+    fn available_actions_play_card<A: Array<Item = Input>>(&self, player_id: PlayerId, acts: &mut SmallVec<A>) {
         let player = self.get_player(player_id);
         let mut found = EnumSet::default();
         for &card_id in &player.hand {
@@ -591,11 +577,11 @@ impl GameState {
     }
 
     #[inline(always)]
-    fn available_actions_cast_skill(
+    fn available_actions_cast_skill<A: Array<Item = Input>>(
         &self,
         active_char: &CharState,
         player_id: PlayerId,
-        acts: &mut SmallVec<[Input; 16]>,
+        acts: &mut SmallVec<A>,
     ) {
         let skills = active_char.char_id.get_char_card().skills;
         let mut skills_vec = skills.to_vec_copy();
@@ -608,7 +594,7 @@ impl GameState {
     }
 
     #[inline(always)]
-    fn available_actions_switch(&self, player_id: PlayerId, acts: &mut SmallVec<[Input; 16]>) {
+    fn available_actions_switch<A: Array<Item = Input>>(&self, player_id: PlayerId, acts: &mut SmallVec<A>) {
         let player = self.get_player(player_id);
         for (char_idx, _) in player.char_states.enumerate_valid() {
             if self.can_switch_to(player_id, char_idx) {
@@ -618,7 +604,7 @@ impl GameState {
     }
 
     #[inline(always)]
-    fn available_actions_et(&self, player_id: PlayerId, acts: &mut SmallVec<[Input; 16]>) {
+    fn available_actions_et<A: Array<Item = Input>>(&self, player_id: PlayerId, acts: &mut SmallVec<A>) {
         let player = self.get_player(player_id);
         let mut found = EnumSet::default();
         for &card_id in &player.hand {
@@ -634,7 +620,7 @@ impl GameState {
     }
 
     fn iter_available_actions_action_phase(&self, player_id: PlayerId) -> impl Iterator<Item = Input> + '_ {
-        type Actions = SmallVec<[Input; 16]>;
+        type Actions = SmallVec<[Input; 8]>;
         struct IterActions {
             actions: Actions,
             index: usize,
@@ -784,72 +770,6 @@ impl GameState {
         }
 
         IterAvailableActionsActionPhase::new(self, player_id)
-    }
-
-    fn iter_available_actions_action_phase__OLD<'a>(&'a self, player_id: PlayerId) -> impl Iterator<Item = Input> + 'a {
-        use crate::iter_helpers::*;
-
-        let iter_cast_skill = 'a: {
-            let player_id = player_id;
-            let Some(cs) = self.get_active_character() else {
-                break 'a None;
-            };
-            let player = self.get_player(player_id);
-            if player.is_preparing_skill() {
-                break 'a None;
-            }
-
-            let skills = &cs.char_id.get_char_card().skills;
-            let n = skills.len() as usize;
-            let mut skills = skills.array;
-            skills[0..n].reverse();
-            Some(IterSliceCopied::new(skills, n).filter_map(move |skill_id| {
-                self.can_cast_skill(player_id, skill_id)
-                    .then_some(Input::FromPlayer(player_id, PlayerAction::CastSkill(skill_id)))
-            }))
-        };
-        let iter_cast_skill = IterOption::new(iter_cast_skill);
-
-        let get_iter_play_card = move |(gs, player_id): (&'a GameState, PlayerId)| {
-            let player = gs.get_player(player_id);
-            IterDistinct::new(player.hand.iter().copied()).flat_map(move |card_id| {
-                let res = gs.iter_available_card_selections(card_id).filter_map(move |selection| {
-                    gs.can_play_card(card_id, selection)
-                        .then_some(Input::FromPlayer(player_id, PlayerAction::PlayCard(card_id, selection)))
-                });
-                res
-            })
-        };
-
-        let get_iter_switch = move |(gs, player_id): (&'a GameState, PlayerId)| {
-            gs.get_player(player_id)
-                .char_states
-                .enumerate_valid()
-                .filter_map(move |(char_idx, _)| {
-                    gs.can_switch_to(player_id, char_idx)
-                        .then_some(Input::FromPlayer(player_id, PlayerAction::SwitchCharacter(char_idx)))
-                })
-        };
-
-        let get_iter_et = move |(gs, player_id): (&'a GameState, PlayerId)| {
-            IterDistinct::new(gs.get_player(player_id).hand.iter().copied()).flat_map(move |card_id| {
-                gs.can_perform_elemental_tuning(card_id)
-                    .then_some(Input::FromPlayer(player_id, PlayerAction::ElementalTuning(card_id)))
-            })
-        };
-
-        let end_round = std::iter::once(Input::FromPlayer(player_id, PlayerAction::EndRound));
-
-        let head = IterLazyChain3::new(iter_cast_skill, get_iter_play_card, get_iter_switch, (self, player_id));
-        let head_with_et = IterLazyChain::new(head, move |is_non_empty| {
-            let flag = if self.get_player(player_id).is_tactical() {
-                !is_non_empty
-            } else {
-                true
-            };
-            IterOption::new(flag.then_some(get_iter_et((self, player_id))))
-        });
-        head_with_et.chain(end_round)
     }
 
     fn apply_passives(&mut self) {
