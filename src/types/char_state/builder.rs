@@ -1,3 +1,4 @@
+use crate::std_subset::Vec;
 use crate::{cards::ids::CharId, status_impls::prelude::Element};
 
 use super::{CharFlag, CharState};

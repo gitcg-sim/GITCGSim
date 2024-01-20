@@ -33,8 +33,8 @@ pub enum Input {
     FromPlayer(PlayerId, PlayerAction),
 }
 
-impl std::fmt::Debug for Input {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl crate::std_subset::fmt::Debug for Input {
+    fn fmt(&self, f: &mut crate::std_subset::fmt::Formatter<'_>) -> crate::std_subset::fmt::Result {
         match self {
             Self::FromPlayer(PlayerId::PlayerFirst, arg1) => f.debug_tuple("P0").field(arg1).finish(),
             Self::FromPlayer(PlayerId::PlayerSecond, arg1) => f.debug_tuple("P1").field(arg1).finish(),

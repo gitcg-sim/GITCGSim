@@ -1,6 +1,6 @@
 #![allow(non_snake_case)]
-use std::fmt::Debug;
-use std::ops::{Index, IndexMut};
+use crate::std_subset::fmt::Debug;
+use crate::std_subset::ops::{Index, IndexMut};
 
 use enumset::{enum_set, EnumSet, EnumSetType};
 
@@ -43,7 +43,7 @@ pub struct CharState {
 }
 
 impl Debug for CharState {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut crate::std_subset::fmt::Formatter<'_>) -> crate::std_subset::fmt::Result {
         f.debug_struct("CharState")
             .field("char_id", &self.char_id)
             .field("hp", &self.get_hp())

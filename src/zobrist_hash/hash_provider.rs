@@ -1,4 +1,4 @@
-use std::hash::Hasher;
+use crate::std_subset::{hash::Hasher, Box};
 
 use rand::prelude::*;
 use rand::rngs::SmallRng;
@@ -320,7 +320,7 @@ impl Default for HashProvider {
 }
 
 impl Debug for HashProvider {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut crate::std_subset::fmt::Formatter<'_>) -> crate::std_subset::fmt::Result {
         f.debug_struct("HashProvider").finish()
     }
 }

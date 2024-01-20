@@ -1,10 +1,11 @@
+#![cfg_attr(all(not(test), not(feature = "std")), no_std)]
 #![doc = include_str!("../README.md")]
 
 #[macro_export]
 macro_rules! impl_display_from_debug {
     (@single $Type: ident) => {
-        impl std::fmt::Display for $Type {
-            fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        impl $crate::std_subset::fmt::Display for $Type {
+            fn fmt(&self, f: &mut $crate::std_subset::fmt::Formatter<'_>) -> $crate::std_subset::fmt::Result {
                 write!(f, "{:?}", self)
             }
         }
@@ -12,6 +13,11 @@ macro_rules! impl_display_from_debug {
     ($($Type: ident)+) => {
         $(impl_display_from_debug!(@single $Type);)+
     };
+}
+
+pub(crate) mod std_subset {
+    pub use core::{cmp, hash, iter, marker, mem, ops};
+    pub use smallvec::alloc::{boxed::Box, string::String, vec, vec::Vec, collections, fmt, slice, sync};
 }
 
 pub(crate) mod card_impls;
@@ -73,6 +79,7 @@ pub use rand;
 pub use enum_map;
 
 /// Re-exports the `thiserror` create
+#[cfg(feature = "std")]
 pub use thiserror;
 
 /// Re-exports the `enumset` crate

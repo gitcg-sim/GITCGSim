@@ -3,7 +3,7 @@
 use enum_map::Enum;
 use enumset::EnumSetType;
 
-use std::hash::Hash;
+use crate::std_subset::hash::Hash;
 
 use crate::const_default_enum_impl;
 

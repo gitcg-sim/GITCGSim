@@ -1,5 +1,5 @@
 #![allow(non_snake_case)]
-use std::fmt::Debug;
+use crate::std_subset::fmt::Debug;
 
 use enum_map::Enum;
 use enumset::EnumSet;

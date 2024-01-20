@@ -1,5 +1,6 @@
 use crate::cards::ids::*;
 use crate::status_impls::*;
+use crate::std_subset::Vec;
 use crate::types::command::XEventMask;
 use crate::types::status_impl::StatusImpl;
 use crate::types::StatusSpecModifier;
@@ -142,12 +143,12 @@ impl AppliedEffectState {
 
 impl StatusCollection {
     #[inline]
-    pub fn iter_entries(&self) -> std::slice::Iter<StatusEntry> {
+    pub fn iter_entries(&self) -> crate::std_subset::slice::Iter<StatusEntry> {
         self._status_entries.iter()
     }
 
     #[inline]
-    pub fn iter_entries_mut(&mut self) -> std::slice::IterMut<StatusEntry> {
+    pub fn iter_entries_mut(&mut self) -> crate::std_subset::slice::IterMut<StatusEntry> {
         self._status_entries.iter_mut()
     }
 

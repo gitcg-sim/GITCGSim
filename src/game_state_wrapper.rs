@@ -1,5 +1,5 @@
+use crate::std_subset::fmt::Debug;
 use rand::rngs::SmallRng;
-use std::fmt::Debug;
 
 use crate::{data_structures::ActionList, prelude::*};
 
@@ -40,7 +40,7 @@ impl<S: NondetState> GameStateWrapper<S> {
 }
 
 impl<S: NondetState> Debug for GameStateWrapper<S> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut crate::std_subset::fmt::Formatter<'_>) -> crate::std_subset::fmt::Result {
         f.debug_struct("GameStateWrapper")
             .field("game_state", &self.game_state)
             .finish()
@@ -54,11 +54,11 @@ impl<S: NondetState> GameStateWrapper<S> {
         new
     }
 
+    /// Panics: [GameState] advance error
     pub fn ensure_player(&mut self) {
         while self.to_move().is_none() && self.winner().is_none() {
             let input = self.nd.get_no_to_move_player_input(&self.game_state);
             if let Err(e) = self.game_state.advance(input) {
-                dbg!(&self.game_state);
                 panic!("{e:?}\n{input:?}");
             }
         }

@@ -1,4 +1,4 @@
-use std::cmp::min;
+use crate::std_subset::cmp::min;
 
 use crate::{
     cards::ids::*,
@@ -278,8 +278,8 @@ impl Default for Skill {
     }
 }
 
-impl std::fmt::Debug for Skill {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl crate::std_subset::fmt::Debug for Skill {
+    fn fmt(&self, f: &mut crate::std_subset::fmt::Formatter<'_>) -> crate::std_subset::fmt::Result {
         f.debug_struct("Skill")
             .field("name", &self.name)
             .field("skill_type", &self.skill_type)
@@ -502,8 +502,8 @@ impl Status {
     }
 }
 
-impl std::fmt::Display for CardType {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl crate::std_subset::fmt::Display for CardType {
+    fn fmt(&self, f: &mut crate::std_subset::fmt::Formatter<'_>) -> crate::std_subset::fmt::Result {
         match *self {
             CardType::Event => write!(f, "Event"),
             CardType::Food => write!(f, "Food"),

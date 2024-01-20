@@ -2,7 +2,7 @@ use crate::data_structures::CommandList;
 
 use super::*;
 
-use std::cmp::min;
+use crate::std_subset::cmp::min;
 
 pub const C: CharCard = CharCard {
     name: "Eula",

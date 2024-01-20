@@ -1,4 +1,4 @@
-use std::cmp::min;
+use crate::std_subset::cmp::min;
 
 use rand::{rngs::SmallRng, Rng, SeedableRng};
 use smallvec::SmallVec;
@@ -129,7 +129,7 @@ impl RuleBasedSearchConfig {
                 };
                 let has_burst = src_char.get_energy() >= src_char.char_id.get_char_card().max_energy;
                 let has_one_off_burst = src_char.get_energy() + 1 == src_char.char_id.get_char_card().max_energy;
-                let hp = std::cmp::min(
+                let hp = crate::std_subset::cmp::min(
                     src_char.get_hp().saturating_sub(1) as usize,
                     self.switch_scores_hp.len(),
                 );

@@ -1,4 +1,4 @@
-use std::fmt::Display;
+use crate::std_subset::{fmt::Display, vec, Vec};
 
 use crate::vector;
 
@@ -65,7 +65,7 @@ impl Event {
 }
 
 impl Display for Event {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut crate::std_subset::fmt::Formatter<'_>) -> crate::std_subset::fmt::Result {
         match self {
             Event::Round(r, p) => f.write_fmt(format_args!("Round {r}: {p} to move first")),
             Event::Phase(p) => {
@@ -126,8 +126,8 @@ pub struct EventLog {
     pub events: Vector<Event>,
 }
 
-impl std::fmt::Debug for EventLog {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl crate::std_subset::fmt::Debug for EventLog {
+    fn fmt(&self, f: &mut crate::std_subset::fmt::Formatter<'_>) -> crate::std_subset::fmt::Result {
         f.debug_struct("EventLog").field("enabled", &self.enabled).finish()
     }
 }
@@ -146,6 +146,7 @@ impl EventLog {
         }
     }
 
+    #[cfg(feature = "std")]
     pub fn print(&self) {
         for event in &self.events {
             let prefix = " ".repeat(2 * Into::<usize>::into(event.indent_level()));

@@ -38,7 +38,10 @@ impl StatusImpl for Liben {
         e.add_cmd(Command::SubtractDice(collected));
         let new_counter = counter + taken;
         if new_counter < 3 {
-            Some(AppliedEffectResult::SetCounter(std::cmp::min(3, new_counter)))
+            Some(AppliedEffectResult::SetCounter(crate::std_subset::cmp::min(
+                3,
+                new_counter,
+            )))
         } else {
             e.add_cmd(Command::DrawCards(2, None));
             e.add_cmd(Command::AddDice(DiceCounter::omni(2)));

@@ -1,5 +1,5 @@
 use super::game_state::PlayerId;
-use std::ops::{Index, IndexMut};
+use crate::std_subset::ops::{Index, IndexMut};
 
 // TODO refactor rest of the code to use this struct
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]

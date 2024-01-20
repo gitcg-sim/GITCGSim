@@ -1,4 +1,4 @@
-use std::marker::PhantomData;
+use crate::std_subset::{marker::PhantomData, Box};
 
 use crate::{cards::ids::*, data_structures::Vector, prelude::*, types::by_player::ByPlayer};
 
@@ -154,7 +154,7 @@ impl GameStateBuilder<HasCharacters, HasStartingCondition> {
     }
 
     pub fn try_build(self) -> Option<GameState> {
-        const RANGE: std::ops::RangeInclusive<usize> = 1..=8;
+        const RANGE: crate::std_subset::ops::RangeInclusive<usize> = 1..=8;
         if !RANGE.contains(&self.characters.get(PlayerId::PlayerFirst).len()) {
             return None;
         }

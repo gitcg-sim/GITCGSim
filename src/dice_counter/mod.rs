@@ -1,4 +1,7 @@
-use std::ops::{Index, IndexMut};
+use crate::std_subset::{
+    ops::{Index, IndexMut},
+    vec, Vec,
+};
 
 use smallvec::SmallVec;
 
@@ -26,8 +29,8 @@ pub struct DiceCounter {
     pub elem: [u8; 7],
 }
 
-impl std::fmt::Debug for DiceCounter {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl crate::std_subset::fmt::Debug for DiceCounter {
+    fn fmt(&self, f: &mut crate::std_subset::fmt::Formatter<'_>) -> crate::std_subset::fmt::Result {
         f.debug_tuple("DiceCounter").field(&self.tally()).finish()
     }
 }
@@ -212,7 +215,7 @@ impl DiceCounter {
 
     #[inline(always)]
     fn sub(a: &mut u8, b: u8) {
-        *a = *a - std::cmp::min(*a, b);
+        *a = *a - crate::std_subset::cmp::min(*a, b);
     }
 
     #[inline]

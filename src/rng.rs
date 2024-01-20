@@ -44,12 +44,12 @@ type RngBytes = [u32; 4];
 impl RngState {
     #[inline]
     fn to_bytes(&self) -> &RngBytes {
-        unsafe { std::mem::transmute::<&SmallRng, &RngBytes>(&self.0) }
+        unsafe { crate::std_subset::mem::transmute::<&SmallRng, &RngBytes>(&self.0) }
     }
 
     #[inline]
     fn from_bytes(bytes: RngBytes) -> Self {
-        Self(unsafe { std::mem::transmute::<RngBytes, SmallRng>(bytes) })
+        Self(unsafe { crate::std_subset::mem::transmute::<RngBytes, SmallRng>(bytes) })
     }
 }
 

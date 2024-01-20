@@ -56,7 +56,7 @@ impl SuspendedState {
                     .map(move |(char_idx, _)| Input::FromPlayer(player_id, PlayerAction::PostDeathSwitch(char_idx)));
                 IterSwitch::Left(it)
             }
-            SuspendedState::NondetRequest(..) => IterSwitch::Right(std::iter::empty()),
+            SuspendedState::NondetRequest(..) => IterSwitch::Right(crate::std_subset::iter::empty()),
         }
     }
 }

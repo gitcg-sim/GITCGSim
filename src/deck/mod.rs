@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use crate::std_subset::{sync::Arc, String, Vec};
 
 use enum_map::Enum;
 use rand::Rng;

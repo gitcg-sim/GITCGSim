@@ -1,4 +1,4 @@
-use std::fmt::Display;
+use crate::std_subset::fmt::Display;
 
 use enumset::EnumSetType;
 
@@ -65,8 +65,8 @@ pub enum Dice {
     Elem(Element),
 }
 
-impl std::fmt::Debug for Dice {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl crate::std_subset::fmt::Debug for Dice {
+    fn fmt(&self, f: &mut crate::std_subset::fmt::Formatter<'_>) -> crate::std_subset::fmt::Result {
         match self {
             Self::Omni => write!(f, "Omni"),
             Self::Elem(e) => write!(f, "E.{e:?}"),
@@ -149,7 +149,7 @@ pub enum EquipSlot {
 }
 
 impl Display for SkillType {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut crate::std_subset::fmt::Formatter<'_>) -> crate::std_subset::fmt::Result {
         match *self {
             SkillType::NormalAttack => write!(f, "Normal Attack"),
             SkillType::ElementalSkill => write!(f, "Elemental Skill"),
@@ -159,7 +159,7 @@ impl Display for SkillType {
 }
 
 impl Display for Reaction {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut crate::std_subset::fmt::Formatter<'_>) -> crate::std_subset::fmt::Result {
         match *self {
             Reaction::ElectroCharged => write!(f, "Electro-Charged"),
             r => write!(f, "{r:?}"),

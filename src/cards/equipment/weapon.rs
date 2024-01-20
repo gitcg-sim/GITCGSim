@@ -191,7 +191,7 @@ pub mod lithic_spear {
                 *ctx,
                 Command::IncreaseStatusUsages(
                     StatusKey::Equipment(i, EquipSlot::Weapon, StatusId::LithicSpear),
-                    std::cmp::min(n, 3),
+                    crate::std_subset::cmp::min(n, 3),
                 ),
             ))
         }

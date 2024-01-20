@@ -1,4 +1,4 @@
-use std::cmp::{max, min};
+use crate::std_subset::cmp::{max, min};
 
 /// State variable for an applied effect (status or summon).
 #[derive(Clone, Copy, Default, PartialEq, Eq)]
@@ -147,8 +147,8 @@ impl AppliedEffectState {
     }
 }
 
-impl std::fmt::Debug for AppliedEffectState {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl crate::std_subset::fmt::Debug for AppliedEffectState {
+    fn fmt(&self, f: &mut crate::std_subset::fmt::Formatter<'_>) -> crate::std_subset::fmt::Result {
         f.debug_struct("AppliedEffectState")
             .field("usages_duration", &self.get_usages())
             .field("counter", &self.get_counter())

@@ -75,7 +75,7 @@ impl DealDMG {
         if value == 0 || self.dmg == 0 {
             return false;
         }
-        self.dmg = self.dmg - std::cmp::min(self.dmg, value);
+        self.dmg = self.dmg - crate::std_subset::cmp::min(self.dmg, value);
         true
     }
 

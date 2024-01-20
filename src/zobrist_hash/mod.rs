@@ -49,8 +49,8 @@
 /// features(xs: A * B * ...): Set<(F, number)> = { (a, 0) | a in features(A) } union { (b, 1) b in features(B) } union ...
 /// ```
 ///
-use std::fmt::Debug;
-use std::hash::Hash;
+use crate::std_subset::fmt::Debug;
+use crate::std_subset::hash::Hash;
 
 use enum_map::{Enum, EnumArray, EnumMap};
 use enumset::EnumSet;

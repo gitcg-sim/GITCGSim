@@ -54,8 +54,8 @@ impl CommandContext {
 impl NondetResult {
     fn transpose_in_place(&mut self) {
         match self {
-            NondetResult::ProvideDice(a, b) => std::mem::swap(a, b),
-            NondetResult::ProvideCards(a, b) => std::mem::swap(a, b),
+            NondetResult::ProvideDice(a, b) => crate::std_subset::mem::swap(a, b),
+            NondetResult::ProvideCards(a, b) => crate::std_subset::mem::swap(a, b),
             NondetResult::ProvideSummonIds(..) => {}
         }
     }
@@ -82,7 +82,7 @@ impl ByPlayer<PlayerState> {
     #[inline(always)]
     fn transpose_in_place(&mut self) {
         // Nothing to transpose for PlayerState
-        std::mem::swap(&mut self.0, &mut self.1);
+        crate::std_subset::mem::swap(&mut self.0, &mut self.1);
     }
 }
 
@@ -120,9 +120,9 @@ impl Phase {
 impl NondetRequest {
     pub fn transpose_in_place(&mut self) {
         match self {
-            NondetRequest::DrawCards(a, b) => std::mem::swap(a, b),
+            NondetRequest::DrawCards(a, b) => crate::std_subset::mem::swap(a, b),
             NondetRequest::DrawCardsOfType(p, _, _) => p.flip(),
-            NondetRequest::RollDice(a, b) => std::mem::swap(a, b),
+            NondetRequest::RollDice(a, b) => crate::std_subset::mem::swap(a, b),
             NondetRequest::SummonRandom(..) => {}
         }
     }

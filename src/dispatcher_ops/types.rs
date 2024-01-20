@@ -23,33 +23,34 @@ pub enum DispatchResult {
 }
 
 /// Indicates game state advancement fails due to input validation errors.
-#[derive(Debug, PartialEq, Eq, thiserror::Error)]
+#[derive(Debug, PartialEq, Eq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "std", derive(thiserror::Error))]
 pub enum DispatchError {
-    #[error("invalid input: {0}")]
+    #[cfg_attr(feature = "std", error("invalid input: {0}"))]
     InvalidInput(&'static str),
-    #[error("nondet result not allowed")]
+    #[cfg_attr(feature = "std", error("nondet result not allowed"))]
     NondetResultNotAllowed,
-    #[error("nondet result required")]
+    #[cfg_attr(feature = "std", error("nondet result required"))]
     NondetResultRequired,
-    #[error("invalid nondet result")]
+    #[cfg_attr(feature = "std", error("invalid nondet result"))]
     NondetResultInvalid,
-    #[error("cannot switch into character")]
+    #[cfg_attr(feature = "std", error("cannot switch into character"))]
     CannotSwitchInto,
-    #[error("invalid player ID")]
+    #[cfg_attr(feature = "std", error("invalid player ID"))]
     InvalidPlayer,
-    #[error("invalid skill ID")]
+    #[cfg_attr(feature = "std", error("invalid skill ID"))]
     InvalidSkillId,
-    #[error("invalid switch character index")]
+    #[cfg_attr(feature = "std", error("invalid switch character index"))]
     InvalidSwitchIndex,
-    #[error("cannot cast skills here")]
+    #[cfg_attr(feature = "std", error("cannot cast skills here"))]
     CannotCastSkills,
-    #[error("unable to pay cost for this action")]
+    #[cfg_attr(feature = "std", error("unable to pay cost for this action"))]
     UnableToPayCost,
-    #[error("card is not on hand")]
+    #[cfg_attr(feature = "std", error("card is not on hand"))]
     CardNotOnHand,
-    #[error("cannot play card")]
+    #[cfg_attr(feature = "std", error("cannot play card"))]
     UnableToPlayCard,
-    #[error("invalid selecction target")]
+    #[cfg_attr(feature = "std", error("invalid selecction target"))]
     InvalidSelection,
 }

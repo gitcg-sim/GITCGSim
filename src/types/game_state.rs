@@ -1,5 +1,8 @@
 #![allow(non_snake_case)]
-use std::fmt::{Debug, Display};
+use crate::std_subset::{
+    fmt::{Debug, Display},
+    Box,
+};
 
 use enum_map::Enum;
 use enumset::{enum_set, EnumSet, EnumSetType};
@@ -87,7 +90,7 @@ pub enum PlayerId {
 }
 
 impl Display for PlayerId {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut crate::std_subset::fmt::Formatter<'_>) -> crate::std_subset::fmt::Result {
         match self {
             PlayerId::PlayerFirst => f.write_fmt(format_args!("P1")),
             PlayerId::PlayerSecond => f.write_fmt(format_args!("P2")),
