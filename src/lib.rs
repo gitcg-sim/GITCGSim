@@ -64,24 +64,19 @@ pub mod game_state_wrapper;
 pub mod builder;
 
 /// Re-exports the `smallvec` crate
-pub mod smallvec {
-    pub use smallvec::*;
-}
+pub use smallvec;
 
 /// Re-exports the `rand` create
-pub mod rand {
-    pub use rand::*;
-}
+pub use rand;
 
 /// Re-exports the `enum_map` crate
-pub mod enum_map {
-    pub use enum_map::*;
-}
+pub use enum_map;
+
+/// Re-exports the `thiserror` create
+pub use thiserror;
 
 /// Re-exports the `enumset` crate
-pub mod enumset {
-    pub use enumset::*;
-}
+pub use enumset;
 
 pub(crate) mod iter_helpers;
 
