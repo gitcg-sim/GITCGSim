@@ -25,6 +25,7 @@ training = [
     "dep:ndarray"
 ]
 hidden_layer = []
+detailed_search_stats = []
 
 [dependencies]
 gitcg_sim = { path = ".." }

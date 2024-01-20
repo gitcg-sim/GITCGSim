@@ -21,10 +21,6 @@ codegen-units = 1
 lto = true
 
 [features]
-test = [
-    "serde",
-    "std"
-]
 default = [
     "std"
 ]
@@ -44,7 +40,6 @@ wasm = [
     "serde"
 ]
 no_static_status_impl = []
-detailed_search_stats = []
 
 [workspace]
 members = [
