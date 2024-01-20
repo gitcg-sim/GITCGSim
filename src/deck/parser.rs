@@ -1,18 +1,6 @@
-use enum_map::Enum;
-
 use super::*;
 
-use std::fs::File;
-use std::io::{self, BufRead};
-
-pub fn read_decklist_from_file(file: File) -> Result<Decklist, io::Error> {
-    let lines = io::BufReader::new(file).lines();
-    let mut lines_vec = vec![];
-    for line in lines {
-        lines_vec.push(line?);
-    }
-    Ok(Decklist::from_lines(lines_vec))
-}
+use enum_map::Enum;
 
 impl CharId {
     pub fn from_name(name: &str) -> Option<Self> {

@@ -1,4 +1,9 @@
-use std::{fs::File, path::PathBuf, str::FromStr};
+use std::{
+    fs::File,
+    io::{self, BufRead},
+    path::PathBuf,
+    str::FromStr,
+};
 use structopt::StructOpt;
 
 use gitcg_sim::{
@@ -17,6 +22,15 @@ use gitcg_sim_search::{
     training::policy::{search::PolicyNetworkBasedSearch, PolicyNetwork},
     Game, GameTreeSearch, SearchLimits, SearchResult,
 };
+
+fn read_decklist_from_file(file: File) -> Result<Decklist, io::Error> {
+    let lines = io::BufReader::new(file).lines();
+    let mut lines_vec = vec![];
+    for line in lines {
+        lines_vec.push(line?);
+    }
+    Ok(Decklist::from_lines(lines_vec))
+}
 
 #[derive(Debug, Copy, Clone)]
 pub enum SearchAlgorithm {
