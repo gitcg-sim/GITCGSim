@@ -23,7 +23,6 @@ lto = true
 [features]
 default = [
     "std",
-    "hash128"
 ]
 std = [
     "dep:thiserror"
