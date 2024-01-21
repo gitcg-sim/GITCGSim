@@ -7,10 +7,9 @@ use super::{
     card_defs::Cost,
     char_state::CharStates,
     command::*,
-    deal_dmg::DealDMG,
     dice_counter::DiceDistribution,
-    enums::{Element, Reaction},
     game_state::{AppliedEffectResult, AppliedEffectState},
+    tcg_model::*,
     StatusSpecModifier,
 };
 

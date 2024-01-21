@@ -3,7 +3,7 @@ use std::ops::Add;
 use crate::impl_as_slice;
 use gitcg_sim::{
     enum_map::Enum,
-    prelude::{card_defs::*, *},
+    prelude::{card_defs::*, tcg_model::*, *},
 };
 
 /// Number of characters to be included in features.

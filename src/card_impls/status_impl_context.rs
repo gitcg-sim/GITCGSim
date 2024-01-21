@@ -1,6 +1,6 @@
 use crate::cards::ids::*;
 use crate::status_impls::prelude::WeaponType;
-use crate::tcg_model::enums::SkillType;
+use crate::tcg_model::SkillType;
 use crate::types::{card_defs::*, command::*, game_state::*};
 
 impl<'a, 'b, 'c, 'v, D> StatusImplContext<'a, 'b, 'c, 'v, D> {

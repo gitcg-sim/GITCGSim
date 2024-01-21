@@ -8,7 +8,7 @@ use crate::{
     data_structures::ActionList,
     game_state_wrapper::*,
     reaction::check_reaction,
-    tcg_model::enums::*,
+    tcg_model::*,
     types::{
         game_state::{GameState, PlayerId},
         input::{Input, PlayerAction},

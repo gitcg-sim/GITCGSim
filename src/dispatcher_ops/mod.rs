@@ -2,7 +2,7 @@ use crate::std_subset::Vec;
 use crate::{
     cards::ids::{lookup::GetStatus, *},
     data_structures::{ActionList, CommandList},
-    tcg_model::enums::*,
+    tcg_model::*,
     types::{card_defs::*, command::*, dice_counter::*, game_state::*, input::*, status_impl::*, StatusSpecModifier},
 };
 

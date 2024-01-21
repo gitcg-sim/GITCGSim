@@ -59,7 +59,7 @@ use smallvec::SmallVec;
 
 use crate::cards::ids::*;
 
-use crate::tcg_model::enums::{Dice, Element};
+use crate::tcg_model::{Dice, Element};
 use crate::types::dice_counter::DiceCounter;
 use crate::types::game_state::*;
 

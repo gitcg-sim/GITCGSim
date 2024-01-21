@@ -12,8 +12,8 @@ use crate::cards::ids::*;
 
 use super::card_defs::Status;
 use super::command::{EventId, XEventMask};
-use super::enums::EquipSlot;
 use super::status_impl::RespondsTo;
+use super::tcg_model::EquipSlot;
 
 pub use super::applied_effect_state::AppliedEffectState;
 pub use crate::types::card_selection::*;

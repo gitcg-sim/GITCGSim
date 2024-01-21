@@ -1,9 +1,7 @@
 use crate::types::{
     card_defs::{Cost, Skill},
-    enums::{Element, SkillType},
+    tcg_model::*,
 };
-
-use crate::types::deal_dmg::{DealDMG, DealDMGType};
 
 pub const fn cost_elem(elem: Element, elem_cost: u8, unaligned_cost: u8, energy_cost: u8) -> Cost {
     Cost {

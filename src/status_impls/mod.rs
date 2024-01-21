@@ -1,11 +1,10 @@
 /// Import this module to import the `StatusImpl` trait and its related imports.
-pub mod prelude {
+pub(crate) mod prelude {
     pub use crate::{compose_status_impls, decl_status_impl_type, list8, trigger_event_impl};
     pub use enumset::{enum_set, EnumSet, EnumSetType};
 
-    pub use crate::ids::SkillId;
-    pub use crate::tcg_model::deal_dmg::*;
-    pub use crate::tcg_model::enums::*;
+    pub use crate::ids::*;
+    pub use crate::tcg_model::*;
     pub use crate::types::card_defs::Cost;
     pub use crate::types::char_state::CharStates;
     pub use crate::types::char_state::{AppliedEffectResult, AppliedEffectState};

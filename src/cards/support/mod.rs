@@ -4,8 +4,8 @@ use crate::status_impls::primitives::all::*;
 use crate::{decl_support_impl_type, list8};
 
 use crate::types::{
-    card_defs::*, card_impl::*, command::*, dice_counter::DiceDistribution, dice_counter::*, enums::*, game_state::*,
-    status_impl::*,
+    card_defs::*, card_impl::*, command::*, dice_counter::DiceDistribution, dice_counter::*, game_state::*,
+    status_impl::*, tcg_model::*,
 };
 
 use enumset::{enum_set, EnumSet};

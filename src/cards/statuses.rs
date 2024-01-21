@@ -1,7 +1,7 @@
 use enumset::{enum_set, EnumSet};
 
 use crate::decl_status_impl_type;
-use crate::types::{card_defs::*, command::*, deal_dmg::*, enums::*, game_state::*, status_impl::*};
+use crate::types::{card_defs::*, command::*, game_state::*, status_impl::*, tcg_model::*};
 
 pub mod crystallize_shield {
     use super::*;

@@ -7,25 +7,15 @@ use crate::{
     chc, cmd_list,
     data_structures::{capped_list::CappedLengthList8, CommandList, Vector},
     dispatcher::cmd_trigger_event,
-    dispatcher_ops::{DispatchError, ExecResult},
+    dispatcher_ops::{DispatchError, DispatchResult, ExecResult, NondetRequest},
     mutate_statuses, mutate_statuses_1, phc,
     reaction::find_reaction,
-    tcg_model::enums::*,
-    types::{
-        card_defs::*,
-        command::*,
-        deal_dmg::*,
-        dice_counter::DiceCounter,
-        game_state::*,
-        logging::Event,
-        status_impl::{RespondsTo, StatusImpl},
-    },
+    types::{card_defs::*, command::*, dice_counter::*, game_state::*, logging::Event, status_impl::*, tcg_model::*},
     view,
     zobrist_hash::ZobristHasher,
 };
 
 use super::exec_command_helpers::*;
-use super::types::{DispatchResult, NondetRequest};
 
 impl GameState {
     /// Attempt to pay the cost. Succeeds without cost payment if `ignore_costs` is true.

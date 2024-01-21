@@ -1,7 +1,7 @@
 use crate::builder::*;
 use crate::cards::ids::*;
 use crate::dispatcher_ops::*;
-use crate::types::{dice_counter::*, enums::*, game_state::*, input::*};
+use crate::types::{dice_counter::*, game_state::*, input::*, tcg_model::*};
 use crate::{elem_set, list8, vector};
 use enumset::enum_set;
 

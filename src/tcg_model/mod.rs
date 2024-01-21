@@ -1,3 +1,5 @@
-pub mod enums;
+mod enums;
 
-pub mod deal_dmg;
+mod deal_dmg;
+
+pub use {deal_dmg::*, enums::*};

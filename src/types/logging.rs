@@ -7,15 +7,8 @@ use crate::data_structures::Vector;
 use crate::cards::ids::*;
 
 use super::command::*;
-use super::deal_dmg::DealDMGType;
-use super::enums::EquipSlot;
 use super::input::{Input, PlayerAction};
-use super::{
-    card_defs::Cost,
-    deal_dmg::DealDMG,
-    enums::{Element, Reaction},
-    game_state::*,
-};
+use super::{card_defs::Cost, game_state::*, tcg_model::*};
 
 #[derive(Debug, Clone, Copy)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]

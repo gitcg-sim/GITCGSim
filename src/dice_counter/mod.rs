@@ -8,7 +8,7 @@ use smallvec::SmallVec;
 use crate::types::ElementSet;
 use crate::types::{
     card_defs::Cost,
-    enums::{Dice, Element},
+    tcg_model::{Dice, Element},
 };
 
 mod distribution;

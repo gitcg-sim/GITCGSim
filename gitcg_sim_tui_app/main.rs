@@ -21,7 +21,7 @@ use tui::{
 
 use gitcg_sim::{
     action_list,
-    prelude::{card_defs::*, *},
+    prelude::{card_defs::*, tcg_model::*, *},
     rand::{rngs::SmallRng, SeedableRng},
     smallvec::SmallVec,
 };

@@ -154,7 +154,7 @@ mod tests {
             builders::deal_elem_dmg,
             ids::{GetSkill, SkillId, StatusId},
         },
-        tcg_model::deal_dmg::DealDMGType,
+        tcg_model::DealDMGType,
         types::{
             dice_counter::DiceCounter,
             game_state::{PlayerId, StatusKey},

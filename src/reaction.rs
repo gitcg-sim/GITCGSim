@@ -4,7 +4,7 @@ use crate::status_impls::prelude::RelativeCharIdx;
 use crate::types::ElementSet;
 use crate::{
     cards::ids::*,
-    types::{command::Command, enums::*},
+    types::{command::Command, tcg_model::*},
 };
 
 macro_rules! any_order {

@@ -1,8 +1,7 @@
 use crate::cards::ids::*;
 use crate::data_structures::CommandList;
 use crate::status_impls::primitives::all::*;
-use crate::tcg_model::deal_dmg::*;
-use crate::types::{card_defs::*, command::*, enums::*, game_state::*, status_impl::*};
+use crate::types::{card_defs::*, command::*, game_state::*, status_impl::*, tcg_model::*};
 use crate::types::{card_impl::*, dice_counter::DiceCounter};
 use crate::{decl_status_impl_type, list8};
 use enumset::{enum_set, EnumSet};

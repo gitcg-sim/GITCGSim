@@ -1,18 +1,10 @@
 #![allow(non_snake_case)]
+use super::*;
 use enumset::{EnumSet, EnumSetType};
 
-use crate::data_structures::CommandList;
-use crate::tcg_model::enums::*;
-
-use super::types::DispatchResult;
 use crate::cmd_list;
-use crate::types::status_impl::RespondsTo;
-use crate::types::status_impl::StatusImpl;
+use crate::data_structures::CommandList;
 use crate::zobrist_hash::game_state_mutation::PlayerHashContext;
-use crate::{
-    cards::ids::{lookup::*, *},
-    types::{card_defs::*, command::*, deal_dmg::*, dice_counter::*, game_state::*},
-};
 
 // TODO remove
 #[derive(Debug, PartialOrd, Ord, EnumSetType)]
@@ -515,9 +507,9 @@ impl PlayerState {
 
 #[cfg(test)]
 mod tests {
-    use proptest::prelude::*;
+    use super::*;
 
-    use super::RelativeCharIdx;
+    use proptest::prelude::*;
 
     const N_CHARS: u8 = 15;
 

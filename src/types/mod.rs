@@ -3,14 +3,7 @@ pub mod by_player;
 pub mod card_defs;
 
 // TODO refactor out forwarding imports
-pub mod enums {
-    pub use crate::tcg_model::enums::*;
-}
-
-// TODO refactor out forwarding imports
-pub mod deal_dmg {
-    pub use crate::tcg_model::deal_dmg::*;
-}
+pub use crate::tcg_model;
 
 pub mod card_selection;
 
@@ -28,19 +21,19 @@ mod status_spec_modifier;
 pub use status_spec_modifier::*;
 pub(crate) mod status_impl;
 
-pub type ElementSet = enumset::EnumSet<crate::tcg_model::enums::Element>;
+pub type ElementSet = enumset::EnumSet<crate::tcg_model::Element>;
 
 #[macro_export]
 macro_rules! elem_set {
     () => {
         {
-            let es: enumset::EnumSet::<$crate::tcg_model::enums::Element> = enumset::EnumSet::new();
+            let es: enumset::EnumSet::<$crate::tcg_model::Element> = enumset::EnumSet::new();
             es
         }
     };
     ($($x: expr),+ $(,)?) => {
         {
-            let mut es: enumset::EnumSet::<$crate::tcg_model::enums::Element> = enumset::EnumSet::new();
+            let mut es: enumset::EnumSet::<$crate::tcg_model::Element> = enumset::EnumSet::new();
             $(
                 es.insert($x);
             )+

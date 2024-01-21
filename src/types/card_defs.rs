@@ -9,9 +9,8 @@ use crate::{
 use super::{
     card_impl::CardImpl,
     command::{Command, CommandContext},
-    deal_dmg::DealDMG,
-    enums::*,
     game_state::PlayerState,
+    tcg_model::*,
 };
 
 /// Specifications for a character card's passive effect, which applies a status on duel start.

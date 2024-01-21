@@ -1,7 +1,6 @@
-use crate::tcg_model::enums::{Element, Reaction};
+use crate::tcg_model::*;
 use crate::types::char_state::{AppliedEffectResult, CharState};
 use crate::types::command::*;
-use crate::types::deal_dmg::{DealDMG, DealDMGType};
 
 impl<'a, 'b, 'c, 'd, 'v, T> TriggerEventContext<'a, 'b, 'c, 'd, 'v, T> {
     #[inline]

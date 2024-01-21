@@ -3,10 +3,10 @@ use enumset::{enum_set, EnumSet};
 use crate::cards::ids::*;
 use crate::data_structures::CommandList;
 use crate::list8;
-use crate::types::deal_dmg::DealDMG;
-use crate::types::dice_counter::{DiceCounter, DiceDistribution};
-use crate::types::StatusSpecModifier;
-use crate::types::{card_defs::*, card_impl::*, command::*, enums::*, game_state::*, status_impl::*};
+use crate::types::{
+    card_defs::*, card_impl::*, command::*, dice_counter::*, game_state::*, status_impl::*, tcg_model::*,
+    StatusSpecModifier,
+};
 
 pub mod artifact;
 pub mod talent;

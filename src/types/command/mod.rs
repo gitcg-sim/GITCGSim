@@ -1,9 +1,11 @@
 use super::applied_effect_state::AppliedEffectState;
 use super::card_defs::{Card, CardType, Skill};
 use super::dice_counter::DiceCounter;
-use super::enums::EquipSlot;
 use super::game_state::*;
-use super::{deal_dmg::DealDMG, enums::Element, game_state::PlayerId};
+use super::{
+    game_state::PlayerId,
+    tcg_model::{DealDMG, Element, EquipSlot},
+};
 use crate::cards::ids::*;
 use crate::data_structures::{CommandList, ConstDefault, List8};
 pub use crate::dispatcher_ops::exec_command_helpers::RelativeCharIdx;
@@ -16,10 +18,7 @@ mod command_context;
 pub mod xevent {
     use enumset::EnumSet;
 
-    use crate::tcg_model::{
-        deal_dmg::DealDMGType,
-        enums::{Reaction, SkillType},
-    };
+    use crate::tcg_model::{DealDMGType, Reaction, SkillType};
 
     use super::*;
 

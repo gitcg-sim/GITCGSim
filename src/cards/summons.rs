@@ -1,6 +1,8 @@
 use crate::status_impls::primitives::all::*;
-use crate::tcg_model::deal_dmg::{DealDMG, DealDMGType};
-use crate::types::{card_defs::Status, enums::StatusAttachMode};
+use crate::types::{
+    card_defs::Status,
+    tcg_model::{DealDMG, DealDMGType, StatusAttachMode},
+};
 
 pub mod burning_flame {
     use super::*;
