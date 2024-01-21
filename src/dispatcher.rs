@@ -213,7 +213,10 @@ impl GameState {
             return false;
         }
 
-        let active_player_id = self.phase.active_player().unwrap();
+        let active_player_id = self
+            .phase
+            .active_player()
+            .expect("can_play_card: must have active player");
         if !self.ignore_costs {
             if !can_pay_dice_cost(player, &card.cost, CostType::Card(card_id)) {
                 return false;
@@ -789,7 +792,7 @@ impl GameState {
                     CommandContext::new(player_id, CommandSource::Event, None),
                     Command::ApplyCharacterStatus(status_id, char_idx.into()),
                 )])
-                .unwrap();
+                .expect("apply_passives: myst have no errors");
             }
         }
     }
@@ -807,8 +810,7 @@ impl GameState {
     }
 
     pub fn to_move_player(&self) -> Option<PlayerId> {
-        if self.pending_cmds.is_some() {
-            let pc = self.pending_cmds.clone().unwrap();
+        if let Some(pc) = self.pending_cmds.as_ref() {
             return pc.suspended_state.to_move_player();
         }
 
@@ -955,7 +957,9 @@ impl GameState {
                         first_active_player: active_player,
                         roll_phase_state: RollPhaseState::Drawing,
                     });
-                    Ok(DispatchResult::NondetRequest(self.get_nondet_request().unwrap()))
+                    Ok(DispatchResult::NondetRequest(
+                        self.get_nondet_request().expect("get_nondet_request"),
+                    ))
                 }
             },
             RollPhaseState::Drawing => {
@@ -968,7 +972,9 @@ impl GameState {
                             roll_phase_state: RollPhaseState::Rolling,
                         });
                         // TODO effects that change reroll counts
-                        Ok(DispatchResult::NondetRequest(self.get_nondet_request().unwrap()))
+                        Ok(DispatchResult::NondetRequest(
+                            self.get_nondet_request().expect("get_nondet_request"),
+                        ))
                     }
                     Input::NondetResult(..) => Err(DispatchError::NondetResultInvalid),
                     Input::FromPlayer(..) | Input::NoAction => Err(DispatchError::NondetResultRequired),
@@ -984,7 +990,7 @@ impl GameState {
                         (CommandContext::new_event(active_player), Command::HandOverPlayer),
                     ])
                     .map(|opt| self.handle_post_exec(opt))
-                    .unwrap();
+                    .expect("advance_roll_phase: Rolling: failed to execute initialize commands");
 
                     if self.players.0.is_tactical() {
                         self.perform_pseudo_elemental_tuning(PlayerId::PlayerFirst);

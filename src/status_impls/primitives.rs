@@ -360,7 +360,7 @@ pub mod prepared_skill {
 
         fn trigger_event(&self, e: &mut TriggerEventContext<EventId>) -> Option<AppliedEffectResult> {
             let EventId::Switched = e.event_id else { return None };
-            if e.status_key.char_idx().unwrap() != e.active_char_idx() {
+            if e.status_key.char_idx().expect("PreparedSkill: must have char_idx") != e.active_char_idx() {
                 Some(AppliedEffectResult::DeleteSelf)
             } else {
                 None

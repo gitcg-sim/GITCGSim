@@ -1,4 +1,5 @@
 #![cfg_attr(all(not(test), not(feature = "std")), no_std)]
+#![cfg_attr(not(test), forbid(clippy::unwrap_used))]
 #![doc = include_str!("../README.md")]
 
 #[macro_export]
@@ -17,7 +18,7 @@ macro_rules! impl_display_from_debug {
 
 pub(crate) mod std_subset {
     pub use core::{cmp, hash, iter, marker, mem, ops};
-    pub use smallvec::alloc::{boxed::Box, string::String, vec, vec::Vec, collections, fmt, slice, sync};
+    pub use smallvec::alloc::{boxed::Box, collections, fmt, slice, string::String, sync, vec, vec::Vec};
 }
 
 pub(crate) mod card_impls;

@@ -302,7 +302,7 @@ impl Enum for Phase {
             .copied()
             .enumerate()
             .find(|(_, x)| *x == self)
-            .unwrap()
+            .expect("Phase::into_usize: must have result")
             .0
     }
 }
@@ -383,7 +383,10 @@ impl PlayerState {
             v.push((*card_id, 0_u8));
         }
         for card_id in hand {
-            v.iter_mut().find(|(c, _)| *card_id == *c).unwrap().1 += 1;
+            v.iter_mut()
+                .find(|(c, _)| *card_id == *c)
+                .expect("tally_hand: card_id does not exist")
+                .1 += 1;
         }
         v
     }

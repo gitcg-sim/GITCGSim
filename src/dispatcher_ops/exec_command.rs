@@ -946,7 +946,10 @@ impl GameState {
             let player = self.players.get_mut(ctx.src_player_id);
             log.log(Event::ApplyCharStatus(
                 ctx.src_player_id,
-                (char_idx, player.try_get_character(char_idx).unwrap().char_id),
+                (
+                    char_idx,
+                    player.try_get_character(char_idx).expect("try_get_character").char_id,
+                ),
                 status_id,
             ));
         }
@@ -976,7 +979,10 @@ impl GameState {
         if log.enabled {
             log.log(Event::Equip(
                 ctx.src_player_id,
-                (char_idx, player.try_get_character(char_idx).unwrap().char_id),
+                (
+                    char_idx,
+                    player.try_get_character(char_idx).expect("try_get_character").char_id,
+                ),
                 slot,
                 Some(status_id),
             ));
@@ -1011,7 +1017,10 @@ impl GameState {
         if log.enabled {
             log.log(Event::Equip(
                 ctx.src_player_id,
-                (char_idx, player.try_get_character(char_idx).unwrap().char_id),
+                (
+                    char_idx,
+                    player.try_get_character(char_idx).expect("try_get_character").char_id,
+                ),
                 EquipSlot::Talent,
                 status_id,
             ));
@@ -1230,7 +1239,7 @@ impl GameState {
             queue.push_back(*c);
         }
         while !queue.is_empty() {
-            let (ctx, cmd) = queue.pop_front().unwrap();
+            let (ctx, cmd) = queue.pop_front().expect("queue is empty");
             match self.exec(&ctx, cmd) {
                 ExecResult::Return(winner) => return Ok(Some(winner)),
                 ExecResult::Suspend(ss, cmds) => {

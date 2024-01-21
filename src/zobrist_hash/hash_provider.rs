@@ -180,7 +180,7 @@ impl HashProvider {
             // Cryo + Dendro
             7
         } else if elems.len() == 1 {
-            let e = elems.iter().next().unwrap();
+            let e = elems.iter().next().expect("applied_elements: first elem should exist");
             e.to_index()
         } else {
             panic!("applied_elements: Invalid");

@@ -115,8 +115,12 @@ impl GameState {
         }
     }
 
+    /// Panics: If `self.pending_cmds` is None
     pub(crate) fn resolve_pending_cmds(&mut self, input: Input) -> Result<Option<DispatchResult>, DispatchError> {
-        let pc = self.pending_cmds.take().unwrap();
+        let pc = self
+            .pending_cmds
+            .take()
+            .expect("resolve_pending_cmds: must have pending_cmds");
         let mut c = cmd_list![];
         match pc.suspended_state {
             SuspendedState::PostDeathSwitch { player_id, .. } => {

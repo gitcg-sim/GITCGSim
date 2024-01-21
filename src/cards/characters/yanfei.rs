@@ -67,7 +67,10 @@ pub mod brilliance {
     trigger_event_impl!(BrillianceAttachScarletSeal, [EndPhase], |e| {
         e.out_cmds.push((
             *e.ctx_for_dmg,
-            Command::ApplyCharacterStatus(StatusId::ScarletSeal, e.status_key.char_idx().unwrap().into()),
+            Command::ApplyCharacterStatus(
+                StatusId::ScarletSeal,
+                e.status_key.char_idx().expect("status must have char_idx").into(),
+            ),
         ));
         Some(AppliedEffectResult::NoChange)
     });

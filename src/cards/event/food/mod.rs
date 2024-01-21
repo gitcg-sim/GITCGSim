@@ -30,7 +30,7 @@ impl CardImpl for FoodCardImpl {
         for eff in cic.card.effects.to_vec_copy() {
             commands.push((*ctx, eff))
         }
-        if let CardSelection::OwnCharacter(i) = cic.selection.unwrap() {
+        if let CardSelection::OwnCharacter(i) = cic.selection.expect("FoodCardImpl: must have selection") {
             commands.push((*ctx, Command::ApplyCharacterStatus(StatusId::Satiated, i.into())));
         }
     }
