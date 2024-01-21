@@ -63,10 +63,10 @@ use crate::tcg_model::{Dice, Element};
 use crate::types::dice_counter::DiceCounter;
 use crate::types::game_state::*;
 
-#[cfg(HASH128)]
+#[cfg(feature = "hash128")]
 pub type HashValue = u128;
 
-#[cfg(not(HASH128))]
+#[cfg(not(feature = "hash128"))]
 pub type HashValue = u64;
 
 /// Module containing mutation methods for `GameState`, `PlayerState` and `CharState`

@@ -98,14 +98,14 @@ macro_rules! by_enum {
 impl HashProvider {
     pub fn new() -> Self {
         let mut rng = SmallRng::seed_from_u64(SEED);
-        #[cfg(HASH128)]
+        #[cfg(feature = "hash128")]
         macro_rules! random {
             () => {
                 ((rng.next_u64() as u128) << 64) | (rng.next_u64() as u128)
             };
         }
 
-        #[cfg(not(HASH128))]
+        #[cfg(not(feature = "hash128"))]
         macro_rules! random {
             () => {
                 rng.next_u64()

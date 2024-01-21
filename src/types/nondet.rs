@@ -138,7 +138,16 @@ impl ZobristHashable for StandardNondetHandlerState {
         self.decks.0.mask.hash(&mut h);
         self.decks.1.mask.hash(&mut h);
         let mut rng = self.rng.clone();
-        h.finish() ^ rng.next_u64()
+        #[cfg(feature = "hash128")]
+        {
+            let mut bytes = [0u8; 16];
+            rng.fill_bytes(&mut bytes);
+            (h.finish() as u128) ^ u128::from_be_bytes(bytes)
+        }
+        #[cfg(not(feature = "hash128"))]
+        {
+            h.finish() ^ rng.next_u64()
+        }
     }
 }
 

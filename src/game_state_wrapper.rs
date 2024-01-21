@@ -82,7 +82,7 @@ pub fn new_standard_game(
 
 impl<S: NondetState> ZobristHashable for GameStateWrapper<S> {
     #[inline]
-    fn zobrist_hash(&self) -> u64 {
+    fn zobrist_hash(&self) -> HashValue {
         self.game_state.zobrist_hash()
     }
 }

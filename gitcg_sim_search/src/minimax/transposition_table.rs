@@ -30,11 +30,18 @@ impl<E: Clone + Sync + Send, A: Clone + Sync + Send> TTEntry<E, A> {
 }
 
 #[derive(Copy, Clone, Hash, PartialEq, Eq, PartialOrd, Ord)]
-pub struct TTKey(pub u64);
+pub struct TTKey(pub HashValue);
 
 impl From<TTKey> for usize {
     fn from(value: TTKey) -> Self {
-        value.0 as usize
+        #[cfg(feature = "hash128")]
+        {
+            (value.0 % (1 + (usize::MAX as u128))) as usize
+        }
+        #[cfg(not(feature = "hash128"))]
+        {
+            value.0 as usize
+        }
     }
 }
 

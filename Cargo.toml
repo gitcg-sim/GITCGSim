@@ -22,7 +22,8 @@ lto = true
 
 [features]
 default = [
-    "std"
+    "std",
+    "hash128"
 ]
 std = [
     "dep:thiserror"
@@ -39,6 +40,7 @@ wasm = [
     "dep:wasm-bindgen",
     "serde"
 ]
+hash128 = []
 no_static_status_impl = []
 
 [workspace]
