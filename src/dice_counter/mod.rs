@@ -11,7 +11,8 @@ use crate::types::{
     enums::{Dice, Element},
 };
 
-pub mod distribution;
+mod distribution;
+pub use distribution::{DiceDeterminization, DiceDistribution};
 
 pub mod builder;
 

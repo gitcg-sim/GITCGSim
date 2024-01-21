@@ -22,10 +22,7 @@ use crate::{
 
 use super::{
     command::SummonRandomSpec,
-    dice_counter::{
-        distribution::{DiceDeterminization, DiceDistribution},
-        DiceCounter,
-    },
+    dice_counter::{DiceCounter, DiceDeterminization, DiceDistribution},
     game_state::{GameState, PlayerId},
     input::{Input, NondetResult},
 };

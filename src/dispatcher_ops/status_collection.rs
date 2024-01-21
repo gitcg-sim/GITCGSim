@@ -1,13 +1,6 @@
-use crate::cards::ids::*;
+use super::*;
+
 use crate::status_impls::*;
-use crate::std_subset::Vec;
-use crate::types::command::XEventMask;
-use crate::types::status_impl::StatusImpl;
-use crate::types::StatusSpecModifier;
-use crate::{
-    cards::ids::lookup::GetStatus,
-    types::{card_defs::Status, command::EventId, enums::EquipSlot, game_state::*, status_impl::RespondsTo},
-};
 use enumset::enum_set;
 use smallvec::SmallVec;
 

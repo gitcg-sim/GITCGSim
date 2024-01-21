@@ -11,7 +11,7 @@ use crate::tcg_model::enums::*;
 use crate::types::card_defs::{Cost, SkillImpl};
 use crate::types::char_state::{AppliedEffectResult, AppliedEffectState};
 use crate::types::command::*;
-use crate::types::dice_counter::distribution::DiceDistribution;
+use crate::types::dice_counter::DiceDistribution;
 use crate::types::game_state::{CardSelectionSpec, PlayerState};
 use crate::types::status_impl::{RespondsTo, StatusImpl};
 use crate::types::StatusSpecModifier;

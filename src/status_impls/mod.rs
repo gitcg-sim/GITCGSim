@@ -4,16 +4,15 @@ pub mod prelude {
     pub use enumset::{enum_set, EnumSet, EnumSetType};
 
     pub use crate::ids::SkillId;
-    pub use crate::types::status_impl::RespondsTo;
-    pub use crate::types::StatusSpecModifier;
-    pub use crate::types::{command::*, status_impl::StatusImpl};
-
     pub use crate::tcg_model::deal_dmg::*;
     pub use crate::tcg_model::enums::*;
     pub use crate::types::card_defs::Cost;
     pub use crate::types::char_state::CharStates;
     pub use crate::types::char_state::{AppliedEffectResult, AppliedEffectState};
-    pub use crate::types::dice_counter::distribution::DiceDistribution;
+    pub use crate::types::dice_counter::DiceDistribution;
+    pub use crate::types::status_impl::RespondsTo;
+    pub use crate::types::StatusSpecModifier;
+    pub use crate::types::{command::*, status_impl::StatusImpl};
 }
 
 pub mod composition;

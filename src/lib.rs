@@ -99,10 +99,7 @@ pub mod prelude {
     pub use crate::ids::*;
     pub use crate::types::by_player::ByPlayer;
     pub use crate::types::deal_dmg::{DealDMG, DealDMGType};
-    pub use crate::types::dice_counter::{
-        distribution::{DiceDeterminization, DiceDistribution},
-        DiceCounter, ElementPriority,
-    };
+    pub use crate::types::dice_counter::{DiceCounter, DiceDeterminization, DiceDistribution, ElementPriority};
     pub use crate::types::game_state::{
         AppliedEffectState, CardSelection, CharState, GameState, PendingCommands, Phase, PlayerFlag, PlayerId,
         PlayerState, StatusCollection, SuspendedState,

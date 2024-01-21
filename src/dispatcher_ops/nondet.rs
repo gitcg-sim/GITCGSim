@@ -1,7 +1,4 @@
-use crate::{
-    data_structures::CommandList,
-    types::{command::*, game_state::*, input::*},
-};
+use super::*;
 
 impl GameState {
     pub(crate) fn nondet_result_to_commands(

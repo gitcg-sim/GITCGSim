@@ -8,7 +8,7 @@ use super::{
     char_state::CharStates,
     command::*,
     deal_dmg::DealDMG,
-    dice_counter::distribution::DiceDistribution,
+    dice_counter::DiceDistribution,
     enums::{Element, Reaction},
     game_state::{AppliedEffectResult, AppliedEffectState},
     StatusSpecModifier,
