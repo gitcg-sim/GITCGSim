@@ -31,7 +31,7 @@ type RngBytes = [u64; 4];
 #[cfg(not(target_pointer_width = "64"))]
 type RngBytes = [u32; 4];
 
-// Here is the internal representation of SmallRng the rand-0.5.5 package
+// Here is the internal representation of SmallRng the rand-0.8.5 package
 //
 // #[cfg(target_pointer_width = "64")]
 // type Rng = super::xoshiro256plusplus::Xoshiro256PlusPlus;
