@@ -4,7 +4,7 @@ use enumset::{EnumSet, EnumSetType};
 
 use crate::cmd_list;
 use crate::data_structures::CommandList;
-use crate::zobrist_hash::game_state_mutation::PlayerHashContext;
+use crate::zobrist_hash::PlayerHashContext;
 
 // TODO remove
 #[derive(Debug, PartialOrd, Ord, EnumSetType)]
@@ -102,7 +102,7 @@ macro_rules! mutate_statuses {
 #[macro_export]
 macro_rules! mutate_statuses_1 {
     ($c: expr, $player: ident, | $sc: ident | $closure: block) => {{
-        let (h, player_id): $crate::zobrist_hash::game_state_mutation::PlayerHashContext = $c;
+        let (h, player_id): $crate::zobrist_hash::PlayerHashContext = $c;
         let $sc: &mut $crate::types::game_state::StatusCollection = &mut $player.status_collection;
         $sc.zobrist_hash(h, player_id);
         let _r = $closure;

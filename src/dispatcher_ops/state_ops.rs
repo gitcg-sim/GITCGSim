@@ -1,9 +1,6 @@
 use super::*;
 
-use super::update_dice_distribution;
-use crate::phc;
-use crate::status_impls::prelude::Cost;
-use crate::zobrist_hash::game_state_mutation::PlayerHashContext;
+use crate::{phc, status_impls::prelude::Cost, zobrist_hash::PlayerHashContext};
 
 impl CharState {
     #[inline]

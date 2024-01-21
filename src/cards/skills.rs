@@ -1,6 +1,6 @@
 use crate::types::card_defs::Skill;
 
-use super::ids::{lookup::GetSkill, *};
+use super::ids::*;
 
 impl GetSkill for SkillId {
     fn get_skill(self) -> &'static Skill {

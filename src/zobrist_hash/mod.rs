@@ -81,11 +81,13 @@ pub type HashValue = u64;
 /// let recomputed_hash = { game_state.rehash(); game_state.zobrist_hash() };
 /// assert_eq!(incremental_hash, recomputed_hash);
 /// ```
-pub(crate) mod game_state_mutation;
+mod game_state_mutation;
 
-pub(crate) mod hash_provider;
+pub(crate) use game_state_mutation::PlayerHashContext;
 
-pub(crate) use hash_provider::*;
+mod hash_provider;
+
+pub(crate) use hash_provider::{HashProvider, HASH_PROVIDER};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]

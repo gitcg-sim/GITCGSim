@@ -7,7 +7,7 @@ use crate::data_structures::CommandList;
 use crate::status_impls::prelude::*;
 use crate::status_impls::primitives::all::*;
 
-use super::ids::lookup::GetCharCard;
+use super::ids::GetCharCard;
 
 pub mod albedo;
 pub mod amber;

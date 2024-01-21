@@ -22,7 +22,7 @@ macro_rules! __mapping {
     }};
 }
 
-pub mod traits {
+mod traits {
     use crate::types::{
         card_defs::{Card, CharCard, Skill, Status},
         card_impl::CardImpl,

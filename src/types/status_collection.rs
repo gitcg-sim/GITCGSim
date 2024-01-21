@@ -4,20 +4,16 @@ use crate::std_subset::fmt::Debug;
 use enum_map::Enum;
 use enumset::EnumSet;
 
-use crate::cards::ids::lookup::GetStatus;
-use crate::cards::ids::SupportId;
 use crate::data_structures::StatusEntryList;
-
-use crate::cards::ids::*;
 
 use super::card_defs::Status;
 use super::command::{EventId, XEventMask};
 use super::status_impl::RespondsTo;
 use super::tcg_model::EquipSlot;
+use crate::cards::ids::*;
 
 pub use super::applied_effect_state::AppliedEffectState;
-pub use crate::types::card_selection::*;
-pub use crate::types::char_state::*;
+pub use crate::types::{card_selection::*, char_state::*};
 
 #[derive(Debug, Clone, Default)]
 #[cfg_attr(
