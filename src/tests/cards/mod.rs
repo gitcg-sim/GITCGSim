@@ -1,3 +1,5 @@
+use crate::prelude::ByPlayer;
+
 use super::*;
 
 pub mod equipment;
@@ -195,10 +197,10 @@ fn strategize() {
         PlayerId::PlayerFirst,
         PlayerAction::PlayCard(CardId::Strategize, None),
     )]);
-    gs.advance(Input::NondetResult(NondetResult::ProvideCards(
+    gs.advance(Input::NondetResult(NondetResult::ProvideCards(ByPlayer(
         list8![CardId::Paimon],
         list8![],
-    )))
+    ))))
     .unwrap();
     assert_eq!(vec![CardId::IHaventLostYet, CardId::Paimon], gs.players.0.hand.to_vec());
 }

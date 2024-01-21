@@ -21,6 +21,7 @@ use crate::{
 };
 
 use super::{
+    by_player::ByPlayer,
     command::SummonRandomSpec,
     dice_counter::{DiceCounter, DiceDeterminization, DiceDistribution},
     game_state::{GameState, PlayerId},
@@ -44,10 +45,10 @@ pub struct EmptyNondetState();
 impl NondetState for EmptyNondetState {
     fn sample_nondet(&mut self, _game_state: &GameState, req: NondetRequest) -> NondetResult {
         match req {
-            NondetRequest::DrawCards(_, _) => NondetResult::ProvideCards(list8![], list8![]),
-            NondetRequest::RollDice(_, _) => NondetResult::ProvideDice(DiceCounter::EMPTY, DiceCounter::EMPTY),
-            NondetRequest::DrawCardsOfType(_, _, _) => NondetResult::ProvideCards(list8![], list8![]),
-            NondetRequest::SummonRandom(_) => NondetResult::ProvideSummonIds(list8![]),
+            NondetRequest::DrawCards(..) => NondetResult::ProvideCards(Default::default()),
+            NondetRequest::RollDice(..) => NondetResult::ProvideDice(Default::default()),
+            NondetRequest::DrawCardsOfType(..) => NondetResult::ProvideCards(Default::default()),
+            NondetRequest::SummonRandom(..) => NondetResult::ProvideSummonIds(Default::default()),
         }
     }
 }
@@ -163,26 +164,32 @@ impl NondetState for StandardNondetHandlerState {
 
     fn sample_nondet(&mut self, _game_state: &GameState, req: NondetRequest) -> NondetResult {
         match req {
-            NondetRequest::DrawCards(a, b) => NondetResult::ProvideCards(
-                self.draw_cards(PlayerId::PlayerFirst, a),
-                self.draw_cards(PlayerId::PlayerSecond, b),
+            NondetRequest::DrawCards(ByPlayer(a, b)) => NondetResult::ProvideCards(
+                (
+                    self.draw_cards(PlayerId::PlayerFirst, a),
+                    self.draw_cards(PlayerId::PlayerSecond, b),
+                )
+                    .into(),
             ),
             NondetRequest::DrawCardsOfType(player_id, count, card_type) => {
                 if card_type.is_some() {
-                    todo!()
+                    todo!("TODO implement DrawCardsOfType on a specific card type")
                 }
                 match player_id {
                     PlayerId::PlayerFirst => {
-                        NondetResult::ProvideCards(self.draw_cards(PlayerId::PlayerFirst, count), list8![])
+                        NondetResult::ProvideCards((self.draw_cards(PlayerId::PlayerFirst, count), list8![]).into())
                     }
                     PlayerId::PlayerSecond => {
-                        NondetResult::ProvideCards(list8![], self.draw_cards(PlayerId::PlayerSecond, count))
+                        NondetResult::ProvideCards((list8![], self.draw_cards(PlayerId::PlayerSecond, count)).into())
                     }
                 }
             }
-            NondetRequest::RollDice(d1, d2) => NondetResult::ProvideDice(
-                self.roll_dice(PlayerId::PlayerFirst, d1),
-                self.roll_dice(PlayerId::PlayerSecond, d2),
+            NondetRequest::RollDice(ByPlayer(d1, d2)) => NondetResult::ProvideDice(
+                (
+                    self.roll_dice(PlayerId::PlayerFirst, d1),
+                    self.roll_dice(PlayerId::PlayerSecond, d2),
+                )
+                    .into(),
             ),
             NondetRequest::SummonRandom(spec) => NondetResult::ProvideSummonIds(spec.sample(&mut self.rng)),
         }

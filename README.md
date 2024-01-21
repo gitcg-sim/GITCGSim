@@ -137,17 +137,20 @@ game_state.advance(Input::NoAction).unwrap();
 // Add cards to both players hands
 game_state
     .advance(Input::NondetResult(NondetResult::ProvideCards(
-        list8![CardId::LeaveItToMe, CardId::Starsigns],
-        list8![CardId::Strategize, CardId::Paimon],
+        // .into() constructs an instance of ByPlayer from a tuple
+        (
+            list8![CardId::LeaveItToMe, CardId::Starsigns],
+            list8![CardId::Strategize, CardId::Paimon],
+        ).into()
     )))
     .unwrap();
 
 // Add 8 Omni dice to both players
 game_state
-    .advance(Input::NondetResult(NondetResult::ProvideDice(
+    .advance(Input::NondetResult(NondetResult::ProvideDice((
         DiceCounter::omni(8),
         DiceCounter::omni(8),
-    )))
+    ).into())))
     .unwrap();
 
 println!("{:?}", game_state.available_actions());

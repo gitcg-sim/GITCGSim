@@ -204,8 +204,7 @@ fn liben() {
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
         Input::NoAction,
         Input::NondetResult(NondetResult::ProvideCards(
-            list8![CardId::BlankCard, CardId::BlankCard],
-            list8![],
+            (list8![CardId::BlankCard, CardId::BlankCard], list8![]).into(),
         )),
     ]);
     assert!(gs

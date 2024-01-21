@@ -10,6 +10,7 @@ use crate::{
         *,
     },
     mutate_statuses, phc,
+    prelude::ByPlayer,
     types::{
         card_defs::Cost,
         card_impl::{CardImpl, CardImplContext},
@@ -840,11 +841,14 @@ impl GameState {
                 RollPhaseState::Start => None,
                 RollPhaseState::Drawing => {
                     let n = if self.round_number == 1 { 5 } else { 2 };
-                    Some(NondetRequest::DrawCards(n, n))
+                    Some(NondetRequest::DrawCards((n, n).into()))
                 }
                 RollPhaseState::Rolling => Some(NondetRequest::RollDice(
-                    self.get_player(PlayerId::PlayerFirst).get_dice_distribution(),
-                    self.get_player(PlayerId::PlayerSecond).get_dice_distribution(),
+                    (
+                        self.get_player(PlayerId::PlayerFirst).get_dice_distribution(),
+                        self.get_player(PlayerId::PlayerSecond).get_dice_distribution(),
+                    )
+                        .into(),
                 )),
             },
             _ => None,
@@ -964,7 +968,7 @@ impl GameState {
             },
             RollPhaseState::Drawing => {
                 match input {
-                    Input::NondetResult(NondetResult::ProvideCards(cards1, cards2)) => {
+                    Input::NondetResult(NondetResult::ProvideCards(ByPlayer(cards1, cards2))) => {
                         self.add_cards_to_hand(PlayerId::PlayerFirst, &cards1);
                         self.add_cards_to_hand(PlayerId::PlayerSecond, &cards2);
                         self.set_phase(Phase::RollPhase {
@@ -981,7 +985,7 @@ impl GameState {
                 }
             }
             RollPhaseState::Rolling => match input {
-                Input::NondetResult(NondetResult::ProvideDice(dice1, dice2)) => {
+                Input::NondetResult(NondetResult::ProvideDice(ByPlayer(dice1, dice2))) => {
                     self.players.0.add_dice(phc!(self, PlayerId::PlayerFirst), &dice1);
                     self.players.1.add_dice(phc!(self, PlayerId::PlayerSecond), &dice2);
                     self.exec_commands(&cmd_list![

@@ -1,3 +1,5 @@
+use crate::types::by_player::ByPlayer;
+
 use super::*;
 
 impl GameState {
@@ -9,7 +11,7 @@ impl GameState {
         let ctx1 = CommandContext::new(PlayerId::PlayerFirst, CommandSource::Event, None);
         let ctx2 = CommandContext::new(PlayerId::PlayerSecond, CommandSource::Event, None);
         match res {
-            NondetResult::ProvideDice(d1, d2) => {
+            NondetResult::ProvideDice(ByPlayer(d1, d2)) => {
                 if !d1.is_empty() {
                     cmds.push((ctx1, Command::AddDice(d1)))
                 }
@@ -17,7 +19,7 @@ impl GameState {
                     cmds.push((ctx2, Command::AddDice(d2)))
                 }
             }
-            NondetResult::ProvideCards(c1, c2) => {
+            NondetResult::ProvideCards(ByPlayer(c1, c2)) => {
                 if !c1.is_empty() {
                     cmds.push((ctx1, Command::AddCardsToHand(c1)))
                 }

@@ -16,12 +16,14 @@ fn _initial_gs() -> GameState {
     gs.advance_multiple([
         Input::NoAction,
         Input::NondetResult(NondetResult::ProvideCards(
-            list8![CardId::Paimon, CardId::BrokenRimesEcho, CardId::Strategize],
-            list8![CardId::DawnWinery, CardId::AdeptusTemptation, CardId::Strategize],
+            (
+                list8![CardId::Paimon, CardId::BrokenRimesEcho, CardId::Strategize],
+                list8![CardId::DawnWinery, CardId::AdeptusTemptation, CardId::Strategize],
+            )
+                .into(),
         )),
         Input::NondetResult(NondetResult::ProvideDice(
-            DiceCounter::omni(8),
-            DiceCounter::elem(Element::Cryo, 8),
+            (DiceCounter::omni(8), DiceCounter::elem(Element::Cryo, 8)).into(),
         )),
         Input::FromPlayer(
             PlayerId::PlayerFirst,
@@ -31,7 +33,9 @@ fn _initial_gs() -> GameState {
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::SwitchCharacter(1)),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::SwitchCharacter(2)),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::PlayCard(CardId::Strategize, None)),
-        Input::NondetResult(NondetResult::ProvideCards(list8![CardId::IHaventLostYet], list8![])),
+        Input::NondetResult(NondetResult::ProvideCards(
+            (list8![CardId::IHaventLostYet], list8![]).into(),
+        )),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::NiwabiFireDance)),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::PlayCard(CardId::DawnWinery, None)),
     ]);

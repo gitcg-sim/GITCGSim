@@ -21,8 +21,8 @@ proptest! {
         assert_eq!(a, gs.get_player(PlayerId::PlayerFirst).active_char_idx);
         assert_eq!(b, gs.get_player(PlayerId::PlayerSecond).active_char_idx);
         gs.advance(Input::NoAction).unwrap();
-        gs.advance(Input::NondetResult(NondetResult::ProvideCards(list8![], list8![]))).unwrap();
-        gs.advance(Input::NondetResult(NondetResult::ProvideDice(Default::default(), Default::default()))).unwrap();
+        gs.advance(Input::NondetResult(NondetResult::ProvideCards(Default::default()))).unwrap();
+        gs.advance(Input::NondetResult(NondetResult::ProvideDice(Default::default()))).unwrap();
 
         assert_eq!(Some(PlayerId::PlayerFirst), gs.to_move_player());
         assert_eq!(a, gs.get_player(PlayerId::PlayerFirst).active_char_idx);

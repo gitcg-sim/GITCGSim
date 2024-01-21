@@ -30,13 +30,10 @@ impl GameState {
     /// Panics: If `advance` causes an error.
     fn advance_roll_phase_no_dice(self: &mut GameState) {
         self.advance(NO_ACTION).unwrap();
-        self.advance(Input::NondetResult(NondetResult::ProvideCards(list8![], list8![])))
+        self.advance(Input::NondetResult(NondetResult::ProvideCards(Default::default())))
             .unwrap();
-        self.advance(Input::NondetResult(NondetResult::ProvideDice(
-            DiceCounter::EMPTY,
-            DiceCounter::EMPTY,
-        )))
-        .unwrap();
+        self.advance(Input::NondetResult(NondetResult::ProvideDice(Default::default())))
+            .unwrap();
     }
 
     /// Panics: If `advance` causes an error.

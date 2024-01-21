@@ -4,8 +4,8 @@ use crate::{
     data_structures::{capped_list::CappedLengthList8, ActionList, CommandList, Vector},
     tcg_model::*,
     types::{
-        card_defs::*, command::*, dice_counter::*, game_state::*, input::*, logging::Event, status_impl::*,
-        StatusSpecModifier,
+        by_player::ByPlayer, card_defs::*, command::*, dice_counter::*, game_state::*, input::*, logging::Event,
+        status_impl::*, StatusSpecModifier,
     },
     zobrist_hash::ZobristHasher,
 };

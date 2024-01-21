@@ -1,3 +1,4 @@
+use super::by_player::ByPlayer;
 use super::dice_counter::DiceCounter;
 use super::game_state::{CardSelection, CharSelection, PlayerId};
 use crate::cards::ids::*;
@@ -18,10 +19,8 @@ pub enum PlayerAction {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum NondetResult {
-    // TODO use ByPlayer
-    ProvideDice(DiceCounter, DiceCounter),
-    // TODO use ByPlayer
-    ProvideCards(List8<CardId>, List8<CardId>),
+    ProvideDice(ByPlayer<DiceCounter>),
+    ProvideCards(ByPlayer<List8<CardId>>),
     ProvideSummonIds(List8<SummonId>),
 }
 

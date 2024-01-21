@@ -1,12 +1,11 @@
 use super::*;
 
-// TODO refactor to use ByPlayer
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum NondetRequest {
-    DrawCards(u8, u8),
+    DrawCards(ByPlayer<u8>),
     DrawCardsOfType(PlayerId, u8, Option<CardType>),
-    RollDice(DiceDistribution, DiceDistribution),
+    RollDice(ByPlayer<DiceDistribution>),
     SummonRandom(SummonRandomSpec),
 }
 

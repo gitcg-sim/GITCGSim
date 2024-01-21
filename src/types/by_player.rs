@@ -1,7 +1,6 @@
 use super::game_state::PlayerId;
 use crate::std_subset::ops::{Index, IndexMut};
 
-// TODO refactor rest of the code to use this struct
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct ByPlayer<T>(pub T, pub T);
