@@ -19,6 +19,7 @@ strip = true
 opt-level = 3
 codegen-units = 1
 lto = true
+panic = 'abort'
 
 [features]
 default = [
@@ -64,7 +65,7 @@ enumset = { version = "1.0.*", features = [] }
 getrandom = { version = "0.2" }
 lazy_static = { version = "1.4.*" }
 rand = { version = "0.8.*", features = ["small_rng"] }
-rustc-hash = { version = "1.1.*" }
+rustc-hash = { version = "1.1.0", default-features = false }
 serde = { version = "1.0", features = ["derive", "rc"], optional = true }
 smallvec = { version = "1.13.*", features = [] }
 thiserror = { version = "1.0.*", optional = true }
