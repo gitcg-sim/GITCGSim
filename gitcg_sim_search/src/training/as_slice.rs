@@ -14,6 +14,7 @@ pub unsafe trait AsSlice<Elem: Sized + Copy>: Sized + Copy {
 }
 
 #[macro_export]
+#[doc(hidden)]
 macro_rules! impl_as_slice {
     ($type: ty, $elem: ty) => {
         unsafe impl $crate::training::as_slice::AsSlice<$elem> for $type {

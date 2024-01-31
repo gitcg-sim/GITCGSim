@@ -3,6 +3,7 @@
 #![doc = include_str!("../README.md")]
 
 #[macro_export]
+#[doc(hidden)]
 macro_rules! impl_display_from_debug {
     (@single $Type: ident) => {
         impl $crate::std_subset::fmt::Display for $Type {

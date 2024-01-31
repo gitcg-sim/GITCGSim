@@ -22,6 +22,7 @@ macro_rules! list8 {
 }
 
 #[macro_export]
+#[doc(hidden)]
 macro_rules! cmd_list {
     () => {
         $crate::smallvec::SmallVec::<[_; 8]>::new()
@@ -32,6 +33,7 @@ macro_rules! cmd_list {
 }
 
 #[macro_export]
+#[doc(hidden)]
 macro_rules! action_list {
     () => {
         $crate::smallvec::SmallVec::<[_; 16]>::new()
@@ -43,6 +45,7 @@ macro_rules! action_list {
 
 pub type Vector<T> = smallvec::SmallVec<[T; 4]>;
 
+/// Creates a [smallvec::SmallVec] of 4 inline elements containing the arguments.
 #[macro_export]
 macro_rules! vector {
     () => {

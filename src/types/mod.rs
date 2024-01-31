@@ -24,6 +24,7 @@ pub(crate) mod status_impl;
 pub type ElementSet = enumset::EnumSet<crate::tcg_model::Element>;
 
 #[macro_export]
+#[doc(hidden)]
 macro_rules! elem_set {
     () => {
         {

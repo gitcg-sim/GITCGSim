@@ -147,6 +147,7 @@ impl StatusImpl for EmptyStatusImpl {
 }
 
 #[macro_export]
+#[doc(hidden)]
 macro_rules! decl_status_impl_type {
     ($name: ident $(, $impl_name: ident)?) => {
         pub struct $name();
@@ -161,6 +162,7 @@ macro_rules! decl_status_impl_type {
 }
 
 #[macro_export]
+#[doc(hidden)]
 macro_rules! decl_summon_impl_type {
     ($name: ident $(, $impl_name: ident)?) => {
         pub struct $name();

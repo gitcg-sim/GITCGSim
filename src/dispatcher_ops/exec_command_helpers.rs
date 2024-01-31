@@ -68,6 +68,7 @@ pub enum RelativeCharIdx {
 }
 
 #[macro_export]
+#[doc(hidden)]
 macro_rules! view {
     ($p: ident) => {
         PlayerStateView {
@@ -87,6 +88,7 @@ macro_rules! view {
 ///
 /// Do not early terminate inside the block to preserve hash coherency.
 #[macro_export]
+#[doc(hidden)]
 macro_rules! mutate_statuses {
     ($self: expr, $player_id: expr, | $sc: ident | $closure: block) => {{
         let player_id: PlayerId = $player_id;
@@ -100,6 +102,7 @@ macro_rules! mutate_statuses {
 ///
 /// Do not early terminate inside the block to preserve hash coherency.
 #[macro_export]
+#[doc(hidden)]
 macro_rules! mutate_statuses_1 {
     ($c: expr, $player: ident, | $sc: ident | $closure: block) => {{
         let (h, player_id): $crate::zobrist_hash::PlayerHashContext = $c;

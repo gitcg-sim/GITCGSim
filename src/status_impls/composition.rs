@@ -26,6 +26,7 @@ impl<T: Copy> C2 for Option<T> {
 }
 
 #[macro_export]
+#[doc(hidden)]
 macro_rules! c2_body {
     ($this: expr, $f: ident ( $($arg: ident),* $(,)? )) => {
         $crate::status_impls::composition::C2::c2(
@@ -36,6 +37,7 @@ macro_rules! c2_body {
 }
 
 #[macro_export]
+#[doc(hidden)]
 macro_rules! c2_trait_impls {
     (| $this: ident | $body: expr, {
         $(
@@ -57,6 +59,7 @@ macro_rules! c2_trait_impls {
 }
 
 #[macro_export]
+#[doc(hidden)]
 macro_rules! trigger_event_impl {
     ($Type: ident, [$($event_id: ident),*], | $e: ident | $blk: block) => {
         impl StatusImpl for $Type {
@@ -80,6 +83,7 @@ macro_rules! trigger_event_impl {
 }
 
 #[macro_export]
+#[doc(hidden)]
 macro_rules! compose_status_impls {
     ($TypeName: ident ( $A: expr, $B: expr, $C: expr $(,)? )) => {
         pub struct ComposeStatusImplsIntermediate();

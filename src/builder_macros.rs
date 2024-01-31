@@ -1,4 +1,5 @@
 #[macro_export]
+#[doc(hidden)]
 macro_rules! impl_from_to_builder {
     ($Type: ty, $Builder: ty) => {
         impl From<$Builder> for $Type {
@@ -17,6 +18,7 @@ macro_rules! impl_from_to_builder {
     };
 }
 #[macro_export]
+#[doc(hidden)]
 macro_rules! with_updaters {
     (
         $(#[$attr: meta])* $vis: vis struct $Type: ident

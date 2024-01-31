@@ -116,14 +116,12 @@ If `GameState::advance` returns an `Err(..)`, then the game state is invalidated
 
 ```rust
 use gitcg_sim::prelude::*;
-use gitcg_sim::vector; // SmallVec used throughout the library
-use gitcg_sim::list8; // List with up to 8 elements
 
 // Create a new GameState
 let mut game_state: GameState = GameStateBuilder::default()
     .characters(
-       vector![CharId::Yoimiya, CharId::KamisatoAyaka, CharId::Bennett],
-       vector![CharId::Fischl, CharId::RhodeiaOfLoch, CharId::FatuiPyroAgent]
+       vec![CharId::Yoimiya, CharId::KamisatoAyaka, CharId::Bennett],
+       vec![CharId::Fischl, CharId::RhodeiaOfLoch, CharId::FatuiPyroAgent],
     )
     .skip_to_roll_phase()
     .build();
@@ -139,8 +137,8 @@ game_state
     .advance(Input::NondetResult(NondetResult::ProvideCards(
         // .into() constructs an instance of ByPlayer from a tuple
         (
-            list8![CardId::LeaveItToMe, CardId::Starsigns],
-            list8![CardId::Strategize, CardId::Paimon],
+            [CardId::LeaveItToMe, CardId::Starsigns].into(),
+            [CardId::Strategize, CardId::Paimon].into(),
         ).into()
     )))
     .unwrap();
@@ -171,13 +169,12 @@ If the game state is updated manually outside of `advance`,
 
 ```rust
 use gitcg_sim::prelude::*;
-use gitcg_sim::{vector, list8};
 
 // Create a new GameState
 let mut game_state: GameState = GameStateBuilder::default()
     .characters(
-       vector![CharId::Yoimiya, CharId::KamisatoAyaka, CharId::Bennett],
-       vector![CharId::Fischl, CharId::RhodeiaOfLoch, CharId::FatuiPyroAgent]
+       vec![CharId::Yoimiya, CharId::KamisatoAyaka, CharId::Bennett],
+       vec![CharId::Fischl, CharId::RhodeiaOfLoch, CharId::FatuiPyroAgent],
     )
     // Bypass select starting character and mulligan
     .skip_to_roll_phase()
@@ -197,11 +194,16 @@ The [`GameStateWrapper`](crate::prelude::GameStateWrapper) type handles non-dete
 
 ```rust
 use gitcg_sim::prelude::*;
-use gitcg_sim::{vector, list8};
 use gitcg_sim::rand::{rngs::SmallRng, SeedableRng}; // Re-exports of rand crate
 
-let deck1 = Decklist::new(vector![CharId::Yoimiya, CharId::KamisatoAyaka, CharId::Bennett], vec![/* CardId::... */].into());
-let deck2 = Decklist::new(vector![CharId::Fischl, CharId::RhodeiaOfLoch, CharId::FatuiPyroAgent], vec![].into());
+let deck1 = Decklist::new(
+    vec![CharId::Yoimiya, CharId::KamisatoAyaka, CharId::Bennett].into(),
+    vec![/* CardId::... */].into()
+);
+let deck2 = Decklist::new(
+    vec![CharId::Fischl, CharId::RhodeiaOfLoch, CharId::FatuiPyroAgent].into(),
+    vec![].into()
+);
 let rng = SmallRng::seed_from_u64(100).into();
 
 // Nondet provider based on deck and RNG

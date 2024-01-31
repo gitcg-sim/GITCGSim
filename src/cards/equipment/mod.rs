@@ -13,6 +13,7 @@ pub mod talent;
 pub mod weapon;
 
 #[macro_export]
+#[doc(hidden)]
 macro_rules! card_impl_for_artifact {
     (@status $self: expr, $status_id: expr) => { $status_id };
     (@status $self: expr $(,)?) => { ($self).status_id };
@@ -127,6 +128,7 @@ fn can_be_played_for_weapon(weapon_type: WeaponType, cic: &CardImplContext) -> C
 }
 
 #[macro_export]
+#[doc(hidden)]
 macro_rules! card_impl_for_weapon {
     ($name: ident) => {
         impl CardImpl for $name {

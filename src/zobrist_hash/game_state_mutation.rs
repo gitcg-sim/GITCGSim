@@ -17,6 +17,7 @@ pub type PlayerHashContext<'a> = (&'a mut ZobristHasher, PlayerId);
 /// Constructs a new `PlayerHashContext` given mutable game state and player ID.
 /// Avoids borrowing the entire `&mut GameState`.
 #[macro_export]
+#[doc(hidden)]
 macro_rules! phc {
     ($self_game_state: expr, $player_id: expr) => {
         (&mut ($self_game_state)._incremental_hash, $player_id)
@@ -165,6 +166,7 @@ pub type CharacterHashContext<'a> = (&'a mut ZobristHasher, PlayerId, u8);
 /// Constructs a new `CharacterHashContext` given mutable game state, player ID and character index.
 /// Avoids borrowing the entire `&mut GameState`.
 #[macro_export]
+#[doc(hidden)]
 macro_rules! chc {
     ($self_game_state: expr, $player_id: expr, $char_idx: expr) => {
         (&mut ($self_game_state)._incremental_hash, $player_id, $char_idx)

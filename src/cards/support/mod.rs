@@ -138,6 +138,7 @@ impl StatusImpl for CardCostReductionSupport {
 }
 
 #[macro_export]
+#[doc(hidden)]
 macro_rules! decl_support_impl_type {
     ($name: ident $(, $impl_name: ident)?) => {
         pub struct $name();

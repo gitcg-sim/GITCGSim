@@ -24,6 +24,7 @@ pub use static_impls::StaticStatusImpl;
 
 /// Macro to deduplicate StatusImpl declaration but requires nightly features to fully implement StatusImpl deduplication.
 #[macro_export]
+#[doc(hidden)]
 macro_rules! status_impl_trait_decl {
     (
         $(#[$meta: meta])* $vis: vis trait $Name: ident {

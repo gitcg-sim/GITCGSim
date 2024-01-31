@@ -63,6 +63,7 @@ impl<'a, T: Clone> Iterator for LinkedListIterView<'a, T> {
 }
 
 #[macro_export]
+#[doc(hidden)]
 macro_rules! cons {
     ($x: expr, $xs: expr) => {
         $crate::linked_list::LinkedList(Some(::std::sync::Arc::new($crate::linked_list::Cons($x, $xs))))
@@ -70,6 +71,7 @@ macro_rules! cons {
 }
 
 #[macro_export]
+#[doc(hidden)]
 macro_rules! linked_list {
     ($(,)?) => {
         $crate::linked_list::LinkedList(

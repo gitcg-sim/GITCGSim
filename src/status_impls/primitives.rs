@@ -4,6 +4,7 @@ use crate::status_impls::prelude::*;
 pub mod dmg {
     use super::*;
     #[macro_export]
+    #[doc(hidden)]
     macro_rules! increase_outgoing_dmg_impl {
         ($Type: ident, |$e: ident, $dmg: ident| $check: expr) => {
             impl StatusImpl for $Type {
@@ -317,6 +318,7 @@ pub mod xevent {
     );
 
     #[macro_export]
+    #[doc(hidden)]
     macro_rules! decl_event_handler_trait_impl {
         ($Trait: ident ( $Type: ident ) , $I: ident $(,)?) => {
             pub struct $Type();

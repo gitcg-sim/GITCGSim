@@ -1,5 +1,6 @@
 // Generated code
 #[macro_export]
+#[doc(hidden)]
 macro_rules! __generated_char_reexports {
     () => {
         pub use super::albedo::*;
@@ -56,6 +57,7 @@ macro_rules! __generated_char_reexports {
 }
 
 #[macro_export]
+#[doc(hidden)]
 macro_rules! __generated_skills_cases {
     ($expr: expr) => {
         match $expr {
@@ -222,6 +224,7 @@ macro_rules! __generated_skills_cases {
 }
 
 #[macro_export]
+#[doc(hidden)]
 macro_rules! __generated_enum_cases {
     (CharId, $expr: expr, & $I: ident $(, | $val: ident | $blk: block $(,)?)?) => {
         match $expr {

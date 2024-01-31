@@ -12,6 +12,7 @@ pub use summon::*;
 pub use support::*;
 
 #[macro_export]
+#[doc(hidden)]
 macro_rules! __mapping {
     ($expr: expr $(,)?) => {
         $expr
