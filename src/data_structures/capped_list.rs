@@ -1,12 +1,21 @@
 use super::const_default::*;
 
-/// A variable-length list with at most 8 elements that can be constructed
-/// in the const context.
+/// A variable-length list with at most 8 items.
+///
+/// Unlike [Vec] or [smallvec::SmallVec], [CappedLengthList8] can
+/// be constructed with specific elements in `const` contexts
+/// through the [crate::list8] macro.
+/// Like slices, [CappedLengthList8] can be copied if `T : Copy`.
+///
+/// To avoid dealing with uninitialized values (unsafe code),
+/// the element type `T` must be [ConstDefault].
+///
+/// TODO rename this type to `List8`
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Hash, Ord)]
 pub struct CappedLengthList8<T: ConstDefault> {
-    pub len: u8,
-    pub array: [T; 8],
+    pub(crate) len: u8,
+    pub(crate) array: [T; 8],
 }
 
 impl<T: ConstDefault> CappedLengthList8<T> {
@@ -28,6 +37,20 @@ impl<T: ConstDefault> CappedLengthList8<T> {
     }
 }
 
+macro_rules! from_fixed_slice_impl {
+    ($($n: literal),+) => {
+        $(
+            impl<T: ConstDefault + Copy> From<[T; $n]> for CappedLengthList8<T> {
+                #[inline]
+                fn from(value: [T; $n]) -> Self {
+                    Self::from_fixed_size_slice_copy(&value)
+                }
+            }
+        )+
+    }
+}
+from_fixed_slice_impl!(0, 1, 2, 3, 4, 5, 6, 7, 8);
+
 impl<T: ConstDefault + Copy> CappedLengthList8<T> {
     pub fn fold_copy<A, F: FnMut(A, T) -> A>(&self, init: A, f: F) -> A {
         self.slice().iter().copied().fold(init, f)
@@ -35,6 +58,17 @@ impl<T: ConstDefault + Copy> CappedLengthList8<T> {
 
     pub fn to_vec_copy(&self) -> smallvec::SmallVec<[T; 8]> {
         self.slice().into()
+    }
+
+    /// Panics: When `N > 8`
+    #[inline]
+    pub fn from_fixed_size_slice_copy<const N: usize>(slice: &[T; N]) -> Self {
+        if N > 8 {
+            panic!("Source slice length ({N}) is too large (> 8)");
+        }
+        let mut array = [ConstDefault::DEFAULT; 8];
+        array[0..N].copy_from_slice(slice);
+        Self { len: N as u8, array }
     }
 
     pub const fn from_slice_copy(slice: &[T]) -> Self {
@@ -157,6 +191,14 @@ impl<T: ConstDefault + Copy, A: smallvec::Array<Item = T>> From<smallvec::SmallV
 mod tests {
     use super::*;
     const SLICE: [u8; 8] = [222, 54, 2, 14, 52, 120, 34, 224];
+
+    #[test]
+    fn from() {
+        const EMPTY: [u8; 0] = [];
+        assert_eq!(EMPTY, CappedLengthList8::<u8>::from([]).slice());
+        assert_eq!([1], CappedLengthList8::from([1]).slice());
+        assert_eq!([1, 2, 3], CappedLengthList8::from([1, 2, 3]).slice());
+    }
 
     #[test]
     fn from_slice_values_are_preserved() {

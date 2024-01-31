@@ -12,6 +12,9 @@ pub type StatusEntryList<T> = smallvec::SmallVec<[T; 8]>;
 
 pub type ActionList<T> = smallvec::SmallVec<[T; 16]>;
 
+/// Creates a [List8] containing the arguments.
+///
+/// Can be used in `const` contexts.
 #[macro_export]
 macro_rules! list8 {
     [] => ($crate::data_structures::List8::EMPTY);
