@@ -11,7 +11,7 @@ use super::*;
 #[test]
 fn zobrist_hash() {
     let mut gs =
-        GameStateBuilder::new_skip_to_roll_phase(vector![CharId::Fischl], vector![CharId::Kaeya, CharId::Yoimiya])
+        GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Fischl], vector![CharId::Kaeya, CharId::Yoimiya])
             .ignore_costs(true)
             .build();
     gs.advance_roll_phase_no_dice();
@@ -40,7 +40,7 @@ fn zobrist_hash() {
 
 #[test]
 fn zobrist_hash_random_steps_1() {
-    let gs = GameStateBuilder::new_skip_to_roll_phase(
+    let gs = GameStateInitializer::new_skip_to_roll_phase(
         vector![CharId::Keqing, CharId::Yoimiya, CharId::Cyno],
         vector![CharId::Klee, CharId::Xingqiu, CharId::Mona],
     )
@@ -50,7 +50,7 @@ fn zobrist_hash_random_steps_1() {
 
 #[test]
 fn zobrist_hash_random_steps_2() {
-    let gs = GameStateBuilder::new_skip_to_roll_phase(
+    let gs = GameStateInitializer::new_skip_to_roll_phase(
         vector![CharId::KamisatoAyaka, CharId::Yoimiya, CharId::Collei],
         vector![CharId::Diona, CharId::Ningguang, CharId::Noelle],
     )
@@ -60,7 +60,7 @@ fn zobrist_hash_random_steps_2() {
 
 #[test]
 fn zobrist_hash_random_steps_3() {
-    let gs = GameStateBuilder::new_skip_to_roll_phase(
+    let gs = GameStateInitializer::new_skip_to_roll_phase(
         vector![CharId::Barbara, CharId::Fischl, CharId::Collei],
         vector![CharId::Mona, CharId::Ganyu, CharId::Kaeya],
     )
@@ -70,7 +70,7 @@ fn zobrist_hash_random_steps_3() {
 
 #[test]
 fn zobrist_hash_random_steps_4() {
-    let gs = GameStateBuilder::new_skip_to_roll_phase(
+    let gs = GameStateInitializer::new_skip_to_roll_phase(
         vector![CharId::KujouSara, CharId::Keqing, CharId::SangonomiyaKokomi],
         vector![CharId::Mona, CharId::Cyno, CharId::Eula],
     )
@@ -80,7 +80,7 @@ fn zobrist_hash_random_steps_4() {
 
 #[test]
 fn zobrist_hash_random_steps_5() {
-    let gs = GameStateBuilder::new_skip_to_roll_phase(
+    let gs = GameStateInitializer::new_skip_to_roll_phase(
         vector![CharId::Eula, CharId::Fischl, CharId::Diona],
         vector![CharId::KamisatoAyaka, CharId::Ganyu, CharId::Xingqiu],
     )

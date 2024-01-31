@@ -2,10 +2,12 @@ use super::*;
 
 #[test]
 fn foul_legacy_raging_tide_melee_stance_and_riptide_transfer() {
-    let mut gs =
-        GameStateBuilder::new_skip_to_roll_phase(vector![CharId::Tartaglia], vector![CharId::Ganyu, CharId::Fischl])
-            .enable_log(true)
-            .build();
+    let mut gs = GameStateInitializer::new_skip_to_roll_phase(
+        vector![CharId::Tartaglia],
+        vector![CharId::Ganyu, CharId::Fischl],
+    )
+    .enable_log(true)
+    .build();
 
     gs.advance_roll_phase_no_dice();
     gs.get_player_mut(PlayerId::PlayerFirst)

@@ -1,7 +1,7 @@
 use super::*;
 
 fn game_state_for_artifacts(card_id: CardId) -> GameState {
-    let mut gs = GameStateBuilder::new_skip_to_roll_phase(
+    let mut gs = GameStateInitializer::new_skip_to_roll_phase(
         vector![CharId::KamisatoAyaka, CharId::Yoimiya],
         vector![CharId::Fischl],
     )
@@ -104,11 +104,13 @@ fn artifact_3_dice_guarantee() {
 
 #[test]
 fn talent_equip_must_be_on_matching_and_active_character() {
-    let mut gs =
-        GameStateBuilder::new_skip_to_roll_phase(vector![CharId::Xingqiu, CharId::Yoimiya], vector![CharId::Fischl])
-            .enable_log(true)
-            .ignore_costs(true)
-            .build();
+    let mut gs = GameStateInitializer::new_skip_to_roll_phase(
+        vector![CharId::Xingqiu, CharId::Yoimiya],
+        vector![CharId::Fischl],
+    )
+    .enable_log(true)
+    .ignore_costs(true)
+    .build();
     gs.advance_roll_phase_no_dice();
     gs.players.0.hand.push(CardId::NaganoharaMeteorSwarm);
     gs.players.0.hand.push(CardId::TheScentRemained);
@@ -144,7 +146,7 @@ fn talent_equip_must_be_on_matching_and_active_character() {
 
 #[test]
 fn talent_equip_without_skill_must_be_on_matching_character() {
-    let mut gs = GameStateBuilder::new_skip_to_roll_phase(
+    let mut gs = GameStateInitializer::new_skip_to_roll_phase(
         vector![CharId::Xingqiu, CharId::KamisatoAyaka],
         vector![CharId::Fischl],
     )
@@ -164,7 +166,7 @@ fn talent_equip_without_skill_must_be_on_matching_character() {
 
 #[test]
 fn gamblers_earrings_triggers_on_skill_defeat() {
-    let mut gs = GameStateBuilder::new_skip_to_roll_phase(
+    let mut gs = GameStateInitializer::new_skip_to_roll_phase(
         vector![CharId::Fischl, CharId::Kaeya],
         vector![CharId::Ganyu, CharId::Xingqiu],
     )
@@ -188,7 +190,7 @@ fn gamblers_earrings_triggers_on_skill_defeat() {
 
 #[test]
 fn gamblers_earrings_triggers_on_summon_defeat() {
-    let mut gs = GameStateBuilder::new_skip_to_roll_phase(
+    let mut gs = GameStateInitializer::new_skip_to_roll_phase(
         vector![CharId::Fischl, CharId::Kaeya],
         vector![CharId::Ganyu, CharId::Xingqiu],
     )
@@ -218,7 +220,7 @@ fn gamblers_earrings_triggers_on_summon_defeat() {
 
 #[test]
 fn gamblers_earrings_does_not_trigger_on_non_active_defeat() {
-    let mut gs = GameStateBuilder::new_skip_to_roll_phase(
+    let mut gs = GameStateInitializer::new_skip_to_roll_phase(
         vector![CharId::Fischl, CharId::Kaeya],
         vector![CharId::Ganyu, CharId::Xingqiu],
     )
@@ -246,7 +248,7 @@ fn gamblers_earrings_does_not_trigger_on_non_active_defeat() {
 
 #[test]
 fn gamblers_earrings_does_not_trigger_on_non_active_summon_defeat() {
-    let mut gs = GameStateBuilder::new_skip_to_roll_phase(
+    let mut gs = GameStateInitializer::new_skip_to_roll_phase(
         vector![CharId::Fischl, CharId::Kaeya],
         vector![CharId::Ganyu, CharId::Xingqiu],
     )
@@ -277,7 +279,7 @@ fn gamblers_earrings_does_not_trigger_on_non_active_summon_defeat() {
 
 #[test]
 fn lithic_spear_grants_shield_points() {
-    let mut gs = GameStateBuilder::new_skip_to_roll_phase(
+    let mut gs = GameStateInitializer::new_skip_to_roll_phase(
         vector![CharId::Xiangling, CharId::Yoimiya, CharId::Xingqiu],
         vector![CharId::Fischl],
     )
@@ -324,7 +326,7 @@ mod lucky_dogs_silver_circlet {
     use super::*;
 
     fn get_game_state() -> GameState {
-        let mut gs = GameStateBuilder::new_skip_to_roll_phase(
+        let mut gs = GameStateInitializer::new_skip_to_roll_phase(
             vector![CharId::Xiangling, CharId::Yoimiya, CharId::Xingqiu],
             vector![CharId::Fischl],
         )
@@ -417,7 +419,7 @@ mod ornate_kabuto {
 
     #[test]
     fn test_does_not_proc_on_own_burst() {
-        let mut gs = GameStateBuilder::new_skip_to_roll_phase(
+        let mut gs = GameStateInitializer::new_skip_to_roll_phase(
             vector![CharId::Xingqiu, CharId::Yoimiya],
             vector![CharId::Fischl],
         )
@@ -438,7 +440,7 @@ mod ornate_kabuto {
 
     #[test]
     fn test_increases_energy_on_teammate_burst() {
-        let mut gs = GameStateBuilder::new_skip_to_roll_phase(
+        let mut gs = GameStateInitializer::new_skip_to_roll_phase(
             vector![CharId::Xingqiu, CharId::Yoimiya],
             vector![CharId::Fischl],
         )
@@ -465,7 +467,7 @@ mod favonius_sword {
 
     #[test]
     fn test_does_not_proc_on_normal_attack() {
-        let mut gs = GameStateBuilder::new_skip_to_roll_phase(
+        let mut gs = GameStateInitializer::new_skip_to_roll_phase(
             vector![CharId::Xingqiu, CharId::Yoimiya],
             vector![CharId::Fischl],
         )
@@ -488,7 +490,7 @@ mod favonius_sword {
 
     #[test]
     fn test_adds_energy_after_casting_skill() {
-        let mut gs = GameStateBuilder::new_skip_to_roll_phase(
+        let mut gs = GameStateInitializer::new_skip_to_roll_phase(
             vector![CharId::Xingqiu, CharId::Yoimiya],
             vector![CharId::Fischl],
         )
@@ -509,7 +511,7 @@ mod favonius_sword {
 
     #[test]
     fn test_does_not_proc_with_non_active_character_skill() {
-        let mut gs = GameStateBuilder::new_skip_to_roll_phase(
+        let mut gs = GameStateInitializer::new_skip_to_roll_phase(
             vector![CharId::Yoimiya, CharId::Xingqiu],
             vector![CharId::Fischl],
         )
@@ -533,7 +535,7 @@ mod aquila_favonia {
     use super::*;
 
     fn init_game_state() -> GameState {
-        let mut gs = GameStateBuilder::new_skip_to_roll_phase(
+        let mut gs = GameStateInitializer::new_skip_to_roll_phase(
             vector![CharId::Bennett, CharId::Fischl],
             vector![CharId::Yoimiya, CharId::Ganyu],
         )

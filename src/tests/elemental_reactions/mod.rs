@@ -4,7 +4,7 @@ use super::*;
 
 #[test]
 fn quicken() {
-    let mut gs = GameStateBuilder::new_skip_to_roll_phase(
+    let mut gs = GameStateInitializer::new_skip_to_roll_phase(
         vector![CharId::Collei, CharId::Fischl],
         vector![CharId::Yoimiya, CharId::Fischl],
     )
@@ -62,7 +62,7 @@ fn quicken() {
 
 #[test]
 fn burning_max_2_stacks() {
-    let mut gs = GameStateBuilder::new_skip_to_roll_phase(vector![CharId::Collei], vector![CharId::Fischl])
+    let mut gs = GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Collei], vector![CharId::Fischl])
         .ignore_costs(true)
         .build();
     gs.advance_roll_phase_no_dice();
@@ -115,7 +115,7 @@ fn burning_max_2_stacks() {
 
 #[test]
 fn bloom_dendro_core_increases_summon_dmg() {
-    let mut gs = GameStateBuilder::new_skip_to_roll_phase(
+    let mut gs = GameStateInitializer::new_skip_to_roll_phase(
         vector![CharId::Fischl, CharId::Collei],
         vector![CharId::Yoimiya, CharId::Xingqiu],
     )

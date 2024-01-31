@@ -6,7 +6,7 @@ use proptest::prelude::*;
 use rand::seq::SliceRandom;
 use rand::{rngs::SmallRng, SeedableRng};
 
-use crate::builder::GameStateBuilder;
+use crate::builder::GameStateInitializer;
 use crate::cards::ids::{CardId, SummonId};
 use crate::types::input::{Input, PlayerAction};
 use crate::types::{game_state::*, nondet::*};
@@ -50,7 +50,7 @@ pub fn arb_char_ids_containing(char_id: CharId) -> impl Strategy<Value = Vector<
 
 prop_compose! {
     pub fn arb_init_game_state()(p1_chars in arb_char_ids(), p2_chars in arb_char_ids()) -> GameState {
-        GameStateBuilder::default()
+        GameStateInitializer::default()
             .characters(p1_chars, p2_chars)
             .start_at_select_character()
             .build()
@@ -111,7 +111,7 @@ impl<D1: Strategy<Value = Decklist>, D2: Strategy<Value = Decklist>> ArbGameStat
     #[allow(dead_code)]
     pub fn arb_game_state(self) -> impl Strategy<Value = GameState> {
         (self.arb_deck1, self.arb_deck2).prop_map(|(d1, d2)| {
-            GameStateBuilder::default()
+            GameStateInitializer::default()
                 .characters(d1.characters, d2.characters)
                 .start_at_select_character()
                 .build()
@@ -121,7 +121,7 @@ impl<D1: Strategy<Value = Decklist>, D2: Strategy<Value = Decklist>> ArbGameStat
     pub fn arb_game_state_wrapper(self) -> impl Strategy<Value = GameStateWrapper<StandardNondetHandlerState>> {
         (self.arb_deck1, self.arb_deck2, any::<u64>()).prop_map(|(d1, d2, rng)| {
             let state = StandardNondetHandlerState::new(&d1, &d2, SmallRng::seed_from_u64(rng).into());
-            let gs = GameStateBuilder::default()
+            let gs = GameStateInitializer::default()
                 .characters(d1.characters, d2.characters)
                 .start_at_select_character()
                 .build();

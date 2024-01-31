@@ -2,7 +2,7 @@ use super::*;
 
 #[test]
 fn first_phase_is_roll_phase() {
-    let gs = GameStateBuilder::new_skip_to_roll_phase(
+    let gs = GameStateInitializer::new_skip_to_roll_phase(
         vector![CharId::Kaeya, CharId::Fischl],
         vector![CharId::KamisatoAyaka],
     )
@@ -19,7 +19,7 @@ fn first_phase_is_roll_phase() {
 
 #[test]
 fn action_phase_and_first_player_to_end_round() {
-    let mut gs = GameStateBuilder::new_skip_to_roll_phase(
+    let mut gs = GameStateInitializer::new_skip_to_roll_phase(
         vector![CharId::Kaeya, CharId::Fischl],
         vector![CharId::KamisatoAyaka],
     )
@@ -72,7 +72,7 @@ fn action_phase_and_first_player_to_end_round() {
 
 #[test]
 fn post_death_switch() {
-    let mut gs = GameStateBuilder::new_skip_to_roll_phase(
+    let mut gs = GameStateInitializer::new_skip_to_roll_phase(
         vector![CharId::Fischl],
         vector![CharId::Kaeya, CharId::Ganyu, CharId::Yoimiya],
     )
@@ -97,7 +97,7 @@ fn post_death_switch() {
 
 #[test]
 fn piercing_dmg_victory() {
-    let mut gs = GameStateBuilder::new_skip_to_roll_phase(
+    let mut gs = GameStateInitializer::new_skip_to_roll_phase(
         vector![CharId::Ganyu],
         vector![CharId::Kaeya, CharId::Ganyu, CharId::Yoimiya],
     )
@@ -124,7 +124,7 @@ fn piercing_dmg_victory() {
 
 #[test]
 fn piercing_dmg_causing_post_death_switch() {
-    let mut gs = GameStateBuilder::new_skip_to_roll_phase(
+    let mut gs = GameStateInitializer::new_skip_to_roll_phase(
         vector![CharId::Ganyu],
         vector![CharId::Kaeya, CharId::Ganyu, CharId::Yoimiya],
     )
@@ -146,7 +146,7 @@ fn piercing_dmg_causing_post_death_switch() {
 #[test]
 fn trigger_effects_after_post_death_switch() {
     let mut gs =
-        GameStateBuilder::new_skip_to_roll_phase(vector![CharId::Fischl], vector![CharId::Kaeya, CharId::Yoimiya])
+        GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Fischl], vector![CharId::Kaeya, CharId::Yoimiya])
             .ignore_costs(true)
             .build();
     {
@@ -167,7 +167,7 @@ fn trigger_effects_after_post_death_switch() {
 
 #[test]
 fn end_phase_post_death_switch() {
-    let mut gs = GameStateBuilder::new_skip_to_roll_phase(
+    let mut gs = GameStateInitializer::new_skip_to_roll_phase(
         vector![CharId::Yoimiya, CharId::Ganyu],
         vector![CharId::Fischl, CharId::KamisatoAyaka, CharId::Collei],
     )
@@ -198,7 +198,7 @@ fn end_phase_post_death_switch() {
 
 #[test]
 fn end_phase_winner_decided() {
-    let mut gs = GameStateBuilder::new_skip_to_roll_phase(
+    let mut gs = GameStateInitializer::new_skip_to_roll_phase(
         vector![CharId::Yoimiya],
         vector![CharId::Fischl, CharId::KamisatoAyaka, CharId::Collei],
     )
@@ -232,7 +232,7 @@ fn end_phase_winner_decided() {
 
 #[test]
 fn play_card() {
-    let mut gs = GameStateBuilder::new_skip_to_roll_phase(
+    let mut gs = GameStateInitializer::new_skip_to_roll_phase(
         vector![CharId::Yoimiya],
         vector![CharId::Fischl, CharId::KamisatoAyaka, CharId::Collei],
     )
@@ -258,7 +258,8 @@ fn play_card() {
 
 #[test]
 fn elemental_tuning() {
-    let mut gs = GameStateBuilder::new_skip_to_roll_phase(vector![CharId::Yoimiya], vector![CharId::Fischl]).build();
+    let mut gs =
+        GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Yoimiya], vector![CharId::Fischl]).build();
     gs.advance_roll_phase_no_dice();
     gs.players.0.dice[Dice::DENDRO] = 1;
     gs.players.0.hand = vector![
@@ -277,7 +278,7 @@ fn elemental_tuning() {
 
 #[test]
 fn artifact_equip_replace() {
-    let mut gs = GameStateBuilder::new_skip_to_roll_phase(vector![CharId::Yoimiya], vector![CharId::Fischl])
+    let mut gs = GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Yoimiya], vector![CharId::Fischl])
         .ignore_costs(true)
         .build();
     gs.advance_roll_phase_no_dice();
@@ -311,7 +312,7 @@ fn artifact_equip_replace() {
 
 #[test]
 fn weapon_equip_replace() {
-    let mut gs = GameStateBuilder::new_skip_to_roll_phase(vector![CharId::Yoimiya], vector![CharId::Fischl])
+    let mut gs = GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Yoimiya], vector![CharId::Fischl])
         .ignore_costs(true)
         .build();
     gs.advance_roll_phase_no_dice();
@@ -345,7 +346,7 @@ fn weapon_equip_replace() {
 
 #[test]
 fn skill_cast_tracker() {
-    let mut gs = GameStateBuilder::new_skip_to_roll_phase(
+    let mut gs = GameStateInitializer::new_skip_to_roll_phase(
         vector![CharId::Ganyu, CharId::Yoimiya],
         vector![CharId::Fischl, CharId::Noelle],
     )
@@ -427,7 +428,7 @@ fn skill_cast_tracker() {
 
 #[test]
 fn test_select_starting_plunging_attack_flags() {
-    let mut gs = GameStateBuilder::new(vector![CharId::Yoimiya], vector![CharId::Kaeya, CharId::Yoimiya])
+    let mut gs = GameStateInitializer::new(vector![CharId::Yoimiya], vector![CharId::Kaeya, CharId::Yoimiya])
         .ignore_costs(true)
         .start_at_select_character()
         .build();

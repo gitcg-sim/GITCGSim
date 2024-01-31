@@ -2,11 +2,13 @@ use super::*;
 
 #[test]
 fn guoba_attack_deals_dmg_at_end_phase() {
-    let mut gs =
-        GameStateBuilder::new_skip_to_roll_phase(vector![CharId::Xiangling, CharId::Fischl], vector![CharId::Kaeya])
-            .enable_log(true)
-            .ignore_costs(true)
-            .build();
+    let mut gs = GameStateInitializer::new_skip_to_roll_phase(
+        vector![CharId::Xiangling, CharId::Fischl],
+        vector![CharId::Kaeya],
+    )
+    .enable_log(true)
+    .ignore_costs(true)
+    .build();
     gs.advance_roll_phase_no_dice();
     gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::GuobaAttack)),
@@ -25,11 +27,13 @@ fn guoba_attack_deals_dmg_at_end_phase() {
 
 #[test]
 fn talent_card_deals_pyro_dmg_on_skill_cast() {
-    let mut gs =
-        GameStateBuilder::new_skip_to_roll_phase(vector![CharId::Xiangling, CharId::Fischl], vector![CharId::Kaeya])
-            .enable_log(true)
-            .ignore_costs(true)
-            .build();
+    let mut gs = GameStateInitializer::new_skip_to_roll_phase(
+        vector![CharId::Xiangling, CharId::Fischl],
+        vector![CharId::Kaeya],
+    )
+    .enable_log(true)
+    .ignore_costs(true)
+    .build();
     gs.advance_roll_phase_no_dice();
     gs.get_player_mut(PlayerId::PlayerFirst).hand.push(CardId::Crossfire);
     gs.advance_multiple([Input::FromPlayer(
@@ -46,7 +50,7 @@ fn talent_card_deals_pyro_dmg_on_skill_cast() {
 
 #[test]
 fn pyronado_deals_dmg_on_skill_cast() {
-    let mut gs = GameStateBuilder::new_skip_to_roll_phase(
+    let mut gs = GameStateInitializer::new_skip_to_roll_phase(
         vector![CharId::Xiangling, CharId::Fischl],
         vector![CharId::Kaeya, CharId::Xingqiu],
     )

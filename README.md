@@ -93,7 +93,7 @@ Enabled by the policy network training executable.
 ## The `GameState` type
 
 ### Creation
-To construct a [`GameState`](crate::prelude::GameState), use the [`GameStateBuilder`](crate::prelude::GameStateBuilder) type.
+To construct a [`GameState`](crate::prelude::GameState), use the [`GameStateInitializer`](crate::prelude::GameStateInitializer) type.
 
 The [`new_standard_game`](crate::prelude::new_standard_game) function bypass most intermediate steps for constructing a `GameStateWrapper`.
 
@@ -118,7 +118,7 @@ If `GameState::advance` returns an `Err(..)`, then the game state is invalidated
 use gitcg_sim::prelude::*;
 
 // Create a new GameState
-let mut game_state: GameState = GameStateBuilder::default()
+let mut game_state: GameState = GameStateInitializer::default()
     .characters(
        vec![CharId::Yoimiya, CharId::KamisatoAyaka, CharId::Bennett],
        vec![CharId::Fischl, CharId::RhodeiaOfLoch, CharId::FatuiPyroAgent],
@@ -171,7 +171,7 @@ If the game state is updated manually outside of `advance`,
 use gitcg_sim::prelude::*;
 
 // Create a new GameState
-let mut game_state: GameState = GameStateBuilder::default()
+let mut game_state: GameState = GameStateInitializer::default()
     .characters(
        vec![CharId::Yoimiya, CharId::KamisatoAyaka, CharId::Bennett],
        vec![CharId::Fischl, CharId::RhodeiaOfLoch, CharId::FatuiPyroAgent],
@@ -211,7 +211,7 @@ let nd = NondetProvider::new(StandardNondetHandlerState::new(&deck1, &deck2, rng
 // This nondet provider that does nothing
 // let nd_state = NondetProvider::new(EmptyNondetState());
 
-let game_state: GameState = GameStateBuilder::default()
+let game_state: GameState = GameStateInitializer::default()
     .characters(deck1.characters, deck2.characters)
     .skip_to_roll_phase()
     .build();
