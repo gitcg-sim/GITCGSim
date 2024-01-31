@@ -112,7 +112,7 @@ impl Display for Event {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Default)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct EventLog {
     pub enabled: bool,

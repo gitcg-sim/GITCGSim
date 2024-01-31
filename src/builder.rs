@@ -1,5 +1,6 @@
 use crate::std_subset::{marker::PhantomData, Box};
 
+use crate::zobrist_hash::ZobristHasher;
 use crate::{cards::ids::*, data_structures::Vector, prelude::*, types::by_player::ByPlayer};
 
 #[derive(Copy, Clone)]
@@ -177,14 +178,84 @@ impl GameStateInitializer<HasCharacters, HasStartingCondition> {
     }
 }
 
+crate::with_updaters!(
+    #[derive(Clone)]
+    #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+    pub struct GameStateBuilder {
+        pub pending_cmds: Option<PendingCommands>,
+        pub round_number: u8,
+        pub phase: Phase,
+        pub players: ByPlayer<PlayerState>,
+
+        // Transient states
+        #[cfg_attr(feature = "serde", serde(default))]
+        pub log: Option<EventLog>,
+        #[cfg_attr(feature = "serde", serde(default))]
+        pub ignore_costs: bool,
+
+        pub override_hash: Option<ZobristHasher>,
+        pub override_incremental_hash: Option<ZobristHasher>,
+    }
+);
+
+impl GameStateBuilder {
+    pub fn new(players: ByPlayer<PlayerState>) -> Self {
+        Self {
+            pending_cmds: Default::default(),
+            round_number: Default::default(),
+            phase: Phase::SelectStartingCharacter {
+                state: Default::default(),
+            },
+            players,
+            log: Default::default(),
+            ignore_costs: Default::default(),
+            override_hash: Default::default(),
+            override_incremental_hash: Default::default(),
+        }
+    }
+
+    pub fn build(self) -> GameState {
+        let should_rehash = self.override_hash.is_none() && self.override_incremental_hash.is_none();
+        let mut gs = GameState {
+            pending_cmds: self.pending_cmds.map(Box::new),
+            round_number: self.round_number,
+            phase: self.phase,
+            players: self.players,
+            log: self.log.map(Box::new).unwrap_or_default(),
+            ignore_costs: self.ignore_costs,
+            _hash: self.override_hash.unwrap_or_default(),
+            _incremental_hash: self.override_incremental_hash.unwrap_or_default(),
+        };
+        if should_rehash {
+            gs.rehash();
+        }
+        gs
+    }
+}
+
+impl GameState {
+    pub fn into_builder(self) -> GameStateBuilder {
+        GameStateBuilder {
+            pending_cmds: self.pending_cmds.map(|x| *x),
+            round_number: self.round_number,
+            phase: self.phase,
+            players: self.players,
+            log: Some(*self.log),
+            ignore_costs: self.ignore_costs,
+            override_hash: Some(self._hash),
+            override_incremental_hash: Some(self._incremental_hash),
+        }
+    }
+}
+
+crate::impl_from_to_builder!(GameState, GameStateBuilder);
+
 #[cfg(test)]
 mod tests {
-    use crate::cards::ids::CharId;
-
     use super::*;
 
     #[test]
-    fn test_builder_ignore_costs() {
+    fn test_initializer_ignore_costs() {
         let game_state = GameStateInitializer::new(vec![CharId::Yoimiya], vec![CharId::Fischl])
             .ignore_costs(true)
             .starting_condition(StartingCondition::default())
@@ -193,7 +264,7 @@ mod tests {
     }
 
     #[test]
-    fn test_builder_enable_log() {
+    fn test_initializer_enable_log() {
         let game_state = GameStateInitializer::new(vec![CharId::Yoimiya], vec![CharId::Fischl])
             .enable_log(true)
             .starting_condition(StartingCondition::default())

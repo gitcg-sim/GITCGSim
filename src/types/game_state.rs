@@ -32,7 +32,12 @@ pub use super::status_collection::*;
 
 /// The deterministic and perfect information portion of the Genius Invokation TCG game state.
 #[derive(Debug, Clone)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(
+    feature = "serde",
+    derive(serde::Serialize, serde::Deserialize),
+    serde(from = "crate::builder::GameStateBuilder"),
+    serde(into = "crate::builder::GameStateBuilder")
+)]
 pub struct GameState {
     /// When game state is suspended while executing commands
     pub pending_cmds: Option<Box<PendingCommands>>,
@@ -242,8 +247,6 @@ pub struct PlayerState {
     // TODO enforce limit of 10
     pub hand: Vector<CardId>,
     pub flags: EnumSet<PlayerFlag>,
-    // TODO
-    // pub taken_most_dmg: Option<TakenMostDMG>,
 }
 
 impl PlayerState {

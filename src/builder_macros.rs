@@ -17,18 +17,24 @@ macro_rules! impl_from_to_builder {
         }
     };
 }
+
+/// Creates a struct type with updater methods for each field named after the fields themselves.
+/// `field_name: T --> fn field_name(mut self, new_value: T) -> Self {...}`
 #[macro_export]
 #[doc(hidden)]
 macro_rules! with_updaters {
     (
         $(#[$attr: meta])* $vis: vis struct $Type: ident
         {
-            $($field_vis: vis $field_name: ident : $field_type: ty),*
+            $($(#[$field_attr: meta])* $field_vis: vis $field_name: ident : $field_type: ty),*
             $(,)?
         }
     ) => {
         $(#[$attr])* $vis struct $Type {
-            $($field_vis $field_name : $field_type),*
+            $(
+                $(#[$field_attr])*
+                $field_vis $field_name : $field_type
+            ),*
         }
 
         impl $Type {

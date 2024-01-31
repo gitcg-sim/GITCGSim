@@ -10,8 +10,12 @@ crate::with_updaters!(
         pub char_id: CharId,
         pub hp: u8,
         pub energy: u8,
+
+        #[cfg_attr(feature = "serde", serde(default))]
         pub applied: Vec<Element>,
+        #[cfg_attr(feature = "serde", serde(default))]
         pub flags: Vec<CharFlag>,
+        #[cfg_attr(feature = "serde", serde(default))]
         pub total_dmg_taken: u8,
     }
 );
