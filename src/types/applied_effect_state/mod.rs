@@ -12,7 +12,7 @@ pub struct AppliedEffectState {
     _repr: u8,
 }
 
-pub mod builder;
+pub(crate) mod builder;
 
 // Data layout
 //  _repr           :  ? ? ? ? ? ? ? ?

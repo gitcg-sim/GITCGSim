@@ -23,16 +23,18 @@ pub(crate) mod std_subset {
 }
 
 pub(crate) mod card_impls;
+
+/// Module containing the definitions of cards.
 pub mod cards;
 
-/// Contains collection data types used to implement the Genius Invokation TCG.
+/// Module containing collection datatypes used by this crate.
 pub mod data_structures;
 pub mod deck;
 pub mod dice_counter;
 pub(crate) mod dispatcher;
 pub(crate) mod dispatcher_ops;
 
-/// Module containing `enums` that identify Genios Invokation TCG entities.
+/// Module containing `enums` that identify Genius Invokation TCG entities.
 ///
 /// They include:
 ///  - Character
@@ -47,7 +49,7 @@ pub(crate) mod dispatcher_ops;
 pub mod ids;
 
 /// Elemental reaction
-pub mod reaction;
+pub(crate) mod reaction;
 
 /// Pseudorandom number generation
 pub mod rng;
@@ -57,16 +59,16 @@ pub mod rule_based;
 
 pub(crate) mod status_impls;
 
-/// Datatypes for the Genious Invokation TCG domain
+/// Module containing the enums and DMG representation for Genius Invokation TCG
 pub mod tcg_model;
 
 pub(crate) mod builder_macros;
 
-pub mod types;
+pub(crate) mod types;
 
 pub(crate) mod zobrist_hash;
 
-pub mod game_state_wrapper;
+pub(crate) mod game_state_wrapper;
 
 /// Builder for `GameState`s
 pub mod builder;
@@ -102,7 +104,7 @@ pub mod prelude {
     pub use crate::types::dice_counter::{DiceCounter, DiceDeterminization, DiceDistribution, ElementPriority};
     pub use crate::types::game_state::{
         AppliedEffectState, CardSelection, CharState, GameState, PendingCommands, Phase, PlayerFlag, PlayerId,
-        PlayerState, StatusCollection, SuspendedState,
+        PlayerState, StatusCollection, StatusEntry, StatusKey, SuspendedState,
     };
     pub use crate::types::input::{Input, NondetResult, PlayerAction};
     pub use crate::types::logging::EventLog;

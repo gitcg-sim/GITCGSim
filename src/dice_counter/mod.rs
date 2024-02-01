@@ -14,7 +14,7 @@ use crate::types::{
 mod distribution;
 pub use distribution::{DiceDeterminization, DiceDistribution};
 
-pub mod builder;
+pub(crate) mod builder;
 
 /// Represents the collection of Elemental Dice (Omni and the 7 elements).
 /// The maximum number of dice for a particular element (or Omni) is 31.

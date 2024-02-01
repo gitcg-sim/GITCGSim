@@ -250,6 +250,11 @@ impl GameState {
 
 crate::impl_from_to_builder!(GameState, GameStateBuilder);
 
+pub use crate::{
+    dice_counter::builder::DiceCounterBuilder,
+    types::{applied_effect_state::builder::AppliedEffectStateBuilder, char_state::builder::CharStateBuilder},
+};
+
 #[cfg(test)]
 mod tests {
     use super::*;
