@@ -5,7 +5,10 @@ use std::{
 #[cfg(not(feature = "no_parallel"))]
 use {rayon::prelude::*, std::ops::Add};
 
-use gitcg_sim::{prelude::*, rand::thread_rng};
+use gitcg_sim::{
+    prelude::*,
+    rand::{rngs::SmallRng, thread_rng, Rng, SeedableRng},
+};
 
 use crate::*;
 
@@ -630,6 +633,14 @@ fn minimax_iterative_deepening_aspiration_windows<G: Game>(
         if config.debug {
             let pv_vec = pv.into_iter().copied().collect::<Vec<_>>();
             println!(" - Depth {current_depth:2}: Eval={eval:?}, PV={pv_vec:?}");
+        }
+    }
+
+    if pv.is_empty() {
+        let acts: gitcg_sim::smallvec::SmallVec<[_; 16]> = game.actions().into_iter().collect();
+        if !acts.is_empty() {
+            let mut rng = SmallRng::seed_from_u64(game.zobrist_hash());
+            pv = linked_list![acts[rng.gen_range(0..acts.len())]];
         }
     }
     SearchResult::new(pv, eval, ctx0.counter)

@@ -104,9 +104,9 @@ impl<S: NondetState> Game for GameStateWrapper<S> {
         let h = e1 - e2;
         if let Some(winner) = self.winner() {
             if winner == player_id {
-                Self::Eval::win()
+                Self::Eval::win(h)
             } else {
-                Self::Eval::lose()
+                Self::Eval::lose(h)
             }
         } else {
             Self::Eval::from_eval(h)
