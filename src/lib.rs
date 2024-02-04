@@ -82,7 +82,7 @@ pub use rand;
 /// Re-exports the `enum_map` crate
 pub use enum_map;
 
-/// Re-exports the `thiserror` create
+/// Re-exports the `thiserror` crate
 #[cfg(feature = "std")]
 pub use thiserror;
 

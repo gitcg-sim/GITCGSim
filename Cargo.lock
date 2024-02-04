@@ -544,6 +544,8 @@ dependencies = [
  "instant",
  "lazy_static",
  "rayon",
+ "serde",
+ "serde_json",
  "structopt",
 ]
 
@@ -553,6 +555,7 @@ version = "0.1.0"
 dependencies = [
  "gitcg_sim",
  "gitcg_sim_search",
+ "serde",
  "structopt",
 ]
 

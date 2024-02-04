@@ -33,6 +33,7 @@ fn read_decklist_from_file(file: File) -> Result<Decklist, io::Error> {
 }
 
 #[derive(Debug, Copy, Clone)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum SearchAlgorithm {
     Minimax,
     MCTS,
@@ -57,24 +58,30 @@ impl FromStr for SearchAlgorithm {
 }
 
 #[derive(Debug, StructOpt, Clone, Default)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct SearchConfig {
     #[structopt(
         short = "A",
         long = "--algorithm",
         help = "minimax|mcts|rule-based, Minimax/Monte-Carlo Tree Search: algorithm used for the game tree search."
     )]
+    #[cfg_attr(feature = "serde", serde(default))]
     pub algorithm: Option<SearchAlgorithm>,
 
     #[structopt(short = "d", long = "--depth", help = "Minimax: search depth")]
+    #[cfg_attr(feature = "serde", serde(default))]
     pub search_depth: Option<u8>,
 
     #[structopt(short = "Q", long = "--tactical-depth", help = "Minimax: tactical search depth")]
+    #[cfg_attr(feature = "serde", serde(default))]
     pub tactical_depth: Option<u8>,
 
     #[structopt(long = "--target-round-delta", help = "Minimax: target round delta")]
+    #[cfg_attr(feature = "serde", serde(default))]
     pub target_round_delta: Option<u8>,
 
     #[structopt(long = "--static-search-iters", help = "Minimax: static search iterations")]
+    #[cfg_attr(feature = "serde", serde(default))]
     pub static_search_iters: Option<u8>,
 
     #[structopt(
@@ -82,18 +89,21 @@ pub struct SearchConfig {
         long = "--mcts-c",
         help = "MCTS: Cpuct base value. Higher value promotes wider search, while lower value promotes deeper search."
     )]
+    #[cfg_attr(feature = "serde", serde(default))]
     pub mcts_cpuct_init: Option<f32>,
 
     #[structopt(
         long = "--mcts-c-base",
         help = "MCTS: Cpuct growth rate scaling. Higher value reduces Cpuct growth."
     )]
+    #[cfg_attr(feature = "serde", serde(default))]
     pub mcts_cpuct_base: Option<f32>,
 
     #[structopt(
         long = "--mcts-c-factor",
         help = "MCTS: Cpuct growth rate per logarithm of number of nodes."
     )]
+    #[cfg_attr(feature = "serde", serde(default))]
     pub mcts_cpuct_factor: Option<f32>,
 
     #[structopt(
@@ -101,31 +111,39 @@ pub struct SearchConfig {
         long = "--mcts-iters",
         help = "MCTS: number of playouts per playout step"
     )]
+    #[cfg_attr(feature = "serde", serde(default))]
     pub mcts_random_playout_iters: Option<u32>,
 
     #[structopt(long = "--mcts-max-steps", help = "MCTS: max steps per playout")]
+    #[cfg_attr(feature = "serde", serde(default))]
     pub mcts_random_playout_max_steps: Option<u32>,
 
     #[structopt(long = "--mcts-playout-bias", help = "MCTS: random playout bias")]
+    #[cfg_attr(feature = "serde", serde(default))]
     pub mcts_random_playout_bias: Option<f32>,
 
     #[structopt(long = "--mcts-policy-bias", help = "MCTS: policy network bias")]
+    #[cfg_attr(feature = "serde", serde(default))]
     pub mcts_policy_bias: Option<f32>,
 
     #[cfg(feature = "training")]
     #[structopt(long = "--mcts-policy-npz", help = "MCTS: Path to policy .npz file")]
+    #[cfg_attr(feature = "serde", serde(default))]
     pub mcts_policy_npz_path: Option<PathBuf>,
 
     #[structopt(long = "--mcts-use-policy-network", help = "MCTS: Use hard-coded policy network")]
+    #[cfg_attr(feature = "serde", serde(default))]
     pub mcts_use_policy_network: bool,
 
     #[structopt(
         long = "--mcts-use-rule-based-policy",
         help = "MCTS: Use rule-based search as policy"
     )]
+    #[cfg_attr(feature = "serde", serde(default))]
     pub mcts_use_rule_based_policy: bool,
 
     #[structopt(long = "--policy-based-bias", help = "Policy-based: softmax bias")]
+    #[cfg_attr(feature = "serde", serde(default))]
     pub policy_based_bias: Option<f32>,
 
     #[structopt(
@@ -133,19 +151,24 @@ pub struct SearchConfig {
         long = "--time-limit-ms",
         help = "Set time limit per move in milliseconds"
     )]
+    #[cfg_attr(feature = "serde", serde(default))]
     pub time_limit_ms: Option<u128>,
 
     #[structopt(short = "P", long = "--max-positions", help = "Max positions to search")]
+    #[cfg_attr(feature = "serde", serde(default))]
     pub max_positions: Option<u64>,
 
     #[structopt(long = "--tt-size-mb", help = "Transposition table size")]
+    #[cfg_attr(feature = "serde", serde(default))]
     pub tt_size_mb: Option<u32>,
 
     #[structopt(short = "D", long = "--debug", help = "Print debug info")]
+    #[cfg_attr(feature = "serde", serde(default))]
     pub debug: bool,
 }
 
-#[derive(Debug, StructOpt, Clone)]
+#[derive(Default, Debug, StructOpt, Clone)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct DeckGen {
     #[structopt(
         parse(from_os_str),
@@ -178,21 +201,25 @@ pub struct DeckGen {
     pub mirror_match: bool,
 }
 
-#[derive(Debug, StructOpt, Clone)]
+#[derive(Default, Debug, StructOpt, Clone)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct SearchOpts {
     #[structopt(flatten)]
     pub deck: DeckGen,
 
     #[structopt(short = "s", long = "--steps", help = "Benchmark max steps to play out")]
+    #[cfg_attr(feature = "serde", serde(default))]
     pub steps: Option<u32>,
 
     #[structopt(short = "S", long = "--seed", help = "Random seed for the game states")]
+    #[cfg_attr(feature = "serde", serde(default))]
     pub seed: Option<u64>,
 
     #[structopt(
         long = "--tactical",
         help = "Tactical mode for search (a special mode that ignores cards, Elemental Tuning and dice management)"
     )]
+    #[cfg_attr(feature = "serde", serde(default))]
     pub tactical: bool,
 
     #[structopt(flatten)]

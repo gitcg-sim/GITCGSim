@@ -3,7 +3,15 @@ name = "gitcg_sim_cli_utils"
 version = "0.1.0"
 edition = "2021"
 
+[features]
+default = []
+serde = [
+    "dep:serde",
+    "gitcg_sim/serde"
+]
+
 [dependencies]
 gitcg_sim = { path = ".." }
 gitcg_sim_search = { path = "../gitcg_sim_search" }
 structopt = { version = "0.3.*" }
+serde = { version = "1.0", features = ["derive", "rc"], optional = true }

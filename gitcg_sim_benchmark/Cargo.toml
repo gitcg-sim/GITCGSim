@@ -8,10 +8,12 @@ name = "gitcg_sim_benchmark"
 path = "main.rs"
 
 [dependencies]
-gitcg_sim = { path = ".." }
-gitcg_sim_search = { path = "../gitcg_sim_search" }
-gitcg_sim_cli_utils = { path = "../gitcg_sim_cli_utils" }
+gitcg_sim = { path = "..", features = ["serde"] }
+gitcg_sim_search = { path = "../gitcg_sim_search", features = ["serde"] }
+gitcg_sim_cli_utils = { path = "../gitcg_sim_cli_utils", features = ["serde"] }
 structopt = { version = "0.3.*" }
 instant = { version = "0.1" }
 lazy_static = { version = "1.4.*" }
 rayon = { version = "^1.7.0" }
+serde = { version = "1.0" }
+serde_json = { version = "^1.0.94" }

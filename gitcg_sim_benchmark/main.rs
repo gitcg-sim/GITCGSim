@@ -1,19 +1,20 @@
-use gitcg_sim_search::{GameTreeSearch, SearchCounter, SearchResult};
 use instant::Duration;
 use lazy_static::__Deref;
-use rayon::prelude::{IntoParallelIterator, ParallelIterator};
-use std::cell::RefCell;
+use lazy_static::lazy_static;
+use std::path::PathBuf;
 use std::rc::Rc;
-use std::sync::atomic::{AtomicI32, Ordering};
 use std::time::Instant;
 use structopt::StructOpt;
 
-use gitcg_sim::{
-    prelude::*,
-    rand::{rngs::SmallRng, SeedableRng},
-};
-use gitcg_sim_cli_utils::cli_args::{SearchAlgorithm, SearchConfig, SearchOpts};
+use gitcg_sim::prelude::*;
+use gitcg_sim_cli_utils::cli_args::{DeckGen, SearchAlgorithm, SearchConfig, SearchOpts};
 use gitcg_sim_search::mcts::CpuctConfig;
+
+mod match_round;
+use match_round::*;
+
+mod compare;
+use compare::*;
 
 #[derive(Debug, StructOpt, Clone)]
 #[structopt(about = "Genius Invokation TCG simulator")]
@@ -57,100 +58,33 @@ pub enum BenchmarkOpts {
         #[structopt(long)]
         standard_time_limit_ms: Option<u128>,
     },
+    #[structopt(help = "Perform head-to-head matches between multiple search configurations.")]
+    Compare {
+        #[structopt(help = "Path to the JSON file for the configuration.")]
+        json_path: PathBuf,
+    },
+}
+
+lazy_static! {
+    pub static ref _DEFAULT_SEARCH_OPTS: SearchOpts = SearchOpts {
+        deck: DeckGen {
+            random_decks: true,
+            ..Default::default()
+        },
+        ..Default::default()
+    };
 }
 
 impl BenchmarkOpts {
-    fn deck(&self) -> &SearchOpts {
+    fn deck(&self) -> Option<&SearchOpts> {
         match self {
-            BenchmarkOpts::Speedup { search: deck, .. } => deck,
-            BenchmarkOpts::Benchmark { search: deck, .. } => deck,
-            BenchmarkOpts::Evaluate { search: deck, .. } => deck,
-            BenchmarkOpts::Match { search: deck, .. } => deck,
+            BenchmarkOpts::Speedup { search: deck, .. }
+            | BenchmarkOpts::Benchmark { search: deck, .. }
+            | BenchmarkOpts::Evaluate { search: deck, .. }
+            | BenchmarkOpts::Match { search: deck, .. } => Some(deck),
+            BenchmarkOpts::Compare { .. } => Some(&_DEFAULT_SEARCH_OPTS),
         }
     }
-}
-
-fn trace_search<S: NondetState, T: GameTreeSearch<GameStateWrapper<S>>>(
-    game: &GameStateWrapper<S>,
-    steps: u32,
-    searches: &RefCell<ByPlayer<T>>,
-) -> (u128, SearchCounter) {
-    let mut game = game.clone();
-    let mut total_counter = SearchCounter::default();
-    let mut total_time: u128 = 0;
-    for i in 0..steps {
-        let t1 = Instant::now();
-        if let Some(winner) = game.winner() {
-            println!("Winner: {winner:?}");
-            break;
-        }
-        let p = game.to_move().unwrap();
-        let mut searches = searches.borrow_mut();
-        let search = searches.get_mut(p);
-        let SearchResult {
-            pv,
-            eval: v,
-            counter: c,
-        } = search.search_hidden(&game, p);
-        total_counter.add_in_place(&c);
-        let input = pv.head().expect("PV is empty");
-        let dt_ns = t1.elapsed().as_nanos();
-        total_time += dt_ns;
-        match game.advance(input) {
-            Err(e) => {
-                println!("DispatchError (to_move_player={:?}, input={input:?}):", game.to_move());
-                println!("{game:?}");
-                println!();
-                println!("pv={pv:?} v={v:?}");
-                println!("available_actions:");
-                game.actions().into_iter().for_each(|x| println!(" - {x:?}"));
-                panic!("trace_search: failed: {e:?} {input:?}");
-            }
-            _ => {
-                println!("--> {i:2} {input:?} | {v:?} | {} | {c:?}", c.summary(dt_ns));
-            }
-        }
-    }
-    (total_time, total_counter)
-}
-
-fn match_round<S: NondetState, T: GameTreeSearch<GameStateWrapper<S>>>(
-    mut game: GameStateWrapper<S>,
-    search: &mut ByPlayer<T>,
-    steps: u32,
-) -> (Option<PlayerId>, Duration, SearchCounter) {
-    let t0 = Instant::now();
-    let mut total_counter = SearchCounter::default();
-    for _ in 0..steps {
-        if game.winner().is_some() {
-            break;
-        }
-
-        let p = game.to_move().unwrap();
-        let search = &mut search[p];
-        let SearchResult {
-            pv,
-            eval: _,
-            counter: c,
-        } = search.search_hidden(&game, p);
-        total_counter.add_in_place(&c);
-        if pv.is_empty() {
-            println!("perform_match: PV is empty.");
-            break;
-        }
-        let input = pv.head().unwrap();
-        if let Err(e) = game.advance(input) {
-            println!("----------");
-            println!("Error: {e:?}");
-            println!("Input: {input:?}");
-            println!("Game state: {game:?}");
-            println!("----------");
-            println!();
-            break;
-        };
-    }
-
-    (game.winner(), t0.elapsed(), total_counter)
 }
 
 fn standard_search_opts(algorithm: Option<SearchAlgorithm>, standard_time_limit_ms: Option<u128>) -> SearchConfig {
@@ -175,18 +109,18 @@ fn standard_search_opts(algorithm: Option<SearchAlgorithm>, standard_time_limit_
 
 fn main() -> Result<(), std::io::Error> {
     let opts = BenchmarkOpts::from_args();
-    let steps: u32 = opts.deck().steps.unwrap_or(200);
+    let steps: u32 = opts.deck().and_then(|x| x.steps).unwrap_or(200);
     let (bf, benchmark_half) = {
-        let deck_opts: &SearchOpts = opts.deck();
+        let deck_opts: &SearchOpts = opts.deck().expect("Deck is expected.");
         let search_opts = &deck_opts.search;
         let depth: u8 = search_opts.search_depth.unwrap_or(8);
         let bf = move |n: f64| n.powf(1_f64 / (depth as f64));
         let game = Rc::new(deck_opts.get_standard_game(None)?);
         let benchmark = move |parallel: bool, steps: u32| {
             let f = || deck_opts.make_search(parallel, deck_opts.get_limits());
-            let searches = RefCell::new(ByPlayer::new(f(), f()));
+            let mut searches = ByPlayer::new(f(), f());
             let game = game.deref();
-            let (dt_ns, c) = trace_search(game, steps, &searches);
+            let (dt_ns, c) = trace_search(game, &mut searches, steps);
             (dt_ns, c)
         };
         (bf, benchmark)
@@ -221,55 +155,40 @@ fn main() -> Result<(), std::io::Error> {
         println!("{s} branching factor: {:.2}", bf(c.states_visited as f64));
     };
 
-    let matches_started = AtomicI32::default();
     let do_match = |parallel: bool,
                     steps: u32,
                     rounds: u32,
                     get_standard_search_opts: &dyn Fn() -> SearchConfig|
      -> Result<(f32, Duration), std::io::Error> {
-        let deck_opts = opts.deck();
+        let deck_opts = opts.deck().expect("Deck is expected.");
         let t0 = Instant::now();
         let standard_opts = get_standard_search_opts();
-        let (score, total_counter) = (0..rounds)
-            .into_par_iter()
-            .map(|_| {
-                let i = matches_started.fetch_add(1, Ordering::SeqCst);
-                let flip = i % 2 == 0;
-                let mut search = ByPlayer(
-                    deck_opts.make_search(parallel, deck_opts.get_limits()),
-                    standard_opts.make_search(parallel, standard_opts.get_limits()),
-                );
-                if flip {
-                    std::mem::swap(&mut search.0, &mut search.1);
-                }
-                let rng = SmallRng::seed_from_u64(deck_opts.seed.unwrap_or_default().overflowing_mul(i as u64).0);
-                let game = deck_opts.get_standard_game(Some(rng)).unwrap();
-
-                println!("+ Round {:3}", i + 1);
-                let (winner, dt, c) = match_round(game, &mut search, steps);
-                let (winner_str, d_score) = get_winner_value(winner, flip);
-                println!(
-                    "- Round {:3} ... {winner_str} dt={:6.2}ms, states_visited={:8}",
-                    i + 1,
-                    dt.as_millis(),
-                    c.states_visited
-                );
-                (d_score, c)
-            })
-            .reduce(
-                || (Default::default(), Default::default()),
-                |(s, mut c), (s1, c1)| {
-                    c.add_in_place(&c1);
-                    (s + s1, c)
-                },
-            );
+        let make_search = || {
+            ByPlayer(
+                deck_opts.make_search(parallel, deck_opts.get_limits()),
+                standard_opts.make_search(parallel, standard_opts.get_limits()),
+            )
+        };
+        let (_, score, total_counter) = iterate_match(
+            &make_search,
+            &|rng| {
+                deck_opts
+                    .get_standard_game(Some(rng))
+                    .expect("Failed to create initial game state.")
+            },
+            IterateMatchOpts {
+                rounds,
+                random_seed: deck_opts.seed.unwrap_or(100),
+                steps,
+            },
+        );
 
         println!(
             "{:?}, rate={:.4}Mstates/s",
             total_counter,
             (total_counter.states_visited as f64) / (t0.elapsed().as_micros() as f64)
         );
-        Ok(((score as f32) / ((2 * rounds) as f32), t0.elapsed()))
+        Ok((score, t0.elapsed()))
     };
 
     match opts {
@@ -289,27 +208,12 @@ fn main() -> Result<(), std::io::Error> {
             })?;
             println!("{score}, {:.2}ms", dt.as_millis());
         }
+        BenchmarkOpts::Compare { json_path, .. } => {
+            let opts = parse_compare_opts(&json_path).expect("Failed to parse config.");
+            dbg!(&opts);
+            main_compare(opts).expect("Failed to run compare mode")
+        }
     };
 
     Ok(())
-}
-
-fn get_winner_value(winner: Option<PlayerId>, flip: bool) -> (&'static str, i32) {
-    match winner {
-        Some(PlayerId::PlayerFirst) => {
-            if flip {
-                ("0-1", 0)
-            } else {
-                ("1-0", 2)
-            }
-        }
-        Some(PlayerId::PlayerSecond) => {
-            if flip {
-                ("1-0", 2)
-            } else {
-                ("0-1", 0)
-            }
-        }
-        None => ("1/2", 1),
-    }
 }

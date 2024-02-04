@@ -141,7 +141,9 @@ pub trait GameTreeSearch<G: Game> {
 #[derive(Debug, Default, Copy, Clone)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct SearchLimits {
+    #[cfg_attr(feature = "serde", serde(default))]
     pub max_time_ms: Option<u128>,
+    #[cfg_attr(feature = "serde", serde(default))]
     pub max_positions: Option<u64>,
 }
 
