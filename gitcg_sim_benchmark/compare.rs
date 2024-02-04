@@ -114,11 +114,14 @@ fn get_standard_game(decks: ByPlayer<&Decklist>, mut rng: SmallRng, random_decks
 
 pub fn main_compare(opts: CompareOpts) -> Result<(), String> {
     let parallel = opts.parallel;
-    let limits = None;
+    let limits = opts.search_limits;
     let results: Result<Vec<_>, _> = opts
         .configs
         .iter()
-        .map(|c| c.construct::<StandardNondetHandlerState>(parallel, limits))
+        .map(move |c| {
+            c.construct::<StandardNondetHandlerState>(parallel, limits)
+                .map(|x| (&c.name, x))
+        })
         .collect();
     let entries = results.map_err(|e| e.to_string())?;
     let n = entries.len();
@@ -128,15 +131,17 @@ pub fn main_compare(opts: CompareOpts) -> Result<(), String> {
     let steps = opts.max_steps_per_round;
     let random_seed = opts.random_seed;
     for (i, row) in matchup.iter_mut().enumerate() {
-        for (j, cell) in row[i + 1..].iter_mut().enumerate() {
+        for (j, cell) in row.iter_mut().enumerate() {
+            if j <= i {
+                continue;
+            }
             let cs = ByPlayer::new(&entries[i], &entries[j]);
-            let decks = cs.map(|x| &x.0);
-            let make_search = || cs.map(|x| x.1());
-            let get_game = |rng| get_standard_game(decks, rng, random_decks);
-            println!("--- {} vs. {}", i, j);
+            let decks = cs.map(|(_, (x, _))| x);
+            println!("--- {} vs. {}", entries[i].0, entries[j].0);
+            // dbg!(&decks);
             let (_, score, _) = iterate_match(
-                &make_search,
-                &get_game,
+                &|| cs.map(|(_, x)| x.1()),
+                &|rng| get_standard_game(decks, rng, random_decks),
                 crate::IterateMatchOpts {
                     rounds,
                     steps,

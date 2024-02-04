@@ -1,0 +1,52 @@
+{
+    "parallel": true,
+    "search_limits": {
+        "max_time_ms": 200
+    },
+    "match_rounds": 100,
+    "random_decks": true,
+    "configs": [
+        {
+            "name": "A",
+            "deck": {
+                "random": 123
+            },
+            "search_config": {
+                "algorithm": "MCTS",
+                "mcts_cpuct_base": 4,
+                "tt_size_mb": 32
+            }
+        },
+        {
+            "name": "B",
+            "deck": {
+                "random": 456
+            },
+            "search_config": {
+                "algorithm": "MCTS",
+                "mcts_cpuct_base": 2,
+                "tt_size_mb": 32
+            }
+        },
+        {
+            "name": "C",
+            "deck": {
+                "random": 456
+            },
+            "search_config": {
+                "algorithm": "Minimax",
+                "search_depth": 5,
+                "tt_size_mb": 32
+            }
+        },
+        {
+            "name": "D",
+            "deck": {
+                "random": 456
+            },
+            "search_config": {
+                "algorithm": "RuleBased"
+            }
+        }
+    ]
+}

@@ -628,6 +628,10 @@ impl<G: Game, E: EvalPolicy<G>, S: SelectionPolicy<G>> GameTreeSearch<G> for MCT
             return Default::default();
         }
 
+        if self.config.debug {
+            dbg!(&self.config);
+        }
+
         let time_limit_ms = self.config.limits.and_then(|l| l.max_time_ms).unwrap_or(600_000);
         let states_limit = self.config.limits.and_then(|l| l.max_positions).unwrap_or(u64::MAX);
         let t0 = Instant::now();

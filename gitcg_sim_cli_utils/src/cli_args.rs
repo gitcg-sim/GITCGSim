@@ -58,7 +58,11 @@ impl FromStr for SearchAlgorithm {
 }
 
 #[derive(Debug, StructOpt, Clone, Default)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(
+    feature = "serde",
+    derive(serde::Serialize, serde::Deserialize),
+    serde(deny_unknown_fields)
+)]
 pub struct SearchConfig {
     #[structopt(
         short = "A",

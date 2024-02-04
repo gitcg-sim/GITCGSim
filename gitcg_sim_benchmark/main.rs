@@ -210,8 +210,11 @@ fn main() -> Result<(), std::io::Error> {
         }
         BenchmarkOpts::Compare { json_path, .. } => {
             let opts = parse_compare_opts(&json_path).expect("Failed to parse config.");
-            dbg!(&opts);
-            main_compare(opts).expect("Failed to run compare mode")
+            // dbg!(&opts);
+            if let Err(e) = main_compare(opts) {
+                println!("{e}");
+                std::process::exit(1)
+            }
         }
     };
 
