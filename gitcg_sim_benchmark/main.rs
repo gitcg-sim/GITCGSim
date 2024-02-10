@@ -16,6 +16,9 @@ use match_round::*;
 mod compare;
 use compare::*;
 
+mod perft;
+use perft::*;
+
 #[derive(Debug, StructOpt, Clone)]
 #[structopt(about = "Genius Invokation TCG simulator")]
 pub enum BenchmarkOpts {
@@ -63,6 +66,23 @@ pub enum BenchmarkOpts {
         #[structopt(help = "Path to the JSON file for the configuration.")]
         json_path: PathBuf,
     },
+    #[structopt(
+        help = "Count the total number of positions visited at a given depth, starting from a particular initial position."
+    )]
+    Perft {
+        #[structopt(long = "--parallel", short = "-P")]
+        parallel: bool,
+
+        #[structopt(
+            long = "--iterative",
+            short = "-I",
+            help = "Run perft for each depth starting from 1."
+        )]
+        iterative: bool,
+
+        #[structopt(flatten)]
+        search: SearchOpts,
+    },
 }
 
 lazy_static! {
@@ -83,6 +103,7 @@ impl BenchmarkOpts {
             | BenchmarkOpts::Evaluate { search: deck, .. }
             | BenchmarkOpts::Match { search: deck, .. } => Some(deck),
             BenchmarkOpts::Compare { .. } => Some(&_DEFAULT_SEARCH_OPTS),
+            BenchmarkOpts::Perft { search: deck, .. } => Some(deck),
         }
     }
 }
@@ -210,10 +231,23 @@ fn main() -> Result<(), std::io::Error> {
         }
         BenchmarkOpts::Compare { json_path, .. } => {
             let opts = parse_compare_opts(&json_path).expect("Failed to parse config.");
-            // dbg!(&opts);
             if let Err(e) = main_compare(opts) {
                 println!("{e}");
                 std::process::exit(1)
+            }
+        }
+        BenchmarkOpts::Perft {
+            parallel,
+            iterative,
+            search,
+        } => {
+            let depth = search.search.search_depth.unwrap_or(3);
+            if iterative {
+                for depth in 1..depth {
+                    run_perft(&search, parallel, depth)?
+                }
+            } else {
+                run_perft(&search, parallel, search.search.search_depth.unwrap_or(3))?
             }
         }
     };
