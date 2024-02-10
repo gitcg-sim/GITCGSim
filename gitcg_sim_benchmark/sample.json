@@ -7,29 +7,51 @@
     "random_decks": true,
     "configs": [
         {
-            "name": "A",
-            "deck": {
-                "random": 123
-            },
-            "search_config": {
-                "algorithm": "MCTS",
-                "mcts_cpuct_base": 4,
-                "tt_size_mb": 32
-            }
-        },
-        {
-            "name": "B",
+            "name": "A1",
             "deck": {
                 "random": 456
             },
             "search_config": {
                 "algorithm": "MCTS",
-                "mcts_cpuct_base": 2,
+                "mcts_cpuct_init": 1,
                 "tt_size_mb": 32
             }
         },
         {
-            "name": "C",
+            "name": "A2",
+            "deck": {
+                "random": 456
+            },
+            "search_config": {
+                "algorithm": "MCTS",
+                "mcts_cpuct_init": 2,
+                "tt_size_mb": 32
+            }
+        },
+        {
+            "name": "A3",
+            "deck": {
+                "random": 456
+            },
+            "search_config": {
+                "algorithm": "MCTS",
+                "mcts_cpuct_init": 4,
+                "tt_size_mb": 32
+            }
+        },
+        {
+            "name": "C1",
+            "deck": {
+                "random": 456
+            },
+            "search_config": {
+                "algorithm": "Minimax",
+                "search_depth": 2,
+                "tt_size_mb": 32
+            }
+        },
+        {
+            "name": "C2",
             "deck": {
                 "random": 456
             },
