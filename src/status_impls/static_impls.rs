@@ -8,13 +8,13 @@ use crate::cards::summons::burning_flame;
 use crate::data_structures::CommandList;
 use crate::tcg_model::*;
 use crate::types::card_defs::{Cost, SkillImpl};
+use crate::types::card_impl::*;
 use crate::types::char_state::{AppliedEffectResult, AppliedEffectState};
 use crate::types::command::*;
 use crate::types::dice_counter::DiceDistribution;
 use crate::types::game_state::{CardSelectionSpec, PlayerState};
 use crate::types::status_impl::{RespondsTo, StatusImpl};
 use crate::types::StatusSpecModifier;
-use crate::{__generated_enum_cases, cards::ids::CardId, types::card_impl::*};
 use char_reexports::*;
 
 /// An instance of `StatusImpl` backed by one of 3 enum types:
@@ -96,21 +96,11 @@ impl From<SupportId> for StaticStatusImpl {
 
 impl CardImpl for CardId {
     fn can_be_played(&self, cic: &CardImplContext) -> CanBePlayedResult {
-        __generated_enum_cases!(CardId, *self, &C, |c| {
-            match c.card_impl {
-                None => DefaultCardImpl().can_be_played(cic),
-                Some(ci) => ci.can_be_played(cic),
-            }
-        })
+        self.get_card_impl().unwrap_or(&DefaultCardImpl()).can_be_played(cic)
     }
 
     fn selection(&self) -> Option<CardSelectionSpec> {
-        __generated_enum_cases!(CardId, *self, &C, |c| {
-            match c.card_impl {
-                None => DefaultCardImpl().selection(),
-                Some(ci) => ci.selection(),
-            }
-        })
+        self.get_card_impl().unwrap_or(&DefaultCardImpl()).selection()
     }
 
     fn get_effects(
@@ -119,12 +109,9 @@ impl CardImpl for CardId {
         ctx: &CommandContext,
         commands: &mut CommandList<(CommandContext, Command)>,
     ) {
-        __generated_enum_cases!(CardId, *self, &C, |c| {
-            match c.card_impl {
-                None => DefaultCardImpl().get_effects(cic, ctx, commands),
-                Some(ci) => ci.get_effects(cic, ctx, commands),
-            }
-        })
+        self.get_card_impl()
+            .unwrap_or(&DefaultCardImpl())
+            .get_effects(cic, ctx, commands)
     }
 }
 
