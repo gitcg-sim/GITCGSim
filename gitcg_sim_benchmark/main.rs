@@ -243,7 +243,7 @@ fn main() -> Result<(), std::io::Error> {
         } => {
             let depth = search.search.search_depth.unwrap_or(3);
             if iterative {
-                for depth in 1..depth {
+                for depth in 1..=depth {
                     run_perft(&search, parallel, depth)?
                 }
             } else {

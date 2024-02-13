@@ -22,7 +22,7 @@ fn perft_serial<S: NondetState>(gs: &GameStateWrapper<S>, depth: u8) -> u64 {
 
 fn perft_parallel<S: NondetState>(gs: &GameStateWrapper<S>, depth: u8, parallel_depth: u8) -> u64 {
     use rayon::prelude::*;
-    if parallel_depth == 0 || depth <= 2 {
+    if parallel_depth == 0 || depth <= 4 {
         return perft_serial(gs, depth);
     }
     let actions = gs.actions();
