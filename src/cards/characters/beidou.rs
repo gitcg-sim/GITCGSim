@@ -38,6 +38,13 @@ pub const WAVESTRIDER: Skill = Skill {
     ..Skill::new()
 };
 
+pub const SKILLS: [(SkillId, Skill); 4] = [
+    (SkillId::Oceanborne, OCEANBORNE),
+    (SkillId::Tidecaller, TIDECALLER),
+    (SkillId::Stormbreaker, STORMBREAKER),
+    (SkillId::Wavestrider, WAVESTRIDER),
+];
+
 pub mod tidecaller_surf_embrace {
     use super::*;
 

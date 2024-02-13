@@ -34,6 +34,12 @@ pub const FASHIONERS_TANGLEVINE_SHAFT: Skill = Skill {
     ..Skill::new()
 };
 
+pub const SKILLS: [(SkillId, Skill); 3] = [
+    (SkillId::KhandaBarrierBuster, KHANDA_BARRIER_BUSTER),
+    (SkillId::VijnanaPhalaMine, VIJNANA_PHALA_MINE),
+    (SkillId::FashionersTanglevineShaft, FASHIONERS_TANGLEVINE_SHAFT),
+];
+
 pub mod vijnana_suffusion {
     use super::*;
 

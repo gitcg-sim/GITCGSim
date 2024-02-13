@@ -30,6 +30,12 @@ pub const GLACIAL_WALTZ: Skill = Skill {
     ..Skill::new()
 };
 
+pub const SKILLS: [(SkillId, Skill); 3] = [
+    (SkillId::CeremonialBladework, CEREMONIAL_BLADEWORK),
+    (SkillId::Frostgnaw, FROSTGNAW),
+    (SkillId::GlacialWaltz, GLACIAL_WALTZ),
+];
+
 pub mod icicle {
     use super::*;
     pub const S: Status = Status::new_usages("Icicle", StatusAttachMode::Team, 3, None);

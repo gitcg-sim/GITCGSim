@@ -35,6 +35,15 @@ pub const DANCE_OF_ABZENDEGI_DISTANT_DREAMS_LISTENING_SPRING: Skill = Skill {
     ..Skill::new()
 };
 
+pub const SKILLS: [(SkillId, Skill); 3] = [
+    (SkillId::DanceOfSamser, DANCE_OF_SAMSER),
+    (SkillId::DanceOfHaftkarsvar, DANCE_OF_HAFTKARSVAR),
+    (
+        SkillId::DanceOfAbzendegiDistantDreamsListeningSpring,
+        DANCE_OF_ABZENDEGI_DISTANT_DREAMS_LISTENING_SPRING,
+    ),
+];
+
 pub struct DanceOfHaftkarsvar();
 impl SkillImpl for DanceOfHaftkarsvar {
     fn get_commands(

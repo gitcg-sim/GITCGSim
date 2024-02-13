@@ -34,6 +34,12 @@ pub const ADEPTUS_ART_PRESERVER_OF_FORTUNE: Skill = Skill {
     ..Skill::new()
 };
 
+pub const SKILLS: [(SkillId, Skill); 3] = [
+    (SkillId::AncientSwordArt, ANCIENT_SWORD_ART),
+    (SkillId::AdeptusArtHeraldOfFrost, ADEPTUS_ART_HERALD_OF_FROST),
+    (SkillId::AdeptusArtPreserverOfFortune, ADEPTUS_ART_PRESERVER_OF_FORTUNE),
+];
+
 pub mod herald_of_frost {
     use super::*;
 

@@ -34,6 +34,12 @@ pub const BANE_OF_ALL_EVIL: Skill = Skill {
     ..Skill::new()
 };
 
+pub const SKILLS: [(SkillId, Skill); 3] = [
+    (SkillId::WhirlwindThrust, WHIRLWIND_THRUST),
+    (SkillId::LemniscaticWindCycling, LEMNISCATIC_WIND_CYCLING),
+    (SkillId::BaneOfAllEvil, BANE_OF_ALL_EVIL),
+];
+
 pub mod yakshas_mask {
     use super::*;
 

@@ -34,6 +34,12 @@ pub const DONE_DEAL: Skill = Skill {
     ..Skill::new()
 };
 
+pub const SKILLS: [(SkillId, Skill); 3] = [
+    (SkillId::SealOfApproval, SEAL_OF_APPROVAL),
+    (SkillId::SignedEdict, SIGNED_EDICT),
+    (SkillId::DoneDeal, DONE_DEAL),
+];
+
 pub mod scarlet_seal {
     use super::*;
 

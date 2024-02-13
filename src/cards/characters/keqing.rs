@@ -34,6 +34,12 @@ pub const STARWARD_SWORD: Skill = Skill {
     ..Skill::new()
 };
 
+pub const SKILLS: [(SkillId, Skill); 3] = [
+    (SkillId::YunlaiSwordsmanship, YUNLAI_SWORDSMANSHIP),
+    (SkillId::StellarRestoration, STELLAR_RESTORATION),
+    (SkillId::StarwardSword, STARWARD_SWORD),
+];
+
 pub mod electro_infusion {
     use super::*;
     pub const S: Status = Status::new_duration("Electro Infusion", StatusAttachMode::Character, 2)

@@ -30,6 +30,12 @@ pub const STARSHATTER: Skill = Skill {
     ..Skill::new()
 };
 
+pub const SKILLS: [(SkillId, Skill); 3] = [
+    (SkillId::SparklingScatter, SPARKLING_SCATTER),
+    (SkillId::JadeScreen, JADE_SCREEN),
+    (SkillId::Starshatter, STARSHATTER),
+];
+
 pub mod jade_screen {
     use super::*;
 

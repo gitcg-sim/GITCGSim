@@ -34,6 +34,12 @@ pub const GREAT_SECRET_ART_TENKO_KENSHIN: Skill = Skill {
     ..Skill::new()
 };
 
+pub const SKILLS: [(SkillId, Skill); 3] = [
+    (SkillId::SpiritfoxSinEater, SPIRITFOX_SIN_EATER),
+    (SkillId::YakanEvocationSesshouSakura, YAKAN_EVOCATION_SESSHOU_SAKURA),
+    (SkillId::GreatSecretArtTenkoKenshin, GREAT_SECRET_ART_TENKO_KENSHIN),
+];
+
 pub struct GreatSecretArtTenkoKenshin();
 impl SkillImpl for GreatSecretArtTenkoKenshin {
     fn get_commands(

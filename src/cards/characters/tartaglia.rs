@@ -37,6 +37,12 @@ pub const HAVOC_OBLITERATION: Skill = Skill {
     ..Skill::new()
 };
 
+pub const SKILLS: [(SkillId, Skill); 3] = [
+    (SkillId::CuttingTorrent, CUTTING_TORRENT),
+    (SkillId::FoulLegacyRagingTide, FOUL_LEGACY_RAGING_TIDE),
+    (SkillId::HavocObliteration, HAVOC_OBLITERATION),
+];
+
 impl PlayerState {
     #[inline]
     fn is_melee_stance(&self) -> bool {

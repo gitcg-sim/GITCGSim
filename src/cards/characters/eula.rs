@@ -61,6 +61,12 @@ pub const GLACIAL_ILLUMINATION: Skill = Skill {
     ..Skill::new()
 };
 
+pub const SKILLS: [(SkillId, Skill); 3] = [
+    (SkillId::FavoniusBladeworkEdel, FAVONIUS_BLADEWORK_EDEL),
+    (SkillId::IcetideVortex, ICETIDE_VORTEX),
+    (SkillId::GlacialIllumination, GLACIAL_ILLUMINATION),
+];
+
 pub mod grimheart {
     use super::*;
 

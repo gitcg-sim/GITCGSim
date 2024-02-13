@@ -37,6 +37,12 @@ pub const SECRET_ART_MUSOU_SHINSETSU: Skill = Skill {
     ..Skill::new()
 };
 
+pub const SKILLS: [(SkillId, Skill); 3] = [
+    (SkillId::Origin, ORIGIN),
+    (SkillId::TranscendenceBalefulOmen, TRANSCENDENCE_BALEFUL_OMEN),
+    (SkillId::SecretArtMusouShinsetsu, SECRET_ART_MUSOU_SHINSETSU),
+];
+
 pub mod eye_of_stormy_judgment {
     use super::*;
 

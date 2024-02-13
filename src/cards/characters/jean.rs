@@ -31,6 +31,12 @@ pub const DANDELION_BREEZE: Skill = Skill {
     ..Skill::new()
 };
 
+pub const SKILLS: [(SkillId, Skill); 3] = [
+    (SkillId::FavoniusBladework, FAVONIUS_BLADEWORK),
+    (SkillId::GaleBlade, GALE_BLADE),
+    (SkillId::DandelionBreeze, DANDELION_BREEZE),
+];
+
 pub mod dandelion_field {
     use super::*;
 

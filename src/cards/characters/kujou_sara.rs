@@ -35,6 +35,12 @@ pub const SUBJUGATION_KOUKOU_SENDOU: Skill = Skill {
     ..Skill::new()
 };
 
+pub const SKILLS: [(SkillId, Skill); 3] = [
+    (SkillId::TenguBowmanship, TENGU_BOWMANSHIP),
+    (SkillId::TenguStormcall, TENGU_STORMCALL),
+    (SkillId::SubjugationKoukouSendou, SUBJUGATION_KOUKOU_SENDOU),
+];
+
 pub mod tengu_juurai_ambush {
     use super::*;
 

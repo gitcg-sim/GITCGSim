@@ -47,6 +47,13 @@ pub const ILLUSORY_HEART: Skill = Skill {
     ..Skill::new()
 };
 
+pub const SKILLS: [(SkillId, Skill); 4] = [
+    (SkillId::Akara, AKARA),
+    (SkillId::AllSchemesToKnow, ALL_SCHEMES_TO_KNOW),
+    (SkillId::AllSchemesToKnowTathata, ALL_SCHEMES_TO_KNOW_TATHATA),
+    (SkillId::IllusoryHeart, ILLUSORY_HEART),
+];
+
 pub mod seed_of_skandha {
     use super::*;
 

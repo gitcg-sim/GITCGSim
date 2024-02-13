@@ -32,6 +32,12 @@ pub const DAWN: Skill = Skill {
     ..Skill::new()
 };
 
+pub const SKILLS: [(SkillId, Skill); 3] = [
+    (SkillId::TemperedSword, TEMPERED_SWORD),
+    (SkillId::SearingOnslaught, SEARING_ONSLAUGHT),
+    (SkillId::Dawn, DAWN),
+];
+
 pub mod searing_onslaught_counter {
     use super::*;
 

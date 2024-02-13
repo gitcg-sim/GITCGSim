@@ -34,6 +34,12 @@ pub const MIDNIGHT_PHANTASMAGORIA: Skill = Skill {
     ..Skill::new()
 };
 
+pub const SKILLS: [(SkillId, Skill); 3] = [
+    (SkillId::BoltsOfDownfall, BOLTS_OF_DOWNFALL),
+    (SkillId::Nightrider, NIGHTRIDER),
+    (SkillId::MidnightPhantasmagoria, MIDNIGHT_PHANTASMAGORIA),
+];
+
 pub mod oz {
     use super::*;
 

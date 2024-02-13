@@ -34,6 +34,12 @@ pub const SPIRIT_SOOTHER: Skill = Skill {
     ..Skill::new()
 };
 
+pub const SKILLS: [(SkillId, Skill); 3] = [
+    (SkillId::SecretSpearOfWangsheng, SECRET_SPEAR_OF_WANGSHENG),
+    (SkillId::GuideToAfterlife, GUIDE_TO_AFTERLIFE),
+    (SkillId::SpiritSoother, SPIRIT_SOOTHER),
+];
+
 pub mod paramita_papilio {
     use super::*;
 

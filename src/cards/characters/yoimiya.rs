@@ -35,6 +35,12 @@ pub const RYUUKIN_SAXIFRAGE: Skill = Skill {
     ..Skill::new()
 };
 
+pub const SKILLS: [(SkillId, Skill); 3] = [
+    (SkillId::FireworkFlareUp, FIREWORK_FLARE_UP),
+    (SkillId::NiwabiFireDance, NIWABI_FIRE_DANCE),
+    (SkillId::RyuukinSaxifrage, RYUUKIN_SAXIFRAGE),
+];
+
 pub mod niwabi_enshou {
     use super::*;
     pub const S: Status = Status::new_usages("Niwabi Enshou", StatusAttachMode::Character, 2, None);

@@ -35,6 +35,12 @@ pub const WINDS_GRAND_ODE: Skill = Skill {
     ..Skill::new()
 };
 
+pub const SKILLS: [(SkillId, Skill); 3] = [
+    (SkillId::DivineMarksmanship, DIVINE_MARKSMANSHIP),
+    (SkillId::SkywardSonnet, SKYWARD_SONNET),
+    (SkillId::WindsGrandOde, WINDS_GRAND_ODE),
+];
+
 pub mod stormzone {
     use super::*;
 

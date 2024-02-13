@@ -47,6 +47,13 @@ pub const HERON_STRIKE: Skill = Skill {
     ..Skill::new()
 };
 
+pub const SKILLS: [(SkillId, Skill); 4] = [
+    (SkillId::GleamingSpearGuardianStance, GLEAMING_SPEAR_GUARDIAN_STANCE),
+    (SkillId::SacredRiteHeronsSanctum, SACRED_RITE_HERONS_SANCTUM),
+    (SkillId::SacredRiteWagtailsTide, SACRED_RITE_WAGTAILS_TIDE),
+    (SkillId::HeronStrike, HERON_STRIKE),
+];
+
 pub mod heron_shield {
     use super::*;
 

@@ -31,6 +31,12 @@ pub const SPARKS_N_SPLASH: Skill = Skill {
     ..Skill::new()
 };
 
+pub const SKILLS: [(SkillId, Skill); 3] = [
+    (SkillId::Kaboom, KABOOM),
+    (SkillId::JumpyDumpty, JUMPY_DUMPTY),
+    (SkillId::SparksNSplash, SPARKS_N_SPLASH),
+];
+
 pub mod sparks_n_splash {
     use super::*;
 

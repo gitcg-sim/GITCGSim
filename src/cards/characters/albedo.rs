@@ -34,6 +34,15 @@ pub const RITE_OF_PROGENITURE_TECTONIC_TIDE: Skill = Skill {
     ..Skill::new()
 };
 
+pub const SKILLS: [(SkillId, Skill); 3] = [
+    (SkillId::FavoniusBladeworkWeiss, FAVONIUS_BLADEWORK_WEISS),
+    (SkillId::AbiogenesisSolarIsotoma, ABIOGENESIS_SOLAR_ISOTOMA),
+    (
+        SkillId::RiteOfProgenitureTectonicTide,
+        RITE_OF_PROGENITURE_TECTONIC_TIDE,
+    ),
+];
+
 pub struct RiteOfProgenitureTectonicTide();
 impl SkillImpl for RiteOfProgenitureTectonicTide {
     fn get_commands(

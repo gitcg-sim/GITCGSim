@@ -35,6 +35,18 @@ pub const FORBIDDEN_CREATION_ISOMER_75_TYPE_II: Skill = Skill {
     ..Skill::new()
 };
 
+pub const SKILLS: [(SkillId, Skill); 3] = [
+    (SkillId::WindSpiritCreation, WIND_SPIRIT_CREATION),
+    (
+        SkillId::AstableAnemohypostasisCreation6308,
+        ASTABLE_ANEMOHYPOSTASIS_CREATION_6308,
+    ),
+    (
+        SkillId::ForbiddenCreationIsomer75TypeII,
+        FORBIDDEN_CREATION_ISOMER_75_TYPE_II,
+    ),
+];
+
 pub mod large_wind_spirit {
     use super::*;
 

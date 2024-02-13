@@ -31,6 +31,12 @@ pub const UPA_SHATO: Skill = Skill {
     ..Skill::new()
 };
 
+pub const SKILLS: [(SkillId, Skill); 3] = [
+    (SkillId::PlamaLawa, PLAMA_LAWA),
+    (SkillId::MovoLawa, MOVO_LAWA),
+    (SkillId::UpaShato, UPA_SHATO),
+];
+
 pub mod stonehide {
     use super::*;
 

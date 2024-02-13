@@ -34,6 +34,12 @@ pub const KAMISATO_ART_SOUMETSU: Skill = Skill {
     ..Skill::new()
 };
 
+pub const SKILLS: [(SkillId, Skill); 3] = [
+    (SkillId::KamisatoArtKabuki, KAMISATO_ART_KABUKI),
+    (SkillId::KamisatoArtHyouka, KAMISATO_ART_HYOUKA),
+    (SkillId::KamisatoArtSoumetsu, KAMISATO_ART_SOUMETSU),
+];
+
 pub mod kamisato_art_senho {
     use super::*;
 

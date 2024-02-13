@@ -30,6 +30,12 @@ pub const BLADE_ABLAZE: Skill = Skill {
     ..Skill::new()
 };
 
+pub const SKILLS: [(SkillId, Skill); 3] = [
+    (SkillId::Thrust, THRUST),
+    (SkillId::Prowl, PROWL),
+    (SkillId::BladeAblaze, BLADE_ABLAZE),
+];
+
 pub mod stealth {
     use super::*;
 

@@ -46,6 +46,13 @@ pub const PLANET_BEFALL: Skill = Skill {
     ..Skill::new()
 };
 
+pub const SKILLS: [(SkillId, Skill); 4] = [
+    (SkillId::RainOfStone, RAIN_OF_STONE),
+    (SkillId::DominusLapidis, DOMINUS_LAPIDIS),
+    (SkillId::DominusLapidisStrikingStone, DOMINUS_LAPIDIS_STRIKING_STONE),
+    (SkillId::PlanetBefall, PLANET_BEFALL),
+];
+
 pub mod stone_stele {
     use super::*;
 

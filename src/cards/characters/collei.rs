@@ -36,6 +36,12 @@ pub const TRUMP_CARD_KITTY: Skill = Skill {
     ..Skill::new()
 };
 
+pub const SKILLS: [(SkillId, Skill); 3] = [
+    (SkillId::SupplicantsBowmanship, SUPPLICANTS_BOWMANSHIP),
+    (SkillId::FloralBrush, FLORAL_BRUSH),
+    (SkillId::TrumpCardKitty, TRUMP_CARD_KITTY),
+];
+
 pub struct FloralBrush();
 impl SkillImpl for FloralBrush {
     fn get_commands(

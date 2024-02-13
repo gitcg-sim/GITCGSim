@@ -27,6 +27,12 @@ pub const FIERY_RAIN: Skill = Skill {
     ..Skill::new()
 };
 
+pub const SKILLS: [(SkillId, Skill); 3] = [
+    (SkillId::Sharpshooter, SHARPSHOOTER),
+    (SkillId::ExplosivePuppet, EXPLOSIVE_PUPPET),
+    (SkillId::FieryRain, FIERY_RAIN),
+];
+
 pub mod baron_bunny {
     use super::*;
 

@@ -36,6 +36,12 @@ pub const SWEEPING_TIME: Skill = Skill {
     ..Skill::new()
 };
 
+pub const SKILLS: [(SkillId, Skill); 3] = [
+    (SkillId::FavoniusBladeworkMaid, FAVONIUS_BLADEWORK_MAID),
+    (SkillId::Breastplate, BREASTPLATE),
+    (SkillId::SweepingTime, SWEEPING_TIME),
+];
+
 pub mod full_plate {
     use super::*;
 

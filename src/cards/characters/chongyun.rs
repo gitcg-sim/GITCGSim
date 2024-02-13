@@ -34,6 +34,12 @@ pub const CLOUD_PARTING_STAR: Skill = Skill {
     ..Skill::new()
 };
 
+pub const SKILLS: [(SkillId, Skill); 3] = [
+    (SkillId::Demonbane, DEMONBANE),
+    (SkillId::ChonghuasLayeredFrost, CHONGHUAS_LAYERED_FROST),
+    (SkillId::CloudPartingStar, CLOUD_PARTING_STAR),
+];
+
 pub mod chonghua_frost_field {
     use super::*;
 

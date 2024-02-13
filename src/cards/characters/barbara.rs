@@ -34,6 +34,12 @@ pub const SHINING_MIRACLE: Skill = Skill {
     ..Skill::new()
 };
 
+pub const SKILLS: [(SkillId, Skill); 3] = [
+    (SkillId::WhisperOfWater, WHISPER_OF_WATER),
+    (SkillId::LetTheShowBegin, LET_THE_SHOW_BEGIN),
+    (SkillId::ShiningMiracle, SHINING_MIRACLE),
+];
+
 pub mod melody_loop {
     use super::*;
 

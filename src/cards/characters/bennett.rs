@@ -33,6 +33,12 @@ pub const FANTASTIC_VOYAGE: Skill = Skill {
     ..Skill::new()
 };
 
+pub const SKILLS: [(SkillId, Skill); 3] = [
+    (SkillId::StrikeOfFortune, STRIKE_OF_FORTUNE),
+    (SkillId::PassionOverload, PASSION_OVERLOAD),
+    (SkillId::FantasticVoyage, FANTASTIC_VOYAGE),
+];
+
 pub mod inspiration_field {
     use super::*;
 

@@ -34,6 +34,12 @@ pub const MOONJADE_DESCENT: Skill = Skill {
     ..Skill::new()
 };
 
+pub const SKILLS: [(SkillId, Skill); 3] = [
+    (SkillId::TossNTurnSpear, TOSS_N_TURN_SPEAR),
+    (SkillId::RaphanusSkyCluster, RAPHANUS_SKY_CLUSTER),
+    (SkillId::MoonjadeDescent, MOONJADE_DESCENT),
+];
+
 pub mod yuegui_throwing_mode {
     use super::*;
 

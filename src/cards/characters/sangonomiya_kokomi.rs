@@ -35,6 +35,12 @@ pub const NEREIDS_ASCENSION: Skill = Skill {
     ..Skill::new()
 };
 
+pub const SKILLS: [(SkillId, Skill); 3] = [
+    (SkillId::TheShapeOfWater, THE_SHAPE_OF_WATER),
+    (SkillId::KuragesOath, KURAGES_OATH),
+    (SkillId::NereidsAscension, NEREIDS_ASCENSION),
+];
+
 pub mod bake_kurage {
     use super::*;
 

@@ -33,6 +33,12 @@ pub const SACRED_RITE_WOLFS_SWIFTNESS: Skill = Skill {
     ..Skill::new()
 };
 
+pub const SKILLS: [(SkillId, Skill); 3] = [
+    (SkillId::InvokersSpear, INVOKERS_SPEAR),
+    (SkillId::SecretRiteChasmicSoulfarer, SECRET_RITE_CHASMIC_SOULFARER),
+    (SkillId::SacredRiteWolfsSwiftness, SACRED_RITE_WOLFS_SWIFTNESS),
+];
+
 pub mod pactsworn_pathclearer {
     use super::*;
 

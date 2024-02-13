@@ -35,6 +35,12 @@ pub const STELLARIS_PHANTASM: Skill = Skill {
     ..Skill::new()
 };
 
+pub const SKILLS: [(SkillId, Skill); 3] = [
+    (SkillId::RippleOfFate, RIPPLE_OF_FATE),
+    (SkillId::MirrorReflectionOfDoom, MIRROR_REFLECTION_OF_DOOM),
+    (SkillId::StellarisPhantasm, STELLARIS_PHANTASM),
+];
+
 pub mod illusory_bubble {
     use super::*;
 

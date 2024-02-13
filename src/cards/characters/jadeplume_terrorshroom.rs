@@ -33,6 +33,12 @@ pub const FEATHER_SPREADING: Skill = Skill {
     ..Skill::new()
 };
 
+pub const SKILLS: [(SkillId, Skill); 3] = [
+    (SkillId::MajesticDance, MAJESTIC_DANCE),
+    (SkillId::VolatileSporeCloud, VOLATILE_SPORE_CLOUD),
+    (SkillId::FeatherSpreading, FEATHER_SPREADING),
+];
+
 pub mod radical_vitality {
     use super::*;
 

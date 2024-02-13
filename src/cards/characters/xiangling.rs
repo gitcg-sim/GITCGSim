@@ -49,6 +49,12 @@ pub const PYRONADO: Skill = Skill {
     ..Skill::new()
 };
 
+pub const SKILLS: [(SkillId, Skill); 3] = [
+    (SkillId::DoughFu, DOUGH_FU),
+    (SkillId::GuobaAttack, GUOBA_ATTACK),
+    (SkillId::Pyronado, PYRONADO),
+];
+
 pub mod pyronado {
     use super::*;
 

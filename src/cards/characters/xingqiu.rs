@@ -33,6 +33,12 @@ pub const RAINCUTTER: Skill = Skill {
     ..Skill::new()
 };
 
+pub const SKILLS: [(SkillId, Skill); 3] = [
+    (SkillId::GuhuaStyle, GUHUA_STYLE),
+    (SkillId::FatalRainscreen, FATAL_RAINSCREEN),
+    (SkillId::Raincutter, RAINCUTTER),
+];
+
 pub mod rain_sword {
     use super::*;
 

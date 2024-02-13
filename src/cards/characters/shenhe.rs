@@ -34,6 +34,12 @@ pub const DIVINE_MAIDENS_DELIVERANCE: Skill = Skill {
     ..Skill::new()
 };
 
+pub const SKILLS: [(SkillId, Skill); 3] = [
+    (SkillId::DawnstarPiercer, DAWNSTAR_PIERCER),
+    (SkillId::SpringSpiritSummoning, SPRING_SPIRIT_SUMMONING),
+    (SkillId::DivineMaidensDeliverance, DIVINE_MAIDENS_DELIVERANCE),
+];
+
 pub mod icy_quill {
     use super::*;
 

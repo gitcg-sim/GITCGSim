@@ -30,6 +30,12 @@ pub const LIGHTNING_FANG: Skill = Skill {
     ..Skill::new()
 };
 
+pub const SKILLS: [(SkillId, Skill); 3] = [
+    (SkillId::SteelFang, STEEL_FANG),
+    (SkillId::ClawAndThunder, CLAW_AND_THUNDER),
+    (SkillId::LightningFang, LIGHTNING_FANG),
+];
+
 pub mod the_wolf_within {
     use super::*;
     pub const S: Status = Status::new_duration("The Wolf Within", StatusAttachMode::Character, 2);

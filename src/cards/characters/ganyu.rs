@@ -45,6 +45,13 @@ pub const CELESTIAL_SHOWER: Skill = Skill {
     ..Skill::new()
 };
 
+pub const SKILLS: [(SkillId, Skill); 4] = [
+    (SkillId::LiutianArchery, LIUTIAN_ARCHERY),
+    (SkillId::TrailOfTheQilin, TRAIL_OF_THE_QILIN),
+    (SkillId::FrostflakeArrow, FROSTFLAKE_ARROW),
+    (SkillId::CelestialShower, CELESTIAL_SHOWER),
+];
+
 pub mod ice_lotus {
     use super::*;
 

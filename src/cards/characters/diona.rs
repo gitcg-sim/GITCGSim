@@ -32,6 +32,12 @@ pub const SIGNATURE_MIX: Skill = Skill {
     ..Skill::new()
 };
 
+pub const SKILLS: [(SkillId, Skill); 3] = [
+    (SkillId::KatzleinStyle, KATZLEIN_STYLE),
+    (SkillId::IcyPaws, ICY_PAWS),
+    (SkillId::SignatureMix, SIGNATURE_MIX),
+];
+
 pub mod cat_claw_shield {
     use super::*;
 

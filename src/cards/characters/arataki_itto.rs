@@ -35,6 +35,15 @@ pub const ROYAL_DESCENT_BEHOLD_ITTO_THE_EVIL: Skill = Skill {
     ..Skill::new()
 };
 
+pub const SKILLS: [(SkillId, Skill); 3] = [
+    (SkillId::FightClubLegend, FIGHT_CLUB_LEGEND),
+    (SkillId::MasatsuZetsugiAkaushiBurst, MASATSU_ZETSUGI_AKAUSHI_BURST),
+    (
+        SkillId::RoyalDescentBeholdIttoTheEvil,
+        ROYAL_DESCENT_BEHOLD_ITTO_THE_EVIL,
+    ),
+];
+
 pub mod ushi {
     use super::*;
 

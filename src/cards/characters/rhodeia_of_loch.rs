@@ -58,6 +58,13 @@ pub const TIDE_AND_TORRENT: Skill = Skill {
     ..Skill::new()
 };
 
+pub const SKILLS: [(SkillId, Skill); 4] = [
+    (SkillId::Surge, SURGE),
+    (SkillId::OceanidMimicSummoning, OCEANID_MIMIC_SUMMONING),
+    (SkillId::TheMyriadWilds, THE_MYRIAD_WILDS),
+    (SkillId::TideAndTorrent, TIDE_AND_TORRENT),
+];
+
 pub struct TideAndTorrent();
 impl SkillImpl for TideAndTorrent {
     fn get_commands(

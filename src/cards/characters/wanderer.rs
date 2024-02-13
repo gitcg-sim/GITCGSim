@@ -34,6 +34,12 @@ pub const KYOUGEN_FIVE_CEREMONIAL_PLAYS: Skill = Skill {
     ..Skill::new()
 };
 
+pub const SKILLS: [(SkillId, Skill); 3] = [
+    (SkillId::YuubanMeigen, YUUBAN_MEIGEN),
+    (SkillId::HanegaSongOfTheWind, HANEGA_SONG_OF_THE_WIND),
+    (SkillId::KyougenFiveCeremonialPlays, KYOUGEN_FIVE_CEREMONIAL_PLAYS),
+];
+
 pub struct KyougenFiveCeremonialPlaysImpl();
 impl SkillImpl for KyougenFiveCeremonialPlaysImpl {
     fn get_commands(
