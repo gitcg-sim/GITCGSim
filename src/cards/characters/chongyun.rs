@@ -15,7 +15,7 @@ pub const C: CharCard = CharCard {
     passive: None,
 };
 
-pub const DEMONBANE: Skill = skill_na("Thrust", Element::Cryo, 2, DealDMGType::Physical);
+pub const DEMONBANE: Skill = skill_na("Demonbane", Element::Cryo, 2, DealDMGType::Physical);
 
 pub const CHONGHUAS_LAYERED_FROST: Skill = Skill {
     name: "Chonghua's Layered Frost",
