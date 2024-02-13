@@ -89,16 +89,7 @@ const fn skill_id_equals(a: SkillId, b: SkillId) -> bool {
     (a as u8) == (b as u8)
 }
 
-pub const fn find_skill(skill_id: SkillId) -> Option<&'static Skill> {
-    for_each_enum!(char_id: CharId => {
-        if let Some(res) = find_skill_by_char_id(char_id, skill_id) {
-            return Some(res);
-        }
-    });
-    None
-}
-
-pub const fn find_skill_by_char_id(char_id: CharId, skill_id: SkillId) -> Option<&'static Skill> {
+const fn find_skill_by_char_id(char_id: CharId, skill_id: SkillId) -> Option<&'static Skill> {
     crate::__generated_enum_cases!(CharId, char_id, &SKILLS, |skills| {
         let n = skills.len();
         let mut i = 0;
@@ -111,6 +102,34 @@ pub const fn find_skill_by_char_id(char_id: CharId, skill_id: SkillId) -> Option
         }
         None
     })
+}
+
+const fn find_skill(skill_id: SkillId) -> Option<&'static Skill> {
+    for_each_enum!(char_id: CharId => {
+        if let Some(res) = find_skill_by_char_id(char_id, skill_id) {
+            return Some(res);
+        }
+    });
+    None
+}
+
+const fn get_precomputed_find_skill() -> [&'static Skill; <SkillId as enum_map::Enum>::LENGTH] {
+    let mut res = [&yoimiya::NIWABI_FIRE_DANCE; <SkillId as enum_map::Enum>::LENGTH];
+    for_each_enum!(skill_id: SkillId => {
+        let idx = skill_id as u8 as usize;
+        if let Some(skill) = find_skill(skill_id) {
+            res[idx] = skill;
+        } else {
+            panic!("failed to find skill.");
+        }
+    });
+    res
+}
+
+const PRECOMPUTED_FIND_SKILL: [&Skill; <SkillId as enum_map::Enum>::LENGTH] = get_precomputed_find_skill();
+
+pub(crate) const fn find_skill_precomputed(skill_id: SkillId) -> &'static Skill {
+    PRECOMPUTED_FIND_SKILL[skill_id as u8 as usize]
 }
 
 #[cfg(test)]
@@ -141,6 +160,13 @@ mod tests {
     }
 
     #[test]
+    fn find_skill_precomputed_is_same_as_find_skill_exhaustive() {
+        for_each_enum!(skill_id: SkillId => {
+            assert_eq!(find_skill(skill_id).expect("find_skill").name, find_skill_precomputed(skill_id).name);
+        });
+    }
+
+    #[test]
     fn find_skill_names_are_distinct_exhaustive() {
         let mut set = std::collections::BTreeSet::new();
         let mut v = vec![];
@@ -150,10 +176,6 @@ mod tests {
             v.push(name);
         });
         v.sort();
-        println!("---");
-        set.iter().for_each(|s| println!("{s:?}"));
-        println!("---");
-        v.iter().for_each(|s| println!("{s:?}"));
         assert_eq!(<SkillId as enum_map::Enum>::LENGTH, set.len());
     }
 
