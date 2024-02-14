@@ -7,7 +7,7 @@ use crate::std_subset::hash::Hash;
 
 use crate::const_default_enum_impl;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Enum)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Enum, gitcg_sim_code_gen::CharIdDerives)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum CharId {
     Yoimiya,
@@ -225,7 +225,18 @@ pub enum SkillId {
 }
 const_default_enum_impl!(SkillId, FireworkFlareUp);
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Enum)]
+#[derive(
+    Debug,
+    Clone,
+    Copy,
+    PartialEq,
+    Eq,
+    PartialOrd,
+    Ord,
+    Enum,
+    gitcg_sim_code_gen::StatusIdDerives,
+    gitcg_sim_code_gen::GetStatus,
+)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum StatusId {
     // Reactions
@@ -363,7 +374,9 @@ pub enum StatusId {
 const_default_enum_impl!(StatusId, CrystallizeShield);
 
 #[allow(clippy::derived_hash_with_manual_eq)]
-#[derive(Debug, PartialOrd, Ord, Hash, Enum, EnumSetType)]
+#[derive(
+    Debug, PartialOrd, Ord, Hash, Enum, EnumSetType, gitcg_sim_code_gen::StatusIdDerives, gitcg_sim_code_gen::GetStatus,
+)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[enumset(repr = "u32")]
 pub enum SummonId {
@@ -401,7 +414,19 @@ pub enum SummonId {
 }
 const_default_enum_impl!(SummonId, BurningFlame);
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Enum)]
+#[derive(
+    Debug,
+    Clone,
+    Copy,
+    PartialEq,
+    Eq,
+    PartialOrd,
+    Ord,
+    Hash,
+    Enum,
+    gitcg_sim_code_gen::StatusIdDerives,
+    gitcg_sim_code_gen::GetStatus,
+)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum SupportId {
     Paimon,
@@ -424,7 +449,7 @@ pub enum SupportId {
 const_default_enum_impl!(SupportId, Paimon);
 
 #[allow(clippy::derived_hash_with_manual_eq)]
-#[derive(Debug, PartialOrd, Ord, Hash, Enum, EnumSetType)]
+#[derive(Debug, PartialOrd, Ord, Hash, Enum, EnumSetType, gitcg_sim_code_gen::GetCard)]
 #[enumset(repr = "u128")]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum CardId {

@@ -45,6 +45,7 @@ no_static_status_impl = []
 
 [workspace]
 members = [
+    "gitcg_sim_code_gen",
     "gitcg_sim_search",
     "gitcg_sim_cli_utils",
     "gitcg_sim_tui_app",
@@ -70,6 +71,7 @@ serde = { version = "1.0", features = ["derive", "rc"], optional = true }
 smallvec = { version = "1.13.*", features = [] }
 thiserror = { version = "1.0.*", optional = true }
 wasm-bindgen = { version = "0.2.*", optional = true }
+gitcg_sim_code_gen = { path = "./gitcg_sim_code_gen" }
 
 [dev-dependencies]
 bincode = { version = "1.2.1" }

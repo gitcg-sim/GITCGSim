@@ -62,13 +62,13 @@ pub mod yoimiya;
 pub mod zhongli;
 
 pub(crate) mod char_reexports {
-    crate::__generated_char_reexports!();
+    pub use crate::ids::__generated_char_reexports::*;
 }
 
 impl GetCharCard for CharId {
     #[inline]
     fn get_char_card(self: CharId) -> &'static CharCard {
-        crate::__generated_enum_cases!(CharId, self, &C)
+        self.__generated_lookup_char_card()
     }
 }
 
@@ -90,18 +90,17 @@ const fn skill_id_equals(a: SkillId, b: SkillId) -> bool {
 }
 
 const fn find_skill_by_char_id(char_id: CharId, skill_id: SkillId) -> Option<&'static Skill> {
-    crate::__generated_enum_cases!(CharId, char_id, &SKILLS, |skills| {
-        let n = skills.len();
-        let mut i = 0;
-        while i < n {
-            let (skill_id1, skill) = &skills[i];
-            if skill_id_equals(*skill_id1, skill_id) {
-                return Some(skill);
-            }
-            i += 1;
+    let skills = char_id.__generated_lookup_skills();
+    let n = skills.len();
+    let mut i = 0;
+    while i < n {
+        let (skill_id1, skill) = &skills[i];
+        if skill_id_equals(*skill_id1, skill_id) {
+            return Some(skill);
         }
-        None
-    })
+        i += 1;
+    }
+    None
 }
 
 const fn find_skill(skill_id: SkillId) -> Option<&'static Skill> {

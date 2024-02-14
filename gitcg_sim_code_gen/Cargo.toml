@@ -1,0 +1,13 @@
+[package]
+name = "gitcg_sim_code_gen"
+version = "0.1.0"
+
+[lib]
+name = "gitcg_sim_code_gen"
+proc-macro = true
+
+[dependencies]
+proc-macro2 = { version = "1.0.*", features = ["proc-macro"] }
+quote = { version = "1.0.*", features = ["proc-macro"] }
+syn = { version = "2.0.*", features = ["parsing", "proc-macro"] }
+convert_case = { version = "0.6.*" }
