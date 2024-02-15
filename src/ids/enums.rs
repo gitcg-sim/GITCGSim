@@ -3,7 +3,7 @@
 use crate::{const_default_enum_impl, std_subset::hash::Hash};
 use enum_map::Enum;
 use enumset::EnumSetType;
-use gitcg_sim_code_gen::{CharIdDerives, GetCard, GetStatus, StatusIdDerives};
+use gitcg_sim_code_gen::{CharIdDerives, GeneratedEnumCasesMacro, GetCard, GetStatus, StatusIdDerives};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Enum, CharIdDerives)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -223,7 +223,9 @@ pub enum SkillId {
 }
 const_default_enum_impl!(SkillId, FireworkFlareUp);
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Enum, StatusIdDerives, GetStatus)]
+#[derive(
+    Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Enum, StatusIdDerives, GetStatus, GeneratedEnumCasesMacro,
+)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum StatusId {
     // Reactions
@@ -361,7 +363,7 @@ pub enum StatusId {
 const_default_enum_impl!(StatusId, CrystallizeShield);
 
 #[allow(clippy::derived_hash_with_manual_eq)]
-#[derive(Debug, PartialOrd, Ord, Hash, Enum, EnumSetType, StatusIdDerives, GetStatus)]
+#[derive(Debug, PartialOrd, Ord, Hash, Enum, EnumSetType, StatusIdDerives, GetStatus, GeneratedEnumCasesMacro)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[enumset(repr = "u32")]
 pub enum SummonId {
@@ -399,7 +401,9 @@ pub enum SummonId {
 }
 const_default_enum_impl!(SummonId, BurningFlame);
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Enum, StatusIdDerives, GetStatus)]
+#[derive(
+    Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Enum, StatusIdDerives, GetStatus, GeneratedEnumCasesMacro,
+)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum SupportId {
     Paimon,

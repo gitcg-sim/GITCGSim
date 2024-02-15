@@ -145,6 +145,38 @@ pub fn get_status_derive(input: TokenStream) -> TokenStream {
     .into()
 }
 
+#[proc_macro_derive(GeneratedEnumCasesMacro)]
+pub fn get_macro_derive(input: TokenStream) -> TokenStream {
+    let input = parse_macro_input!(input as DeriveInput);
+    let name = &input.ident;
+    let syn::Data::Enum(data_enum) = &input.data else {
+        return syn::Error::new(Span::call_site(), "must be an enum")
+            .to_compile_error()
+            .into();
+    };
+    let macro_name = Ident::new(format!("__generated_enum_cases_{name}_internal").as_str(), name.span());
+    let macro_name_export = Ident::new(format!("__generated_enum_cases_{name}").as_str(), name.span());
+    let macro_cases = for_each_enum(data_enum, |variant_name, mod_name| {
+        quote! {
+            #name::#variant_name => { $crate::__mapping!( & #mod_name::$I , $(| $val | $blk )? ) },
+        }
+    });
+    quote! {
+        #[macro_export]
+        #[doc(hidden)]
+        macro_rules! #macro_name {
+            ($expr: expr, & $I: ident $(, | $val: ident | $blk: block $(,)?)?) => {
+                match $expr { #macro_cases }
+            }
+        }
+
+        // Required to make the macro visible to rest of the crate
+        #[doc(hidden)]
+        pub use #macro_name as #macro_name_export;
+    }
+    .into()
+}
+
 #[proc_macro_derive(GetCard)]
 pub fn get_card_derive(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);

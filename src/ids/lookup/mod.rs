@@ -1,5 +1,3 @@
-mod generated_code;
-
 #[macro_export]
 #[doc(hidden)]
 macro_rules! __mapping {

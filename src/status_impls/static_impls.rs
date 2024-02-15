@@ -6,6 +6,9 @@ use crate::cards::ids::*;
 use crate::cards::statuses::*;
 use crate::cards::summons::burning_flame;
 use crate::data_structures::CommandList;
+use crate::ids::enums::{
+    __generated_enum_cases_StatusId, __generated_enum_cases_SummonId, __generated_enum_cases_SupportId,
+};
 use crate::tcg_model::*;
 use crate::types::card_defs::{Cost, SkillImpl};
 use crate::types::card_impl::*;
@@ -129,6 +132,18 @@ impl SkillImpl for SkillId {
     }
 }
 
+macro_rules! __generated_enum_cases {
+    (StatusId, $expr: expr, & $I: ident $(, | $val: ident | $blk: block $(,)?)?) => {
+        __generated_enum_cases_StatusId!( $expr, & $I, $(| $val | $blk)? )
+    };
+    (SummonId, $expr: expr, & $I: ident $(, | $val: ident | $blk: block $(,)?)?) => {
+        __generated_enum_cases_SummonId!( $expr, & $I, $(| $val | $blk)? )
+    };
+    (SupportId, $expr: expr, & $I: ident $(, | $val: ident | $blk: block $(,)?)?) => {
+        __generated_enum_cases_SupportId!( $expr, & $I, $(| $val | $blk)? )
+    };
+}
+
 macro_rules! forwarding_trait_impl {
     ($trait: path , $type: path => $etype: ident $(,)? {
         $(
@@ -143,7 +158,7 @@ macro_rules! forwarding_trait_impl {
             $(
                 #[inline(always)]
                 fn $fn_name ( &self , $($a_name : $a_type ),* ) -> $rtype {
-                    $crate::__generated_enum_cases!($etype, *self, &I, |i| {
+                    __generated_enum_cases!($etype, *self, &I, |i| {
                         i.$fn_name( $($a_name),* )
                     })
                 }
