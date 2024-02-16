@@ -1,6 +1,6 @@
 use enumset::EnumSet;
 
-use crate::cards::all::*;
+use crate::cards::all_cards_reexports::*;
 use crate::cards::characters::char_reexports;
 use crate::cards::ids::*;
 use crate::cards::statuses::*;

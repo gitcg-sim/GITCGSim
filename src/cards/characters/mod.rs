@@ -1,5 +1,3 @@
-// Generated code
-
 use crate::types::{card_defs::*, command::*, game_state::*};
 use crate::{decl_status_impl_type, decl_summon_impl_type, list8};
 
@@ -119,7 +117,7 @@ const fn get_precomputed_find_skill() -> [&'static Skill; <SkillId as enum_map::
         if let Some(skill) = find_skill(skill_id) {
             res[idx] = skill;
         } else {
-            panic!("failed to find skill.");
+            panic!("failed to find the `Skill` corresponding to a particular enum case of SkillId");
         }
     });
     res

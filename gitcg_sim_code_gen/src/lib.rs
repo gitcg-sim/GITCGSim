@@ -35,6 +35,10 @@ fn for_each_enum<R: IntoIterator<Item = S>, S: quote::ToTokens>(
     quote!(#pats)
 }
 
+/// Derives auto-generated code for the `CharId` enum type:
+///  - Method `__generated_lookup_char_card`
+///  - Method `__generated_lookup_skills`
+///  - Module `__generated_char_reexports`
 #[proc_macro_derive(CharIdDerives)]
 pub fn char_id_derives(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
@@ -83,6 +87,9 @@ pub fn char_id_derives(input: TokenStream) -> TokenStream {
     }.into()
 }
 
+/// Derives generated methods for status-related enums:
+/// - Method `__generated_lookup_impl`
+/// - Method `__generated_lookup_status`
 #[proc_macro_derive(StatusIdDerives)]
 pub fn status_id_derives(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
@@ -93,31 +100,38 @@ pub fn status_id_derives(input: TokenStream) -> TokenStream {
             .into();
     };
 
+    let status_lookup_reexports_name = Ident::new(
+        format!("__generated_status_lookup_reexports_for_{name}").as_str(),
+        name.span(),
+    );
+
     let impl_lookup = for_each_enum(data_enum, |variant_name, mod_name| {
         quote! {
-            #name::#variant_name => { & #mod_name::I },
+            #name::#variant_name => { & #status_lookup_reexports_name::#mod_name::I },
         }
     });
 
     let status_lookup = for_each_enum(data_enum, |variant_name, mod_name| {
         quote! {
-            #name::#variant_name => { & #mod_name::S },
+            #name::#variant_name => { & #status_lookup_reexports_name::#mod_name::S },
         }
     });
 
     quote! {
+        #[doc(hidden)]
+        mod #status_lookup_reexports_name {
+            pub use super::__generated_char_reexports::*;
+            pub use crate::cards::{all_cards_reexports::*, statuses::*, summons::*};
+        }
+
         impl #name {
             #[doc(hidden)]
             pub(crate) const fn __generated_lookup_impl(self) -> &'static crate::types::status_impl::StatusImpl {
-                use self::__generated_char_reexports::*;
-                use crate::cards::{all::*, statuses::*, summons::*};
                 match self { #impl_lookup }
             }
 
             #[doc(hidden)]
             pub(crate) const fn __generated_lookup_status(self) -> &'static crate::types::card_defs::Status {
-                use self::__generated_char_reexports::*;
-                use crate::cards::{all::*, statuses::*, summons::*};
                 match self { #status_lookup }
             }
         }
@@ -145,6 +159,26 @@ pub fn get_status_derive(input: TokenStream) -> TokenStream {
     .into()
 }
 
+/// Derives the `__generated_enum_cases_$enum_name` macro, with the following definition where
+/// `$case_name` is the name of the enum case and `$module_name` is the name of the module
+/// corresponding to the enum case.
+///
+/// ```rust,ignore
+/// macro_rules! __generated_enum_cases_$name {
+///     ($expr: expr, &$I: ident $(|$val: ident| $blk: block $(,)? )?) => {
+///         match $expr {
+///             $name::$case_name => {
+///                 let $val = &($module_name::$I);
+///                 $blk
+///                 // or replace the entire block with $val itself if $val and $blk are not provided
+///             },
+///             ...
+///         }
+///     }
+/// }
+/// ```
+///
+/// This generated macro is used to generate non-dynamic (no `dyn`) `StatusImpl` implementations.
 #[proc_macro_derive(GeneratedEnumCasesMacro)]
 pub fn get_macro_derive(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
@@ -189,7 +223,7 @@ pub fn get_card_derive(input: TokenStream) -> TokenStream {
 
     let card_lookup = for_each_enum(data_enum, |variant_name, mod_name| {
         quote! {
-            #name::#variant_name => { & crate::cards::all::#mod_name::C },
+            #name::#variant_name => { & crate::cards::all_cards_reexports::#mod_name::C },
         }
     });
     quote! {
