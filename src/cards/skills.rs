@@ -1,15 +1,6 @@
-use crate::types::card_defs::{CharCard, Skill};
+use crate::types::card_defs::Skill;
 
-use super::ids::*;
-
-use crate::cards::characters::*;
-
-impl GetCharCard for CharId {
-    #[inline]
-    fn get_char_card(self: CharId) -> &'static CharCard {
-        self.__generated_lookup_char_card()
-    }
-}
+use crate::cards::{characters::*, ids::*};
 
 macro_rules! for_each_enum {
     ($var: ident : $type: ty => $blk: block) => {{
