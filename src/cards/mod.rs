@@ -16,6 +16,10 @@ pub mod event;
 
 pub mod equipment;
 
+pub(crate) mod char_reexports {
+    pub use crate::ids::__generated_char_reexports::*;
+}
+
 /// Re-exports for all `Card`-related modules.
 /// Used by auto-generate code to lookup card implementations.
 pub mod all_cards_reexports {

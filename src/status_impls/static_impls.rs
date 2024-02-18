@@ -1,7 +1,7 @@
 use enumset::EnumSet;
 
 use crate::cards::all_cards_reexports::*;
-use crate::cards::characters::char_reexports;
+use crate::cards::char_reexports;
 use crate::cards::ids::*;
 use crate::cards::statuses::*;
 use crate::cards::summons::burning_flame;
