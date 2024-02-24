@@ -54,9 +54,9 @@ pub struct GameState {
     /// be checked and will not be paid. Effects that reduce costs will never be consumed.
     pub ignore_costs: bool,
     /// The incrementally-updated portion of the Zobrist hash of this `GameState`.
-    pub _incremental_hash: ZobristHasher,
+    pub(crate) _incremental_hash: ZobristHasher,
     /// The entire Zobrist hash of this `GmaeState`.
-    pub _hash: ZobristHasher,
+    pub(crate) _hash: ZobristHasher,
 }
 
 #[derive(Debug, Clone)]
