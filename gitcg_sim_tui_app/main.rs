@@ -326,8 +326,8 @@ impl<B: Backend> App<B> {
         let player_chunk = player_chunks[0];
 
         let n_chars = std::cmp::max(
-            game_state.get_player(PlayerId::PlayerFirst).char_states.len(),
-            game_state.get_player(PlayerId::PlayerSecond).char_states.len(),
+            game_state.get_player(PlayerId::PlayerFirst).get_char_states().len(),
+            game_state.get_player(PlayerId::PlayerSecond).get_char_states().len(),
         );
         let char_chunks = Layout::default()
             .direction(Direction::Horizontal)
@@ -409,7 +409,7 @@ impl<B: Backend> App<B> {
         }
 
         let ac = player.get_active_char_idx();
-        for (j, c) in player.char_states.iter_all().enumerate() {
+        for (j, c) in player.get_char_states().iter_all().enumerate() {
             let is_active = j == (ac as usize);
             let rect = {
                 let i_first_char_chunk = 1;
@@ -928,7 +928,8 @@ fn sort_key_for_action(input: &Input) -> String {
 
 fn describe_action<'a, 'b>(player_state: &'b PlayerState, input: &'b Input) -> (Cell<'a>, Cell<'a>) {
     let get_character_name = |i: u8| -> Cell<'a> {
-        Cell::from(player_state.char_states[i].char_id.get_char_card().name).style(Style::default().fg(Color::Yellow))
+        Cell::from(player_state.get_char_states()[i].char_id.get_char_card().name)
+            .style(Style::default().fg(Color::Yellow))
     };
 
     fn card_cell<'a>(card_id: CardId) -> Cell<'a> {

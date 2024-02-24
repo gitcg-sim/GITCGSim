@@ -171,7 +171,7 @@ pub mod player_state_features {
             return Default::default();
         }
 
-        let char_state = &player_state.char_states[char_idx];
+        let char_state = &player_state.get_char_states()[char_idx];
         CharFeatures {
             is_active: (player_state.get_active_char_idx() == char_idx).bv(),
             is_alive: true.bv(),
@@ -187,7 +187,7 @@ pub mod player_state_features {
             return Default::default();
         }
 
-        let char_state = &player_state.char_states[char_idx];
+        let char_state = &player_state.get_char_states()[char_idx];
         ExpressCharFeatures {
             has_applied: if char_state.applied.is_empty() { 0.0 } else { 1.0 },
             hp: char_state.get_hp() as f32,
@@ -269,7 +269,7 @@ pub mod game_state_features {
 
         let mut char_ids = [[[0.0; 32]; 4]; N_CHARS];
         for (i, n) in player_state
-            .char_states
+            .get_char_states()
             .iter_all()
             .map(|s| s.char_id.into_usize())
             .enumerate()
@@ -306,7 +306,7 @@ pub mod game_state_features {
             turn: turn_features(game_state, player_id),
             switch_is_fast_action,
             dice: dice_features(player_state),
-            hand_count: player_state.hand.len() as f32,
+            hand_count: player_state.hand_len() as f32,
             team: team_features(player_state),
             chars,
         }

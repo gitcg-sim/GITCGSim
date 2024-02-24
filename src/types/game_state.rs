@@ -242,11 +242,11 @@ impl PlayerFlag {
 pub struct PlayerState {
     pub(crate) active_char_idx: u8,
     pub(crate) dice: DiceCounter,
-    pub char_states: CharStates,
+    pub(crate) char_states: CharStates,
     pub(crate) status_collection: StatusCollection,
     // TODO enforce limit of 10
-    pub hand: Vector<CardId>,
-    pub flags: EnumSet<PlayerFlag>,
+    pub(crate) hand: Vector<CardId>,
+    pub(crate) flags: EnumSet<PlayerFlag>,
 }
 
 impl PlayerState {
@@ -289,6 +289,21 @@ impl PlayerState {
     #[inline]
     pub fn hand_len(&self) -> u8 {
         self.hand.len() as u8
+    }
+
+    #[inline]
+    pub fn get_hand(&self) -> &Vector<CardId> {
+        &self.hand
+    }
+
+    #[inline]
+    pub fn get_char_states(&self) -> &CharStates {
+        &self.char_states
+    }
+
+    #[inline]
+    pub fn get_flags(&self) -> EnumSet<PlayerFlag> {
+        self.flags
     }
 }
 
