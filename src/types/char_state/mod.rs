@@ -9,6 +9,8 @@ use crate::{cards::ids::*, data_structures::Vector};
 pub use crate::types::applied_effect_state::AppliedEffectState;
 use crate::types::ElementSet;
 
+use super::card_defs::CharCard;
+
 pub mod builder;
 
 #[derive(Debug, EnumSetType)]
@@ -35,11 +37,11 @@ impl CharFlag {
     serde(into = "builder::CharStateBuilder")
 )]
 pub struct CharState {
-    pub char_id: CharId,
+    pub(crate) char_id: CharId,
     _hp_and_energy: u8,
-    pub applied: ElementSet,
-    pub flags: EnumSet<CharFlag>,
-    pub total_dmg_taken: u8,
+    pub(crate) applied: ElementSet,
+    pub(crate) flags: EnumSet<CharFlag>,
+    pub(crate) total_dmg_taken: u8,
 }
 
 impl Debug for CharState {
@@ -271,5 +273,20 @@ impl CharState {
     #[inline]
     pub fn has_talent_equipped(&self) -> bool {
         self.flags.contains(CharFlag::TalentEquipped)
+    }
+
+    #[inline]
+    pub fn get_char_id(&self) -> CharId {
+        self.char_id
+    }
+
+    #[inline]
+    pub fn get_char_card(&self) -> &'static CharCard {
+        self.char_id.get_char_card()
+    }
+
+    #[inline]
+    pub fn get_applied(&self) -> ElementSet {
+        self.applied
     }
 }

@@ -177,7 +177,7 @@ pub mod player_state_features {
             is_alive: true.bv(),
             hp: char_state.get_hp() as f32,
             energy: char_state.get_energy() as f32,
-            applied_count: char_state.applied.len() as f32,
+            applied_count: char_state.get_applied().len() as f32,
             status: char_status_features(player_state, char_idx),
         }
     }
@@ -189,7 +189,7 @@ pub mod player_state_features {
 
         let char_state = &player_state.get_char_states()[char_idx];
         ExpressCharFeatures {
-            has_applied: if char_state.applied.is_empty() { 0.0 } else { 1.0 },
+            has_applied: if char_state.get_applied().is_empty() { 0.0 } else { 1.0 },
             hp: char_state.get_hp() as f32,
             energy: char_state.get_energy() as f32,
             status_count: char_status_features(player_state, char_idx).total(),
@@ -271,7 +271,7 @@ pub mod game_state_features {
         for (i, n) in player_state
             .get_char_states()
             .iter_all()
-            .map(|s| s.char_id.into_usize())
+            .map(|s| s.get_char_id().into_usize())
             .enumerate()
         {
             char_ids[i][n / 32][n % 32] = 1.0;

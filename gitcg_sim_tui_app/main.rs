@@ -515,8 +515,9 @@ impl<B: Backend> App<B> {
         let c = char_state;
         let is_dead = c.is_invalid();
         let j = char_idx;
-        let char_card = c.char_id.get_char_card();
-        let ci = c.char_id.get_char_card();
+        let char_id = c.get_char_id();
+        let char_card = char_id.get_char_card();
+        let ci = char_id.get_char_card();
 
         let char_block = Block::default()
             .title(char_card.name.to_string())
@@ -535,7 +536,7 @@ impl<B: Backend> App<B> {
             let mut lines = vec![];
             {
                 let mut es = vec![Span::raw(" ")];
-                for e in c.applied {
+                for e in c.get_applied() {
                     let col = elem_short(e).1;
                     es.push(Span::styled(format!(" {e:?} "), Style::default().bg(col)));
                     es.push(Span::raw(" "));
@@ -928,7 +929,7 @@ fn sort_key_for_action(input: &Input) -> String {
 
 fn describe_action<'a, 'b>(player_state: &'b PlayerState, input: &'b Input) -> (Cell<'a>, Cell<'a>) {
     let get_character_name = |i: u8| -> Cell<'a> {
-        Cell::from(player_state.get_char_states()[i].char_id.get_char_card().name)
+        Cell::from(player_state.get_char_states()[i].get_char_card().name)
             .style(Style::default().fg(Color::Yellow))
     };
 
