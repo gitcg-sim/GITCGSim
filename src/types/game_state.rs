@@ -40,11 +40,11 @@ pub use super::status_collection::*;
 )]
 pub struct GameState {
     /// When game state is suspended while executing commands
-    pub pending_cmds: Option<Box<PendingCommands>>,
-    pub round_number: u8,
-    pub phase: Phase,
+    pub(crate) pending_cmds: Option<Box<PendingCommands>>,
+    pub(crate) round_number: u8,
+    pub(crate) phase: Phase,
     /// 0 (PlayerFirst) goes first at turn 1
-    pub players: ByPlayer<PlayerState>,
+    pub(crate) players: ByPlayer<PlayerState>,
 
     // Transient states below
 
@@ -282,5 +282,17 @@ pub struct PlayerStateView<'a> {
 impl<'a> PlayerStateView<'a> {
     pub fn active_char_state(&self) -> &CharState {
         &self.char_states[self.active_char_idx]
+    }
+}
+
+impl GameState {
+    #[inline]
+    pub fn get_phase(&self) -> Phase {
+        self.phase
+    }
+
+    #[inline]
+    pub fn get_round_number(&self) -> u8 {
+        self.round_number
     }
 }

@@ -252,12 +252,12 @@ pub mod game_state_features {
     fn turn_features(game_state: &GameState, player_id: PlayerId) -> TurnFeatures<f32> {
         TurnFeatures {
             own_turn: (game_state.to_move_player() == Some(player_id)).bv(),
-            opp_ended_round: game_state.phase.opponent_ended_round(player_id).bv(),
+            opp_ended_round: game_state.get_phase().opponent_ended_round(player_id).bv(),
         }
     }
 
     fn express_player_state_features(game_state: &GameState, player_id: PlayerId) -> ExpressPlayerStateFeatures<f32> {
-        let player_state = game_state.players.get(player_id);
+        let player_state = game_state.get_player(player_id);
         let active_char_idx = player_state.active_char_idx;
         let mut chars: [ExpressCharFeatures<f32>; N_CHARS] = Default::default();
         for (char_idx, c) in chars.iter_mut().enumerate() {
@@ -291,7 +291,7 @@ pub mod game_state_features {
     }
 
     fn player_state_features(game_state: &GameState, player_id: PlayerId) -> PlayerStateFeatures<f32> {
-        let player_state = game_state.players.get(player_id);
+        let player_state = game_state.get_player(player_id);
         let switch_is_fast_action = (0u8..(N_CHARS as u8))
             .any(|char_idx| game_state.check_switch_is_fast_action(player_id, char_idx))
             .bv();

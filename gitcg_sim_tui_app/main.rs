@@ -146,14 +146,18 @@ impl<B: Backend> App<B> {
                 PlayerId::PlayerFirst => {
                     let Self { game, .. } = self;
                     let game_state = &mut game.game_state;
+                    let players = (
+                        game_state.get_player(PlayerId::PlayerFirst),
+                        game_state.get_player(PlayerId::PlayerSecond),
+                    );
                     self.status = format!(
                         "  Your move.  You: (Hand: {}, Dice: {}), Opp: (Hand: {}, Dice: {}). {}",
-                        game_state.players.0.hand.len(),
-                        game_state.players.0.dice.total(),
-                        game_state.players.1.hand.len(),
-                        game_state.players.1.dice.total(),
+                        players.0.hand.len(),
+                        players.0.dice.total(),
+                        players.1.hand.len(),
+                        players.1.dice.total(),
                         {
-                            match game_state.phase {
+                            match game_state.get_phase() {
                                 Phase::ActionPhase {
                                     first_end_round: Some(p),
                                     ..
@@ -267,7 +271,7 @@ impl<B: Backend> App<B> {
             f.render_widget(duel_block, ui_chunks[0]);
 
             let info = Paragraph::new({
-                let phase_part = match game_state.phase {
+                let phase_part = match game_state.get_phase() {
                     Phase::SelectStartingCharacter { .. } => "Select Starting".to_string(),
                     Phase::RollPhase { .. } => "Roll Phase".to_string(),
                     Phase::ActionPhase { first_end_round, .. } => {
@@ -277,7 +281,7 @@ impl<B: Backend> App<B> {
                     Phase::WinnerDecided { winner } => format!("Winner Decided: {winner}"),
                 };
 
-                let round = game_state.round_number;
+                let round = game_state.get_round_number();
                 format!("Round {round} | {phase_part}")
             })
             .alignment(Alignment::Center)
@@ -291,7 +295,7 @@ impl<B: Backend> App<B> {
 
             Self::render_actions_table(f, game_state, *action_row_index, actions, &acts_chunk, scroll_y_value);
 
-            Self::render_dice(f, &game_state.players.0, dice_chunk);
+            Self::render_dice(f, game_state.get_player(PlayerId::PlayerFirst), dice_chunk);
 
             Self::render_log(f, game_state, ui_chunks[2], scroll_y);
 
@@ -322,8 +326,8 @@ impl<B: Backend> App<B> {
         let player_chunk = player_chunks[0];
 
         let n_chars = std::cmp::max(
-            game_state.players.0.char_states.len(),
-            game_state.players.1.char_states.len(),
+            game_state.get_player(PlayerId::PlayerFirst).char_states.len(),
+            game_state.get_player(PlayerId::PlayerSecond).char_states.len(),
         );
         let char_chunks = Layout::default()
             .direction(Direction::Horizontal)
