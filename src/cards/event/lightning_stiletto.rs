@@ -16,7 +16,7 @@ pub const I: LightningStiletto = LightningStiletto();
 
 impl CardImpl for LightningStiletto {
     fn can_be_played(&self, cic: &CardImplContext) -> CanBePlayedResult {
-        let player = cic.game_state.get_player(cic.active_player_id);
+        let player = &cic.players[cic.active_player_id];
         if player.char_states.iter_valid().any(|c| c.char_id == CharId::Keqing) {
             CanBePlayedResult::CanBePlayed
         } else {
@@ -30,7 +30,7 @@ impl CardImpl for LightningStiletto {
         ctx: &CommandContext,
         commands: &mut CommandList<(CommandContext, Command)>,
     ) {
-        let player = cic.game_state.get_player(cic.active_player_id);
+        let player = &cic.players[cic.active_player_id];
         let Some((ci, _)) = player
             .char_states
             .enumerate_valid()

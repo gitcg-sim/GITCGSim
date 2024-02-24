@@ -181,7 +181,7 @@ pub mod lithic_spear {
             let Some(CardSelection::OwnCharacter(i)) = cic.selection else {
                 unreachable!()
             };
-            let src_player = &cic.game_state.players[ctx.src_player_id];
+            let src_player = &cic.players[ctx.src_player_id];
             let n = src_player
                 .char_states
                 .iter_valid()

@@ -237,7 +237,7 @@ impl GameState {
             }
 
             let cic = CardImplContext {
-                game_state: self,
+                players: &self.players,
                 active_player_id,
                 card_id,
                 card,
@@ -277,7 +277,7 @@ impl GameState {
         );
         self.pay_cost(&card.cost, CostType::Card(card_id))?;
         let cic = CardImplContext {
-            game_state: self,
+            players: &self.players,
             active_player_id,
             card_id,
             card,

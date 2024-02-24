@@ -10,7 +10,7 @@ impl CardImpl for FoodCardImpl {
         let Some(CardSelection::OwnCharacter(char_idx)) = cic.selection else {
             return CanBePlayedResult::InvalidSelection;
         };
-        let player = cic.game_state.get_player(cic.active_player_id);
+        let player = &cic.players[cic.active_player_id];
         if player
             .status_collection
             .has_character_status(char_idx, StatusId::Satiated)

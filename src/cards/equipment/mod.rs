@@ -107,17 +107,11 @@ fn get_effects_for_weapon(
 
 fn can_be_played_for_weapon(weapon_type: WeaponType, cic: &CardImplContext) -> CanBePlayedResult {
     if let Some(CardSelection::OwnCharacter(char_idx)) = cic.selection {
-        if !cic
-            .game_state
-            .get_player(cic.active_player_id)
-            .is_valid_char_idx(char_idx)
-        {
+        let active_player = &cic.players[cic.active_player_id];
+        if !active_player.is_valid_char_idx(char_idx) {
             return CanBePlayedResult::InvalidSelection;
         }
-        let card = cic
-            .game_state
-            .get_player(cic.active_player_id)
-            .get_character_card(char_idx);
+        let card = active_player.get_character_card(char_idx);
         if card.weapon != weapon_type {
             return CanBePlayedResult::InvalidSelection;
         }
@@ -283,7 +277,7 @@ impl CardImpl for Talent {
             return CanBePlayedResult::InvalidSelection;
         };
 
-        let player = cic.game_state.players.get(cic.active_player_id);
+        let player = &cic.players[cic.active_player_id];
         let Some(char_state) = player.try_get_character(char_idx) else {
             return CanBePlayedResult::InvalidSelection;
         };

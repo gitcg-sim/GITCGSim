@@ -6,8 +6,10 @@ use crate::types::{
     game_state::*,
 };
 
+use super::by_player::ByPlayer;
+
 pub struct CardImplContext<'a> {
-    pub game_state: &'a GameState,
+    pub players: &'a ByPlayer<PlayerState>,
     pub active_player_id: PlayerId,
     pub card_id: CardId,
     pub card: &'static Card,
@@ -17,8 +19,7 @@ pub struct CardImplContext<'a> {
 impl<'a> CardImplContext<'a> {
     #[inline]
     pub fn get_next_available_suport_slot(&self) -> Option<SupportSlot> {
-        self.game_state
-            .get_player(self.active_player_id)
+        self.players[self.active_player_id]
             .status_collection
             .get_next_available_support_slot()
     }

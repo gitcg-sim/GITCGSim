@@ -17,7 +17,7 @@ pub const I: IHaventLostYet = IHaventLostYet();
 
 impl CardImpl for IHaventLostYet {
     fn can_be_played(&self, cic: &CardImplContext) -> CanBePlayedResult {
-        let player = cic.game_state.get_player(cic.active_player_id);
+        let player = &cic.players[cic.active_player_id];
         // TODO apply a status to enforce once per turn
         if player.flags.contains(PlayerFlag::DiedThisRound) {
             CanBePlayedResult::CanBePlayed
