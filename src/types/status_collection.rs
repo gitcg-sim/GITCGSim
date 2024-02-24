@@ -24,10 +24,10 @@ pub use crate::types::{card_selection::*, char_state::*};
 )]
 /// A player's summons and applied statuses (team/characters)
 pub struct StatusCollection {
-    pub responds_to: EnumSet<RespondsTo>,
-    pub responds_to_triggers: EnumSet<EventId>,
-    pub responds_to_events: XEventMask,
-    pub _status_entries: StatusEntryList<StatusEntry>,
+    pub(crate) responds_to: EnumSet<RespondsTo>,
+    pub(crate) responds_to_triggers: EnumSet<EventId>,
+    pub(crate) responds_to_events: XEventMask,
+    pub(crate) _status_entries: StatusEntryList<StatusEntry>,
 }
 
 impl StatusCollection {
