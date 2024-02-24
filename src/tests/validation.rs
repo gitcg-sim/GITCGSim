@@ -1,6 +1,6 @@
 use super::*;
-
 use crate::prelude::*;
+use smallvec::smallvec;
 
 #[test]
 fn switch_character_validation() {
@@ -117,7 +117,7 @@ fn weapon_equip_validation() {
             .build();
     gs.advance_roll_phase_no_dice();
     gs.get_player_mut(PlayerId::PlayerFirst).hand =
-        vector![CardId::SkywardHarp, CardId::SkywardSpine, CardId::SacrificialSword];
+        smallvec![CardId::SkywardHarp, CardId::SkywardSpine, CardId::SacrificialSword];
     assert!(gs
         .clone()
         .advance(Input::FromPlayer(
@@ -176,7 +176,7 @@ fn artifact_equip_validation() {
             .ignore_costs(true)
             .build();
     gs.advance_roll_phase_no_dice();
-    gs.players.0.hand = vector![CardId::WitchsScorchingHat, CardId::BrokenRimesEcho];
+    gs.players.0.hand = smallvec![CardId::WitchsScorchingHat, CardId::BrokenRimesEcho];
     assert!(gs
         .clone()
         .advance(Input::FromPlayer(

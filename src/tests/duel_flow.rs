@@ -1,3 +1,5 @@
+use smallvec::smallvec;
+
 use super::*;
 
 #[test]
@@ -238,7 +240,7 @@ fn play_card() {
     )
     .build();
     gs.advance_roll_phase_no_dice();
-    gs.players.0.hand = vector![CardId::BlankCard, CardId::Starsigns, CardId::TheBestestTravelCompanion];
+    gs.players.0.hand = smallvec![CardId::BlankCard, CardId::Starsigns, CardId::TheBestestTravelCompanion];
     gs.players.0.dice[Dice::PYRO] = 1;
     gs.players.0.dice[Dice::DENDRO] = 1;
     assert_eq!(0, gs.players.0.dice.omni);
@@ -262,7 +264,7 @@ fn elemental_tuning() {
         GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Yoimiya], vector![CharId::Fischl]).build();
     gs.advance_roll_phase_no_dice();
     gs.players.0.dice[Dice::DENDRO] = 1;
-    gs.players.0.hand = vector![
+    gs.players.0.hand = smallvec![
         CardId::BlankCard,
         CardId::Starsigns,
         CardId::TheBestestTravelCompanion,
@@ -282,7 +284,7 @@ fn artifact_equip_replace() {
         .ignore_costs(true)
         .build();
     gs.advance_roll_phase_no_dice();
-    gs.players.0.hand = vector![CardId::WitchsScorchingHat, CardId::BrokenRimesEcho];
+    gs.players.0.hand = smallvec![CardId::WitchsScorchingHat, CardId::BrokenRimesEcho];
     gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::PlayCard(CardId::BrokenRimesEcho, Some(CardSelection::OwnCharacter(0))),
