@@ -208,7 +208,7 @@ impl StatusCollection {
             panic!("add_support_to_slot_replacing_existing: wrong StatusAttachMode");
         }
         let f = StatusKeyFilter::Support(slot);
-        self._status_entries.retain(|e| !f.matches(e.key));
+        self.status_entries.retain(|e| !f.matches(e.key));
         // Support usages cannot be buffed
         self.apply_or_refresh_status(StatusKey::Support(slot, support_id), status_spec, &None);
     }

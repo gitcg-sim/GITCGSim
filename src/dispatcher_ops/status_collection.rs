@@ -137,31 +137,31 @@ impl AppliedEffectState {
 impl StatusCollection {
     #[inline]
     pub fn iter_entries(&self) -> crate::std_subset::slice::Iter<StatusEntry> {
-        self._status_entries.iter()
+        self.status_entries.iter()
     }
 
     #[inline]
     pub fn iter_entries_mut(&mut self) -> crate::std_subset::slice::IterMut<StatusEntry> {
-        self._status_entries.iter_mut()
+        self.status_entries.iter_mut()
     }
 
     /// Precondition: For Char(index, status_id), the index must be valid
     #[inline]
     pub fn get(&self, key: StatusKey) -> Option<&AppliedEffectState> {
-        self._status_entries.iter().find(|&e| e.key == key).map(|e| &e.state)
+        self.status_entries.iter().find(|&e| e.key == key).map(|e| &e.state)
     }
 
     /// Precondition: For Char(index, status_id), the index must be valid
     #[inline]
     pub fn get_mut(&mut self, key: StatusKey) -> Option<&mut AppliedEffectState> {
-        self._status_entries
+        self.status_entries
             .iter_mut()
             .find(|e| e.key == key)
             .map(|e| &mut e.state)
     }
 
     pub fn delete(&mut self, key: StatusKey) {
-        self._status_entries.retain(|s| s.key != key);
+        self.status_entries.retain(|s| s.key != key);
         self.refresh_responds_to();
     }
 
@@ -182,12 +182,12 @@ impl StatusCollection {
 
     #[inline]
     pub fn count(&self) -> usize {
-        self._status_entries.len()
+        self.status_entries.len()
     }
 
     #[inline]
     pub fn support_count(&self) -> usize {
-        self._status_entries
+        self.status_entries
             .iter()
             .filter(|e| matches!(e.key, StatusKey::Support(..)))
             .count()
@@ -195,7 +195,7 @@ impl StatusCollection {
 
     #[inline]
     pub fn summon_count(&self) -> usize {
-        self._status_entries
+        self.status_entries
             .iter()
             .filter(|e| matches!(e.key, StatusKey::Summon(..)))
             .count()
@@ -203,7 +203,7 @@ impl StatusCollection {
 
     #[inline]
     pub fn team_status_count(&self) -> usize {
-        self._status_entries
+        self.status_entries
             .iter()
             .filter(|e| matches!(e.key, StatusKey::Team(..)))
             .count()
@@ -211,7 +211,7 @@ impl StatusCollection {
 
     #[inline]
     pub fn status_count(&self) -> usize {
-        self._status_entries
+        self.status_entries
             .iter()
             .filter(|e| matches!(e.key, StatusKey::Character(..) | StatusKey::Team(..)))
             .count()
@@ -219,7 +219,7 @@ impl StatusCollection {
 
     #[inline]
     pub fn equipment_count(&self, char_idx: u8) -> usize {
-        self._status_entries
+        self.status_entries
             .iter()
             .filter(|e| matches!(e.key, StatusKey::Equipment(i, _, _) if i == char_idx))
             .count()
@@ -227,28 +227,28 @@ impl StatusCollection {
 
     #[inline]
     pub fn character_status_count(&self, char_idx: u8) -> usize {
-        self._status_entries
+        self.status_entries
             .iter()
             .filter(|e| matches!(e.key, StatusKey::Character(i, _) if i == char_idx))
             .count()
     }
 
     pub fn has_character_status(&self, char_idx: u8, status_id: StatusId) -> bool {
-        self._status_entries.iter().any(|e| match e.key {
+        self.status_entries.iter().any(|e| match e.key {
             StatusKey::Character(i, sid) => i == char_idx && sid == status_id,
             _ => false,
         })
     }
 
     pub fn has_team_status(&self, status_id: StatusId) -> bool {
-        self._status_entries.iter().any(|e| match e.key {
+        self.status_entries.iter().any(|e| match e.key {
             StatusKey::Team(sid) => sid == status_id,
             _ => false,
         })
     }
 
     pub fn has_summon(&self, summon_id: SummonId) -> bool {
-        self._status_entries.iter().any(|e| match e.key {
+        self.status_entries.iter().any(|e| match e.key {
             StatusKey::Summon(sid) => sid == summon_id,
             _ => false,
         })
@@ -256,31 +256,31 @@ impl StatusCollection {
 
     pub fn find_equipment(&self, char_idx: u8, slot: EquipSlot) -> Option<&StatusEntry> {
         let f = StatusKeyFilter::Equipment(char_idx, slot);
-        self._status_entries.iter().find(|e| f.matches(e.key))
+        self.status_entries.iter().find(|e| f.matches(e.key))
     }
 
     pub fn find_support(&self, slot: SupportSlot) -> Option<&StatusEntry> {
         let f = StatusKeyFilter::Support(slot);
-        self._status_entries.iter().find(|e| f.matches(e.key))
+        self.status_entries.iter().find(|e| f.matches(e.key))
     }
 
     pub fn ensure_weapon_unequipped(&mut self, char_idx: u8, slot: EquipSlot) {
         let f = StatusKeyFilter::Equipment(char_idx, slot);
-        self._status_entries.retain(|e| !f.matches(e.key))
+        self.status_entries.retain(|e| !f.matches(e.key))
     }
 
     pub fn find_equipment_mut(&mut self, char_idx: u8, slot: EquipSlot) -> Option<&mut StatusEntry> {
         let f = StatusKeyFilter::Equipment(char_idx, slot);
-        self._status_entries.iter_mut().find(|e| f.matches(e.key))
+        self.status_entries.iter_mut().find(|e| f.matches(e.key))
     }
 
     pub fn team_statuses_vec(&self) -> Vec<&StatusEntry> {
         let f = StatusKeyFilter::Team;
-        self._status_entries.iter().filter(|&s| f.matches(s.key)).collect()
+        self.status_entries.iter().filter(|&s| f.matches(s.key)).collect()
     }
 
     pub fn equipment_statuses_vec(&self, char_idx: u8) -> Vec<(EquipSlot, StatusId, &AppliedEffectState)> {
-        self._status_entries
+        self.status_entries
             .iter()
             .filter_map(|s| {
                 if let StatusKey::Equipment(ci, slot, status_id) = s.key {
@@ -295,16 +295,16 @@ impl StatusCollection {
 
     pub fn character_statuses_vec(&self, char_idx: u8) -> Vec<&StatusEntry> {
         let f = StatusKeyFilter::Character(char_idx);
-        self._status_entries.iter().filter(|&s| f.matches(s.key)).collect()
+        self.status_entries.iter().filter(|&s| f.matches(s.key)).collect()
     }
 
     pub fn summon_statuses_vec(&self) -> Vec<&StatusEntry> {
         let f = StatusKeyFilter::Summon;
-        self._status_entries.iter().filter(|&s| f.matches(s.key)).collect()
+        self.status_entries.iter().filter(|&s| f.matches(s.key)).collect()
     }
 
     pub fn support_statuses_vec(&self) -> Vec<&StatusEntry> {
-        self._status_entries
+        self.status_entries
             .iter()
             .filter(|&s| matches!(s.key, StatusKey::Support(..)))
             .collect()
@@ -316,7 +316,7 @@ impl StatusCollection {
         let mut m1 = enum_set![];
         let mut t1 = enum_set![];
         let mut e1 = enum_set![];
-        for e in &self._status_entries {
+        for e in &self.status_entries {
             let si: StaticStatusImpl = match e.key {
                 StatusKey::Team(status_id)
                 | StatusKey::Character(_, status_id)
@@ -369,7 +369,7 @@ impl StatusCollection {
         char_idx: u8,
         shifts_to_next_active: &mut SmallVec<A>,
     ) {
-        self._status_entries.retain(|e| {
+        self.status_entries.retain(|e| {
             let StatusKey::Character(status_char_idx, status_id) = e.key else {
                 return true;
             };
@@ -384,7 +384,7 @@ impl StatusCollection {
     }
 
     pub fn has_shield_points(&self) -> bool {
-        self._status_entries.iter().any(|e| match e.key {
+        self.status_entries.iter().any(|e| match e.key {
             StatusKey::Team(status_id) | StatusKey::Character(_, status_id) | StatusKey::Equipment(_, _, status_id) => {
                 status_id.get_status().usages_as_shield_points && e.state.get_usages() > 0
             }
@@ -395,7 +395,7 @@ impl StatusCollection {
     /// Checks if there is any "cannot perform actions".
     /// NOTE: Only checks character statuses.
     pub fn cannot_perform_actions(&self, char_idx: u8) -> bool {
-        self._status_entries.iter().any(|e| {
+        self.status_entries.iter().any(|e| {
             if let StatusKey::Character(j, status_id) = e.key {
                 if j == char_idx {
                     let si: StaticStatusImpl = status_id.into();
@@ -411,7 +411,7 @@ impl StatusCollection {
             return None;
         }
 
-        for e in &self._status_entries {
+        for e in &self.status_entries {
             let StatusKey::Character(_, status_id) = e.key else {
                 continue;
             };
@@ -435,7 +435,7 @@ impl StatusCollection {
             return None;
         }
 
-        for e in &self._status_entries {
+        for e in &self.status_entries {
             let StatusKey::Character(_, status_id) = e.key else {
                 continue;
             };
@@ -455,7 +455,7 @@ impl StatusCollection {
             return None;
         }
 
-        for e in &mut self._status_entries {
+        for e in &mut self.status_entries {
             let StatusKey::Character(_, status_id) = e.key else {
                 continue;
             };
@@ -482,7 +482,7 @@ impl StatusCollection {
         mut h: H,
     ) {
         let c1 = self.count();
-        self._status_entries.retain(|e| {
+        self.status_entries.retain(|e| {
             let v = &mut e.state;
             match e.key {
                 StatusKey::Team(status_id) => f(status_id, v),
@@ -545,7 +545,7 @@ impl StatusCollection {
 
         let mut found = false;
         let c1 = self.count();
-        self._status_entries.retain(|e| match e.key {
+        self.status_entries.retain(|e| match e.key {
             StatusKey::Team(status_id) => {
                 closure_body!(e.state, e.key, found, status_id.into())
             }
@@ -597,7 +597,7 @@ impl StatusCollection {
             }};
         }
 
-        for e in &self._status_entries {
+        for e in &self.status_entries {
             match e.key {
                 StatusKey::Team(status_id) => {
                     closure_body!(e.state, e.key, found, status_id.into())
@@ -625,7 +625,7 @@ impl StatusCollection {
         mut f: F,
     ) {
         let c1 = self.count();
-        self._status_entries.retain(|e| match e.key {
+        self.status_entries.retain(|e| match e.key {
             StatusKey::Team(status_id) | character_or_equipment!(_, status_id) => {
                 f(status_id.get_status(), &mut e.state)
             }
@@ -639,7 +639,7 @@ impl StatusCollection {
 
     pub fn get_next_available_support_slot(&self) -> Option<SupportSlot> {
         for slot in SupportSlot::VALUES {
-            let found = self._status_entries.iter().any(|s| match s.key {
+            let found = self.status_entries.iter().any(|s| match s.key {
                 StatusKey::Support(slot1, _) => slot1 == slot,
                 _ => false,
             });
@@ -651,7 +651,7 @@ impl StatusCollection {
     }
 
     pub(crate) fn set_status(&mut self, key: StatusKey, state: AppliedEffectState) -> bool {
-        if let Some(found) = self._status_entries.iter_mut().find(|e| e.key == key) {
+        if let Some(found) = self.status_entries.iter_mut().find(|e| e.key == key) {
             found.state = state;
             return true;
         }
@@ -662,19 +662,19 @@ impl StatusCollection {
     #[inline]
     fn push_status_entry(&mut self, status_entry: StatusEntry) {
         let key = status_entry.key.sort_key();
-        let n = self._status_entries.len();
-        if self._status_entries.is_empty() || self._status_entries[n - 1].key.sort_key() <= key {
-            self._status_entries.push(status_entry);
+        let n = self.status_entries.len();
+        if self.status_entries.is_empty() || self.status_entries[n - 1].key.sort_key() <= key {
+            self.status_entries.push(status_entry);
             return;
         }
 
         let mut ins_index = n;
-        for (i, status_entry) in self._status_entries.iter().enumerate() {
+        for (i, status_entry) in self.status_entries.iter().enumerate() {
             if status_entry.key.sort_key() > key {
                 ins_index = i;
                 break;
             }
         }
-        self._status_entries.insert(ins_index, status_entry);
+        self.status_entries.insert(ins_index, status_entry);
     }
 }

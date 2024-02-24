@@ -27,7 +27,7 @@ pub struct StatusCollection {
     pub(crate) responds_to: EnumSet<RespondsTo>,
     pub(crate) responds_to_triggers: EnumSet<EventId>,
     pub(crate) responds_to_events: XEventMask,
-    pub(crate) _status_entries: StatusEntryList<StatusEntry>,
+    pub(crate) status_entries: StatusEntryList<StatusEntry>,
 }
 
 impl StatusCollection {
@@ -36,7 +36,7 @@ impl StatusCollection {
             responds_to: Default::default(),
             responds_to_triggers: Default::default(),
             responds_to_events: Default::default(),
-            _status_entries: value.into_iter().collect(),
+            status_entries: value.into_iter().collect(),
         };
         sc.refresh_responds_to();
         sc
@@ -53,7 +53,7 @@ impl<T: IntoIterator<Item = StatusEntry>> From<T> for StatusCollection {
 impl From<StatusCollection> for StatusEntryList<StatusEntry> {
     #[inline]
     fn from(value: StatusCollection) -> Self {
-        value._status_entries.clone()
+        value.status_entries.clone()
     }
 }
 

@@ -474,7 +474,7 @@ impl StatusEntry {
 impl StatusCollection {
     #[inline]
     pub fn zobrist_hash(&self, h: &mut ZobristHasher, player_id: PlayerId) {
-        for (index, s) in self._status_entries.iter().enumerate() {
+        for (index, s) in self.status_entries.iter().enumerate() {
             s.zobrist_hash(h, index, player_id)
         }
     }
