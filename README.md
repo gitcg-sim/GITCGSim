@@ -183,7 +183,7 @@ let mut game_state: GameState = GameStateInitializer::default()
 // Get the Zobrist hash
 game_state.zobrist_hash();
 // Perform an external update
-game_state.players[PlayerId::PlayerFirst].hand.push(CardId::QuickKnit);
+// game_state.advance(...);
 // Recalculate the hash
 game_state.rehash();
 ```

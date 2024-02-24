@@ -159,7 +159,7 @@ pub mod player_state_features {
     use super::*;
 
     fn char_status_features(player_state: &PlayerState, char_idx: u8) -> CharStatusFeatures<f32> {
-        let sc = &player_state.status_collection;
+        let sc = player_state.get_status_collection();
         CharStatusFeatures {
             equip_count: sc.equipment_count(char_idx) as f32,
             status_count: sc.character_status_count(char_idx) as f32,
@@ -173,7 +173,7 @@ pub mod player_state_features {
 
         let char_state = &player_state.char_states[char_idx];
         CharFeatures {
-            is_active: (player_state.active_char_idx == char_idx).bv(),
+            is_active: (player_state.get_active_char_idx() == char_idx).bv(),
             is_alive: true.bv(),
             hp: char_state.get_hp() as f32,
             energy: char_state.get_energy() as f32,
@@ -197,7 +197,7 @@ pub mod player_state_features {
     }
 
     pub fn team_features(player_state: &PlayerState) -> TeamStatusFeatures<f32> {
-        let sc = &player_state.status_collection;
+        let sc = player_state.get_status_collection();
         TeamStatusFeatures {
             status_count: sc.team_status_count() as f32,
             summon_count: sc.summon_count() as f32,
@@ -206,7 +206,7 @@ pub mod player_state_features {
     }
 
     pub fn dice_features(player_state: &PlayerState) -> DiceFeatures<f32> {
-        let dice_counter = &player_state.dice;
+        let dice_counter = player_state.get_dice_counter();
         let es = player_state.get_element_priority().elems();
         let off_count: u8 = Element::VALUES
             .iter()
@@ -258,7 +258,7 @@ pub mod game_state_features {
 
     fn express_player_state_features(game_state: &GameState, player_id: PlayerId) -> ExpressPlayerStateFeatures<f32> {
         let player_state = game_state.get_player(player_id);
-        let active_char_idx = player_state.active_char_idx;
+        let active_char_idx = player_state.get_active_char_idx();
         let mut chars: [ExpressCharFeatures<f32>; N_CHARS] = Default::default();
         for (char_idx, c) in chars.iter_mut().enumerate() {
             *c = express_char_features(player_state, char_idx as u8);
@@ -281,7 +281,7 @@ pub mod game_state_features {
             // can_perform: self.can_perform_features(player_id),
             turn: turn_features(game_state, player_id),
             dice: dice_features(player_state),
-            hand_count: player_state.hand.len() as f32,
+            hand_count: player_state.hand_len() as f32,
             // team: player_state.team_features(),
             team_status_count: team_features(player_state).total(),
             active_char,

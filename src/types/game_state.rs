@@ -240,10 +240,10 @@ impl PlayerFlag {
 #[derive(Debug, Clone)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct PlayerState {
-    pub active_char_idx: u8,
-    pub dice: DiceCounter,
+    pub(crate) active_char_idx: u8,
+    pub(crate) dice: DiceCounter,
     pub char_states: CharStates,
-    pub status_collection: StatusCollection,
+    pub(crate) status_collection: StatusCollection,
     // TODO enforce limit of 10
     pub hand: Vector<CardId>,
     pub flags: EnumSet<PlayerFlag>,
@@ -264,6 +264,31 @@ impl PlayerState {
     #[inline]
     pub fn is_tactical(&self) -> bool {
         self.flags.contains(PlayerFlag::Tactical)
+    }
+
+    #[inline]
+    pub fn get_active_char_idx(&self) -> u8 {
+        self.active_char_idx
+    }
+
+    #[inline]
+    pub fn get_dice_counter(&self) -> DiceCounter {
+        self.dice
+    }
+
+    #[inline]
+    pub fn get_status_collection(&self) -> &StatusCollection {
+        &self.status_collection
+    }
+
+    #[inline]
+    pub fn hand_is_empty(&self) -> bool {
+        self.hand.is_empty()
+    }
+
+    #[inline]
+    pub fn hand_len(&self) -> u8 {
+        self.hand.len() as u8
     }
 }
 

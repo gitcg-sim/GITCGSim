@@ -152,10 +152,10 @@ impl<B: Backend> App<B> {
                     );
                     self.status = format!(
                         "  Your move.  You: (Hand: {}, Dice: {}), Opp: (Hand: {}, Dice: {}). {}",
-                        players.0.hand.len(),
-                        players.0.dice.total(),
-                        players.1.hand.len(),
-                        players.1.dice.total(),
+                        players.0.hand_len(),
+                        players.0.get_dice_counter().total(),
+                        players.1.hand_len(),
+                        players.1.get_dice_counter().total(),
                         {
                             match game_state.get_phase() {
                                 Phase::ActionPhase {
@@ -342,7 +342,7 @@ impl<B: Backend> App<B> {
             })
             .split(player_chunk);
 
-        let sc = &player.status_collection;
+        let sc = player.get_status_collection();
 
         let support_chunks = {
             let supports_rect = char_chunks[0];
@@ -408,7 +408,7 @@ impl<B: Backend> App<B> {
             rects.insert((player_id, RectKey::Summon(summon_id)), rect);
         }
 
-        let ac = player.active_char_idx;
+        let ac = player.get_active_char_idx();
         for (j, c) in player.char_states.iter_all().enumerate() {
             let is_active = j == (ac as usize);
             let rect = {
@@ -433,12 +433,13 @@ impl<B: Backend> App<B> {
     }
 
     fn render_dice(f: &mut tui::Frame<B>, player: &PlayerState, rect: Rect) {
+        let dice = player.get_dice_counter();
         let dice_block = Block::default()
-            .title(format!("Dice ({})", player.dice.total()))
+            .title(format!("Dice ({})", dice.total()))
             .border_type(BorderType::Rounded)
             .borders(Borders::ALL);
 
-        let dice_body = get_dice_body(&player.dice, player.get_element_priority()).block(dice_block);
+        let dice_body = get_dice_body(&dice, player.get_element_priority()).block(dice_block);
         f.render_widget(dice_body, rect);
     }
 
@@ -745,7 +746,7 @@ fn add_logs(
     for entry in new_log_entries {
         if let logging::Event::DealDMG(_src, (dst_player_id, (dst_char_idx, _)), deal_dmg) = entry {
             let src_player_id = dst_player_id.opposite();
-            let src_char_idx = game_state.get_player(src_player_id).active_char_idx;
+            let src_char_idx = game_state.get_player(src_player_id).get_active_char_idx();
             let Some(src) = rects.get(&(src_player_id, RectKey::Character(src_char_idx))) else {
                 continue;
             };
