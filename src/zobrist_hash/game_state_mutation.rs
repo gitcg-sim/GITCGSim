@@ -101,14 +101,10 @@ impl PlayerState {
     ) {
         let add = Dice::Elem(elem_to_add);
         let remove = Dice::Elem(elem_to_remove);
-        // h.hash(HASH_PROVIDER.dice(player_id, add, self.dice[add]));
-        // h.hash(HASH_PROVIDER.dice(player_id, remove, self.dice[remove]));
         Self::dice_hash(h, player_id, &self.dice);
         self.dice.add_single(add, 1);
         self.dice.sub_single(remove, 1);
         Self::dice_hash(h, player_id, &self.dice);
-        // h.hash(HASH_PROVIDER.dice(player_id, add, self.dice[add]));
-        // h.hash(HASH_PROVIDER.dice(player_id, remove, self.dice[remove]));
         self.check_for_charged_attack((h, player_id));
     }
 

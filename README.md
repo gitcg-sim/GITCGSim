@@ -2,16 +2,41 @@
 
 A library for the [Genius Invokation TCG](https://genshin-impact.fandom.com/wiki/Genius_Invokation_TCG).
 
-This crate supports the following functionalities:
+## Summary of crates in this workspace
+
+### `gitcg_sim`
+- `no_std` support
 - Game state representation and evolution
 - Move generation and validation
 - Game state determinization (handling unknown/random information)
-- Minimax and MCTS search algorithms
 
-Currently, the following TCG mechanics are unimplemented:
+### `gitcg_sim_code_gen`
+- Used by `gitcg_sim` for code generation
+
+### `gitcg_sim_search`
+- Minimax and MCTS (Monte-Carlo Tree Search) algorithms
+
+### `gitcg_sim_cli_utils`
+- Command line argument parsing for `gitcg_sim_benchmark` and `gitcg_sim_tui_app`
+
+### `gitcg_sim_benchmark`
+- Performance test for move generation
+- Random playout
+
+### `gitcg_sim_tui_app`
+- TUI-based GITCG simulator
+
+## Unsupported TCG features
+
 - Mulligan at game start
-- Manually selecting Elemental Dice for cost payments (instead dice are auto-selected based on own characters elements)
+- Manually selecting Elemental Dice for cost payments (auto automatically)
+- Manually selecting Elemental Dice for rerolling (done automatically)
 - Validation rules for decklists (Elemental Resonance, talent cards)
+
+## Adding new characters or cards
+
+The cards and effects are **hard-coded** in the `gitcg_sim` crate.
+To add new cards you must modify its source code.
 
 ## Running the simulator
 
@@ -20,7 +45,8 @@ Currently, the following TCG mechanics are unimplemented:
 cargo run --release
 
 # Run the benchmark
-cargo run --release --bin gitcg_benchmark
+cd ./gitcg_sim_benchmark
+cargo run --release
 ```
 
 ### WebAssembly-based simulator
@@ -221,7 +247,3 @@ let game_state_wrapper = GameStateWrapper::new(game_state, nd);
 ### Serialization and deserialization
 
 Enable the `serde` feature to serialize and deserialize the relevant types.
-
-## Adding new cards
-
-The cards and effects are **hard-coded** in this crate. To add new cards you must acquire and modify the source code of this crate.

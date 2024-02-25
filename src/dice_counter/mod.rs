@@ -36,8 +36,8 @@ impl crate::std_subset::fmt::Debug for DiceCounter {
     }
 }
 
-/// Describes the preferred elements for (1) automatically paying Elemental Dice costs
-/// and (2) Elemental Dice to keep whilee automatically rerolling Elemental dice.
+/// Describes the preferred elements to keep for selecting Elemental Dice for
+/// (1) cost payments and (2) automatic dice rerolls
 #[derive(Debug, Default, Copy, Clone, PartialEq, Eq, Hash)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct ElementPriority {
