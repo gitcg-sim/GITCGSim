@@ -82,13 +82,25 @@ impl PlayerState {
         }
     }
 
-    // TODO need to take switch target into account
+    #[inline]
+    pub fn get_element_priority_for_cost_type(self: &PlayerState, cost_type: CostType) -> ElementPriority {
+        match cost_type {
+            CostType::Switching { dst_char_idx } => self.get_element_priority_switch(dst_char_idx),
+            CostType::Card(..) | CostType::Skill(..) => self.get_element_priority(),
+        }
+    }
+
+    #[inline]
     pub fn get_element_priority(&self) -> ElementPriority {
+        self.get_element_priority_switch(self.active_char_idx)
+    }
+
+    pub fn get_element_priority_switch(&self, dst_char_idx: u8) -> ElementPriority {
         let mut ep = ElementPriority::default();
         for (i, c) in self.char_states.enumerate_valid() {
             let e = c.char_id.get_char_card().elem;
             ep.important_elems |= e;
-            if i == self.active_char_idx {
+            if i == dst_char_idx {
                 ep.active_elem = Some(e);
             }
         }

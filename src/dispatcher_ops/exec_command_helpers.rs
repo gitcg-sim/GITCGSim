@@ -238,9 +238,11 @@ impl CostType {
     #[inline]
     fn into_cmd_src(self, active_char_idx: u8) -> CommandSource {
         match self {
-            CostType::Switching => CommandSource::Switch {
+            CostType::Switching {
+                dst_char_idx: tgt_char_idx,
+            } => CommandSource::Switch {
                 from_char_idx: active_char_idx,
-                dst_char_idx: active_char_idx,
+                dst_char_idx: tgt_char_idx,
             },
             CostType::Card(card_id) => CommandSource::Card { card_id, target: None },
             CostType::Skill(skill_id) => CommandSource::Skill {
@@ -328,7 +330,7 @@ pub fn update_dice_distribution(player: &PlayerState, dist: &mut DiceDistributio
 }
 
 pub fn can_pay_dice_cost(player: &PlayerState, cost: &Cost, cost_type: CostType) -> bool {
-    let ep = player.get_element_priority();
+    let ep = player.get_element_priority_for_cost_type(cost_type);
     let mut cost = *cost;
     augment_cost_immutable(player, &mut cost, cost_type);
     player.dice.try_pay_cost(&cost, &ep).is_some()
@@ -341,7 +343,7 @@ pub fn try_pay_dice_cost(
     cost: &Cost,
     cost_type: CostType,
 ) -> Option<DiceCounter> {
-    let ep = player.get_element_priority();
+    let ep = player.get_element_priority_for_cost_type(cost_type);
     if let Some(d) = player.dice.try_pay_cost(cost, &ep) {
         Some(d)
     } else {

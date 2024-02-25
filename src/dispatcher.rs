@@ -90,7 +90,12 @@ impl GameState {
 
         self.ensure_can_switch_to(player_id, tgt_char_idx)?;
 
-        self.pay_cost(&SWITCHING_COST, CostType::Switching)?;
+        self.pay_cost(
+            &SWITCHING_COST,
+            CostType::Switching {
+                dst_char_idx: tgt_char_idx,
+            },
+        )?;
         let ctx = CommandContext::new(
             player_id,
             CommandSource::Switch {
@@ -124,7 +129,9 @@ impl GameState {
             return Err(DispatchError::CannotSwitchInto);
         }
 
-        if self.ignore_costs || can_pay_dice_cost(player, &SWITCHING_COST, CostType::Switching) {
+        if self.ignore_costs
+            || can_pay_dice_cost(player, &SWITCHING_COST, CostType::Switching { dst_char_idx: char_idx })
+        {
             Ok(())
         } else {
             Err(DispatchError::UnableToPayCost)
@@ -388,9 +395,9 @@ impl GameState {
                         is_fast_action = false;
                         Some((skill_id.get_skill().cost, CostType::Skill(skill_id)))
                     }
-                    PlayerAction::SwitchCharacter(_) => {
+                    PlayerAction::SwitchCharacter(dst_char_idx) => {
                         is_fast_action = self.check_switch_is_fast_action(active_player_id, player.active_char_idx);
-                        Some((Cost::ONE, CostType::Switching))
+                        Some((Cost::ONE, CostType::Switching { dst_char_idx }))
                     }
                     PlayerAction::EndRound => return (Cost::ZERO, false),
                     _ => None,

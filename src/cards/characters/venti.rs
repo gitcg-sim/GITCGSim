@@ -63,7 +63,7 @@ pub mod stormzone {
                     .try_reduce_by(1)
                     .then_some(AppliedEffectResult::ConsumeOncePerRound);
             }
-            let CostType::Switching = cost_type else { return None };
+            cost_type.is_switching().then_some(())?;
             cost.try_reduce_by(1).then_some(AppliedEffectResult::NoChange)
         }
     }

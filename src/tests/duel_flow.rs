@@ -488,3 +488,18 @@ fn hand_size_limit() {
     ]);
     assert_eq!(PlayerState::HAND_SIZE_LIMIT, gs.players.0.hand_len() as usize);
 }
+
+#[test]
+fn auto_cost_payment_for_switching_based_on_switch_target() {
+    let mut gs =
+        GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Yoimiya, CharId::Ganyu], vector![CharId::Fischl])
+            .build();
+    gs.advance_roll_phase_no_dice();
+    gs.players.0.dice[Dice::PYRO] = 1;
+    gs.players.0.dice[Dice::CRYO] = 1;
+    gs.advance_multiple([Input::FromPlayer(
+        PlayerId::PlayerFirst,
+        PlayerAction::SwitchCharacter(1),
+    )]);
+    assert_eq!(DiceCounter::elem(Element::Cryo, 1), gs.players.0.dice);
+}

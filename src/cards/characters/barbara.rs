@@ -65,11 +65,9 @@ pub mod melody_loop {
             cost: &mut Cost,
             cost_type: CostType,
         ) -> Option<AppliedEffectResult> {
-            if !e.has_talent_equipped() {
+            if !e.has_talent_equipped() || cost_type.is_switching() {
                 return None;
             }
-
-            let CostType::Switching = cost_type else { return None };
 
             if !e.eff_state.can_use_once_per_round() {
                 return None;

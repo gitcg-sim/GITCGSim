@@ -290,7 +290,7 @@ impl<'a, 'c, 'v, D: Copy> StatusImplContextBuilder<'a, 'c, 'v, D> {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum CostType {
-    Switching,
+    Switching { dst_char_idx: u8 },
     Card(CardId),
     Skill(SkillId),
 }
@@ -310,6 +310,11 @@ impl CostType {
             Self::Card(card_id) => Some(card_id.get_card()),
             _ => None,
         }
+    }
+
+    #[inline]
+    pub fn is_switching(&self) -> bool {
+        matches!(self, Self::Switching { .. })
     }
 }
 

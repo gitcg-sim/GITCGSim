@@ -21,7 +21,7 @@ impl StatusImpl for DawnWinery {
     }
 
     fn update_cost(&self, e: &StatusImplContext, cost: &mut Cost, cost_type: CostType) -> Option<AppliedEffectResult> {
-        if !(cost_type == CostType::Switching && e.eff_state.can_use_once_per_round()) {
+        if !(cost_type.is_switching() && e.eff_state.can_use_once_per_round()) {
             return None;
         }
         cost.try_reduce_by(1)

@@ -69,7 +69,7 @@ pub mod yakshas_mask {
                 return None;
             }
 
-            let CostType::Switching = cost_type else { return None };
+            cost_type.is_switching().then_some(())?;
             if e.status_key.char_idx() != Some(e.src_player_state.active_char_idx) {
                 return None;
             }
