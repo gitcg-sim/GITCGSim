@@ -198,7 +198,7 @@ impl StatusImpl for SacrificialWeapon {
             return None;
         }
 
-        let Some(c) = e.c.src_char_card() else { return None };
+        let c = e.c.src_char_card()?;
         e.out_cmds
             .push((*e.ctx_for_dmg, Command::AddDice(DiceCounter::elem(c.elem, 1))));
         Some(AppliedEffectResult::ConsumeOncePerRound)
@@ -222,7 +222,7 @@ impl StatusImpl for FavoniusWeapon {
     }
 
     fn outgoing_dmg(&self, e: &StatusImplContext<DMGInfo>, dmg: &mut DealDMG) -> Option<AppliedEffectResult> {
-        let Some(_) = e.skill() else { return None };
+        let _ = e.skill()?;
         dmg.dmg += 1;
         Some(AppliedEffectResult::NoChange)
     }
@@ -249,7 +249,7 @@ impl StatusImpl for SkywardWeapon {
     }
 
     fn outgoing_dmg(&self, e: &StatusImplContext<DMGInfo>, dmg: &mut DealDMG) -> Option<AppliedEffectResult> {
-        let Some(skill) = e.skill() else { return None };
+        let skill = e.skill()?;
         dmg.dmg += 1;
         if e.eff_state.can_use_once_per_round() && SkillType::NormalAttack == skill.skill_type {
             dmg.dmg += 1;

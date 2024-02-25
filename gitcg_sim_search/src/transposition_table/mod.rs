@@ -88,7 +88,7 @@ impl<K: Eq + Copy + Into<usize>, V: Sized + Clone> CacheTable<K, V> {
         let Ok(bucket) = self.buckets[bi].read() else {
             return None;
         };
-        let Some((k1, v)) = &bucket[ei] else { return None };
+        let (k1, v) = bucket[ei].as_ref()?;
         if k1 == k {
             Some(v.clone())
         } else {

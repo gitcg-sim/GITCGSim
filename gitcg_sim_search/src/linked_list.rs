@@ -55,7 +55,7 @@ impl<'a, T: Clone> Iterator for LinkedListIterView<'a, T> {
     type Item = &'a T;
 
     fn next(&mut self) -> Option<Self::Item> {
-        let Some(cons) = &self.ptr.0 else { return None };
+        let cons = self.ptr.0.as_ref()?;
         let Cons(a, b) = cons.as_ref();
         self.ptr = b;
         Some(a)

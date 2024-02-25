@@ -373,7 +373,7 @@ fn probe_tt<G: Game>(
     let hash = game.zobrist_hash();
     let key = TT::<G::Eval, G::Action>::to_key(hash);
     let tt_ref = tt.pin();
-    let Some(entry) = tt_ref.get(&key) else { return None };
+    let entry = tt_ref.get(&key)?;
     let TTEntry {
         flag,
         value,
