@@ -77,7 +77,7 @@ proptest! {
 
     #[test]
     fn status_collections_are_sorted_by_sort_key(gs in arb_reachable_game_state_wrapper()) {
-        fn is_sorted<T: Ord>(v: &Vec<T>) -> bool {
+        fn is_sorted<T: Ord>(v: &[T]) -> bool {
             if v.len() <= 1 {
                 return true
             }

@@ -658,7 +658,6 @@ impl GameState {
         let player = self.players.get_mut(ctx.src_player_id);
         let mut total = 0;
         for (i, char_state) in player.char_states.enumerate_valid_mut() {
-            let i = i;
             if i == char_idx || char_state.get_energy() == 0 {
                 continue;
             }

@@ -5,7 +5,6 @@ pub mod game_trait;
 pub use game_trait::*;
 
 pub mod game_state_wrapper;
-pub use game_state_wrapper::*;
 
 pub mod transposition_table;
 

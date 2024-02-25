@@ -10,7 +10,6 @@ use crate::cards::ids::*;
 type DeckVec<T> = SmallVec<[T; 32]>;
 
 mod parser;
-pub use parser::*;
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, PartialEq, Eq)]

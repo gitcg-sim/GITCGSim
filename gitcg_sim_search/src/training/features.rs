@@ -396,10 +396,9 @@ pub mod input_features {
                 PlayerAction::PlayCard(card_id, target) => play_card_features(card_id, target, value),
                 PlayerAction::ElementalTuning(..) => vf!(InputFeatures, elemental_tuning: value),
                 PlayerAction::CastSkill(skill_id) => cast_skill_features(skill_id, value),
-                PlayerAction::SwitchCharacter(char_idx) | PlayerAction::PostDeathSwitch(char_idx) => vf!(
-                    InputFeatures,
-                    switch: from_char_idx(char_idx, value)
-                ),
+                PlayerAction::SwitchCharacter(char_idx) | PlayerAction::PostDeathSwitch(char_idx) => {
+                    vf!(InputFeatures, switch: from_char_idx(char_idx, value))
+                }
             },
         }
     }

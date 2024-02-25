@@ -13,7 +13,6 @@ use super::tcg_model::EquipSlot;
 use crate::cards::ids::*;
 
 pub use super::applied_effect_state::AppliedEffectState;
-pub use crate::types::{card_selection::*, char_state::*};
 
 #[derive(Debug, Clone, Default)]
 #[cfg_attr(

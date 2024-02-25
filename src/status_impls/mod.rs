@@ -1,4 +1,5 @@
 /// Import this module to import the `StatusImpl` trait and its related imports.
+#[allow(unused_imports)]
 pub(crate) mod prelude {
     pub use crate::{compose_status_impls, decl_status_impl_type, list8, trigger_event_impl};
     pub use enumset::{enum_set, EnumSet, EnumSetType};

@@ -398,12 +398,7 @@ fn main_policy(deck: SearchOpts, opts: PolicyOpts) -> Result<(), std::io::Error>
         let mut model: PolicyNetwork = PolicyNetwork::default();
         if let Some(npz_path) = &opts.load_npz {
             if let Err(e) = model.load_from_npz(npz_path) {
-                println!(
-                    "{}",
-                    json!({
-                        "load_error": format!("{e}")
-                    })
-                );
+                println!("{}", json!({ "load_error": format!("{e}") }));
             };
         }
         let mut grads = model.alloc_grads();

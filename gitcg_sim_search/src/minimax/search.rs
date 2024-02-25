@@ -395,8 +395,6 @@ fn probe_tt<G: Game>(
     let early_exit = {
         #[cfg(feature = "old_tt")]
         let pv = pv.clone();
-        #[cfg(not(feature = "old_tt"))]
-        let pv = pv;
 
         move |value: G::Eval| {
             *hit = true;

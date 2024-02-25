@@ -221,17 +221,14 @@ impl<B: Backend> App<B> {
             let ui_chunks = Layout::default()
                 .direction(Direction::Horizontal)
                 .margin(1)
-                .constraints(
-                    GridConstraint::to_constraints(
-                        ui_size.width,
-                        &vec![
-                            GridConstraint::Fixed(120),
-                            GridConstraint::Fixed(70),
-                            GridConstraint::Fr(1.0),
-                        ],
-                    )
-                    .as_ref(),
-                )
+                .constraints(GridConstraint::to_constraints(
+                    ui_size.width,
+                    &vec![
+                        GridConstraint::Fixed(120),
+                        GridConstraint::Fixed(70),
+                        GridConstraint::Fr(1.0),
+                    ],
+                ))
                 .split(ui_size);
 
             let v_chunks = Layout::default()
@@ -249,17 +246,14 @@ impl<B: Backend> App<B> {
             let duel_chunks = Layout::default()
                 .direction(Direction::Vertical)
                 .horizontal_margin(1)
-                .constraints(
-                    GridConstraint::to_constraints(
-                        ui_chunks[0].height,
-                        &vec![
-                            GridConstraint::Fr(1.0),
-                            GridConstraint::Fixed(1),
-                            GridConstraint::Fr(1.0),
-                        ],
-                    )
-                    .as_ref(),
-                )
+                .constraints(GridConstraint::to_constraints(
+                    ui_chunks[0].height,
+                    &vec![
+                        GridConstraint::Fr(1.0),
+                        GridConstraint::Fixed(1),
+                        GridConstraint::Fr(1.0),
+                    ],
+                ))
                 .split(ui_chunks[0]);
             let info_chunk = duel_chunks[1];
 

@@ -7,12 +7,10 @@ fn playing_up_to_4_supports() {
         .ignore_costs(true)
         .build();
     gs.advance_roll_phase_no_dice();
-    gs.players.0.hand = [
-        CardId::Paimon,
-        CardId::Katheryne,
-        CardId::Paimon,
-        CardId::DawnWinery,
-    ].iter().copied().collect();
+    gs.players.0.hand = [CardId::Paimon, CardId::Katheryne, CardId::Paimon, CardId::DawnWinery]
+        .iter()
+        .copied()
+        .collect();
     gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::PlayCard(CardId::Paimon, None)),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::PlayCard(CardId::Paimon, None)),
