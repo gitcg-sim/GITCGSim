@@ -1,4 +1,6 @@
 #![allow(non_snake_case)]
+use core::borrow::Borrow;
+
 use crate::std_subset::{
     fmt::{Debug, Display},
     Box,
@@ -7,7 +9,7 @@ use crate::std_subset::{
 use enum_map::Enum;
 use enumset::{enum_set, EnumSet, EnumSetType};
 
-use smallvec::{smallvec, SmallVec};
+use smallvec::SmallVec;
 
 use crate::{cards::ids::*, data_structures::CommandList, dispatcher_ops::NondetRequest, zobrist_hash::ZobristHasher};
 
@@ -239,7 +241,7 @@ pub struct PlayerState {
     pub(crate) char_states: CharStates,
     pub(crate) status_collection: StatusCollection,
     // TODO enforce limit of 10
-    pub(crate) hand: SmallVec<[CardId; PlayerState::HAND_SIZE_LIMIT]>,
+    pub(crate) hand: heapless::Vec<CardId, { PlayerState::HAND_SIZE_LIMIT }>,
     pub(crate) flags: EnumSet<PlayerFlag>,
 }
 
@@ -252,7 +254,7 @@ impl PlayerState {
             char_states: CharStates::from_ids(char_ids),
             active_char_idx: 0,
             status_collection: StatusCollection::default(),
-            hand: smallvec![],
+            hand: Default::default(),
             flags: enum_set![],
         }
     }
@@ -288,8 +290,8 @@ impl PlayerState {
     }
 
     #[inline]
-    pub fn get_hand(&self) -> &SmallVec<[CardId; PlayerState::HAND_SIZE_LIMIT]> {
-        &self.hand
+    pub fn get_hand(&self) -> &[CardId] {
+        self.hand.borrow()
     }
 
     #[inline]

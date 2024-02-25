@@ -162,7 +162,7 @@ fn talent_card_affects_chonghuas_frost_field() {
     .build();
 
     gs.advance_roll_phase_no_dice();
-    gs.players.0.hand.push(CardId::SteadyBreathing);
+    gs.players.0.add_to_hand_ignore(CardId::SteadyBreathing);
     gs.advance_multiple([
         Input::FromPlayer(
             PlayerId::PlayerFirst,
@@ -200,7 +200,7 @@ fn talent_card_on_different_character_doesnt_affect_chonghuas_frost_field() {
     .build();
 
     gs.advance_roll_phase_no_dice();
-    gs.players.0.hand.push(CardId::IGotYourBack);
+    gs.players.0.add_to_hand_ignore(CardId::IGotYourBack);
     gs.advance_multiple([
         Input::FromPlayer(
             PlayerId::PlayerFirst,

@@ -379,8 +379,8 @@ impl GameState {
 
 impl PlayerState {
     #[inline]
-    pub(crate) fn tally_hand<A: smallvec::Array<Item = CardId>>(
-        hand: &SmallVec<A>,
+    pub(crate) fn tally_hand(
+        hand: &heapless::Vec<CardId, { Self::HAND_SIZE_LIMIT }>,
     ) -> SmallVec<[(CardId, u8); PlayerState::HAND_SIZE_LIMIT]> {
         let mut v = SmallVec::new();
         for card_id in hand {
@@ -396,8 +396,8 @@ impl PlayerState {
     }
 
     #[inline]
-    pub(crate) fn hash_hand<A: smallvec::Array<Item = CardId>>(
-        hand: &SmallVec<A>,
+    pub(crate) fn hash_hand(
+        hand: &heapless::Vec<CardId, { Self::HAND_SIZE_LIMIT }>,
         h: &mut ZobristHasher,
         player_id: PlayerId,
     ) {

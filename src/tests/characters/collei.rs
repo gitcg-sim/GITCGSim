@@ -8,7 +8,7 @@ fn talent_card() {
             .ignore_costs(true)
             .build();
 
-    gs.players.0.hand.push(CardId::FloralSidewinder);
+    gs.players.0.add_to_hand_ignore(CardId::FloralSidewinder);
     gs.advance_roll_phase_no_dice();
     gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
@@ -37,7 +37,7 @@ fn talent_card_immediate_reaction() {
             .ignore_costs(true)
             .build();
 
-    gs.players.0.hand.push(CardId::FloralSidewinder);
+    gs.players.0.add_to_hand_ignore(CardId::FloralSidewinder);
     gs.players.1.char_states[0].applied |= Element::Electro;
     gs.advance_roll_phase_no_dice();
     gs.advance_multiple([Input::FromPlayer(
@@ -61,7 +61,7 @@ fn talent_card_does_not_trigger_on_incoming_dendro_reaction() {
             .ignore_costs(true)
             .build();
 
-    gs.players.0.hand.push(CardId::FloralSidewinder);
+    gs.players.0.add_to_hand_ignore(CardId::FloralSidewinder);
     gs.advance_roll_phase_no_dice();
     gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,

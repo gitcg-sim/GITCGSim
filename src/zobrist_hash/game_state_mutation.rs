@@ -28,8 +28,10 @@ impl PlayerState {
     #[inline]
     pub fn add_card_to_hand(&mut self, (h, player_id): PlayerHashContext, card_id: CardId) {
         let count = self.hand.iter().copied().filter(|c| *c == card_id).count() as u8;
+        if self.hand.push(card_id).is_err() {
+            return;
+        };
         h.hash(HASH_PROVIDER.hand(player_id, card_id, count));
-        self.hand.push(card_id);
         h.hash(HASH_PROVIDER.hand(player_id, card_id, count + 1));
     }
 

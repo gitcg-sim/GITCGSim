@@ -121,8 +121,7 @@ fn chakra_desiderata_under_talent_card_buffs_burst_twice() {
     .build();
     gs.advance_roll_phase_no_dice();
     gs.get_player_mut(PlayerId::PlayerFirst)
-        .hand
-        .push(CardId::WishesUnnumbered);
+        .add_to_hand_ignore(CardId::WishesUnnumbered);
     assert!(gs
         .get_player(PlayerId::PlayerFirst)
         .has_character_status(2, StatusId::ChakraDesiderata));

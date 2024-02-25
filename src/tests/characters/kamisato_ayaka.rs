@@ -140,7 +140,7 @@ fn cryo_infusion_under_talent_card() {
     .ignore_costs(true)
     .build();
     gs.advance_roll_phase_no_dice();
-    gs.players.0.hand.push(CardId::KantenSenmyouBlessing);
+    gs.players.0.add_to_hand_ignore(CardId::KantenSenmyouBlessing);
     gs.advance_multiple([
         Input::FromPlayer(
             PlayerId::PlayerFirst,

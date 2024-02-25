@@ -63,7 +63,7 @@ fn talent_card_increases_explosive_spark_usages() {
         .build();
 
     gs.advance_roll_phase_no_dice();
-    gs.players.0.hand.push(CardId::PoundingSurprise);
+    gs.players.0.add_to_hand_ignore(CardId::PoundingSurprise);
     gs.players.0.dice.add_in_place(&DiceCounter::omni(8));
     gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,

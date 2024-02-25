@@ -54,7 +54,7 @@ fn talent_card_has_dmg_bonus_and_no_heal_for_character_above_7hp() {
     gs.advance_roll_phase_no_dice();
     {
         let p = gs.get_player_mut(PlayerId::PlayerFirst);
-        p.hand.push(CardId::GrandExpectation);
+        p.add_to_hand_ignore(CardId::GrandExpectation);
         p.char_states[1].set_hp(7);
     }
     gs.advance_multiple([
@@ -82,7 +82,7 @@ fn talent_card_has_dmg_bonus_and_heals_for_character_below_7hp() {
     gs.advance_roll_phase_no_dice();
     {
         let p = gs.get_player_mut(PlayerId::PlayerFirst);
-        p.hand.push(CardId::GrandExpectation);
+        p.add_to_hand_ignore(CardId::GrandExpectation);
         p.char_states[1].set_hp(6);
     }
     gs.advance_multiple([

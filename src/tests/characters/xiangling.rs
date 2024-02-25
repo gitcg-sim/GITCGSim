@@ -35,7 +35,8 @@ fn talent_card_deals_pyro_dmg_on_skill_cast() {
     .ignore_costs(true)
     .build();
     gs.advance_roll_phase_no_dice();
-    gs.get_player_mut(PlayerId::PlayerFirst).hand.push(CardId::Crossfire);
+    gs.get_player_mut(PlayerId::PlayerFirst)
+        .add_to_hand_ignore(CardId::Crossfire);
     gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::PlayCard(CardId::Crossfire, Some(CardSelection::OwnCharacter(0))),

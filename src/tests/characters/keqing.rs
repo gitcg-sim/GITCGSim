@@ -130,7 +130,7 @@ fn stellar_restoration_grants_electro_infusion_by_consuming_lightning_stiletto_o
 #[test]
 fn talent_card_increases_electro_infusion_duration() {
     let mut gs = game_state_after_stellar_restoration();
-    gs.players.0.hand.push(CardId::ThunderingPenance);
+    gs.players.0.add_to_hand_ignore(CardId::ThunderingPenance);
     gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::SwitchCharacter(1)),
         Input::FromPlayer(

@@ -100,7 +100,9 @@ fn talent_card_charged_attack() {
         dice.add_in_place(&DiceCounter::elem(Element::Dendro, 5));
         dice.add_in_place(&DiceCounter::elem(Element::Pyro, 1));
     }
-    gs.players.get_mut(PlayerId::PlayerFirst).hand.push(CardId::KeenSight);
+    gs.players
+        .get_mut(PlayerId::PlayerFirst)
+        .add_to_hand_ignore(CardId::KeenSight);
     dbg!(&gs.get_player(PlayerId::PlayerFirst).dice);
     gs.advance_multiple([
         Input::FromPlayer(

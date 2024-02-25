@@ -1,5 +1,3 @@
-use smallvec::smallvec;
-
 use super::*;
 
 #[test]
@@ -240,7 +238,10 @@ fn play_card() {
     )
     .build();
     gs.advance_roll_phase_no_dice();
-    gs.players.0.hand = smallvec![CardId::BlankCard, CardId::Starsigns, CardId::TheBestestTravelCompanion];
+    gs.players.0.hand = [CardId::BlankCard, CardId::Starsigns, CardId::TheBestestTravelCompanion]
+        .iter()
+        .copied()
+        .collect();
     gs.players.0.dice[Dice::PYRO] = 1;
     gs.players.0.dice[Dice::DENDRO] = 1;
     assert_eq!(0, gs.players.0.dice.omni);
@@ -264,12 +265,15 @@ fn elemental_tuning() {
         GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Yoimiya], vector![CharId::Fischl]).build();
     gs.advance_roll_phase_no_dice();
     gs.players.0.dice[Dice::DENDRO] = 1;
-    gs.players.0.hand = smallvec![
+    gs.players.0.hand = [
         CardId::BlankCard,
         CardId::Starsigns,
         CardId::TheBestestTravelCompanion,
-        CardId::BlankCard
-    ];
+        CardId::BlankCard,
+    ]
+    .iter()
+    .copied()
+    .collect();
     gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::ElementalTuning(CardId::TheBestestTravelCompanion),
@@ -284,7 +288,10 @@ fn artifact_equip_replace() {
         .ignore_costs(true)
         .build();
     gs.advance_roll_phase_no_dice();
-    gs.players.0.hand = smallvec![CardId::WitchsScorchingHat, CardId::BrokenRimesEcho];
+    gs.players.0.hand = [CardId::WitchsScorchingHat, CardId::BrokenRimesEcho]
+        .iter()
+        .copied()
+        .collect();
     gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::PlayCard(CardId::BrokenRimesEcho, Some(CardSelection::OwnCharacter(0))),
@@ -318,7 +325,7 @@ fn weapon_equip_replace() {
         .ignore_costs(true)
         .build();
     gs.advance_roll_phase_no_dice();
-    gs.players.0.hand = vector![CardId::SkywardHarp, CardId::SacrificialBow];
+    gs.players.0.hand = [CardId::SkywardHarp, CardId::SacrificialBow].iter().copied().collect();
     gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::PlayCard(CardId::SacrificialBow, Some(CardSelection::OwnCharacter(0))),
@@ -461,4 +468,23 @@ fn test_select_starting_plunging_attack_flags() {
     assert!(gs.get_player(PlayerId::PlayerSecond).char_states[1]
         .flags
         .contains(CharFlag::PlungingAttack));
+}
+
+#[test]
+fn hand_size_limit() {
+    let mut gs =
+        GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Yoimiya], vector![CharId::Fischl]).build();
+    gs.advance_roll_phase_no_dice();
+    let mut hand = [CardId::BlankCard; PlayerState::HAND_SIZE_LIMIT];
+    hand[0] = CardId::Strategize;
+    gs.players.0.hand = hand.iter().copied().collect();
+    gs.players.0.dice[Dice::Omni] = 1;
+    assert_eq!(PlayerState::HAND_SIZE_LIMIT, gs.players.0.hand_len() as usize);
+    gs.advance_multiple([
+        Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::PlayCard(CardId::Strategize, None)),
+        Input::NondetResult(NondetResult::ProvideCards(
+            (list8![CardId::BlankCard, CardId::BlankCard], Default::default()).into(),
+        )),
+    ]);
+    assert_eq!(PlayerState::HAND_SIZE_LIMIT, gs.players.0.hand_len() as usize);
 }

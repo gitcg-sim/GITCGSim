@@ -7,7 +7,9 @@ fn elemental_resonance_sprawling_greenery_does_not_increase_non_reaction_dmg() {
 
     gs.players.0.dice.add_in_place(&DiceCounter::omni(8));
     gs.players.1.dice.add_in_place(&DiceCounter::omni(8));
-    gs.players.0.hand.push(CardId::ElementalResonanceSprawlingGreenery);
+    gs.players
+        .0
+        .add_to_hand_ignore(CardId::ElementalResonanceSprawlingGreenery);
     gs.advance_roll_phase_no_dice();
 
     gs.advance_multiple([
@@ -35,7 +37,9 @@ fn elemental_resonance_sprawling_greenery_increases_reaction_dmg() {
 
     gs.players.0.dice.add_in_place(&DiceCounter::omni(8));
     gs.players.1.dice.add_in_place(&DiceCounter::omni(8));
-    gs.players.0.hand.push(CardId::ElementalResonanceSprawlingGreenery);
+    gs.players
+        .0
+        .add_to_hand_ignore(CardId::ElementalResonanceSprawlingGreenery);
     {
         let yoimiya = &mut gs.players.1.char_states[0];
         yoimiya.applied.insert(Element::Pyro);
@@ -68,7 +72,9 @@ fn elemental_resonance_sprawling_greenery_increases_usages_of_catalyzing_field()
         GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Fischl, CharId::Collei], vector![CharId::Yoimiya])
             .ignore_costs(true)
             .build();
-    gs.players.0.hand.push(CardId::ElementalResonanceSprawlingGreenery);
+    gs.players
+        .0
+        .add_to_hand_ignore(CardId::ElementalResonanceSprawlingGreenery);
     gs.advance_roll_phase_no_dice();
     gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::Nightrider)),

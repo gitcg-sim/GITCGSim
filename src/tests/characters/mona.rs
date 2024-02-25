@@ -123,8 +123,7 @@ fn stellaris_phantasm_doubles_dmg() {
     gs.advance_roll_phase_no_dice();
     gs.ignore_costs = true;
     gs.get_player_mut(PlayerId::PlayerFirst)
-        .hand
-        .push(CardId::SacrificialSword);
+        .add_to_hand_ignore(CardId::SacrificialSword);
     gs.advance_multiple([
         Input::FromPlayer(
             PlayerId::PlayerFirst,

@@ -53,7 +53,7 @@ fn talent_card_heals_all() {
     .ignore_costs(true)
     .build();
 
-    gs.players.0.hand.push(CardId::IGotYourBack);
+    gs.players.0.add_to_hand_ignore(CardId::IGotYourBack);
     for c in gs.players.0.char_states.iter_all_mut() {
         c.set_hp(5)
     }

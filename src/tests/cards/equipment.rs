@@ -9,8 +9,8 @@ fn game_state_for_artifacts(card_id: CardId) -> GameState {
     .build();
     gs.advance_roll_phase_no_dice();
     gs.players.0.dice.add_in_place(&DiceCounter::omni(8));
-    gs.players.0.hand.push(card_id);
-    gs.players.0.hand.push(card_id);
+    gs.players.0.add_to_hand_ignore(card_id);
+    gs.players.0.add_to_hand_ignore(card_id);
     gs
 }
 
@@ -112,8 +112,8 @@ fn talent_equip_must_be_on_matching_and_active_character() {
     .ignore_costs(true)
     .build();
     gs.advance_roll_phase_no_dice();
-    gs.players.0.hand.push(CardId::NaganoharaMeteorSwarm);
-    gs.players.0.hand.push(CardId::TheScentRemained);
+    gs.players.0.add_to_hand_ignore(CardId::NaganoharaMeteorSwarm);
+    gs.players.0.add_to_hand_ignore(CardId::TheScentRemained);
     assert!(gs
         .clone()
         .advance(Input::FromPlayer(
@@ -154,7 +154,7 @@ fn talent_equip_without_skill_must_be_on_matching_character() {
     .ignore_costs(true)
     .build();
     gs.advance_roll_phase_no_dice();
-    gs.players.0.hand.push(CardId::KantenSenmyouBlessing);
+    gs.players.0.add_to_hand_ignore(CardId::KantenSenmyouBlessing);
     assert!(gs
         .clone()
         .advance(Input::FromPlayer(
@@ -175,7 +175,7 @@ fn gamblers_earrings_triggers_on_skill_defeat() {
     .build();
     gs.advance_roll_phase_no_dice();
     gs.players.1.char_states[0].set_hp(1);
-    gs.players.0.hand.push(CardId::GamblersEarrings);
+    gs.players.0.add_to_hand_ignore(CardId::GamblersEarrings);
     assert_eq!(0, gs.players.0.dice[Dice::Omni]);
     gs.advance_multiple([
         Input::FromPlayer(
@@ -199,7 +199,7 @@ fn gamblers_earrings_triggers_on_summon_defeat() {
     .build();
     gs.advance_roll_phase_no_dice();
     gs.players.1.char_states[0].set_hp(2);
-    gs.players.0.hand.push(CardId::GamblersEarrings);
+    gs.players.0.add_to_hand_ignore(CardId::GamblersEarrings);
     gs.advance_multiple([
         Input::FromPlayer(
             PlayerId::PlayerFirst,
@@ -229,7 +229,7 @@ fn gamblers_earrings_does_not_trigger_on_non_active_defeat() {
     .build();
     gs.advance_roll_phase_no_dice();
     gs.players.1.char_states[0].set_hp(2);
-    gs.players.0.hand.push(CardId::GamblersEarrings);
+    gs.players.0.add_to_hand_ignore(CardId::GamblersEarrings);
     assert_eq!(0, gs.players.0.dice[Dice::Omni]);
     gs.advance_multiple([
         Input::FromPlayer(
@@ -257,7 +257,7 @@ fn gamblers_earrings_does_not_trigger_on_non_active_summon_defeat() {
     .build();
     gs.advance_roll_phase_no_dice();
     gs.players.1.char_states[0].set_hp(2);
-    gs.players.0.hand.push(CardId::GamblersEarrings);
+    gs.players.0.add_to_hand_ignore(CardId::GamblersEarrings);
     gs.advance_multiple([
         Input::FromPlayer(
             PlayerId::PlayerFirst,
@@ -287,7 +287,7 @@ fn lithic_spear_grants_shield_points() {
     .ignore_costs(true)
     .build();
     gs.advance_roll_phase_no_dice();
-    gs.players.0.hand.push(CardId::LithicSpear);
+    gs.players.0.add_to_hand_ignore(CardId::LithicSpear);
     gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::PlayCard(CardId::LithicSpear, Some(CardSelection::OwnCharacter(0))),
@@ -336,7 +336,7 @@ mod lucky_dogs_silver_circlet {
         gs.advance_roll_phase_no_dice();
         {
             let p = gs.players.get_mut(PlayerId::PlayerFirst);
-            p.hand.push(CardId::LuckyDogsSilverCirclet);
+            p.add_to_hand_ignore(CardId::LuckyDogsSilverCirclet);
             p.char_states[0].set_hp(5);
         }
         gs.advance_multiple([Input::FromPlayer(
@@ -427,7 +427,7 @@ mod ornate_kabuto {
         .ignore_costs(true)
         .build();
         gs.advance_roll_phase_no_dice();
-        gs.players.0.hand.push(CardId::OrnateKabuto);
+        gs.players.0.add_to_hand_ignore(CardId::OrnateKabuto);
         gs.advance_multiple([
             Input::FromPlayer(
                 PlayerId::PlayerFirst,
@@ -448,7 +448,7 @@ mod ornate_kabuto {
         .ignore_costs(true)
         .build();
         gs.advance_roll_phase_no_dice();
-        gs.players.0.hand.push(CardId::OrnateKabuto);
+        gs.players.0.add_to_hand_ignore(CardId::OrnateKabuto);
         gs.advance_multiple([
             Input::FromPlayer(
                 PlayerId::PlayerFirst,
@@ -475,7 +475,7 @@ mod favonius_sword {
         .ignore_costs(true)
         .build();
         gs.advance_roll_phase_no_dice();
-        gs.players.0.hand.push(CardId::FavoniusSword);
+        gs.players.0.add_to_hand_ignore(CardId::FavoniusSword);
         gs.advance_multiple([
             Input::FromPlayer(
                 PlayerId::PlayerFirst,
@@ -498,7 +498,7 @@ mod favonius_sword {
         .ignore_costs(true)
         .build();
         gs.advance_roll_phase_no_dice();
-        gs.players.0.hand.push(CardId::FavoniusSword);
+        gs.players.0.add_to_hand_ignore(CardId::FavoniusSword);
         gs.advance_multiple([
             Input::FromPlayer(
                 PlayerId::PlayerFirst,
@@ -519,7 +519,7 @@ mod favonius_sword {
         .ignore_costs(true)
         .build();
         gs.advance_roll_phase_no_dice();
-        gs.players.0.hand.push(CardId::FavoniusSword);
+        gs.players.0.add_to_hand_ignore(CardId::FavoniusSword);
         gs.advance_multiple([
             Input::FromPlayer(
                 PlayerId::PlayerFirst,
@@ -545,7 +545,7 @@ mod aquila_favonia {
         gs.advance_roll_phase_no_dice();
         {
             let p = gs.get_player_mut(PlayerId::PlayerFirst);
-            p.hand.push(CardId::AquilaFavonia);
+            p.add_to_hand_ignore(CardId::AquilaFavonia);
             p.char_states[0].set_hp(8);
         }
         gs.advance(Input::FromPlayer(

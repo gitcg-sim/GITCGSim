@@ -104,7 +104,7 @@ fn talent_card_costs_niwabi_enshou_and_increases_dmg() {
     .enable_log(true)
     .ignore_costs(true)
     .build();
-    gs.players.0.hand.push(CardId::NaganoharaMeteorSwarm);
+    gs.players.0.add_to_hand_ignore(CardId::NaganoharaMeteorSwarm);
     gs.advance_roll_phase_no_dice();
     gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,

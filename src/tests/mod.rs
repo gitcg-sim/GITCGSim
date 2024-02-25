@@ -62,4 +62,9 @@ impl PlayerState {
         self.status_collection
             .has_character_status(self.active_char_idx, status_id)
     }
+
+    /// Add card to hand, ignoring the result.
+    pub fn add_to_hand_ignore(&mut self, card_id: CardId) {
+        let _ = self.hand.push(card_id);
+    }
 }

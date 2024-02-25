@@ -18,7 +18,7 @@ fn changing_shifts() {
 
     gs.advance_roll_phase_no_dice();
     assert_eq!(0, gs.players.0.dice.total());
-    gs.players.0.hand.push(CardId::ChangingShifts);
+    gs.players.0.add_to_hand_ignore(CardId::ChangingShifts);
     gs.advance_multiple([
         Input::FromPlayer(
             PlayerId::PlayerFirst,
@@ -39,7 +39,7 @@ fn changing_shifts_not_cleared() {
 
     gs.advance_roll_phase_no_dice();
     assert_eq!(0, gs.players.0.dice.total());
-    gs.players.0.hand.push(CardId::ChangingShifts);
+    gs.players.0.add_to_hand_ignore(CardId::ChangingShifts);
     gs.advance_multiple([
         Input::FromPlayer(
             PlayerId::PlayerFirst,
@@ -64,7 +64,7 @@ fn leave_it_to_me() {
 
     gs.advance_roll_phase_no_dice();
     gs.players.0.dice.omni += 2;
-    gs.players.0.hand.push(CardId::LeaveItToMe);
+    gs.players.0.add_to_hand_ignore(CardId::LeaveItToMe);
     gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::PlayCard(CardId::LeaveItToMe, None)),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::SwitchCharacter(1)),
@@ -91,9 +91,9 @@ fn food() {
     gs.players.0.char_states[0].reduce_hp(5);
     gs.players.0.char_states[1].reduce_hp(5);
     gs.players.0.char_states[2].reduce_hp(5);
-    gs.players.0.hand.push(CardId::SweetMadame);
-    gs.players.0.hand.push(CardId::SweetMadame);
-    gs.players.0.hand.push(CardId::SweetMadame);
+    gs.players.0.add_to_hand_ignore(CardId::SweetMadame);
+    gs.players.0.add_to_hand_ignore(CardId::SweetMadame);
+    gs.players.0.add_to_hand_ignore(CardId::SweetMadame);
     {
         let mut gs = gs.clone();
         assert_eq!(
@@ -148,7 +148,7 @@ fn i_havent_lost_yet_activation_condition() {
 
     gs.players.0.dice.add_in_place(&DiceCounter::omni(8));
     gs.players.1.dice.add_in_place(&DiceCounter::omni(8));
-    gs.players.0.hand.push(CardId::IHaventLostYet);
+    gs.players.0.add_to_hand_ignore(CardId::IHaventLostYet);
     gs.players.0.try_get_character_mut(1).unwrap().set_hp(1);
     gs.advance_roll_phase_no_dice();
     gs.advance_multiple([
@@ -190,8 +190,8 @@ fn strategize() {
 
     gs.players.0.dice.add_in_place(&DiceCounter::omni(8));
     gs.players.1.dice.add_in_place(&DiceCounter::omni(8));
-    gs.players.0.hand.push(CardId::IHaventLostYet);
-    gs.players.0.hand.push(CardId::Strategize);
+    gs.players.0.add_to_hand_ignore(CardId::IHaventLostYet);
+    gs.players.0.add_to_hand_ignore(CardId::Strategize);
     gs.advance_roll_phase_no_dice();
     gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
@@ -210,7 +210,7 @@ fn quick_knit() {
     let mut gs = GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Fischl], vector![CharId::Yoimiya])
         .ignore_costs(true)
         .build();
-    gs.players.0.hand.push(CardId::QuickKnit);
+    gs.players.0.add_to_hand_ignore(CardId::QuickKnit);
     gs.advance_roll_phase_no_dice();
     gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::Nightrider)),
@@ -236,7 +236,7 @@ fn send_off() {
     let mut gs = GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Yoimiya], vector![CharId::Fischl])
         .ignore_costs(true)
         .build();
-    gs.players.0.hand.push(CardId::SendOff);
+    gs.players.0.add_to_hand_ignore(CardId::SendOff);
     gs.advance_roll_phase_no_dice();
     gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::NiwabiFireDance)),
@@ -267,7 +267,7 @@ fn calxs_arts() {
         vector![CharId::Fischl],
     )
     .build();
-    gs.players.0.hand.push(CardId::CalxsArts);
+    gs.players.0.add_to_hand_ignore(CardId::CalxsArts);
     {
         let char_states = &mut gs.players.0.char_states;
         char_states[0].set_energy(2);

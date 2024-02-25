@@ -40,7 +40,7 @@ fn talent_card_does_not_increase_frostflake_arrow_dmg_first_cast() {
     .enable_log(true)
     .ignore_costs(true)
     .build();
-    gs.players.0.hand.push(CardId::UndividedHeart);
+    gs.players.0.add_to_hand_ignore(CardId::UndividedHeart);
     gs.advance_roll_phase_no_dice();
     gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
@@ -72,7 +72,7 @@ fn talent_card_increases_frostflake_arrow_dmg_subsequent_cast() {
     .enable_log(true)
     .ignore_costs(true)
     .build();
-    gs.players.0.hand.push(CardId::UndividedHeart);
+    gs.players.0.add_to_hand_ignore(CardId::UndividedHeart);
     gs.advance_roll_phase_no_dice();
     gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::FrostflakeArrow)),

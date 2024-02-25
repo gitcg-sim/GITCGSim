@@ -32,7 +32,7 @@ fn talent_card() {
     .enable_log(true)
     .ignore_costs(true)
     .build();
-    gs.players.0.hand.push(CardId::ColdBloodedStrike);
+    gs.players.0.add_to_hand_ignore(CardId::ColdBloodedStrike);
 
     gs.players.0.char_states[0].set_hp(5);
     gs.advance_roll_phase_no_dice();

@@ -33,10 +33,10 @@ fn get_game_state() -> GameState {
 
 fn get_game_state_for_zobrist_hash() -> GameState {
     let mut gs = get_game_state();
-    gs.players.0.hand.push(CardId::TheBestestTravelCompanion);
-    gs.players.0.hand.push(CardId::SacrificialBow);
-    gs.players.0.hand.push(CardId::LeaveItToMe);
-    gs.players.0.hand.push(CardId::SacrificialBow);
+    gs.players.0.add_to_hand_ignore(CardId::TheBestestTravelCompanion);
+    gs.players.0.add_to_hand_ignore(CardId::SacrificialBow);
+    gs.players.0.add_to_hand_ignore(CardId::LeaveItToMe);
+    gs.players.0.add_to_hand_ignore(CardId::SacrificialBow);
     gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::NiwabiFireDance)),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::CastSkill(SkillId::Nightrider)),

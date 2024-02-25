@@ -139,8 +139,7 @@ fn talent_card_increases_bountiful_core_dmg() {
     .build();
 
     gs.get_player_mut(PlayerId::PlayerFirst)
-        .hand
-        .push(CardId::TheStarrySkiesTheirFlowersRain);
+        .add_to_hand_ignore(CardId::TheStarrySkiesTheirFlowersRain);
     gs.advance_roll_phase_no_dice();
     gs.advance_multiple([
         Input::FromPlayer(
