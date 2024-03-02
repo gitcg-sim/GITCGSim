@@ -1,9 +1,5 @@
 use crate::std_subset::{fmt::Display, vec, Vec};
 
-use crate::vector;
-
-use crate::data_structures::Vector;
-
 use crate::cards::ids::*;
 
 use super::command::*;
@@ -34,6 +30,7 @@ pub enum Event {
     ElemApplied(PlayerId, (u8, CharId), Element),
     Reaction(PlayerId, (u8, CharId), Reaction),
     CharacterDied(PlayerId, (u8, CharId)),
+    // TODO excute command
 }
 
 impl Event {
@@ -115,28 +112,22 @@ impl Display for Event {
 #[derive(Clone, Default)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct EventLog {
-    pub enabled: bool,
-    pub events: Vector<Event>,
+    pub events: Vec<Event>,
 }
 
 impl crate::std_subset::fmt::Debug for EventLog {
     fn fmt(&self, f: &mut crate::std_subset::fmt::Formatter<'_>) -> crate::std_subset::fmt::Result {
-        f.debug_struct("EventLog").field("enabled", &self.enabled).finish()
+        f.debug_struct("EventLog").finish()
     }
 }
 
 impl EventLog {
-    pub fn new(enabled: bool) -> EventLog {
-        EventLog {
-            enabled,
-            events: vector![],
-        }
+    pub fn new() -> EventLog {
+        Self::default()
     }
 
     pub fn log(&mut self, event: Event) {
-        if self.enabled {
-            self.events.push(event)
-        }
+        self.events.push(event)
     }
 
     #[cfg(feature = "std")]

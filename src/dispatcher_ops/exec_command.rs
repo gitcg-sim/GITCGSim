@@ -21,7 +21,6 @@ impl GameState {
             return Ok(());
         }
 
-        let log = &mut self.log;
         let Some(active_player_id) = self.phase.active_player() else {
             return Err(DispatchError::UnableToPayCost);
         };
@@ -43,7 +42,9 @@ impl GameState {
             active_char.set_energy_hashed(chc!(self, active_player_id, active_char_idx), e - ec);
         }
 
-        log.log(Event::PayCost(active_player_id, cost, cost_type));
+        if let Some(log) = &mut self.log {
+            log.log(Event::PayCost(active_player_id, cost, cost_type));
+        }
         let Some(d) = try_pay_dice_cost(phc!(self, active_player_id), player, &cost, cost_type) else {
             return Err(DispatchError::UnableToPayCost);
         };
@@ -117,7 +118,9 @@ impl GameState {
 
             self.round_number += 1;
             self.set_phase(Phase::new_roll_phase(first_active_player));
-            self.log.log(Event::Phase(self.phase));
+            if let Some(log) = &mut self.log {
+                log.log(Event::Phase(self.phase));
+            }
         } else {
             panic!("end_of_turn: Not at End Phase.");
         }
@@ -167,8 +170,10 @@ impl GameState {
                 );
             })
         }
-        if self.log.enabled && !cmds.is_empty() {
-            self.log.log(Event::TriggerEvent(ctx.src, event_id));
+        if !cmds.is_empty() {
+            if let Some(log) = &mut self.log {
+                log.log(Event::TriggerEvent(ctx.src, event_id));
+            }
         }
         ExecResult::AdditionalCmds(cmds)
     }
@@ -275,7 +280,6 @@ impl GameState {
             panic!("deal_dmg: No dst_char for ctx");
         };
 
-        let log = &mut self.log;
         if tgt_player_id != ctx.src_player_id.opposite() {
             panic!("deal_dmg: Invalid tgt_player_id");
         }
@@ -451,7 +455,7 @@ impl GameState {
                 ));
             }
 
-            if log.enabled {
+            if let Some(log) = &mut self.log {
                 // TODO support DMGSource
                 let dmg_source = None;
                 log.log(Event::DealDMG(dmg_source, (tgt_player_id, log_tgt), dmg));
@@ -557,8 +561,7 @@ impl GameState {
                 sc.clear_character_statuses(char_idx, &mut shifts_to_next_active);
             });
 
-            let log = &mut self.log;
-            if log.enabled {
+            if let Some(log) = &mut self.log {
                 log.log(Event::CharacterDied(
                     player_id,
                     (char_idx, player.get_active_character().char_id),
@@ -722,9 +725,8 @@ impl GameState {
             return ExecResult::Success;
         };
         active_char.heal_hashed(chc!(self, ctx.src_player_id, char_idx), hp);
-        if self.log.enabled {
-            self.log
-                .log(Event::Heal(ctx.src_player_id, (char_idx, active_char.char_id), hp));
+        if let Some(log) = &mut self.log {
+            log.log(Event::Heal(ctx.src_player_id, (char_idx, active_char.char_id), hp));
         }
         ExecResult::Success
     }
@@ -745,9 +747,8 @@ impl GameState {
         let p = self.players.get_mut(ctx.src_player_id);
         for (char_idx, character) in p.char_states.enumerate_valid_mut() {
             character.heal_hashed(chc!(self, ctx.src_player_id, char_idx), hp);
-            if self.log.enabled {
-                self.log
-                    .log(Event::Heal(ctx.src_player_id, (char_idx, character.char_id), hp));
+            if let Some(log) = &mut self.log {
+                log.log(Event::Heal(ctx.src_player_id, (char_idx, character.char_id), hp));
             }
         }
         ExecResult::Success
@@ -823,7 +824,9 @@ impl GameState {
     }
 
     fn apply_status_to_team(&mut self, ctx: &CommandContext, status_id: StatusId) -> ExecResult {
-        self.log.log(Event::ApplyTeamStatus(ctx.src_player_id, status_id));
+        if let Some(log) = &mut self.log {
+            log.log(Event::ApplyTeamStatus(ctx.src_player_id, status_id));
+        }
         let status = status_id.get_status();
         if status.attach_mode != StatusAttachMode::Team {
             panic!("apply_status_to_team: wrong StatusAttachMode");
@@ -852,11 +855,13 @@ impl GameState {
             return ExecResult::Success;
         }
 
-        self.log.log(Event::ApplyCharStatus(
-            tgt_player_id,
-            (tgt_char_idx, tgt_player.get_active_character().char_id),
-            status_id,
-        ));
+        if let Some(log) = &mut self.log {
+            log.log(Event::ApplyCharStatus(
+                tgt_player_id,
+                (tgt_char_idx, tgt_player.get_active_character().char_id),
+                status_id,
+            ));
+        }
 
         self.apply_or_refresh_status(tgt_player_id, StatusKey::Character(tgt_char_idx, status_id), status);
         ExecResult::Success
@@ -874,7 +879,9 @@ impl GameState {
             panic!("apply_status_to_target_player: no target player");
         };
 
-        self.log.log(Event::ApplyTeamStatus(tgt_player_id, status_id));
+        if let Some(log) = &mut self.log {
+            log.log(Event::ApplyTeamStatus(tgt_player_id, status_id));
+        }
         self.apply_or_refresh_status(tgt_player_id, StatusKey::Team(status_id), status);
         ExecResult::Success
     }
@@ -898,11 +905,13 @@ impl GameState {
         let tgt_char_states = &self.players[tgt_player_id].char_states;
         let to_apply: Vector<(u8, CharId)> = tgt_char_states.enumerate_valid().map(|(i, c)| (i, c.char_id)).collect();
         for (tgt_char_idx, char_id) in to_apply {
-            self.log.log(Event::ApplyCharStatus(
-                tgt_player_id,
-                (tgt_char_idx, char_id),
-                status_id,
-            ));
+            if let Some(log) = &mut self.log {
+                log.log(Event::ApplyCharStatus(
+                    tgt_player_id,
+                    (tgt_char_idx, char_id),
+                    status_id,
+                ));
+            }
 
             self.apply_or_refresh_status(tgt_player_id, StatusKey::Character(tgt_char_idx, status_id), status);
         }
@@ -927,9 +936,8 @@ impl GameState {
         }
         self.apply_or_refresh_status(ctx.src_player_id, StatusKey::Character(char_idx, status_id), status);
 
-        let log = &mut self.log;
-        if log.enabled {
-            let player = self.players.get_mut(ctx.src_player_id);
+        if let Some(log) = &mut self.log {
+            let player = self.players.get(ctx.src_player_id);
             log.log(Event::ApplyCharStatus(
                 ctx.src_player_id,
                 (
@@ -961,8 +969,7 @@ impl GameState {
             // Equipment usages cannot be buffed
             sc.apply_or_refresh_status(StatusKey::Equipment(char_idx, slot, status_id), status, &None);
         });
-        let log = &mut self.log;
-        if log.enabled {
+        if let Some(log) = &mut self.log {
             log.log(Event::Equip(
                 ctx.src_player_id,
                 (
@@ -999,8 +1006,7 @@ impl GameState {
         }
 
         char_state.set_flags_hashed(chc!(self, ctx.src_player_id, char_idx), flags);
-        let log = &mut self.log;
-        if log.enabled {
+        if let Some(log) = &mut self.log {
             log.log(Event::Equip(
                 ctx.src_player_id,
                 (
@@ -1056,7 +1062,9 @@ impl GameState {
     }
 
     fn summon(&mut self, ctx: &CommandContext, summon_id: SummonId) -> ExecResult {
-        self.log.log(Event::Summon(ctx.src_player_id, summon_id));
+        if let Some(log) = &mut self.log {
+            log.log(Event::Summon(ctx.src_player_id, summon_id));
+        }
         let status = summon_id.get_status();
         self.apply_or_refresh_status(ctx.src_player_id, StatusKey::Summon(summon_id), status);
         ExecResult::Success

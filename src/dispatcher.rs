@@ -72,14 +72,18 @@ impl GameState {
                     active_player: next_player,
                 });
                 self.exec_commands(&cmd_list![cmd_trigger_event(next_player, EventId::BeforeAction)])?;
-                self.log.log(Event::Phase(self.phase));
+                if let Some(log) = &mut self.log {
+                    log.log(Event::Phase(self.phase));
+                }
                 Ok(DispatchResult::PlayerInput(next_player))
             }
             Some(next_first_active_player) => {
                 self.set_phase(Phase::EndPhase {
                     next_first_active_player,
                 });
-                self.log.log(Event::Phase(self.phase));
+                if let Some(log) = &mut self.log {
+                    log.log(Event::Phase(self.phase));
+                }
                 Ok(DispatchResult::NoInput)
             }
         }
@@ -865,8 +869,10 @@ impl GameState {
     /// Dispatch a player input and update the game state accordingly.
     /// Postcondition: If the result is Err, then the game state is invalidated.
     pub fn advance(&mut self, input: Input) -> Result<DispatchResult, DispatchError> {
-        if self.log.enabled && input != Input::NoAction {
-            self.log.log(Event::Action(input));
+        if input != Input::NoAction {
+            if let Some(log) = &mut self.log {
+                log.log(Event::Action(input));
+            }
         }
         if self.pending_cmds.is_some() {
             let res = self.resolve_pending_cmds(input).map(|opt| self.handle_post_exec(opt));
@@ -962,8 +968,9 @@ impl GameState {
                             panic!("advance_roll_phase: Start: Round number is 1 and initial switch triggers failed.")
                         };
                     }
-                    let log = &mut self.log;
-                    log.log(Event::Round(self.round_number, active_player));
+                    if let Some(log) = &mut self.log {
+                        log.log(Event::Round(self.round_number, active_player));
+                    }
                     self.set_phase(Phase::RollPhase {
                         first_active_player: active_player,
                         roll_phase_state: RollPhaseState::Drawing,

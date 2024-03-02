@@ -47,7 +47,7 @@ pub struct GameState {
     // Transient states below
 
     // TODO use a Box<dyn> event log handler instead
-    pub log: Box<EventLog>,
+    pub log: Option<Box<EventLog>>,
     /// If this field is set to `true`, costs (dice and energy) will not
     /// be checked and will not be paid. Effects that reduce costs will never be consumed.
     pub ignore_costs: bool,

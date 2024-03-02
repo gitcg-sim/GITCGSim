@@ -144,7 +144,7 @@ impl GameStateInitializer<HasCharacters, HasStartingCondition> {
             phase: Phase::new_roll_phase(PlayerId::PlayerFirst),
             round_number: 1,
             ignore_costs: false,
-            log: Box::new(EventLog::new(false)),
+            log: None,
             _incremental_hash: Default::default(),
             _hash: Default::default(),
         }
@@ -172,7 +172,9 @@ impl GameStateInitializer<HasCharacters, HasStartingCondition> {
             ignore_costs: self.ignore_costs,
             ..Self::empty_game_state()
         };
-        res.log.enabled = self.enable_log;
+        if self.enable_log {
+            res.log = Some(Default::default());
+        }
         res.rehash();
         Some(res)
     }
@@ -221,7 +223,7 @@ impl GameStateBuilder {
             round_number: self.round_number,
             phase: self.phase,
             players: self.players,
-            log: self.log.map(Box::new).unwrap_or_default(),
+            log: self.log.map(Box::new),
             ignore_costs: self.ignore_costs,
             _hash: self.override_hash.unwrap_or_default(),
             _incremental_hash: self.override_incremental_hash.unwrap_or_default(),
@@ -240,7 +242,7 @@ impl GameState {
             round_number: self.round_number,
             phase: self.phase,
             players: self.players,
-            log: Some(*self.log),
+            log: self.log.map(|b| *b.clone()),
             ignore_costs: self.ignore_costs,
             override_hash: Some(self._hash),
             override_incremental_hash: Some(self._incremental_hash),
@@ -274,6 +276,6 @@ mod tests {
             .enable_log(true)
             .starting_condition(StartingCondition::default())
             .build();
-        assert!(game_state.log.enabled);
+        assert!(game_state.log.is_some());
     }
 }

@@ -34,7 +34,7 @@ impl<S: NondetState> GameStateWrapper<S> {
     }
 
     pub fn hide_private_information(&mut self, player_to_hide: PlayerId) {
-        self.game_state.log.enabled = false;
+        self.game_state.log = None;
         self.nd.hide_private_information(&mut self.game_state, player_to_hide);
     }
 }

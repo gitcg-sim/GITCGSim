@@ -635,22 +635,26 @@ impl<B: Backend> App<B> {
             .title("Log")
             .border_type(BorderType::Rounded)
             .borders(Borders::ALL);
-        let log_lines = {
-            let mut log_lines = Vec::with_capacity(game_state.log.events.len() + 4);
+        let log_lines = if let Some(log) = &game_state.log {
+            let mut log_lines = Vec::with_capacity(log.events.len() + 4);
             let mut i = 0;
-            for e in &game_state.log.events {
-                if e.indent_level() < 4 {
-                    let prefix = " ".repeat(2 * Into::<usize>::into(e.indent_level()));
-                    let line = format!("{e}");
-                    if !line.is_empty() {
-                        log_lines.push(format!("{i:3} {prefix}{line}"));
-                        i += 1;
-                    }
+            for e in &log.events {
+                if e.indent_level() >= 4 {
+                    continue;
+                }
+
+                let prefix = " ".repeat(2 * Into::<usize>::into(e.indent_level()));
+                let line = format!("{e}");
+                if !line.is_empty() {
+                    log_lines.push(format!("{i:3} {prefix}{line}"));
+                    i += 1;
                 }
             }
             log_lines.push(String::default());
             let log_lines = truncate_with_scroll(&log_lines, (log_lines.len() as i16) + *scroll_y + 2, rect.height);
             log_lines.join("\n")
+        } else {
+            Default::default()
         };
         let log_body = Paragraph::new(log_lines).block(log_block);
         f.render_widget(log_body, rect);
@@ -725,7 +729,8 @@ fn advance_and_add_logs<S: std::fmt::Debug + NondetState>(
     anim: &mut VecDeque<Animation>,
     rects: &HashMap<(PlayerId, RectKey), Rect>,
 ) {
-    let log_idx = game.game_state.log.events.len();
+    let Some(log) = &game.game_state.log else { return };
+    let log_idx = log.events.len();
     game.advance(input).unwrap();
     add_logs(log_idx, &game.game_state, anim, rects);
 }
@@ -736,8 +741,9 @@ fn add_logs(
     anim: &mut VecDeque<Animation>,
     rects: &HashMap<(PlayerId, RectKey), Rect>,
 ) {
-    let new_log_idx = game_state.log.events.len();
-    let new_log_entries = game_state.log.events[log_idx..new_log_idx].to_vec();
+    let Some(log) = &game_state.log else { return };
+    let new_log_idx = log.events.len();
+    let new_log_entries = log.events[log_idx..new_log_idx].to_vec();
     for entry in new_log_entries {
         if let logging::Event::DealDMG(_src, (dst_player_id, (dst_char_idx, _)), deal_dmg) = entry {
             let src_player_id = dst_player_id.opposite();

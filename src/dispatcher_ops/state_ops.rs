@@ -279,7 +279,7 @@ impl GameState {
     }
 
     pub fn convert_to_tactical_search(&mut self) {
-        self.log.enabled = false;
+        self.log = None;
         for player in [&mut self.players.0, &mut self.players.1] {
             player.set_tactical(phc!(self, PlayerId::PlayerFirst), true);
             player.pseudo_elemental_tuning(phc!(self, PlayerId::PlayerFirst));
