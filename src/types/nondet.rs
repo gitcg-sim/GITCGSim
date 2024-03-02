@@ -1,6 +1,9 @@
-use crate::std_subset::{
-    cmp::min,
-    hash::{Hash, Hasher},
+use crate::{
+    data_structures::List8,
+    std_subset::{
+        cmp::min,
+        hash::{Hash, Hasher},
+    },
 };
 // use crate::std_subset::{collections::hash_map::FxHasher, hash::{Hash, Hasher}};
 // use rand::prelude::*;
@@ -113,7 +116,7 @@ impl StandardNondetHandlerState {
         }
     }
 
-    fn draw_cards(&mut self, player_id: PlayerId, count: u8) -> CappedLengthList8<CardId> {
+    fn draw_cards(&mut self, player_id: PlayerId, count: u8) -> List8<CardId> {
         if count >= 8 {
             unimplemented!();
         }
@@ -239,7 +242,7 @@ impl<S: NondetState> ZobristHashable for NondetProvider<S> {
 }
 
 impl SummonRandomSpec {
-    fn sample<R: Rng>(&self, r: &mut R) -> CappedLengthList8<SummonId> {
+    fn sample<R: Rng>(&self, r: &mut R) -> List8<SummonId> {
         let Self {
             summon_ids,
             existing_summon_ids,
@@ -280,7 +283,7 @@ mod summon_random_sample_test {
 
     use crate::types::command::SummonRandomSpec;
 
-    const SUMMON_IDS: CappedLengthList8<SummonId> = list8![
+    const SUMMON_IDS: List8<SummonId> = list8![
         SummonId::OceanidMimicSquirrel,
         SummonId::OceanidMimicRaptor,
         SummonId::OceanidMimicFrog

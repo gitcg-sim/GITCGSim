@@ -1,10 +1,12 @@
 #![allow(non_snake_case)]
+use crate::data_structures::capped_list::CappedLengthList8;
 use crate::std_subset::fmt::Debug;
 use crate::std_subset::ops::{Index, IndexMut};
 
+use constdefault::ConstDefault;
 use enumset::{enum_set, EnumSet, EnumSetType};
 
-use crate::{cards::ids::*, data_structures::Vector};
+use crate::cards::ids::*;
 
 pub use crate::types::applied_effect_state::AppliedEffectState;
 use crate::types::ElementSet;
@@ -57,32 +59,46 @@ impl Debug for CharState {
     }
 }
 
-#[derive(Debug, Clone, Default)]
-#[repr(transparent)]
+impl ConstDefault for CharState {
+    const DEFAULT: Self = Self {
+        char_id: ConstDefault::DEFAULT,
+        _hp_and_energy: ConstDefault::DEFAULT,
+        applied: enum_set![],
+        flags: enum_set![],
+        total_dmg_taken: ConstDefault::DEFAULT,
+    };
+}
+
+#[derive(Debug, Copy, Clone, Default)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(feature = "serde", serde(transparent))]
+#[repr(transparent)]
 pub struct CharStates {
-    pub char_states: Vector<CharState>,
+    char_states: CappedLengthList8<CharState, { Self::MAX_CHAR_STATES }>,
 }
 
 impl CharStates {
+    pub const MAX_CHAR_STATES: usize = 4;
+
     pub fn from_ids<T: IntoIterator<Item = CharId>>(char_ids: T) -> Self {
+        let v: heapless::Vec<CharState, { Self::MAX_CHAR_STATES }> = char_ids.into_iter().map(CharState::new).collect();
         Self {
-            char_states: char_ids.into_iter().map(CharState::new).collect(),
+            char_states: CappedLengthList8::from_slice_copy(&v),
         }
     }
 
     #[inline(always)]
-    pub fn new<T: Into<Vector<CharState>>>(char_states: T) -> Self {
+    pub fn new<T: Into<heapless::Vec<CharState, { Self::MAX_CHAR_STATES }>>>(char_states: T) -> Self {
+        let v = char_states.into();
         Self {
-            char_states: char_states.into(),
+            char_states: CappedLengthList8::from_slice_copy(&v),
         }
     }
 
     #[inline]
     pub fn is_valid_char_idx(&self, char_idx: u8) -> bool {
         if char_idx < self.len() {
-            return !self.char_states[char_idx as usize].is_invalid();
+            return !self.char_states[char_idx].is_invalid();
         }
         false
     }
@@ -94,22 +110,23 @@ impl CharStates {
 
     #[inline(always)]
     pub fn len(&self) -> u8 {
-        self.char_states.len() as u8
+        self.char_states.len()
     }
 
     #[inline]
     pub fn iter_all(&self) -> impl Iterator<Item = &CharState> {
-        self.char_states.iter()
+        self.char_states.slice().iter()
     }
 
     #[inline]
     pub fn iter_all_mut(&mut self) -> impl Iterator<Item = &mut CharState> {
-        self.char_states.iter_mut()
+        self.char_states.slice_mut().iter_mut()
     }
 
     #[inline]
     pub fn enumerate_valid(&self) -> impl Iterator<Item = (u8, &CharState)> {
         self.char_states
+            .slice()
             .iter()
             .enumerate()
             .filter(|(_, v)| !v.is_invalid())
@@ -119,6 +136,7 @@ impl CharStates {
     #[inline]
     pub fn enumerate_valid_mut(&mut self) -> impl Iterator<Item = (u8, &mut CharState)> {
         self.char_states
+            .slice_mut()
             .iter_mut()
             .enumerate()
             .filter(|(_, v)| !v.is_invalid())
@@ -128,6 +146,7 @@ impl CharStates {
     #[inline]
     pub fn iter_valid(&self) -> impl Iterator<Item = &CharState> {
         self.char_states
+            .slice()
             .iter()
             .enumerate()
             .filter(|(_, v)| !v.is_invalid())
@@ -137,6 +156,7 @@ impl CharStates {
     #[inline]
     pub fn iter_valid_mut(&mut self) -> impl Iterator<Item = &mut CharState> {
         self.char_states
+            .slice_mut()
             .iter_mut()
             .enumerate()
             .filter(|(_, v)| v.is_invalid())
@@ -148,14 +168,14 @@ impl Index<u8> for CharStates {
     type Output = CharState;
     #[inline(always)]
     fn index(&self, index: u8) -> &Self::Output {
-        &self.char_states[index as usize]
+        &self.char_states[index]
     }
 }
 
 impl IndexMut<u8> for CharStates {
     #[inline(always)]
     fn index_mut(&mut self, index: u8) -> &mut Self::Output {
-        &mut self.char_states[index as usize]
+        &mut self.char_states[index]
     }
 }
 

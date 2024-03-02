@@ -1,5 +1,3 @@
-use crate::data_structures::capped_list::CappedLengthList8;
-
 use super::*;
 
 pub const C: CharCard = CharCard {
@@ -20,7 +18,7 @@ pub const C: CharCard = CharCard {
 
 pub const SURGE: Skill = skill_na("Surge", Element::Hydro, 1, DealDMGType::HYDRO);
 
-const SUMMON_IDS: CappedLengthList8<SummonId> = list8![
+const SUMMON_IDS: List8<SummonId> = list8![
     SummonId::OceanidMimicSquirrel,
     SummonId::OceanidMimicRaptor,
     SummonId::OceanidMimicFrog

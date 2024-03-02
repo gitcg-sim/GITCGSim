@@ -1,6 +1,9 @@
 use super::*;
 
-use crate::std_subset::{cmp::min, collections::VecDeque, Box};
+use crate::{
+    data_structures::List8,
+    std_subset::{cmp::min, collections::VecDeque, Box},
+};
 
 use smallvec::{smallvec, SmallVec};
 
@@ -764,7 +767,7 @@ impl GameState {
         ExecResult::Success
     }
 
-    pub(crate) fn add_cards_to_hand(&mut self, player_id: PlayerId, cards: &CappedLengthList8<CardId>) -> ExecResult {
+    pub(crate) fn add_cards_to_hand(&mut self, player_id: PlayerId, cards: &List8<CardId>) -> ExecResult {
         let player = self.players.get_mut(player_id);
         for card_id in cards.to_vec_copy() {
             player.add_card_to_hand(phc!(self, player_id), card_id);

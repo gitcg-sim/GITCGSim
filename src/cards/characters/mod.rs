@@ -2,7 +2,7 @@ use crate::types::{card_defs::*, command::*, game_state::*};
 use crate::{decl_status_impl_type, decl_summon_impl_type, list8};
 
 use crate::cards::{builders::*, ids::*};
-use crate::data_structures::CommandList;
+use crate::data_structures::{CommandList, List8};
 use crate::status_impls::prelude::*;
 use crate::status_impls::primitives::all::*;
 
