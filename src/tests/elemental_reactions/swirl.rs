@@ -116,8 +116,7 @@ fn swirl_triggers_secondary_reactions_bloom_frozen() {
         .get_player(PlayerId::PlayerFirst)
         .has_team_status(StatusId::DendroCore));
     assert!(gs
-        .get_player(PlayerId::PlayerSecond)
-        .status_collection
+        .get_status_collection_mut(PlayerId::PlayerSecond)
         .get(StatusKey::Character(1, StatusId::Frozen))
         .is_some());
     {

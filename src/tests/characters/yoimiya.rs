@@ -13,10 +13,9 @@ fn niwabi_fire_dance_status() {
         PlayerAction::CastSkill(SkillId::NiwabiFireDance),
     )]);
     {
-        let p = gs.get_player(PlayerId::PlayerFirst);
         assert_eq!(0, gs.get_active_character().unwrap().get_energy());
-        assert!(p
-            .status_collection
+        assert!(gs
+            .get_status_collection(PlayerId::PlayerFirst)
             .get(StatusKey::Character(0, StatusId::NiwabiEnshou))
             .is_some());
     }
@@ -43,8 +42,7 @@ fn niwabi_fire_dance_status() {
         PlayerAction::CastSkill(SkillId::FireworkFlareUp),
     )]);
     assert!(gs
-        .get_player(PlayerId::PlayerFirst)
-        .status_collection
+        .get_status_collection_mut(PlayerId::PlayerFirst)
         .get(StatusKey::Character(0, StatusId::NiwabiEnshou))
         .is_none());
     {
@@ -68,8 +66,7 @@ fn ryuukin_saxifrage_trigger_duration() {
         PlayerAction::CastSkill(SkillId::RyuukinSaxifrage),
     )]);
     assert!(gs
-        .get_player(PlayerId::PlayerFirst)
-        .status_collection
+        .get_status_collection_mut(PlayerId::PlayerFirst)
         .get(StatusKey::Team(StatusId::AurousBlaze))
         .is_some());
     gs.advance_multiple([
@@ -111,12 +108,11 @@ fn talent_card_costs_niwabi_enshou_and_increases_dmg() {
         PlayerAction::PlayCard(CardId::NaganoharaMeteorSwarm, Some(CardSelection::OwnCharacter(0))),
     )]);
     {
-        let p = gs.get_player(PlayerId::PlayerFirst);
-        assert!(p
-            .status_collection
+        assert!(gs
+            .get_status_collection(PlayerId::PlayerFirst)
             .get(StatusKey::Character(0, StatusId::NiwabiEnshou))
             .is_some());
-        let yoimiya = p.try_get_character(0).unwrap();
+        let yoimiya = gs.get_player(PlayerId::PlayerFirst).try_get_character(0).unwrap();
         assert_eq!(0, yoimiya.get_energy());
         assert!(yoimiya.has_talent_equipped());
     }

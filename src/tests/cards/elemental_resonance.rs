@@ -24,9 +24,7 @@ fn elemental_resonance_sprawling_greenery_does_not_increase_non_reaction_dmg() {
         assert_eq!(9, yoimiya.get_hp());
     }
     assert!(gs
-        .players
-        .0
-        .status_collection
+        .get_status_collection(PlayerId::PlayerFirst)
         .has_team_status(StatusId::ElementalResonanceSprawlingGreenery));
 }
 
@@ -50,9 +48,7 @@ fn elemental_resonance_sprawling_greenery_increases_reaction_dmg() {
         PlayerAction::PlayCard(CardId::ElementalResonanceSprawlingGreenery, None),
     )]);
     assert!(gs
-        .players
-        .0
-        .status_collection
+        .get_status_collection(PlayerId::PlayerFirst)
         .has_team_status(StatusId::ElementalResonanceSprawlingGreenery));
 
     gs.advance_multiple([Input::FromPlayer(
@@ -84,9 +80,7 @@ fn elemental_resonance_sprawling_greenery_increases_usages_of_catalyzing_field()
     ]);
     assert_eq!(
         2,
-        gs.players
-            .0
-            .status_collection
+        gs.get_status_collection(PlayerId::PlayerFirst)
             .get(StatusKey::Team(StatusId::CatalyzingField))
             .unwrap()
             .get_usages()
@@ -96,20 +90,20 @@ fn elemental_resonance_sprawling_greenery_increases_usages_of_catalyzing_field()
         PlayerAction::PlayCard(CardId::ElementalResonanceSprawlingGreenery, None),
     )]);
     assert!(gs
-        .players
-        .0
-        .status_collection
+        .get_status_collection(PlayerId::PlayerFirst)
         .has_team_status(StatusId::ElementalResonanceSprawlingGreenery));
     assert_eq!(
         3,
-        gs.players
-            .0
-            .status_collection
+        gs.get_status_collection(PlayerId::PlayerFirst)
             .get(StatusKey::Team(StatusId::CatalyzingField))
             .unwrap()
             .get_usages()
     );
     // Cannot create Usages out of nothing
-    assert!(!gs.players.0.status_collection.has_team_status(StatusId::DendroCore));
-    assert!(!gs.players.0.status_collection.has_summon(SummonId::BurningFlame));
+    assert!(!gs
+        .get_status_collection(PlayerId::PlayerFirst)
+        .has_team_status(StatusId::DendroCore));
+    assert!(!gs
+        .get_status_collection(PlayerId::PlayerFirst)
+        .has_summon(SummonId::BurningFlame));
 }

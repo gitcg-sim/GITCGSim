@@ -102,8 +102,7 @@ fn chakra_desiderata_buffs_burst() {
     assert_eq!(5, gs.get_player(PlayerId::PlayerSecond).char_states[0].get_hp());
     assert_eq!(
         0,
-        gs.get_player(PlayerId::PlayerFirst)
-            .status_collection
+        gs.get_status_collection_mut(PlayerId::PlayerFirst)
             .get(StatusKey::Character(2, StatusId::ChakraDesiderata))
             .unwrap()
             .get_counter()
@@ -163,8 +162,7 @@ fn chakra_desiderata_counter_not_increased() {
     )]);
     assert_eq!(
         0,
-        gs.get_player(PlayerId::PlayerFirst)
-            .status_collection
+        gs.get_status_collection_mut(PlayerId::PlayerFirst)
             .get(StatusKey::Character(0, StatusId::ChakraDesiderata))
             .unwrap()
             .get_counter()

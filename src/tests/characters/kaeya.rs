@@ -44,9 +44,7 @@ fn talent_card() {
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
     ]);
     assert!(gs
-        .players
-        .0
-        .status_collection
+        .get_status_collection(PlayerId::PlayerFirst)
         .get(StatusKey::Equipment(0, EquipSlot::Talent, StatusId::ColdBloodedStrike))
         .is_some());
     assert_eq!(7, gs.players.0.char_states[0].get_hp());

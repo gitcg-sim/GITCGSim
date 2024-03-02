@@ -222,9 +222,7 @@ fn quick_knit() {
     ]);
     assert_eq!(
         3,
-        gs.players
-            .0
-            .status_collection
+        gs.get_status_collection(PlayerId::PlayerFirst)
             .get(StatusKey::Summon(SummonId::Oz))
             .unwrap()
             .get_usages()
@@ -243,9 +241,7 @@ fn send_off() {
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::CastSkill(SkillId::Nightrider)),
     ]);
     assert!(gs
-        .players
-        .1
-        .status_collection
+        .get_status_collection(PlayerId::PlayerSecond)
         .get(StatusKey::Summon(SummonId::Oz))
         .is_some());
     gs.advance_multiple([Input::FromPlayer(
@@ -253,9 +249,7 @@ fn send_off() {
         PlayerAction::PlayCard(CardId::SendOff, Some(CardSelection::OpponentSummon(SummonId::Oz))),
     )]);
     assert!(gs
-        .players
-        .1
-        .status_collection
+        .get_status_collection(PlayerId::PlayerSecond)
         .get(StatusKey::Summon(SummonId::Oz))
         .is_none())
 }

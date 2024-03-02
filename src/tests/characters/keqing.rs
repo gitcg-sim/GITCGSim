@@ -119,8 +119,7 @@ fn stellar_restoration_grants_electro_infusion_by_consuming_lightning_stiletto_o
         .hand
         .contains(&CardId::LightningStiletto));
     let electro_infusion = gs
-        .get_player(PlayerId::PlayerFirst)
-        .status_collection
+        .get_status_collection_mut(PlayerId::PlayerFirst)
         .get(StatusKey::Character(0, StatusId::ElectroInfusion))
         .unwrap();
 
@@ -143,8 +142,7 @@ fn talent_card_increases_electro_infusion_duration() {
         .hand
         .contains(&CardId::LightningStiletto));
     let electro_infusion = gs
-        .get_player(PlayerId::PlayerFirst)
-        .status_collection
+        .get_status_collection_mut(PlayerId::PlayerFirst)
         .get(StatusKey::Character(0, StatusId::ElectroInfusion))
         .unwrap();
 

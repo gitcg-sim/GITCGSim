@@ -90,7 +90,7 @@ proptest! {
         }
 
         let gs = gs.game_state;
-        for sc in [&gs.get_player(PlayerId::PlayerFirst).status_collection, &gs.get_player(PlayerId::PlayerSecond).status_collection ] {
+        for sc in [gs.get_status_collection(PlayerId::PlayerFirst), gs.get_status_collection(PlayerId::PlayerSecond)] {
             let sort_keys: Vec<_> = sc.status_entries.iter().map(|s| s.key.sort_key()).collect();
             assert!(is_sorted(&sort_keys));
         }

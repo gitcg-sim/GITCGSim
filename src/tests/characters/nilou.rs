@@ -106,8 +106,7 @@ fn bountiful_cores_deals_dmg_end_of_round_given_usages() {
     ]);
     {
         let bountiful_core = gs
-            .get_player_mut(PlayerId::PlayerFirst)
-            .status_collection
+            .get_status_collection_mut(PlayerId::PlayerFirst)
             .get_mut(StatusKey::Summon(SummonId::BountifulCore))
             .unwrap();
         bountiful_core.set_usages(3);
@@ -120,8 +119,7 @@ fn bountiful_cores_deals_dmg_end_of_round_given_usages() {
     assert_eq!(3, gs.get_player(PlayerId::PlayerSecond).get_active_character().get_hp());
     {
         let bountiful_core = gs
-            .get_player_mut(PlayerId::PlayerFirst)
-            .status_collection
+            .get_status_collection_mut(PlayerId::PlayerFirst)
             .get_mut(StatusKey::Summon(SummonId::BountifulCore))
             .unwrap();
         assert_eq!(2, bountiful_core.get_usages());
@@ -156,8 +154,7 @@ fn talent_card_increases_bountiful_core_dmg() {
     ]);
     {
         let bountiful_core = gs
-            .get_player_mut(PlayerId::PlayerFirst)
-            .status_collection
+            .get_status_collection_mut(PlayerId::PlayerFirst)
             .get_mut(StatusKey::Summon(SummonId::BountifulCore))
             .unwrap();
         bountiful_core.set_usages(3);
@@ -172,8 +169,7 @@ fn talent_card_increases_bountiful_core_dmg() {
         .set_hp(5);
     {
         let bountiful_core = gs
-            .get_player_mut(PlayerId::PlayerFirst)
-            .status_collection
+            .get_status_collection_mut(PlayerId::PlayerFirst)
             .get_mut(StatusKey::Summon(SummonId::BountifulCore))
             .unwrap();
         assert_eq!(2, bountiful_core.get_usages());
@@ -185,8 +181,7 @@ fn talent_card_increases_bountiful_core_dmg() {
     assert_eq!(2, gs.get_player(PlayerId::PlayerSecond).get_active_character().get_hp());
     {
         let bountiful_core = gs
-            .get_player_mut(PlayerId::PlayerFirst)
-            .status_collection
+            .get_status_collection_mut(PlayerId::PlayerFirst)
             .get_mut(StatusKey::Summon(SummonId::BountifulCore))
             .unwrap();
         assert_eq!(1, bountiful_core.get_usages());

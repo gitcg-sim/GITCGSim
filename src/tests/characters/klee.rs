@@ -38,9 +38,7 @@ fn normal_attack_not_affected_by_explosive_spark() {
     ]);
     assert_eq!(
         1,
-        gs.players
-            .0
-            .status_collection
+        gs.get_status_collection(PlayerId::PlayerFirst)
             .get(StatusKey::Character(0, StatusId::ExplosiveSpark))
             .unwrap()
             .get_usages()
@@ -71,9 +69,7 @@ fn talent_card_increases_explosive_spark_usages() {
     )]);
     assert_eq!(
         2,
-        gs.players
-            .0
-            .status_collection
+        gs.get_status_collection(PlayerId::PlayerFirst)
             .get(StatusKey::Character(0, StatusId::ExplosiveSpark))
             .unwrap()
             .get_usages()

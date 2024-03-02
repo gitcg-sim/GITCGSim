@@ -1,16 +1,14 @@
 use super::*;
 
 fn set_stacks(gs: &mut GameState, n: u8) {
-    gs.get_player_mut(PlayerId::PlayerFirst)
-        .status_collection
+    gs.get_status_collection_mut(PlayerId::PlayerFirst)
         .get_mut(StatusKey::Character(0, StatusId::RadicalVitality))
         .unwrap()
         .set_counter(n)
 }
 
 fn get_stacks(gs: &GameState) -> u8 {
-    gs.get_player(PlayerId::PlayerFirst)
-        .status_collection
+    gs.get_status_collection(PlayerId::PlayerFirst)
         .get(StatusKey::Character(0, StatusId::RadicalVitality))
         .unwrap()
         .get_counter()

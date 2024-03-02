@@ -25,8 +25,7 @@ fn seed_of_skandha_receive_pd() {
         }
     }
     // Artificially remove last status
-    gs.get_player_mut(PlayerId::PlayerSecond)
-        .status_collection
+    gs.get_status_collection_mut(PlayerId::PlayerSecond)
         .delete(StatusKey::Character(2, StatusId::SeedOfSkandha));
     {
         let p = gs.get_player(PlayerId::PlayerSecond);

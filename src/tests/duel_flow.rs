@@ -298,8 +298,7 @@ fn artifact_equip_replace() {
     )]);
     assert_eq!(
         StatusKey::Equipment(0, EquipSlot::Artifact, StatusId::BrokenRimesEcho),
-        gs.get_player(PlayerId::PlayerFirst)
-            .status_collection
+        gs.get_status_collection_mut(PlayerId::PlayerFirst)
             .find_equipment(0, EquipSlot::Artifact)
             .unwrap()
             .key
@@ -311,8 +310,7 @@ fn artifact_equip_replace() {
     )]);
     assert_eq!(
         StatusKey::Equipment(0, EquipSlot::Artifact, StatusId::WitchsScorchingHat),
-        gs.get_player(PlayerId::PlayerFirst)
-            .status_collection
+        gs.get_status_collection_mut(PlayerId::PlayerFirst)
             .find_equipment(0, EquipSlot::Artifact)
             .unwrap()
             .key
@@ -332,8 +330,7 @@ fn weapon_equip_replace() {
     )]);
     assert_eq!(
         StatusKey::Equipment(0, EquipSlot::Weapon, StatusId::SacrificialBow),
-        gs.get_player(PlayerId::PlayerFirst)
-            .status_collection
+        gs.get_status_collection_mut(PlayerId::PlayerFirst)
             .find_equipment(0, EquipSlot::Weapon)
             .unwrap()
             .key
@@ -345,8 +342,7 @@ fn weapon_equip_replace() {
     )]);
     assert_eq!(
         StatusKey::Equipment(0, EquipSlot::Weapon, StatusId::SkywardHarp),
-        gs.get_player(PlayerId::PlayerFirst)
-            .status_collection
+        gs.get_status_collection_mut(PlayerId::PlayerFirst)
             .find_equipment(0, EquipSlot::Weapon)
             .unwrap()
             .key

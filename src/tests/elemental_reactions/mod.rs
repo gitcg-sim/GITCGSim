@@ -24,9 +24,7 @@ fn quicken() {
         .has_team_status(StatusId::CatalyzingField));
     assert_eq!(
         2,
-        gs.get_player(PlayerId::PlayerFirst)
-            .status_collection
-            .team_statuses_vec()[0]
+        gs.get_status_collection_mut(PlayerId::PlayerFirst).team_statuses_vec()[0]
             .state
             .get_usages()
     );
@@ -37,9 +35,7 @@ fn quicken() {
     ]);
     assert_eq!(
         1,
-        gs.get_player(PlayerId::PlayerFirst)
-            .status_collection
-            .team_statuses_vec()[0]
+        gs.get_status_collection_mut(PlayerId::PlayerFirst).team_statuses_vec()[0]
             .state
             .get_usages()
     );
@@ -51,9 +47,7 @@ fn quicken() {
     ]);
     assert_eq!(
         1,
-        gs.get_player(PlayerId::PlayerFirst)
-            .status_collection
-            .team_statuses_vec()[0]
+        gs.get_status_collection_mut(PlayerId::PlayerFirst).team_statuses_vec()[0]
             .state
             .get_usages()
     );
@@ -75,8 +69,7 @@ fn burning_max_2_stacks() {
     ]);
     assert_eq!(
         1,
-        gs.get_player(PlayerId::PlayerFirst)
-            .status_collection
+        gs.get_status_collection_mut(PlayerId::PlayerFirst)
             .get(StatusKey::Summon(SummonId::BurningFlame))
             .unwrap()
             .get_usages()
@@ -90,8 +83,7 @@ fn burning_max_2_stacks() {
     )]);
     assert_eq!(
         2,
-        gs.get_player(PlayerId::PlayerFirst)
-            .status_collection
+        gs.get_status_collection_mut(PlayerId::PlayerFirst)
             .get(StatusKey::Summon(SummonId::BurningFlame))
             .unwrap()
             .get_usages()
@@ -105,8 +97,7 @@ fn burning_max_2_stacks() {
     )]);
     assert_eq!(
         2,
-        gs.get_player(PlayerId::PlayerFirst)
-            .status_collection
+        gs.get_status_collection_mut(PlayerId::PlayerFirst)
             .get(StatusKey::Summon(SummonId::BurningFlame))
             .unwrap()
             .get_usages()
@@ -136,8 +127,7 @@ fn bloom_dendro_core_increases_summon_dmg() {
 
     assert_eq!(
         1,
-        gs.get_player(PlayerId::PlayerFirst)
-            .status_collection
+        gs.get_status_collection_mut(PlayerId::PlayerFirst)
             .get(StatusKey::Team(StatusId::DendroCore))
             .unwrap()
             .get_usages()
@@ -148,8 +138,7 @@ fn bloom_dendro_core_increases_summon_dmg() {
         Input::NoAction,
     ]);
     assert!(gs
-        .get_player(PlayerId::PlayerFirst)
-        .status_collection
+        .get_status_collection_mut(PlayerId::PlayerFirst)
         .get(StatusKey::Team(StatusId::DendroCore))
         .is_none());
 }

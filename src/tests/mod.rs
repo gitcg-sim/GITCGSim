@@ -42,6 +42,14 @@ impl GameState {
             self.advance(input).unwrap();
         }
     }
+
+    fn get_status_collection(&self, player_id: PlayerId) -> &StatusCollection {
+        &self.get_player(player_id).status_collection
+    }
+
+    fn get_status_collection_mut(&mut self, player_id: PlayerId) -> &mut StatusCollection {
+        &mut self.get_player_mut(player_id).status_collection
+    }
 }
 
 impl PlayerState {

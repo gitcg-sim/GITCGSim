@@ -173,9 +173,7 @@ fn cryo_infusion_under_talent_card() {
     ]);
     gs.advance_roll_phase_no_dice();
     assert!(gs
-        .players
-        .0
-        .status_collection
+        .get_status_collection(PlayerId::PlayerFirst)
         .get(StatusKey::Character(1, StatusId::CryoElementalInfusion))
         .is_none());
     gs.advance_multiple([
@@ -190,9 +188,7 @@ fn cryo_infusion_under_talent_card() {
     ]);
     assert!(gs.players.0.char_states[1].has_talent_equipped());
     assert!(gs
-        .players
-        .0
-        .status_collection
+        .get_status_collection(PlayerId::PlayerFirst)
         .get(StatusKey::Character(1, StatusId::CryoElementalInfusion))
         .is_some());
     {

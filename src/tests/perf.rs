@@ -161,8 +161,7 @@ fn bench_zobrist_hash_for_status_collection() {
     iter(|| {
         black_box({
             let mut h = ZobristHasher::new();
-            gs.get_player(PlayerId::PlayerFirst)
-                .status_collection
+            gs.get_status_collection(PlayerId::PlayerFirst)
                 .zobrist_hash(&mut h, PlayerId::PlayerFirst);
             h.finish()
         });

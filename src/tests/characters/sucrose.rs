@@ -73,8 +73,7 @@ fn large_wind_spirit_deals_anemo_dmg_without_infusion() {
         .has_summon(SummonId::LargeWindSpirit));
     {
         let summon_state = gs
-            .get_player(PlayerId::PlayerFirst)
-            .status_collection
+            .get_status_collection_mut(PlayerId::PlayerFirst)
             .get(StatusKey::Summon(SummonId::LargeWindSpirit))
             .unwrap();
         assert_eq!(3, summon_state.get_usages());
@@ -87,8 +86,7 @@ fn large_wind_spirit_deals_anemo_dmg_without_infusion() {
     assert_eq!(7, gs.get_player(PlayerId::PlayerSecond).char_states[0].get_hp());
     {
         let summon_state = gs
-            .get_player(PlayerId::PlayerFirst)
-            .status_collection
+            .get_status_collection_mut(PlayerId::PlayerFirst)
             .get(StatusKey::Summon(SummonId::LargeWindSpirit))
             .unwrap();
         assert_eq!(2, summon_state.get_usages());
@@ -132,8 +130,7 @@ fn large_wind_spirit_deals_infuses_after_swirling() {
     );
     {
         let summon_state = gs
-            .get_player(PlayerId::PlayerFirst)
-            .status_collection
+            .get_status_collection_mut(PlayerId::PlayerFirst)
             .get(StatusKey::Summon(SummonId::LargeWindSpirit))
             .unwrap();
         assert_eq!(2, summon_state.get_usages());
@@ -153,8 +150,7 @@ fn large_wind_spirit_deals_infuses_after_swirling() {
     ]);
     {
         let summon_state = gs
-            .get_player(PlayerId::PlayerFirst)
-            .status_collection
+            .get_status_collection_mut(PlayerId::PlayerFirst)
             .get(StatusKey::Summon(SummonId::LargeWindSpirit))
             .unwrap();
         assert_eq!(1, summon_state.get_usages());
@@ -200,8 +196,7 @@ fn large_wind_spirit_infused_dmg_after_own_character_swirling() {
         ]);
         {
             let summon_state = gs
-                .get_player(PlayerId::PlayerFirst)
-                .status_collection
+                .get_status_collection_mut(PlayerId::PlayerFirst)
                 .get(StatusKey::Summon(SummonId::LargeWindSpirit))
                 .unwrap();
             assert_eq!(Element::Pyro, Element::VALUES[summon_state.get_counter() as usize]);
@@ -217,8 +212,7 @@ fn large_wind_spirit_infused_dmg_after_own_character_swirling() {
         ]);
         {
             let summon_state = gs
-                .get_player(PlayerId::PlayerFirst)
-                .status_collection
+                .get_status_collection_mut(PlayerId::PlayerFirst)
                 .get(StatusKey::Summon(SummonId::LargeWindSpirit))
                 .unwrap();
             assert_eq!(Element::Pyro, Element::VALUES[summon_state.get_counter() as usize]);
@@ -266,8 +260,7 @@ fn large_wind_spirit_does_not_infuse_after_opponent_summon_swirling() {
     );
     {
         let summon_state = gs
-            .get_player(PlayerId::PlayerFirst)
-            .status_collection
+            .get_status_collection_mut(PlayerId::PlayerFirst)
             .get(StatusKey::Summon(SummonId::LargeWindSpirit))
             .unwrap();
         // Opponent Swirled Pyro
@@ -275,8 +268,7 @@ fn large_wind_spirit_does_not_infuse_after_opponent_summon_swirling() {
     }
     {
         let summon_state = gs
-            .get_player(PlayerId::PlayerSecond)
-            .status_collection
+            .get_status_collection_mut(PlayerId::PlayerSecond)
             .get(StatusKey::Summon(SummonId::LargeWindSpirit))
             .unwrap();
         assert_eq!(Element::Pyro, Element::VALUES[summon_state.get_counter() as usize]);
@@ -309,8 +301,7 @@ fn large_wind_spirit_does_not_infuse_after_opponent_skill_swirling() {
     )]);
     {
         let summon_state = gs
-            .get_player(PlayerId::PlayerFirst)
-            .status_collection
+            .get_status_collection_mut(PlayerId::PlayerFirst)
             .get(StatusKey::Summon(SummonId::LargeWindSpirit))
             .unwrap();
         assert_eq!(Element::Anemo, Element::VALUES[summon_state.get_counter() as usize]);

@@ -13,8 +13,7 @@ fn icetide_vortex() {
         PlayerAction::CastSkill(SkillId::IcetideVortex),
     )]);
     assert!(gs
-        .get_player(PlayerId::PlayerFirst)
-        .status_collection
+        .get_status_collection_mut(PlayerId::PlayerFirst)
         .get(StatusKey::Character(0, StatusId::Grimheart))
         .is_some());
     gs.advance_multiple([
@@ -22,8 +21,7 @@ fn icetide_vortex() {
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::IcetideVortex)),
     ]);
     assert!(gs
-        .get_player(PlayerId::PlayerFirst)
-        .status_collection
+        .get_status_collection_mut(PlayerId::PlayerFirst)
         .get(StatusKey::Character(0, StatusId::Grimheart))
         .is_none());
 }
@@ -44,8 +42,7 @@ fn glacial_illumination_prevents_energy_gain_and_increments_counter_and_deals_ph
         PlayerAction::CastSkill(SkillId::GlacialIllumination),
     )]);
     assert!(gs
-        .get_player(PlayerId::PlayerFirst)
-        .status_collection
+        .get_status_collection_mut(PlayerId::PlayerFirst)
         .get(StatusKey::Summon(SummonId::LightfallSword))
         .is_some());
     assert_eq!(
@@ -53,8 +50,7 @@ fn glacial_illumination_prevents_energy_gain_and_increments_counter_and_deals_ph
         gs.get_player(PlayerId::PlayerFirst).get_active_character().get_energy()
     );
     let get_counter = |gs: &GameState| {
-        gs.get_player(PlayerId::PlayerFirst)
-            .status_collection
+        gs.get_status_collection(PlayerId::PlayerFirst)
             .get(StatusKey::Summon(SummonId::LightfallSword))
             .unwrap()
             .get_counter()
@@ -133,13 +129,11 @@ fn glacial_illumination_does_not_accumulate_counter_on_others() {
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::Nightrider)),
     ]);
     assert!(gs
-        .get_player(PlayerId::PlayerFirst)
-        .status_collection
+        .get_status_collection_mut(PlayerId::PlayerFirst)
         .get(StatusKey::Summon(SummonId::LightfallSword))
         .is_some());
     let get_counter = |gs: &GameState| {
-        gs.get_player(PlayerId::PlayerFirst)
-            .status_collection
+        gs.get_status_collection(PlayerId::PlayerFirst)
             .get(StatusKey::Summon(SummonId::LightfallSword))
             .unwrap()
             .get_counter()

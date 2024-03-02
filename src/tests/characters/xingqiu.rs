@@ -24,8 +24,7 @@ fn fatal_rainscreen_applies_hydro_to_self_and_creates_rain_sword() {
     assert_eq!(8, gs.get_player(PlayerId::PlayerSecond).char_states[0].get_hp());
     assert_eq!(
         2,
-        gs.get_player(PlayerId::PlayerFirst)
-            .status_collection
+        gs.get_status_collection_mut(PlayerId::PlayerFirst)
             .get(StatusKey::Team(StatusId::RainSword))
             .unwrap()
             .get_usages()
@@ -49,8 +48,7 @@ fn talent_card_increases_fatal_rainscreen_usages() {
     );
     assert_eq!(
         3,
-        gs.get_player(PlayerId::PlayerFirst)
-            .status_collection
+        gs.get_status_collection_mut(PlayerId::PlayerFirst)
             .get(StatusKey::Team(StatusId::RainSword))
             .unwrap()
             .get_usages()
@@ -76,8 +74,7 @@ fn rain_sword_reduces_dmg_above_3_by_1() {
     assert_eq!(8, gs.get_player(PlayerId::PlayerSecond).char_states[0].get_hp());
     assert_eq!(
         2,
-        gs.get_player(PlayerId::PlayerFirst)
-            .status_collection
+        gs.get_status_collection_mut(PlayerId::PlayerFirst)
             .get(StatusKey::Team(StatusId::RainSword))
             .unwrap()
             .get_usages()
@@ -94,8 +91,7 @@ fn rain_sword_reduces_dmg_above_3_by_1() {
     assert_eq!(7, gs.get_player(PlayerId::PlayerFirst).char_states[1].get_hp());
     assert_eq!(
         1,
-        gs.get_player(PlayerId::PlayerFirst)
-            .status_collection
+        gs.get_status_collection_mut(PlayerId::PlayerFirst)
             .get(StatusKey::Team(StatusId::RainSword))
             .unwrap()
             .get_usages()
@@ -126,8 +122,7 @@ fn raincutter_applies_hydro_to_self_and_creates_rainbow_bladework() {
     assert_eq!(9, gs.get_player(PlayerId::PlayerSecond).char_states[0].get_hp());
     assert_eq!(
         3,
-        gs.get_player(PlayerId::PlayerFirst)
-            .status_collection
+        gs.get_status_collection_mut(PlayerId::PlayerFirst)
             .get(StatusKey::Team(StatusId::RainbowBladework))
             .unwrap()
             .get_usages()
@@ -155,8 +150,7 @@ fn rainbow_bladework_procs_on_normal_attacks() {
     ]);
     assert_eq!(
         3,
-        gs.get_player(PlayerId::PlayerFirst)
-            .status_collection
+        gs.get_status_collection_mut(PlayerId::PlayerFirst)
             .get(StatusKey::Team(StatusId::RainbowBladework))
             .unwrap()
             .get_usages()
@@ -174,8 +168,7 @@ fn rainbow_bladework_procs_on_normal_attacks() {
     ]);
     assert_eq!(
         2,
-        gs.get_player(PlayerId::PlayerFirst)
-            .status_collection
+        gs.get_status_collection_mut(PlayerId::PlayerFirst)
             .get(StatusKey::Team(StatusId::RainbowBladework))
             .unwrap()
             .get_usages()

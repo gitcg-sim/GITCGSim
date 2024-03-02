@@ -239,10 +239,9 @@ pub struct PlayerState {
     pub(crate) active_char_idx: u8,
     pub(crate) dice: DiceCounter,
     pub(crate) char_states: CharStates,
-    pub(crate) status_collection: StatusCollection,
-    // TODO enforce limit of 10
     pub(crate) hand: heapless::Vec<CardId, { PlayerState::HAND_SIZE_LIMIT }>,
     pub(crate) flags: EnumSet<PlayerFlag>,
+    pub(crate) status_collection: StatusCollection,
 }
 
 impl PlayerState {
@@ -253,9 +252,9 @@ impl PlayerState {
             dice: DiceCounter::default(),
             char_states: CharStates::from_ids(char_ids),
             active_char_idx: 0,
-            status_collection: StatusCollection::default(),
             hand: Default::default(),
             flags: enum_set![],
+            status_collection: StatusCollection::default(),
         }
     }
 

@@ -9,8 +9,7 @@ fn indwelling_level_increase_at_end_phase() {
         ($n: expr) => {
             assert_eq!(
                 $n,
-                gs.get_player(PlayerId::PlayerFirst)
-                    .status_collection
+                gs.get_status_collection_mut(PlayerId::PlayerFirst)
                     .get(StatusKey::Character(0, StatusId::PactswornPathclearer))
                     .unwrap()
                     .get_counter()
@@ -59,8 +58,7 @@ fn indwelling_level_ge_2_electro_infusion() {
 
     for level in 2..=5 {
         let mut gs = gs.clone();
-        gs.get_player_mut(PlayerId::PlayerFirst)
-            .status_collection
+        gs.get_status_collection_mut(PlayerId::PlayerFirst)
             .get_mut(StatusKey::Character(0, StatusId::PactswornPathclearer))
             .unwrap()
             .set_counter(level);
@@ -90,8 +88,7 @@ fn indwelling_level_ge_4_increases_dmg_by_2() {
     ]);
 
     for level in 4..=5 {
-        gs.get_player_mut(PlayerId::PlayerFirst)
-            .status_collection
+        gs.get_status_collection_mut(PlayerId::PlayerFirst)
             .get_mut(StatusKey::Character(0, StatusId::PactswornPathclearer))
             .unwrap()
             .set_counter(level);
@@ -125,8 +122,7 @@ fn sacred_rite_wolfs_swiftness_uses_indwelling_level_pre_increase_and_increases_
 
     for level in 0..=5 {
         let mut gs = gs.clone();
-        gs.get_player_mut(PlayerId::PlayerFirst)
-            .status_collection
+        gs.get_status_collection_mut(PlayerId::PlayerFirst)
             .get_mut(StatusKey::Character(0, StatusId::PactswornPathclearer))
             .unwrap()
             .set_counter(level);
@@ -141,8 +137,7 @@ fn sacred_rite_wolfs_swiftness_uses_indwelling_level_pre_increase_and_increases_
         );
         assert_eq!(
             level + 2 - (if level + 2 >= 6 { 4 } else { 0 }),
-            gs.get_player(PlayerId::PlayerFirst)
-                .status_collection
+            gs.get_status_collection_mut(PlayerId::PlayerFirst)
                 .get(StatusKey::Character(0, StatusId::PactswornPathclearer))
                 .unwrap()
                 .get_counter()

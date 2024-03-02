@@ -22,8 +22,7 @@ fn searing_onslaught_increases_dmg_every_3rd_use_per_round() {
                 PlayerAction::CastSkill(SkillId::SearingOnslaught),
             )]);
             let counter = gs
-                .get_player(PlayerId::PlayerFirst)
-                .status_collection
+                .get_status_collection_mut(PlayerId::PlayerFirst)
                 .get(StatusKey::Character(0, StatusId::SearingOnslaughtCounter))
                 .unwrap()
                 .get_counter();

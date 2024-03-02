@@ -79,8 +79,7 @@ fn reflection_reduces_dmg_and_remains_until_end_phase() {
     assert!(gs.get_player(PlayerId::PlayerFirst).has_summon(SummonId::Reflection));
     assert_eq!(
         1,
-        gs.get_player(PlayerId::PlayerFirst)
-            .status_collection
+        gs.get_status_collection_mut(PlayerId::PlayerFirst)
             .get(StatusKey::Summon(SummonId::Reflection))
             .unwrap()
             .get_usages()
@@ -91,8 +90,7 @@ fn reflection_reduces_dmg_and_remains_until_end_phase() {
     )]);
     assert_eq!(
         0,
-        gs.get_player(PlayerId::PlayerFirst)
-            .status_collection
+        gs.get_status_collection_mut(PlayerId::PlayerFirst)
             .get(StatusKey::Summon(SummonId::Reflection))
             .unwrap()
             .get_usages()

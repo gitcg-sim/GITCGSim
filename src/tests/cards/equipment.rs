@@ -292,12 +292,10 @@ fn lithic_spear_grants_shield_points() {
         PlayerId::PlayerFirst,
         PlayerAction::PlayCard(CardId::LithicSpear, Some(CardSelection::OwnCharacter(0))),
     )]);
-    assert!(gs.players.0.status_collection.has_shield_points());
+    assert!(gs.get_status_collection(PlayerId::PlayerFirst).has_shield_points());
     assert_eq!(
         2,
-        gs.players
-            .0
-            .status_collection
+        gs.get_status_collection(PlayerId::PlayerFirst)
             .get(StatusKey::Equipment(0, EquipSlot::Weapon, StatusId::LithicSpear))
             .unwrap()
             .get_usages()
@@ -309,12 +307,10 @@ fn lithic_spear_grants_shield_points() {
             PlayerAction::CastSkill(SkillId::BoltsOfDownfall),
         ),
     ]);
-    assert!(!gs.players.0.status_collection.has_shield_points());
+    assert!(!gs.get_status_collection(PlayerId::PlayerFirst).has_shield_points());
     assert_eq!(
         0,
-        gs.players
-            .0
-            .status_collection
+        gs.get_status_collection(PlayerId::PlayerFirst)
             .get(StatusKey::Equipment(0, EquipSlot::Weapon, StatusId::LithicSpear))
             .unwrap()
             .get_usages()
@@ -579,8 +575,7 @@ mod aquila_favonia {
         assert_eq!(9, gs.get_player(PlayerId::PlayerFirst).char_states[0].get_hp());
         assert_eq!(
             1,
-            gs.get_player(PlayerId::PlayerFirst)
-                .status_collection
+            gs.get_status_collection_mut(PlayerId::PlayerFirst)
                 .find_equipment(0, EquipSlot::Weapon)
                 .unwrap()
                 .state

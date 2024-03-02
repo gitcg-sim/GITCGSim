@@ -178,9 +178,7 @@ fn talent_card_affects_chonghuas_frost_field() {
     ]);
     assert_eq!(
         3,
-        gs.players
-            .0
-            .status_collection
+        gs.get_status_collection(PlayerId::PlayerFirst)
             .get(StatusKey::Team(StatusId::ChonghuaFrostField))
             .unwrap()
             .get_duration()
@@ -228,9 +226,7 @@ fn talent_card_on_different_character_doesnt_affect_chonghuas_frost_field() {
     ]);
     assert_eq!(
         2,
-        gs.players
-            .0
-            .status_collection
+        gs.get_status_collection(PlayerId::PlayerFirst)
             .get(StatusKey::Team(StatusId::ChonghuaFrostField))
             .unwrap()
             .get_duration()

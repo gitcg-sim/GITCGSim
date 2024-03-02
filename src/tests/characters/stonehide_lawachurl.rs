@@ -11,8 +11,7 @@ fn stonehide_consumes_2_usages_for_geo_dmg() {
     assert_eq!(8, gs.get_player(PlayerId::PlayerFirst).char_states[0].get_hp());
     assert_eq!(
         3,
-        gs.get_player(PlayerId::PlayerFirst)
-            .status_collection
+        gs.get_status_collection_mut(PlayerId::PlayerFirst)
             .get(StatusKey::Character(0, StatusId::Stonehide))
             .unwrap()
             .get_usages()
@@ -26,8 +25,7 @@ fn stonehide_consumes_2_usages_for_geo_dmg() {
     ]);
     assert_eq!(
         1,
-        gs.get_player(PlayerId::PlayerFirst)
-            .status_collection
+        gs.get_status_collection_mut(PlayerId::PlayerFirst)
             .get(StatusKey::Character(0, StatusId::Stonehide))
             .unwrap()
             .get_usages()
@@ -46,8 +44,7 @@ fn stonehide_removes_stone_force_at_zero_usages() {
     assert_eq!(8, gs.get_player(PlayerId::PlayerFirst).char_states[0].get_hp());
     assert_eq!(
         3,
-        gs.get_player(PlayerId::PlayerFirst)
-            .status_collection
+        gs.get_status_collection_mut(PlayerId::PlayerFirst)
             .get(StatusKey::Character(0, StatusId::Stonehide))
             .unwrap()
             .get_usages()
@@ -69,14 +66,12 @@ fn stonehide_removes_stone_force_at_zero_usages() {
     ]);
     assert_eq!(
         None,
-        gs.get_player(PlayerId::PlayerFirst)
-            .status_collection
+        gs.get_status_collection_mut(PlayerId::PlayerFirst)
             .get(StatusKey::Character(0, StatusId::Stonehide))
     );
     assert_eq!(
         None,
-        gs.get_player(PlayerId::PlayerFirst)
-            .status_collection
+        gs.get_status_collection_mut(PlayerId::PlayerFirst)
             .get(StatusKey::Character(0, StatusId::StoneForce))
     );
 }
@@ -94,8 +89,7 @@ fn stone_force_infuses_geo() {
         .insert(Element::Pyro);
     assert_eq!(8, gs.get_player(PlayerId::PlayerFirst).char_states[0].get_hp());
     assert!(gs
-        .get_player(PlayerId::PlayerFirst)
-        .status_collection
+        .get_status_collection_mut(PlayerId::PlayerFirst)
         .get(StatusKey::Character(0, StatusId::StoneForce))
         .is_some());
     gs.advance_multiple([Input::FromPlayer(
@@ -103,8 +97,7 @@ fn stone_force_infuses_geo() {
         PlayerAction::CastSkill(SkillId::PlamaLawa),
     )]);
     assert!(gs
-        .get_player(PlayerId::PlayerFirst)
-        .status_collection
+        .get_status_collection_mut(PlayerId::PlayerFirst)
         .get(StatusKey::Team(StatusId::CrystallizeShield))
         .is_some());
     assert_eq!(6, gs.get_player(PlayerId::PlayerSecond).char_states[0].get_hp());
