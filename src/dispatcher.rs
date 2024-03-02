@@ -573,7 +573,7 @@ impl GameState {
     fn available_actions_play_card<A: Array<Item = Input>>(&self, player_id: PlayerId, acts: &mut SmallVec<A>) {
         let player = self.get_player(player_id);
         let mut found = EnumSet::default();
-        for &card_id in &player.hand {
+        for &card_id in player.hand.iter() {
             if found.contains(card_id) {
                 continue;
             }
@@ -618,7 +618,7 @@ impl GameState {
     fn available_actions_et<A: Array<Item = Input>>(&self, player_id: PlayerId, acts: &mut SmallVec<A>) {
         let player = self.get_player(player_id);
         let mut found = EnumSet::default();
-        for &card_id in &player.hand {
+        for &card_id in player.hand.iter() {
             if found.contains(card_id) {
                 continue;
             }

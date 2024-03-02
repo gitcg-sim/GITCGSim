@@ -238,10 +238,7 @@ fn play_card() {
     )
     .build();
     gs.advance_roll_phase_no_dice();
-    gs.players.0.hand = [CardId::BlankCard, CardId::Starsigns, CardId::TheBestestTravelCompanion]
-        .iter()
-        .copied()
-        .collect();
+    gs.players.0.hand = [CardId::BlankCard, CardId::Starsigns, CardId::TheBestestTravelCompanion].into();
     gs.players.0.dice[Dice::PYRO] = 1;
     gs.players.0.dice[Dice::DENDRO] = 1;
     assert_eq!(0, gs.players.0.dice.omni);
@@ -271,9 +268,7 @@ fn elemental_tuning() {
         CardId::TheBestestTravelCompanion,
         CardId::BlankCard,
     ]
-    .iter()
-    .copied()
-    .collect();
+    .into();
     gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::ElementalTuning(CardId::TheBestestTravelCompanion),
@@ -288,10 +283,7 @@ fn artifact_equip_replace() {
         .ignore_costs(true)
         .build();
     gs.advance_roll_phase_no_dice();
-    gs.players.0.hand = [CardId::WitchsScorchingHat, CardId::BrokenRimesEcho]
-        .iter()
-        .copied()
-        .collect();
+    gs.players.0.hand = [CardId::WitchsScorchingHat, CardId::BrokenRimesEcho].into();
     gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::PlayCard(CardId::BrokenRimesEcho, Some(CardSelection::OwnCharacter(0))),
@@ -323,7 +315,7 @@ fn weapon_equip_replace() {
         .ignore_costs(true)
         .build();
     gs.advance_roll_phase_no_dice();
-    gs.players.0.hand = [CardId::SkywardHarp, CardId::SacrificialBow].iter().copied().collect();
+    gs.players.0.hand = [CardId::SkywardHarp, CardId::SacrificialBow].into();
     gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::PlayCard(CardId::SacrificialBow, Some(CardSelection::OwnCharacter(0))),
@@ -473,7 +465,7 @@ fn hand_size_limit() {
     gs.advance_roll_phase_no_dice();
     let mut hand = [CardId::BlankCard; PlayerState::HAND_SIZE_LIMIT];
     hand[0] = CardId::Strategize;
-    gs.players.0.hand = hand.iter().copied().collect();
+    gs.players.0.hand = hand.into();
     gs.players.0.dice[Dice::Omni] = 1;
     assert_eq!(PlayerState::HAND_SIZE_LIMIT, gs.players.0.hand_len() as usize);
     gs.advance_multiple([

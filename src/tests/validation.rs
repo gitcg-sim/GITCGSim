@@ -116,10 +116,7 @@ fn weapon_equip_validation() {
             .build();
     gs.advance_roll_phase_no_dice();
     gs.get_player_mut(PlayerId::PlayerFirst).hand =
-        [CardId::SkywardHarp, CardId::SkywardSpine, CardId::SacrificialSword]
-            .iter()
-            .copied()
-            .collect();
+        [CardId::SkywardHarp, CardId::SkywardSpine, CardId::SacrificialSword].into();
     assert!(gs
         .clone()
         .advance(Input::FromPlayer(
@@ -178,10 +175,7 @@ fn artifact_equip_validation() {
             .ignore_costs(true)
             .build();
     gs.advance_roll_phase_no_dice();
-    gs.players.0.hand = [CardId::WitchsScorchingHat, CardId::BrokenRimesEcho]
-        .iter()
-        .copied()
-        .collect();
+    gs.players.0.hand = [CardId::WitchsScorchingHat, CardId::BrokenRimesEcho].into();
     assert!(gs
         .clone()
         .advance(Input::FromPlayer(

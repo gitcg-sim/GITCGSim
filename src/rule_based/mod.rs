@@ -174,7 +174,7 @@ impl RuleBasedSearchConfig {
         if cost_total > 0 && dice_total >= cost_total && dice_total - cost_total < self.play_card_min_dice_for_skills {
             0
         } else {
-            10 * min(hand_size as u8, 5) / 5
+            10 * min(hand_size, 5) / 5
         }
     }
 

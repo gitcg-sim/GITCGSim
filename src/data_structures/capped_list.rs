@@ -22,12 +22,11 @@ use super::const_default::*;
 )]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Hash, Ord)]
 pub struct CappedLengthList8<T: ConstDefault, const N: usize> {
-    pub(crate) len: u8,
-    pub(crate) array: [T; N],
+    len: u8,
+    array: [T; N],
     _marker: PhantomData<()>,
 }
 
-// TODO rename
 impl<T: ConstDefault, const N: usize> CappedLengthList8<T, N> {
     pub const LENGTH_RESTRICTION_32: PhantomData<()> = {
         if N > 32 {
@@ -52,6 +51,8 @@ impl<T: ConstDefault, const N: usize> CappedLengthList8<T, N> {
         self.len
     }
 
+    // TODO const methods to index
+
     #[inline(always)]
     pub fn slice(&self) -> &[T] {
         &self.array[0..(self.len as usize)]
@@ -60,6 +61,50 @@ impl<T: ConstDefault, const N: usize> CappedLengthList8<T, N> {
     #[inline(always)]
     pub fn slice_mut(&mut self) -> &mut [T] {
         &mut self.array[0..(self.len as usize)]
+    }
+
+    #[inline(always)]
+    pub fn iter(&self) -> impl Iterator<Item = &T> + '_ {
+        self.slice().iter()
+    }
+
+    #[inline(always)]
+    pub fn iter_mut(&mut self) -> impl Iterator<Item = &mut T> + '_ {
+        self.slice_mut().iter_mut()
+    }
+
+    /// Imitates [heapless::Vec::push]
+    pub fn push(&mut self, value: T) -> Result<(), T> {
+        if self.len as usize == N {
+            return Err(value);
+        }
+        self.array[self.len as usize] = value;
+        self.len += 1;
+        Ok(())
+    }
+}
+
+impl<T: ConstDefault + Copy, const N: usize> CappedLengthList8<T, N> {
+    /// Imitates [heapless::Vec::remove] except index is in [u8].
+    pub fn remove(&mut self, index: u8) -> T {
+        if index >= self.len {
+            panic!("Cannot remove");
+        }
+
+        self.len -= 1;
+        let i = index as usize;
+        let ret = self.array[i];
+        for j in i + 1..N {
+            self.array[j - 1] = self.array[j];
+        }
+        ret
+    }
+}
+
+impl<T: ConstDefault + Eq, const N: usize> CappedLengthList8<T, N> {
+    #[inline(always)]
+    pub fn contains(&self, x: &T) -> bool {
+        self.slice().contains(x)
     }
 }
 
@@ -91,7 +136,10 @@ macro_rules! from_fixed_slice_impl {
         )+
     }
 }
+
+from_fixed_slice_impl!(0, 1, 2, 3, 4; 4);
 from_fixed_slice_impl!(0, 1, 2, 3, 4, 5, 6, 7, 8; 8);
+from_fixed_slice_impl!(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10; 10);
 
 impl<T: ConstDefault + Copy, const N: usize> CappedLengthList8<T, N> {
     pub fn fold_copy<A, F: FnMut(A, T) -> A>(&self, init: A, f: F) -> A {
@@ -169,8 +217,8 @@ mod tests {
     fn from() {
         const EMPTY: [u8; 0] = [];
         assert_eq!(EMPTY, CappedLengthList8::<u8, 8>::from([]).slice());
-        assert_eq!([1], CappedLengthList8::from([1]).slice());
-        assert_eq!([1, 2, 3], CappedLengthList8::from([1, 2, 3]).slice());
+        assert_eq!([1], CappedLengthList8::<u8, 8>::from([1]).slice());
+        assert_eq!([1, 2, 3], CappedLengthList8::<u8, 8>::from([1, 2, 3]).slice());
     }
 
     #[test]
@@ -191,5 +239,24 @@ mod tests {
             let fold2 = SLICE[0..len].iter().fold(String::default(), |a, b| format!("{a}, {b}"));
             assert_eq!(fold1, fold2);
         }
+    }
+
+    #[test]
+    fn remove() {
+        let mut list8: CappedLengthList8<usize, 8> = [100].into();
+        list8.remove(0);
+        assert_eq!(0, list8.len());
+
+        let mut list8: CappedLengthList8<usize, 8> = [100, 200, 300].into();
+        list8.remove(2);
+        assert_eq!([100, 200], list8.slice());
+
+        let mut list8: CappedLengthList8<usize, 8> = [100, 200, 300, 400].into();
+        list8.remove(0);
+        assert_eq!([200, 300, 400], list8.slice());
+
+        let mut list8: CappedLengthList8<usize, 8> = [100, 200, 300, 400].into();
+        list8.remove(1);
+        assert_eq!([100, 300, 400], list8.slice());
     }
 }

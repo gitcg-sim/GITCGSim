@@ -1,3 +1,4 @@
+use crate::data_structures::capped_list::CappedLengthList8;
 /// Zobrist hashing is the hashing method used for Genius Invokation TCG game states.
 /// The Zobrist hash of a game state is the XOR over all aspects of the game state that
 /// is relevant to its distinctiveness, such as:
@@ -55,7 +56,6 @@ use crate::std_subset::hash::Hash;
 use enum_map::{Enum, EnumArray, EnumMap};
 use enumset::EnumSet;
 use lazy_static::lazy_static;
-use smallvec::SmallVec;
 
 use crate::cards::ids::*;
 
@@ -380,15 +380,15 @@ impl GameState {
 impl PlayerState {
     #[inline]
     pub(crate) fn tally_hand(
-        hand: &heapless::Vec<CardId, { Self::HAND_SIZE_LIMIT }>,
-    ) -> SmallVec<[(CardId, u8); PlayerState::HAND_SIZE_LIMIT]> {
-        let mut v = SmallVec::new();
-        for card_id in hand {
-            v.push((*card_id, 0_u8));
+        hand: &CappedLengthList8<CardId, { Self::HAND_SIZE_LIMIT }>,
+    ) -> heapless::Vec<(CardId, u8), { Self::HAND_SIZE_LIMIT }> {
+        let mut v = heapless::Vec::<_, { Self::HAND_SIZE_LIMIT }>::default();
+        for &card_id in hand.iter() {
+            let _ignored = v.push((card_id, 0_u8));
         }
-        for card_id in hand {
+        for &card_id in hand.iter() {
             v.iter_mut()
-                .find(|(c, _)| *card_id == *c)
+                .find(|(c, _)| card_id == *c)
                 .expect("tally_hand: card_id does not exist")
                 .1 += 1;
         }
@@ -397,7 +397,7 @@ impl PlayerState {
 
     #[inline]
     pub(crate) fn hash_hand(
-        hand: &heapless::Vec<CardId, { Self::HAND_SIZE_LIMIT }>,
+        hand: &CappedLengthList8<CardId, { Self::HAND_SIZE_LIMIT }>,
         h: &mut ZobristHasher,
         player_id: PlayerId,
     ) {

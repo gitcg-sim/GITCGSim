@@ -103,12 +103,12 @@ proptest! {
         let mut gs1 = gs;
         let (dice1, hand1, flags1) = {
             let p = &gs1.game_state.get_player(player_id);
-            (p.dice, p.hand.clone(), p.flags)
+            (p.dice, p.hand, p.flags)
         };
         gs1.hide_private_information(player_id.opposite());
         let (dice2, hand2, flags2) = {
             let p = &gs1.game_state.get_player(player_id);
-            (p.dice, p.hand.clone(), p.flags)
+            (p.dice, p.hand, p.flags)
         };
         assert_eq!(dice1, dice2);
         assert_eq!(hand1, hand2);

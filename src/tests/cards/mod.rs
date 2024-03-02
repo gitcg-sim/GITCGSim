@@ -202,7 +202,7 @@ fn strategize() {
         list8![],
     ))))
     .unwrap();
-    assert_eq!(vec![CardId::IHaventLostYet, CardId::Paimon], gs.players.0.hand.to_vec());
+    assert_eq!([CardId::IHaventLostYet, CardId::Paimon], gs.players.0.hand.slice());
 }
 
 #[test]

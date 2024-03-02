@@ -36,7 +36,7 @@ impl PlayerState {
     }
 
     #[inline]
-    pub fn remove_card_from_hand_by_index(&mut self, (h, player_id): PlayerHashContext, i: usize) {
+    pub fn remove_card_from_hand_by_index(&mut self, (h, player_id): PlayerHashContext, i: u8) {
         let card_id = self.hand[i];
         let count = self.hand.iter().copied().filter(|c| *c == card_id).count() as u8;
         h.hash(HASH_PROVIDER.hand(player_id, card_id, count));
@@ -49,7 +49,7 @@ impl PlayerState {
         let Some(i) = self.hand.iter().position(|&x| x == card_id) else {
             return false;
         };
-        self.remove_card_from_hand_by_index(c, i);
+        self.remove_card_from_hand_by_index(c, i as u8);
         true
     }
 

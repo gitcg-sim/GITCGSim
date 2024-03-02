@@ -1,9 +1,11 @@
 #![allow(non_snake_case)]
-use core::borrow::Borrow;
 
-use crate::std_subset::{
-    fmt::{Debug, Display},
-    Box,
+use crate::{
+    data_structures::capped_list::CappedLengthList8,
+    std_subset::{
+        fmt::{Debug, Display},
+        Box,
+    },
 };
 
 use enum_map::Enum;
@@ -238,9 +240,10 @@ impl PlayerFlag {
 pub struct PlayerState {
     pub(crate) active_char_idx: u8,
     pub(crate) dice: DiceCounter,
-    pub(crate) char_states: CharStates,
-    pub(crate) hand: heapless::Vec<CardId, { PlayerState::HAND_SIZE_LIMIT }>,
     pub(crate) flags: EnumSet<PlayerFlag>,
+    pub(crate) char_states: CharStates,
+    // TODO use wrapper type for hand
+    pub(crate) hand: CappedLengthList8<CardId, { PlayerState::HAND_SIZE_LIMIT }>,
     pub(crate) status_collection: StatusCollection,
 }
 
@@ -285,12 +288,12 @@ impl PlayerState {
 
     #[inline]
     pub fn hand_len(&self) -> u8 {
-        self.hand.len() as u8
+        self.hand.len()
     }
 
     #[inline]
     pub fn get_hand(&self) -> &[CardId] {
-        self.hand.borrow()
+        self.hand.slice()
     }
 
     #[inline]
