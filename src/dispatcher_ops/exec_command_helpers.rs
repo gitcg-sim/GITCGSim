@@ -114,124 +114,126 @@ macro_rules! mutate_statuses_1 {
     }};
 }
 
-pub fn augment_outgoing_dmg_for_statuses(
-    sc: &mut StatusCollection,
-    sicb: StatusImplContextBuilder<DMGInfo>,
-    dmg: &mut DealDMG,
-) -> bool {
-    sc.consume_statuses(
-        sicb.src_char_idx_selector(),
-        |si| si.responds_to().contains(RespondsTo::OutgoingDMG),
-        |es, sk, si| si.outgoing_dmg(&sicb.build(sk, es), dmg),
-    )
-}
+impl StatusCollection {
+    pub fn augment_outgoing_dmg_for_statuses(
+        &mut self,
+        sicb: StatusImplContextBuilder<DMGInfo>,
+        dmg: &mut DealDMG,
+    ) -> bool {
+        self.consume_statuses(
+            sicb.src_char_idx_selector(),
+            |si| si.responds_to().contains(RespondsTo::OutgoingDMG),
+            |es, sk, si| si.outgoing_dmg(&sicb.build(sk, es), dmg),
+        )
+    }
 
-pub fn augment_outgoing_dmg_target_for_statuses(
-    sc: &mut StatusCollection,
-    sicb: StatusImplContextBuilder<DMGInfo>,
-    tgt_chars: &CharStates,
-    tgt_active_char_idx: u8,
-    dmg: &DealDMG,
-    target_char_idx: &mut u8,
-) -> bool {
-    sc.consume_statuses(
-        sicb.src_char_idx_selector(),
-        |si| si.responds_to().contains(RespondsTo::OutgoingDMG),
-        |es, sk, si| {
-            si.outgoing_dmg_target(
-                &sicb.build(sk, es),
-                tgt_chars,
-                tgt_active_char_idx,
-                dmg,
-                target_char_idx,
-            )
-        },
-    )
-}
+    pub fn augment_outgoing_dmg_target_for_statuses(
+        &mut self,
+        sicb: StatusImplContextBuilder<DMGInfo>,
+        tgt_chars: &CharStates,
+        tgt_active_char_idx: u8,
+        dmg: &DealDMG,
+        target_char_idx: &mut u8,
+    ) -> bool {
+        self.consume_statuses(
+            sicb.src_char_idx_selector(),
+            |si| si.responds_to().contains(RespondsTo::OutgoingDMG),
+            |es, sk, si| {
+                si.outgoing_dmg_target(
+                    &sicb.build(sk, es),
+                    tgt_chars,
+                    tgt_active_char_idx,
+                    dmg,
+                    target_char_idx,
+                )
+            },
+        )
+    }
 
-pub fn augment_late_outgoing_dmg_for_statuses(
-    sc: &mut StatusCollection,
-    sicb: StatusImplContextBuilder<DMGInfo>,
-    dmg: &mut DealDMG,
-) -> bool {
-    sc.consume_statuses(
-        sicb.src_char_idx_selector(),
-        |si| si.responds_to().contains(RespondsTo::OutgoingDMG),
-        |es, sk, si| si.late_outgoing_dmg(&sicb.build(sk, es), dmg),
-    )
-}
+    pub fn augment_late_outgoing_dmg_for_statuses(
+        &mut self,
+        sicb: StatusImplContextBuilder<DMGInfo>,
+        dmg: &mut DealDMG,
+    ) -> bool {
+        self.consume_statuses(
+            sicb.src_char_idx_selector(),
+            |si| si.responds_to().contains(RespondsTo::OutgoingDMG),
+            |es, sk, si| si.late_outgoing_dmg(&sicb.build(sk, es), dmg),
+        )
+    }
 
-pub fn augment_outgoing_reaction_dmg_for_statuses(
-    sc: &mut StatusCollection,
-    sicb: StatusImplContextBuilder<DMGInfo>,
-    reaction: (Reaction, Option<Element>),
-    dmg: &mut DealDMG,
-) -> bool {
-    sc.consume_statuses(
-        sicb.src_char_idx_selector(),
-        |si| si.responds_to().contains(RespondsTo::OutgoingReactionDMG),
-        |es, sk, si| si.outgoing_reaction_dmg(&sicb.build(sk, es), reaction, dmg),
-    )
-}
+    pub fn augment_outgoing_reaction_dmg_for_statuses(
+        &mut self,
+        sicb: StatusImplContextBuilder<DMGInfo>,
+        reaction: (Reaction, Option<Element>),
+        dmg: &mut DealDMG,
+    ) -> bool {
+        self.consume_statuses(
+            sicb.src_char_idx_selector(),
+            |si| si.responds_to().contains(RespondsTo::OutgoingReactionDMG),
+            |es, sk, si| si.outgoing_reaction_dmg(&sicb.build(sk, es), reaction, dmg),
+        )
+    }
 
-pub fn multiply_outgoing_dmg_for_statuses(
-    sc: &mut StatusCollection,
-    sicb: StatusImplContextBuilder<DMGInfo>,
-    mult: &mut u8,
-) -> bool {
-    sc.consume_statuses(
-        sicb.src_char_idx_selector(),
-        |si| si.responds_to().contains(RespondsTo::MultiplyOutgoingDMG),
-        |es, sk, si| si.multiply_dmg(&sicb.build(sk, es), mult),
-    )
-}
+    pub fn multiply_outgoing_dmg_for_statuses(
+        &mut self,
+        sicb: StatusImplContextBuilder<DMGInfo>,
+        mult: &mut u8,
+    ) -> bool {
+        self.consume_statuses(
+            sicb.src_char_idx_selector(),
+            |si| si.responds_to().contains(RespondsTo::MultiplyOutgoingDMG),
+            |es, sk, si| si.multiply_dmg(&sicb.build(sk, es), mult),
+        )
+    }
 
-pub fn augment_incoming_dmg_for_statuses(
-    sc: &mut StatusCollection,
-    sicb: StatusImplContextBuilder,
-    char_idx: u8,
-    dmg: &mut DealDMG,
-) -> bool {
-    sc.consume_statuses(
-        CharIdxSelector::One(char_idx),
-        |si| si.responds_to().contains(RespondsTo::IncomingDMG),
-        |es, sk, si| si.incoming_dmg(&sicb.build(sk, es), dmg),
-    )
-}
+    pub fn augment_incoming_dmg_for_statuses(
+        &mut self,
+        sicb: StatusImplContextBuilder,
+        char_idx: u8,
+        dmg: &mut DealDMG,
+    ) -> bool {
+        self.consume_statuses(
+            CharIdxSelector::One(char_idx),
+            |si| si.responds_to().contains(RespondsTo::IncomingDMG),
+            |es, sk, si| si.incoming_dmg(&sicb.build(sk, es), dmg),
+        )
+    }
 
-pub fn consume_shield_points_for_statuses(sc: &mut StatusCollection, char_idx: u8, dmg: &mut DealDMG) -> bool {
-    let mut found = false;
-    sc.for_each_char_status_mut_retain(
-        Some(char_idx),
-        |status_id, eff_state| {
-            let status = status_id.get_status();
-            if !(dmg.dmg > 0 && status.usages_as_shield_points) {
-                return true;
-            }
-            found = true;
-            let u = eff_state.get_usages();
-            if u > dmg.dmg {
-                let d = dmg.dmg;
-                dmg.dmg = 0;
-                eff_state.set_usages(u - d);
+    pub fn consume_shield_points_for_statuses(&mut self, char_idx: u8, dmg: &mut DealDMG) -> bool {
+        let mut found = false;
+        self.for_each_char_status_mut_retain(
+            Some(char_idx),
+            |status_id, eff_state| {
+                let status = status_id.get_status();
+                if !(dmg.dmg > 0 && status.usages_as_shield_points) {
+                    return true;
+                }
+                found = true;
+                let u = eff_state.get_usages();
+                if u > dmg.dmg {
+                    let d = dmg.dmg;
+                    dmg.dmg = 0;
+                    eff_state.set_usages(u - d);
+                    true
+                } else {
+                    // u <= dmg.dmg
+                    eff_state.set_usages(0);
+                    dmg.dmg -= u;
+                    status.manual_discard
+                }
+            },
+            |_, _| {
+                // Summons can't have Shield Points
                 true
-            } else {
-                // u <= dmg.dmg
-                eff_state.set_usages(0);
-                dmg.dmg -= u;
-                status.manual_discard
-            }
-        },
-        |_, _| {
-            // Summons can't have Shield Points
-            true
-        },
-        |_, _| {
-            // Supports can't have Shield Points
-            true
-        },
-    );
-    found
+            },
+            |_, _| {
+                // Supports can't have Shield Points
+                true
+            },
+        );
+        found
+    }
 }
 
 impl CostType {
@@ -253,186 +255,194 @@ impl CostType {
     }
 }
 
-// TODO can reduce cost for character talent cards
-pub fn augment_cost(c: PlayerHashContext, player: &mut PlayerState, cost: &mut Cost, cost_type: CostType) -> bool {
-    let char_idx = player.active_char_idx;
-    if !player.status_collection.responds_to(RespondsTo::UpdateCost) {
-        return false;
+impl PlayerState {
+    #[inline]
+    pub fn relative_switch_char_idx(&self, switch_type: RelativeCharIdx) -> Option<u8> {
+        self.char_states
+            .relative_switch_char_idx(self.active_char_idx, switch_type)
     }
 
-    let view = &view!(player);
-    mutate_statuses_1!(c, player, |sc| {
-        let ctx = &CommandContext::EMPTY.with_src(cost_type.into_cmd_src(player.active_char_idx));
+    // TODO can reduce cost for character talent cards
+    // TODO separate status_collection
+    pub fn augment_cost(&mut self, c: PlayerHashContext, cost: &mut Cost, cost_type: CostType) -> bool {
+        let char_idx = self.active_char_idx;
+        if !self.status_collection.responds_to(RespondsTo::UpdateCost) {
+            return false;
+        }
+
+        let view = &view!(self);
+        mutate_statuses_1!(c, self, |sc| {
+            let ctx = &CommandContext::EMPTY.with_src(cost_type.into_cmd_src(self.active_char_idx));
+            let sicb = StatusImplContextBuilder::new(view, ctx, ());
+            sc.consume_statuses(
+                CharIdxSelector::One(char_idx),
+                |si| si.responds_to().contains(RespondsTo::UpdateCost),
+                |es, sk, si| si.update_cost(&sicb.build(sk, es), cost, cost_type),
+            )
+        })
+    }
+
+    // TODO separate status_collection
+    pub fn augment_cost_immutable(&self, cost: &mut Cost, cost_type: CostType) {
+        let sc = &self.status_collection;
+        if !sc.responds_to(RespondsTo::UpdateCost) {
+            return;
+        }
+
+        let char_idx = self.active_char_idx;
+        let view = &view!(self);
+        let ctx = &CommandContext::EMPTY.with_src(cost_type.into_cmd_src(self.active_char_idx));
         let sicb = StatusImplContextBuilder::new(view, ctx, ());
-        sc.consume_statuses(
+        sc.consume_statuses_immutable(
             CharIdxSelector::One(char_idx),
             |si| si.responds_to().contains(RespondsTo::UpdateCost),
             |es, sk, si| si.update_cost(&sicb.build(sk, es), cost, cost_type),
-        )
-    })
-}
-
-pub fn augment_cost_immutable(player: &PlayerState, cost: &mut Cost, cost_type: CostType) {
-    let sc = &player.status_collection;
-    if !sc.responds_to(RespondsTo::UpdateCost) {
-        return;
+        );
     }
 
-    let char_idx = player.active_char_idx;
-    let view = &view!(player);
-    let ctx = &CommandContext::EMPTY.with_src(cost_type.into_cmd_src(player.active_char_idx));
-    let sicb = StatusImplContextBuilder::new(view, ctx, ());
-    sc.consume_statuses_immutable(
-        CharIdxSelector::One(char_idx),
-        |si| si.responds_to().contains(RespondsTo::UpdateCost),
-        |es, sk, si| si.update_cost(&sicb.build(sk, es), cost, cost_type),
-    );
-}
+    // TODO separate status_collection
+    pub fn update_gains_energy(&self, ctx_for_skill: &CommandContext, gains_energy: &mut bool) {
+        let sc = &self.status_collection;
+        if !sc.responds_to(RespondsTo::GainsEnergy) {
+            return;
+        }
 
-pub fn update_gains_energy(player: &PlayerState, ctx_for_skill: &CommandContext, gains_energy: &mut bool) {
-    let sc = &player.status_collection;
-    if !sc.responds_to(RespondsTo::GainsEnergy) {
-        return;
+        let char_idx = self.active_char_idx;
+        let view = &view!(self);
+        let ctx = &CommandContext::EMPTY;
+        let sicb = StatusImplContextBuilder::new(view, ctx, ());
+        sc.consume_statuses_immutable(
+            CharIdxSelector::One(char_idx),
+            |si| si.responds_to().contains(RespondsTo::GainsEnergy),
+            |es, sk, si| {
+                si.gains_energy(&sicb.build(sk, es), ctx_for_skill, gains_energy)
+                    .then_some(AppliedEffectResult::NoChange)
+            },
+        );
     }
 
-    let char_idx = player.active_char_idx;
-    let view = &view!(player);
-    let ctx = &CommandContext::EMPTY;
-    let sicb = StatusImplContextBuilder::new(view, ctx, ());
-    sc.consume_statuses_immutable(
-        CharIdxSelector::One(char_idx),
-        |si| si.responds_to().contains(RespondsTo::GainsEnergy),
-        |es, sk, si| {
-            si.gains_energy(&sicb.build(sk, es), ctx_for_skill, gains_energy)
-                .then_some(AppliedEffectResult::NoChange)
-        },
-    );
-}
+    // TODO separate status_collection
+    pub fn update_dice_distribution(&self, dist: &mut DiceDistribution) {
+        let sc = &self.status_collection;
+        if !sc.responds_to(RespondsTo::DiceDistribution) {
+            return;
+        }
 
-pub fn update_dice_distribution(player: &PlayerState, dist: &mut DiceDistribution) {
-    let sc = &player.status_collection;
-    if !sc.responds_to(RespondsTo::DiceDistribution) {
-        return;
+        let view = &view!(self);
+        let ctx = &CommandContext::EMPTY;
+        let sicb = StatusImplContextBuilder::new(view, ctx, ());
+        sc.consume_statuses_immutable(
+            // Does not need to be active character to take effect
+            CharIdxSelector::All,
+            |si| si.responds_to().contains(RespondsTo::DiceDistribution),
+            |es, sk, si| {
+                si.dice_distribution(&sicb.build(sk, es), dist)
+                    .then_some(AppliedEffectResult::NoChange)
+            },
+        );
     }
 
-    let view = &view!(player);
-    let ctx = &CommandContext::EMPTY;
-    let sicb = StatusImplContextBuilder::new(view, ctx, ());
-    sc.consume_statuses_immutable(
-        // Does not need to be active character to take effect
-        CharIdxSelector::All,
-        |si| si.responds_to().contains(RespondsTo::DiceDistribution),
-        |es, sk, si| {
-            si.dice_distribution(&sicb.build(sk, es), dist)
-                .then_some(AppliedEffectResult::NoChange)
-        },
-    );
-}
-
-pub fn can_pay_dice_cost(player: &PlayerState, cost: &Cost, cost_type: CostType) -> bool {
-    let ep = player.get_element_priority_for_cost_type(cost_type);
-    let mut cost = *cost;
-    augment_cost_immutable(player, &mut cost, cost_type);
-    player.dice.try_pay_cost(&cost, &ep).is_some()
-}
-
-/// Assumption: augment_cost will never increase costs
-pub fn try_pay_dice_cost(
-    c: PlayerHashContext,
-    player: &mut PlayerState,
-    cost: &Cost,
-    cost_type: CostType,
-) -> Option<DiceCounter> {
-    let ep = player.get_element_priority_for_cost_type(cost_type);
-    if let Some(d) = player.dice.try_pay_cost(cost, &ep) {
-        Some(d)
-    } else {
+    pub fn can_pay_dice_cost(&self, cost: &Cost, cost_type: CostType) -> bool {
+        let ep = self.get_element_priority_for_cost_type(cost_type);
         let mut cost = *cost;
-        augment_cost(c, player, &mut cost, cost_type);
-        player.dice.try_pay_cost(&cost, &ep)
-    }
-}
-
-pub fn get_cast_skill_cmds(
-    src_player: &PlayerState,
-    ctx: &CommandContext,
-    skill_id: SkillId,
-) -> CommandList<(CommandContext, Command)> {
-    let skill = skill_id.get_skill();
-    let mut cmds: CommandList<(CommandContext, Command)> = cmd_list![];
-    if let Some(deal_dmg) = skill.deal_dmg {
-        cmds.push((*ctx, Command::DealDMG(deal_dmg)));
+        self.augment_cost_immutable(&mut cost, cost_type);
+        self.dice.try_pay_cost(&cost, &ep).is_some()
     }
 
-    if let Some(status_id) = skill.apply {
-        match status_id.get_status().attach_mode {
-            StatusAttachMode::Character => {
-                let char_idx = src_player.active_char_idx;
-                cmds.push((*ctx, Command::ApplyCharacterStatus(status_id, char_idx.into())));
-            }
-            StatusAttachMode::Team => {
-                cmds.push((*ctx, Command::ApplyStatusToTeam(status_id)));
-            }
-            StatusAttachMode::Summon => panic!("Cannot attach summon status {status_id:?}."),
-            StatusAttachMode::Support => panic!("Cannot attach support status {status_id:?}."),
+    /// Assumption: augment_cost will never increase costs
+    pub fn try_pay_dice_cost(&mut self, c: PlayerHashContext, cost: &Cost, cost_type: CostType) -> Option<DiceCounter> {
+        let ep = self.get_element_priority_for_cost_type(cost_type);
+        if let Some(d) = self.dice.try_pay_cost(cost, &ep) {
+            Some(d)
+        } else {
+            let mut cost = *cost;
+            self.augment_cost(c, &mut cost, cost_type);
+            self.dice.try_pay_cost(&cost, &ep)
         }
     }
 
-    if let Some(summon_spec) = skill.summon {
-        match summon_spec {
-            SummonSpec::One(summon_id) => {
-                cmds.push((*ctx, Command::Summon(summon_id)));
-            }
-            SummonSpec::MultiRandom { count: 0, .. } => {}
-            SummonSpec::MultiRandom {
-                summon_ids,
-                count,
-                prioritize_new,
-            } => {
-                let existing_summon_ids = if prioritize_new {
-                    src_player
-                        .status_collection
-                        .iter_entries()
-                        .filter_map(|k| match k.key {
-                            StatusKey::Summon(summon_id) => Some(summon_id),
-                            _ => None,
-                        })
-                        .fold(Default::default(), |s, k| s | k)
-                } else {
-                    Default::default()
-                };
-                cmds.push((
-                    *ctx,
-                    Command::SummonRandom(SummonRandomSpec::new(summon_ids, existing_summon_ids, count)),
-                ));
+    pub fn get_cast_skill_cmds(
+        &self,
+        ctx: &CommandContext,
+        skill_id: SkillId,
+    ) -> CommandList<(CommandContext, Command)> {
+        let src_player = self;
+        let skill = skill_id.get_skill();
+        let mut cmds: CommandList<(CommandContext, Command)> = cmd_list![];
+        if let Some(deal_dmg) = skill.deal_dmg {
+            cmds.push((*ctx, Command::DealDMG(deal_dmg)));
+        }
+
+        if let Some(status_id) = skill.apply {
+            match status_id.get_status().attach_mode {
+                StatusAttachMode::Character => {
+                    let char_idx = src_player.active_char_idx;
+                    cmds.push((*ctx, Command::ApplyCharacterStatus(status_id, char_idx.into())));
+                }
+                StatusAttachMode::Team => {
+                    cmds.push((*ctx, Command::ApplyStatusToTeam(status_id)));
+                }
+                StatusAttachMode::Summon => panic!("Cannot attach summon status {status_id:?}."),
+                StatusAttachMode::Support => panic!("Cannot attach support status {status_id:?}."),
             }
         }
-    }
 
-    for c in skill.commands.to_vec_copy() {
-        cmds.push((*ctx, c));
-    }
+        if let Some(summon_spec) = skill.summon {
+            match summon_spec {
+                SummonSpec::One(summon_id) => {
+                    cmds.push((*ctx, Command::Summon(summon_id)));
+                }
+                SummonSpec::MultiRandom { count: 0, .. } => {}
+                SummonSpec::MultiRandom {
+                    summon_ids,
+                    count,
+                    prioritize_new,
+                } => {
+                    let existing_summon_ids = if prioritize_new {
+                        src_player
+                            .status_collection
+                            .iter_entries()
+                            .filter_map(|k| match k.key {
+                                StatusKey::Summon(summon_id) => Some(summon_id),
+                                _ => None,
+                            })
+                            .fold(Default::default(), |s, k| s | k)
+                    } else {
+                        Default::default()
+                    };
+                    cmds.push((
+                        *ctx,
+                        Command::SummonRandom(SummonRandomSpec::new(summon_ids, existing_summon_ids, count)),
+                    ));
+                }
+            }
+        }
 
-    let mut gains_energy = !skill.no_energy;
-    update_gains_energy(src_player, ctx, &mut gains_energy);
-    if let Some(si) = skill.skill_impl {
-        si.get_commands(src_player, &src_player.status_collection, ctx, &mut cmds);
-    }
+        for c in skill.commands.to_vec_copy() {
+            cmds.push((*ctx, c));
+        }
 
-    if gains_energy && skill.skill_type != SkillType::ElementalBurst {
-        cmds.push((*ctx, Command::AddEnergy(1, CmdCharIdx::Active)));
-    }
+        let mut gains_energy = !skill.no_energy;
+        src_player.update_gains_energy(ctx, &mut gains_energy);
+        if let Some(si) = skill.skill_impl {
+            si.get_commands(src_player, &src_player.status_collection, ctx, &mut cmds);
+        }
 
-    cmds.push((
-        *ctx,
-        Command::TriggerXEvent(XEvent::Skill(XEventSkill {
-            src_player_id: ctx.src_player_id,
-            src_char_idx: src_player.active_char_idx,
-            skill_id,
-        })),
-    ));
-    cmds.push((*ctx, Command::HandOverPlayer));
-    cmds
+        if gains_energy && skill.skill_type != SkillType::ElementalBurst {
+            cmds.push((*ctx, Command::AddEnergy(1, CmdCharIdx::Active)));
+        }
+
+        cmds.push((
+            *ctx,
+            Command::TriggerXEvent(XEvent::Skill(XEventSkill {
+                src_player_id: ctx.src_player_id,
+                src_char_idx: src_player.active_char_idx,
+                skill_id,
+            })),
+        ));
+        cmds.push((*ctx, Command::HandOverPlayer));
+        cmds
+    }
 }
 
 impl RelativeCharIdx {
@@ -499,14 +509,6 @@ impl CharStates {
 
     pub(crate) fn get_taken_most_dmg(&self) -> Option<(u8, &CharState)> {
         self.enumerate_valid().max_by_key(|(_, c)| c.get_total_dmg_taken())
-    }
-}
-
-impl PlayerState {
-    #[inline]
-    pub(crate) fn relative_switch_char_idx(&self, switch_type: RelativeCharIdx) -> Option<u8> {
-        self.char_states
-            .relative_switch_char_idx(self.active_char_idx, switch_type)
     }
 }
 

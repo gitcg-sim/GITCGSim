@@ -5,10 +5,7 @@ use crate::{
     cards::{event::DefaultCardImpl, ids::*},
     cmd_list,
     data_structures::ActionList,
-    dispatcher_ops::{
-        exec_command_helpers::{augment_cost_immutable, can_pay_dice_cost},
-        *,
-    },
+    dispatcher_ops::*,
     mutate_statuses, phc,
     prelude::ByPlayer,
     types::{
@@ -134,7 +131,7 @@ impl GameState {
         }
 
         if self.ignore_costs
-            || can_pay_dice_cost(player, &SWITCHING_COST, CostType::Switching { dst_char_idx: char_idx })
+            || player.can_pay_dice_cost(&SWITCHING_COST, CostType::Switching { dst_char_idx: char_idx })
         {
             Ok(())
         } else {
@@ -168,7 +165,7 @@ impl GameState {
             return false;
         }
 
-        can_pay_dice_cost(player, &cost, CostType::Skill(skill_id))
+        player.can_pay_dice_cost(&cost, CostType::Skill(skill_id))
     }
 
     fn cmd_tgt(&self, player_id: PlayerId) -> Option<CommandTarget> {
@@ -230,7 +227,7 @@ impl GameState {
             .active_player()
             .expect("can_play_card: must have active player");
         if !self.ignore_costs {
-            if !can_pay_dice_cost(player, &card.cost, CostType::Card(card_id)) {
+            if !player.can_pay_dice_cost(&card.cost, CostType::Card(card_id)) {
                 return false;
             }
 
@@ -409,7 +406,7 @@ impl GameState {
                     return NONE;
                 };
 
-                augment_cost_immutable(player, &mut cost, cost_type);
+                player.augment_cost_immutable(&mut cost, cost_type);
 
                 (cost, is_fast_action)
             }

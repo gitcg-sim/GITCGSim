@@ -1,5 +1,3 @@
-use crate::{data_structures::CommandList, dispatcher_ops::get_cast_skill_cmds};
-
 use super::*;
 
 pub const C: Card = Card {
@@ -39,6 +37,6 @@ impl CardImpl for LightningStiletto {
             return;
         };
         commands.push((*ctx, Command::SwitchCharacter(ci)));
-        commands.append(&mut get_cast_skill_cmds(player, ctx, SkillId::StellarRestoration));
+        commands.append(&mut player.get_cast_skill_cmds(ctx, SkillId::StellarRestoration));
     }
 }

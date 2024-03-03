@@ -26,5 +26,4 @@ pub(crate) mod exec_command;
 
 pub(crate) mod exec_command_helpers;
 
-pub(crate) use exec_command_helpers::{get_cast_skill_cmds, update_dice_distribution};
 pub use types::*;

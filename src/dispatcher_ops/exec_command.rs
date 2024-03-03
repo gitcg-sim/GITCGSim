@@ -26,7 +26,7 @@ impl GameState {
         };
         let player = self.players.get_mut(active_player_id);
         let mut cost = *cost;
-        augment_cost(phc!(self, active_player_id), player, &mut cost, cost_type);
+        player.augment_cost(phc!(self, active_player_id), &mut cost, cost_type);
 
         if cost.energy_cost > 0 {
             let ec = cost.energy_cost;
@@ -45,7 +45,7 @@ impl GameState {
         if let Some(log) = &mut self.log {
             log.log(Event::PayCost(active_player_id, cost, cost_type));
         }
-        let Some(d) = try_pay_dice_cost(phc!(self, active_player_id), player, &cost, cost_type) else {
+        let Some(d) = player.try_pay_dice_cost(phc!(self, active_player_id), &cost, cost_type) else {
             return Err(DispatchError::UnableToPayCost);
         };
 
@@ -328,11 +328,11 @@ impl GameState {
             if !is_piercing {
                 apply_statuses!(
                     (src_player, src_player_id, RespondsTo::OutgoingDMG, dmg_info),
-                    |sc_src, sicb| augment_outgoing_dmg_for_statuses(sc_src, sicb, &mut dmg)
+                    |sc_src, sicb| sc_src.augment_outgoing_dmg_for_statuses(sicb, &mut dmg)
                 );
                 apply_statuses!(
                     (src_player, src_player_id, RespondsTo::LateOutgoingDMG, dmg_info),
-                    |sc_src, sicb| augment_late_outgoing_dmg_for_statuses(sc_src, sicb, &mut dmg)
+                    |sc_src, sicb| sc_src.augment_late_outgoing_dmg_for_statuses(sicb, &mut dmg)
                 );
             }
 
@@ -345,8 +345,7 @@ impl GameState {
                 } = &tgt_player;
                 apply_statuses!(
                     (src_player, src_player_id, RespondsTo::OutgoingDMGTarget, dmg_info),
-                    |sc_src, sicb| augment_outgoing_dmg_target_for_statuses(
-                        sc_src,
+                    |sc_src, sicb| sc_src.augment_outgoing_dmg_target_for_statuses(
                         sicb,
                         tgt_char_states,
                         *tgt_active_char_idx,
@@ -400,7 +399,7 @@ impl GameState {
             if let Some(reaction) = reaction {
                 apply_statuses!(
                     (src_player, src_player_id, RespondsTo::OutgoingReactionDMG, dmg_info),
-                    |sc_src, sicb| augment_outgoing_reaction_dmg_for_statuses(sc_src, sicb, reaction, &mut dmg)
+                    |sc_src, sicb| sc_src.augment_outgoing_reaction_dmg_for_statuses(sicb, reaction, &mut dmg)
                 );
             }
 
@@ -408,19 +407,19 @@ impl GameState {
                 let mut mult = 1;
                 apply_statuses!(
                     (src_player, src_player_id, RespondsTo::MultiplyOutgoingDMG, dmg_info),
-                    |sc_src, sicb| multiply_outgoing_dmg_for_statuses(sc_src, sicb, &mut mult)
+                    |sc_src, sicb| sc_src.multiply_outgoing_dmg_for_statuses(sicb, &mut mult)
                 );
                 dmg.dmg *= mult;
 
                 if tgt_player.status_collection.has_shield_points() {
                     mutate_statuses_1!(phc!(self, tgt_player_id), tgt_player, |sc_tgt| {
-                        consume_shield_points_for_statuses(sc_tgt, tgt_char_idx, &mut dmg);
+                        sc_tgt.consume_shield_points_for_statuses(tgt_char_idx, &mut dmg);
                     });
                 }
 
                 apply_statuses!(
                     (tgt_player, tgt_player_id, RespondsTo::IncomingDMG, ()),
-                    |sc_tgt, sicb| augment_incoming_dmg_for_statuses(sc_tgt, sicb, tgt_char_idx, &mut dmg)
+                    |sc_tgt, sicb| sc_tgt.augment_incoming_dmg_for_statuses(sicb, tgt_char_idx, &mut dmg)
                 );
             }
 
@@ -1132,7 +1131,7 @@ impl GameState {
             let flags = char.flags | char.skill_flags(skill_id);
             char.set_flags_hashed(chc, flags);
         }
-        let cmds = get_cast_skill_cmds(player, ctx, skill_id);
+        let cmds = player.get_cast_skill_cmds(ctx, skill_id);
         ExecResult::AdditionalCmds(cmds)
     }
 

@@ -109,7 +109,7 @@ impl PlayerState {
 
     pub fn get_dice_distribution(&self) -> DiceDistribution {
         let mut dist = DiceDistribution::new(8, 1, self.get_element_priority(), Default::default());
-        update_dice_distribution(self, &mut dist);
+        self.update_dice_distribution(&mut dist);
         dist
     }
 
