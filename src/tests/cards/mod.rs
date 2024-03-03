@@ -63,7 +63,7 @@ fn leave_it_to_me() {
     .build();
 
     gs.advance_roll_phase_no_dice();
-    gs.players.0.dice.omni += 2;
+    gs.players.0.dice[Dice::Omni] += 2;
     gs.players.0.add_to_hand_ignore(CardId::LeaveItToMe);
     gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::PlayCard(CardId::LeaveItToMe, None)),

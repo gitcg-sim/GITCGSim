@@ -241,18 +241,18 @@ fn play_card() {
     gs.players.0.hand = [CardId::BlankCard, CardId::Starsigns, CardId::TheBestestTravelCompanion].into();
     gs.players.0.dice[Dice::PYRO] = 1;
     gs.players.0.dice[Dice::DENDRO] = 1;
-    assert_eq!(0, gs.players.0.dice.omni);
+    assert_eq!(0, gs.players.0.dice[Dice::Omni]);
     gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::PlayCard(CardId::TheBestestTravelCompanion, None),
     )]);
-    assert_eq!(2, gs.players.0.dice.omni);
+    assert_eq!(2, gs.players.0.dice[Dice::Omni]);
     assert_eq!(0, gs.players.0.get_active_character().get_energy());
     gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::PlayCard(CardId::Starsigns, None),
     )]);
-    assert_eq!(0, gs.players.0.dice.omni);
+    assert_eq!(0, gs.players.0.dice[Dice::Omni]);
     assert_eq!(1, gs.players.0.get_active_character().get_energy());
 }
 

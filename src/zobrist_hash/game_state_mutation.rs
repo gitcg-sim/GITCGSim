@@ -151,9 +151,9 @@ impl PlayerState {
 
     #[inline]
     pub(crate) fn dice_hash(h: &mut ZobristHasher, player_id: PlayerId, dice: &DiceCounter) {
-        h.hash(HASH_PROVIDER.dice(player_id, Dice::Omni, dice.omni));
+        h.hash(HASH_PROVIDER.dice(player_id, Dice::Omni, dice[Dice::Omni]));
         for e in Element::VALUES {
-            h.hash(HASH_PROVIDER.dice(player_id, Dice::Elem(e), dice.elem[e.to_index()]));
+            h.hash(HASH_PROVIDER.dice(player_id, Dice::Elem(e), dice[Dice::Elem(e)]));
         }
     }
 }

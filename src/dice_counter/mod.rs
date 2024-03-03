@@ -26,8 +26,8 @@ pub(crate) mod builder;
     serde(into = "builder::DiceCounterBuilder")
 )]
 pub struct DiceCounter {
-    pub omni: u8,
-    pub elem: [u8; 7],
+    omni: u8,
+    elem: [u8; 7],
 }
 
 impl crate::std_subset::fmt::Debug for DiceCounter {
