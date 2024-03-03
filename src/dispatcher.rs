@@ -1015,6 +1015,8 @@ impl GameState {
             }
             RollPhaseState::Rolling => match input {
                 Input::NondetResult(NondetResult::ProvideDice(ByPlayer(dice1, dice2))) => {
+                    self.players.0.update_incremental_element_priority();
+                    self.players.1.update_incremental_element_priority();
                     self.players.0.add_dice(phc!(self, PlayerId::PlayerFirst), &dice1);
                     self.players.1.add_dice(phc!(self, PlayerId::PlayerSecond), &dice2);
                     self.exec_commands(&cmd_list![

@@ -155,7 +155,6 @@ impl PlayerState {
     }
 
     // TODO can reduce cost for character talent cards
-    // TODO separate status_collection
     pub fn augment_cost(
         &mut self,
         status_collections: &mut ByPlayer<StatusCollection>,

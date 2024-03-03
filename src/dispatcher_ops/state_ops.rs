@@ -82,8 +82,22 @@ impl PlayerState {
         }
     }
 
+    pub fn update_incremental_element_priority(&mut self) {
+        for char_idx in 0..self.char_states.len() {
+            self.update_incremental_element_priority_for_char(char_idx);
+        }
+    }
+
+    fn update_incremental_element_priority_for_char(&mut self, char_idx: u8) {
+        if self.char_states[char_idx].is_invalid() {
+            return;
+        }
+        let ep = self.get_element_priority_switch(char_idx);
+        self.char_states[char_idx].set_incremental_element_priority(ep);
+    }
+
     #[inline]
-    pub fn get_element_priority_for_cost_type(self: &PlayerState, cost_type: CostType) -> ElementPriority {
+    pub fn get_element_priority_for_cost_type(&self, cost_type: CostType) -> ElementPriority {
         match cost_type {
             CostType::Switching { dst_char_idx } => self.get_element_priority_switch(dst_char_idx),
             CostType::Card(..) | CostType::Skill(..) => self.get_element_priority(),
@@ -92,7 +106,12 @@ impl PlayerState {
 
     #[inline]
     pub fn get_element_priority(&self) -> ElementPriority {
-        self.get_element_priority_switch(self.active_char_idx)
+        let char_idx = self.active_char_idx;
+        if let Some(ep) = self.char_states[char_idx].incremental_element_priority() {
+            ep
+        } else {
+            self.get_element_priority_switch(char_idx)
+        }
     }
 
     pub fn get_element_priority_switch(&self, dst_char_idx: u8) -> ElementPriority {

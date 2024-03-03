@@ -1,5 +1,7 @@
 use crate::std_subset::{ops::Index, vec, Vec};
 
+use constdefault::ConstDefault;
+use enumset::enum_set;
 use smallvec::SmallVec;
 
 use crate::types::ElementSet;
@@ -42,6 +44,13 @@ pub struct ElementPriority {
     pub important_elems: ElementSet,
     /// Element of the active character, if applicable (higher priority)
     pub active_elem: Option<Element>,
+}
+
+impl ConstDefault for ElementPriority {
+    const DEFAULT: Self = Self {
+        important_elems: enum_set![],
+        active_elem: None,
+    };
 }
 
 impl ElementPriority {

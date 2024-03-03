@@ -149,4 +149,17 @@ proptest! {
         assert!(gs.game_state.get_player(PlayerId::PlayerFirst).char_states.iter_all().any(|c| c.char_id == CharId::Beidou));
         assert!(gs.game_state.get_player(PlayerId::PlayerSecond).char_states.iter_all().any(|c| c.char_id == CharId::Wanderer));
     }
+
+    #[test]
+    fn incrementally_updated_element_priority_is_consistent(gs in arb_reachable_game_state_wrapper()) {
+        for player_id in [PlayerId::PlayerFirst, PlayerId::PlayerSecond] {
+            let player = gs.game_state.get_player(player_id);
+            for (char_idx, cs) in player.char_states.enumerate_valid() {
+                let Some(ep) = cs.incremental_element_priority() else {
+                    continue
+                };
+                assert_eq!(ep, player.get_element_priority_switch(char_idx));
+            }
+        }
+    }
 }

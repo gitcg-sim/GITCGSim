@@ -12,6 +12,7 @@ pub use crate::types::applied_effect_state::AppliedEffectState;
 use crate::types::ElementSet;
 
 use super::card_defs::CharCard;
+use super::dice_counter::ElementPriority;
 
 pub mod builder;
 
@@ -44,6 +45,9 @@ pub struct CharState {
     pub(crate) applied: ElementSet,
     pub(crate) flags: EnumSet<CharFlag>,
     pub(crate) total_dmg_taken: u8,
+
+    #[cfg_attr(feature = "serde", serde(skip))]
+    element_priority: Option<ElementPriority>,
 }
 
 impl Debug for CharState {
@@ -55,6 +59,7 @@ impl Debug for CharState {
             .field("applied", &self.applied)
             .field("flags", &self.flags)
             .field("total_dmg_taken", &self.total_dmg_taken)
+            .field("element_priority", &self.element_priority)
             .finish()
     }
 }
@@ -66,6 +71,7 @@ impl ConstDefault for CharState {
         applied: enum_set![],
         flags: enum_set![],
         total_dmg_taken: ConstDefault::DEFAULT,
+        element_priority: ConstDefault::DEFAULT,
     };
 }
 
@@ -224,6 +230,7 @@ impl CharState {
             total_dmg_taken: Default::default(),
             applied: Default::default(),
             flags: Default::default(),
+            element_priority: Default::default(),
         }
     }
 
@@ -307,5 +314,20 @@ impl CharState {
     #[inline]
     pub fn get_applied(&self) -> ElementSet {
         self.applied
+    }
+
+    #[inline]
+    pub fn incremental_element_priority(&self) -> Option<ElementPriority> {
+        self.element_priority
+    }
+
+    #[inline]
+    pub fn set_incremental_element_priority(&mut self, ep: ElementPriority) {
+        self.element_priority = Some(ep)
+    }
+
+    #[inline]
+    pub fn clear_incremental_element_priority(&mut self) {
+        self.element_priority = None;
     }
 }

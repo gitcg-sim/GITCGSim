@@ -593,6 +593,8 @@ impl GameState {
                 Command::InternalApplyCharacterStatusWithStateToActive(status_id, eff_state),
             ));
         }
+
+        player.update_incremental_element_priority();
     }
 
     fn take_dmg(&mut self, ctx: &CommandContext, dmg: DealDMG) -> ExecResult {

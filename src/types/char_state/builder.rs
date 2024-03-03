@@ -39,6 +39,7 @@ impl CharStateBuilder {
             applied: self.applied.iter().copied().collect(),
             flags: self.flags.iter().copied().collect(),
             total_dmg_taken: self.total_dmg_taken,
+            element_priority: Default::default(),
         };
         cs.set_hp(self.hp);
         cs.set_energy(self.energy);

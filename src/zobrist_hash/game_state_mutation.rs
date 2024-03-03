@@ -211,6 +211,7 @@ impl CharState {
         self.set_applied_elements_hashed((h, player_id, char_idx), Default::default());
         h.hash(HASH_PROVIDER.total_dmg_taken(player_id, char_idx, self.total_dmg_taken));
         self.total_dmg_taken = 0;
+        self.clear_incremental_element_priority();
         h.hash(HASH_PROVIDER.total_dmg_taken(player_id, char_idx, self.total_dmg_taken));
     }
 
