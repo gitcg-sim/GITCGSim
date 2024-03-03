@@ -89,7 +89,7 @@ fn kamisato_art_soumetsu_summon() {
         assert_eq!(elem_set![Element::Cryo], fischl.applied);
         assert_eq!(6, fischl.get_hp());
     }
-    assert!(gs.players.0.has_summon(SummonId::FrostflakeSekiNoTo));
+    assert!(gs.has_summon(PlayerId::PlayerFirst, SummonId::FrostflakeSekiNoTo));
 
     gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
@@ -102,7 +102,7 @@ fn kamisato_art_soumetsu_summon() {
         let fischl = gs.get_player(PlayerId::PlayerSecond).get_active_character();
         assert_eq!(4, fischl.get_hp());
     }
-    assert!(gs.players.0.has_summon(SummonId::FrostflakeSekiNoTo));
+    assert!(gs.has_summon(PlayerId::PlayerFirst, SummonId::FrostflakeSekiNoTo));
 
     gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
@@ -127,7 +127,7 @@ fn kamisato_art_soumetsu_summon() {
         assert_eq!(2, fischl.get_hp());
     }
     assert_eq!(4, gs.round_number);
-    assert!(!gs.players.0.has_summon(SummonId::FrostflakeSekiNoTo));
+    assert!(!gs.has_summon(PlayerId::PlayerFirst, SummonId::FrostflakeSekiNoTo));
 }
 
 #[test]

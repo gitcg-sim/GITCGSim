@@ -86,6 +86,14 @@ impl ByPlayer<PlayerState> {
     }
 }
 
+impl ByPlayer<StatusCollection> {
+    #[inline(always)]
+    fn transpose_in_place(&mut self) {
+        // Nothing to transpose for StatusCollection
+        crate::std_subset::mem::swap(&mut self.0, &mut self.1);
+    }
+}
+
 impl Phase {
     pub fn transpose_in_place(&mut self) {
         match self {
@@ -149,6 +157,7 @@ impl GameState {
     /// See also: `Input::transpose_in_place`
     pub fn transpose_in_place(&mut self) {
         self.players.transpose_in_place();
+        self.status_collections.transpose_in_place();
         if let Some(pending_cmds) = &mut self.pending_cmds {
             pending_cmds.transpose_in_place();
         }

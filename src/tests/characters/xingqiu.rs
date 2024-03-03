@@ -14,9 +14,7 @@ fn fatal_rainscreen_applies_hydro_to_self_and_creates_rain_sword() {
         elem_set![Element::Hydro],
         gs.get_player(PlayerId::PlayerFirst).get_active_character().applied
     );
-    assert!(gs
-        .get_player(PlayerId::PlayerFirst)
-        .has_team_status(StatusId::RainSword));
+    assert!(gs.has_team_status(PlayerId::PlayerFirst, StatusId::RainSword));
     assert_eq!(
         elem_set![Element::Hydro],
         gs.get_player(PlayerId::PlayerSecond).get_active_character().applied
@@ -112,9 +110,7 @@ fn raincutter_applies_hydro_to_self_and_creates_rainbow_bladework() {
         elem_set![Element::Hydro],
         gs.get_player(PlayerId::PlayerFirst).get_active_character().applied
     );
-    assert!(gs
-        .get_player(PlayerId::PlayerFirst)
-        .has_team_status(StatusId::RainbowBladework));
+    assert!(gs.has_team_status(PlayerId::PlayerFirst, StatusId::RainbowBladework));
     assert_eq!(
         elem_set![Element::Hydro],
         gs.get_player(PlayerId::PlayerSecond).get_active_character().applied

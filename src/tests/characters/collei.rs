@@ -14,7 +14,7 @@ fn talent_card() {
         PlayerId::PlayerFirst,
         PlayerAction::PlayCard(CardId::FloralSidewinder, Some(CardSelection::OwnCharacter(0))),
     )]);
-    assert!(gs.players.0.has_team_status(StatusId::Sprout));
+    assert!(gs.has_team_status(PlayerId::PlayerFirst, StatusId::Sprout));
     gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::SwitchCharacter(1)),
@@ -25,8 +25,8 @@ fn talent_card() {
         assert_eq!(elem_set![Element::Dendro], ganyu.applied);
         assert_eq!(4, ganyu.get_hp());
     }
-    assert!(gs.players.0.has_team_status(StatusId::CatalyzingField));
-    assert!(!gs.players.0.has_team_status(StatusId::Sprout));
+    assert!(gs.has_team_status(PlayerId::PlayerFirst, StatusId::CatalyzingField));
+    assert!(!gs.has_team_status(PlayerId::PlayerFirst, StatusId::Sprout));
 }
 
 #[test]
@@ -44,13 +44,13 @@ fn talent_card_immediate_reaction() {
         PlayerId::PlayerFirst,
         PlayerAction::PlayCard(CardId::FloralSidewinder, Some(CardSelection::OwnCharacter(0))),
     )]);
-    assert!(!gs.players.0.has_team_status(StatusId::Sprout));
+    assert!(!gs.has_team_status(PlayerId::PlayerFirst, StatusId::Sprout));
     {
         let ganyu = gs.players.1.get_active_character();
         assert_eq!(elem_set![Element::Dendro], ganyu.applied);
         assert_eq!(5, ganyu.get_hp());
     }
-    assert!(gs.players.0.has_team_status(StatusId::CatalyzingField));
+    assert!(gs.has_team_status(PlayerId::PlayerFirst, StatusId::CatalyzingField));
 }
 
 #[test]
@@ -67,15 +67,12 @@ fn talent_card_does_not_trigger_on_incoming_dendro_reaction() {
         PlayerId::PlayerFirst,
         PlayerAction::PlayCard(CardId::FloralSidewinder, Some(CardSelection::OwnCharacter(0))),
     )]);
-    assert!(gs.players.get(PlayerId::PlayerFirst).has_team_status(StatusId::Sprout));
+    assert!(gs.has_team_status(PlayerId::PlayerFirst, StatusId::Sprout));
     gs.players.get_mut(PlayerId::PlayerFirst).char_states[0].applied |= Element::Electro;
     gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerSecond,
         PlayerAction::CastSkill(SkillId::FloralBrush),
     )]);
-    assert!(gs.players.get(PlayerId::PlayerFirst).has_team_status(StatusId::Sprout));
-    assert!(gs
-        .players
-        .get(PlayerId::PlayerSecond)
-        .has_team_status(StatusId::CatalyzingField));
+    assert!(gs.has_team_status(PlayerId::PlayerFirst, StatusId::Sprout));
+    assert!(gs.has_team_status(PlayerId::PlayerSecond, StatusId::CatalyzingField));
 }

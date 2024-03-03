@@ -19,9 +19,7 @@ fn quicken() {
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::FloralBrush),
     )]);
-    assert!(gs
-        .get_player(PlayerId::PlayerFirst)
-        .has_team_status(StatusId::CatalyzingField));
+    assert!(gs.has_team_status(PlayerId::PlayerFirst, StatusId::CatalyzingField));
     assert_eq!(
         2,
         gs.get_status_collection_mut(PlayerId::PlayerFirst).team_statuses_vec()[0]

@@ -46,20 +46,27 @@ impl GameState {
     fn get_status_collection_mut(&mut self, player_id: PlayerId) -> &mut StatusCollection {
         self.status_collections.get_mut(player_id)
     }
-}
 
-impl GameState {
+    fn get_dice_distribution(&self, player_id: PlayerId) -> DiceDistribution {
+        self.get_player(player_id)
+            .get_dice_distribution(self.get_status_collection(player_id))
+    }
+
+    fn has_summon(&self, player_id: PlayerId, summon_id: SummonId) -> bool {
+        self.status_collections.get(player_id).has_summon(summon_id)
+    }
+
     fn has_team_status(&self, player_id: PlayerId, status_id: StatusId) -> bool {
         self.status_collections.get(player_id).has_team_status(status_id)
     }
 
-    pub fn has_character_status(&self, player_id: PlayerId, char_idx: u8, status_id: StatusId) -> bool {
+    fn has_character_status(&self, player_id: PlayerId, char_idx: u8, status_id: StatusId) -> bool {
         self.status_collections
             .get(player_id)
             .has_character_status(char_idx, status_id)
     }
 
-    pub fn has_active_character_status(&self, player_id: PlayerId, status_id: StatusId) -> bool {
+    fn has_active_character_status(&self, player_id: PlayerId, status_id: StatusId) -> bool {
         self.status_collections
             .get(player_id)
             .has_character_status(self.players.get(player_id).active_char_idx, status_id)

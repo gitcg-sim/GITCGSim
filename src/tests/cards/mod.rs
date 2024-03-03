@@ -26,7 +26,7 @@ fn changing_shifts() {
         ),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::SwitchCharacter(1)),
     ]);
-    assert!(!gs.players.0.has_team_status(StatusId::ChangingShifts));
+    assert!(!gs.has_team_status(PlayerId::PlayerFirst, StatusId::ChangingShifts));
 }
 
 #[test]
@@ -51,7 +51,7 @@ fn changing_shifts_not_cleared() {
     ]);
     gs.advance_roll_phase_no_dice();
     assert_eq!(2, gs.round_number);
-    assert!(gs.players.0.has_team_status(StatusId::ChangingShifts));
+    assert!(gs.has_team_status(PlayerId::PlayerFirst, StatusId::ChangingShifts));
 }
 
 #[test]
@@ -74,7 +74,7 @@ fn leave_it_to_me() {
         PlayerId::PlayerFirst,
         PlayerAction::SwitchCharacter(0),
     )]);
-    assert!(!gs.players.0.has_team_status(StatusId::LeaveItToMe));
+    assert!(!gs.has_team_status(PlayerId::PlayerFirst, StatusId::LeaveItToMe));
     assert_eq!(Some(PlayerId::PlayerSecond), gs.to_move_player());
 }
 

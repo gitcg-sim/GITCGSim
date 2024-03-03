@@ -21,7 +21,7 @@ fn charged_attack_affected_by_explosive_spark() {
     // Charged Attack
     assert_eq!(4, gs.players.0.dice.total());
     assert_eq!(5, gs.players.1.char_states[0].get_hp());
-    assert!(!gs.players.0.has_active_character_status(StatusId::ExplosiveSpark));
+    assert!(!gs.has_active_character_status(PlayerId::PlayerFirst, StatusId::ExplosiveSpark));
 }
 
 #[test]
@@ -51,7 +51,7 @@ fn normal_attack_not_affected_by_explosive_spark() {
     )]);
     assert_eq!(2, gs.players.0.dice.total());
     assert_eq!(6, gs.players.1.char_states[0].get_hp());
-    assert!(gs.players.0.has_active_character_status(StatusId::ExplosiveSpark));
+    assert!(gs.has_active_character_status(PlayerId::PlayerFirst, StatusId::ExplosiveSpark));
 }
 
 #[test]
@@ -90,7 +90,7 @@ fn klee_take_damage() {
         PlayerAction::CastSkill(SkillId::SparksNSplash),
     )]);
     assert_eq!(7, gs.players.1.char_states[0].get_hp());
-    assert!(gs.players.1.has_team_status(StatusId::SparksNSplash));
+    assert!(gs.has_team_status(PlayerId::PlayerSecond, StatusId::SparksNSplash));
     gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerSecond,
         PlayerAction::CastSkill(SkillId::BoltsOfDownfall),

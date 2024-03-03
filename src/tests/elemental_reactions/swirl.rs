@@ -112,9 +112,7 @@ fn swirl_triggers_secondary_reactions_bloom_frozen() {
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::AstableAnemohypostasisCreation6308),
     )]);
-    assert!(gs
-        .get_player(PlayerId::PlayerFirst)
-        .has_team_status(StatusId::DendroCore));
+    assert!(gs.has_team_status(PlayerId::PlayerFirst, StatusId::DendroCore));
     assert!(gs
         .get_status_collection_mut(PlayerId::PlayerSecond)
         .get(StatusKey::Character(1, StatusId::Frozen))
@@ -146,9 +144,7 @@ fn swirl_triggers_secondary_reactions_quicken() {
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::AstableAnemohypostasisCreation6308),
     )]);
-    assert!(gs
-        .get_player(PlayerId::PlayerFirst)
-        .has_team_status(StatusId::CatalyzingField));
+    assert!(gs.has_team_status(PlayerId::PlayerFirst, StatusId::CatalyzingField));
     {
         let player = gs.get_player(PlayerId::PlayerSecond);
         assert_eq!(elem_set![], player.char_states[0].applied);
@@ -176,7 +172,7 @@ fn swirl_triggers_secondary_reactions_burning() {
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::AstableAnemohypostasisCreation6308),
     )]);
-    assert!(gs.get_player(PlayerId::PlayerFirst).has_summon(SummonId::BurningFlame));
+    assert!(gs.has_summon(PlayerId::PlayerFirst, SummonId::BurningFlame));
     {
         let player = gs.get_player(PlayerId::PlayerSecond);
         assert_eq!(elem_set![], player.char_states[0].applied);

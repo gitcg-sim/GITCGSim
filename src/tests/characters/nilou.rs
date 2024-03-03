@@ -18,9 +18,7 @@ fn golden_chalices_bounty_generates_bountiful_core_when_meeting_requirements() {
         ),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
     ]);
-    assert!(gs
-        .get_player(PlayerId::PlayerFirst)
-        .has_team_status(StatusId::GoldenChalicesBounty));
+    assert!(gs.has_team_status(PlayerId::PlayerFirst, StatusId::GoldenChalicesBounty));
 }
 
 #[test]
@@ -38,9 +36,7 @@ fn when_team_has_non_dendro_or_hydro_chars_golden_chalices_bounty_does_not_gener
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::DanceOfHaftkarsvar),
     )]);
-    assert!(!gs
-        .get_player(PlayerId::PlayerFirst)
-        .has_team_status(StatusId::GoldenChalicesBounty));
+    assert!(!gs.has_team_status(PlayerId::PlayerFirst, StatusId::GoldenChalicesBounty));
 }
 
 fn gs_bountiful_core() -> GameState {
@@ -68,7 +64,7 @@ fn gs_bountiful_core() -> GameState {
 #[test]
 fn golden_chalices_bounty_generates_bountiful_cores() {
     let gs = gs_bountiful_core();
-    assert!(gs.get_player(PlayerId::PlayerFirst).has_summon(SummonId::BountifulCore));
+    assert!(gs.has_summon(PlayerId::PlayerFirst, SummonId::BountifulCore));
 }
 
 #[test]
@@ -80,7 +76,7 @@ fn bountiful_cores_deals_dmg_end_phase() {
         Input::NoAction,
     ]);
     assert_eq!(3, gs.get_player(PlayerId::PlayerSecond).get_active_character().get_hp());
-    assert!(!gs.get_player(PlayerId::PlayerFirst).has_summon(SummonId::BountifulCore));
+    assert!(!gs.has_summon(PlayerId::PlayerFirst, SummonId::BountifulCore));
 }
 
 #[test]
@@ -207,9 +203,7 @@ fn lingering_aeon_receives_dmg_end_phase() {
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::SwitchCharacter(1)),
     ]);
-    assert!(gs
-        .get_player(PlayerId::PlayerSecond)
-        .has_character_status(0, StatusId::LingeringAeon));
+    assert!(gs.has_character_status(PlayerId::PlayerSecond, 0, StatusId::LingeringAeon));
     {
         let ganyu = gs.get_player(PlayerId::PlayerSecond).get_active_character();
         assert_eq!(8, ganyu.get_hp());
@@ -220,9 +214,7 @@ fn lingering_aeon_receives_dmg_end_phase() {
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::EndRound),
         Input::NoAction,
     ]);
-    assert!(!gs
-        .get_player(PlayerId::PlayerSecond)
-        .has_character_status(0, StatusId::LingeringAeon));
+    assert!(!gs.has_character_status(PlayerId::PlayerSecond, 0, StatusId::LingeringAeon));
     {
         let ganyu = gs.get_player(PlayerId::PlayerSecond).get_active_character();
         assert_eq!(5, ganyu.get_hp());

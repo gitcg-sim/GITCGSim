@@ -26,9 +26,7 @@ fn breastplate_shield_points() {
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::Breastplate),
     )]);
-    assert!(gs
-        .get_player(PlayerId::PlayerFirst)
-        .has_team_status(StatusId::FullPlate));
+    assert!(gs.has_team_status(PlayerId::PlayerFirst, StatusId::FullPlate));
 
     gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerSecond,
@@ -38,9 +36,7 @@ fn breastplate_shield_points() {
         let noelle = gs.get_player(PlayerId::PlayerFirst).get_active_character();
         assert_eq!(8, noelle.get_hp());
     }
-    assert!(!gs
-        .get_player(PlayerId::PlayerFirst)
-        .has_team_status(StatusId::FullPlate));
+    assert!(!gs.has_team_status(PlayerId::PlayerFirst, StatusId::FullPlate));
 }
 
 #[test]
@@ -71,9 +67,7 @@ fn talent_card_heals_all() {
         ),
     ]);
 
-    assert!(gs
-        .get_player(PlayerId::PlayerFirst)
-        .has_team_status(StatusId::FullPlate));
+    assert!(gs.has_team_status(PlayerId::PlayerFirst, StatusId::FullPlate));
 
     for c in gs.players.0.char_states.iter_valid() {
         assert_eq!(6, c.get_hp())

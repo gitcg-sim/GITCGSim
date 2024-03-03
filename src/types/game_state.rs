@@ -37,8 +37,6 @@ pub use super::status_collection::*;
     serde(into = "crate::builder::GameStateBuilder")
 )]
 pub struct GameState {
-    /// When game state is suspended while executing commands
-    pub(crate) pending_cmds: Option<Box<PendingCommands>>,
     pub(crate) round_number: u8,
     pub(crate) phase: Phase,
     /// 0 (PlayerFirst) goes first at turn 1
@@ -54,6 +52,9 @@ pub struct GameState {
     pub ignore_costs: bool,
 
     // Non-copyable fields below
+    /// When game state is suspended while executing commands
+    pub(crate) pending_cmds: Option<Box<PendingCommands>>,
+
     pub(crate) status_collections: ByPlayer<StatusCollection>,
 
     // TODO use a Box<dyn> event log handler instead

@@ -265,17 +265,3 @@ impl crate::types::by_player::ByPlayer<StatusCollection> {
         r
     }
 }
-
-impl StatusCollection {
-    #[deprecated(note = "Use ByPlayer<StatusCollection> method instead")]
-    pub fn update_hashed<F: FnOnce(&mut StatusCollection) -> R, R>(
-        &mut self,
-        (h, player_id): PlayerHashContext,
-        f: F,
-    ) -> R {
-        self.zobrist_hash(h, player_id);
-        let r = f(self);
-        self.zobrist_hash(h, player_id);
-        r
-    }
-}

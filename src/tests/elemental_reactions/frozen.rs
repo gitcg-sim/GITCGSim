@@ -71,7 +71,7 @@ fn frozen_broken_by_pyro() {
     ]);
     // Reset health to prevent death
     gs.players.1.char_states[0].set_hp(10);
-    assert!(gs.players.1.has_active_character_status(StatusId::Frozen));
+    assert!(gs.has_active_character_status(PlayerId::PlayerSecond, StatusId::Frozen));
     gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::SwitchCharacter(2)),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::NiwabiFireDance)),
@@ -157,10 +157,10 @@ fn frozen_unapplied_end_of_turn() {
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::EndRound),
     ]);
     assert!(matches![gs.phase, Phase::EndPhase { .. }]);
-    assert!(gs.players.1.has_active_character_status(StatusId::Frozen));
+    assert!(gs.has_active_character_status(PlayerId::PlayerSecond, StatusId::Frozen));
     gs.advance_multiple([Input::NoAction]);
     assert_eq!(2, gs.round_number);
-    assert!(!gs.players.1.has_active_character_status(StatusId::Frozen));
+    assert!(!gs.has_active_character_status(PlayerId::PlayerSecond, StatusId::Frozen));
 }
 
 #[test]
@@ -192,10 +192,10 @@ fn frozen_unapplied_end_of_turn_non_active_character() {
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
     ]);
     assert!(matches![gs.phase, Phase::EndPhase { .. }]);
-    assert!(gs.players.1.has_character_status(0, StatusId::Frozen));
+    assert!(gs.has_character_status(PlayerId::PlayerSecond, 0, StatusId::Frozen));
     gs.advance_multiple([Input::NoAction]);
     assert_eq!(2, gs.round_number);
-    assert!(!gs.players.1.has_character_status(0, StatusId::Frozen));
+    assert!(!gs.has_character_status(PlayerId::PlayerSecond, 0, StatusId::Frozen));
 }
 
 // TODO test self-freeze not taking DMG

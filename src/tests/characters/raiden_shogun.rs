@@ -60,9 +60,7 @@ fn eye_of_stormy_judgment_increases_burst_dmg() {
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::SweepingTime),
     )]);
-    assert!(gs
-        .get_player(PlayerId::PlayerFirst)
-        .has_summon(SummonId::EyeOfStormyJudgment));
+    assert!(gs.has_summon(PlayerId::PlayerFirst, SummonId::EyeOfStormyJudgment));
     // Buffed
     assert_eq!(4, gs.get_player(PlayerId::PlayerSecond).char_states[1].get_hp());
 }
@@ -78,9 +76,7 @@ fn chakra_desiderata_buffs_burst() {
     .build();
 
     gs.advance_roll_phase_no_dice();
-    assert!(gs
-        .get_player(PlayerId::PlayerFirst)
-        .has_character_status(2, StatusId::ChakraDesiderata));
+    assert!(gs.has_character_status(PlayerId::PlayerFirst, 2, StatusId::ChakraDesiderata));
     gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::SweepingTime)),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::SwitchCharacter(1)),
@@ -121,9 +117,7 @@ fn chakra_desiderata_under_talent_card_buffs_burst_twice() {
     gs.advance_roll_phase_no_dice();
     gs.get_player_mut(PlayerId::PlayerFirst)
         .add_to_hand_ignore(CardId::WishesUnnumbered);
-    assert!(gs
-        .get_player(PlayerId::PlayerFirst)
-        .has_character_status(2, StatusId::ChakraDesiderata));
+    assert!(gs.has_character_status(PlayerId::PlayerFirst, 2, StatusId::ChakraDesiderata));
     gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::SweepingTime)),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::SwitchCharacter(1)),
@@ -153,9 +147,7 @@ fn chakra_desiderata_counter_not_increased() {
         .build();
 
     gs.advance_roll_phase_no_dice();
-    assert!(gs
-        .get_player(PlayerId::PlayerFirst)
-        .has_character_status(0, StatusId::ChakraDesiderata));
+    assert!(gs.has_character_status(PlayerId::PlayerFirst, 0, StatusId::ChakraDesiderata));
     gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::SecretArtMusouShinsetsu),

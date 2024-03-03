@@ -14,9 +14,7 @@ fn vijnana_phala_mine_charged_attack() {
         ),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
     ]);
-    assert!(gs
-        .get_player(PlayerId::PlayerFirst)
-        .has_active_character_status(StatusId::VijnanaSuffusion));
+    assert!(gs.has_active_character_status(PlayerId::PlayerFirst, StatusId::VijnanaSuffusion));
     {
         let fischl = &mut gs.get_player_mut(PlayerId::PlayerSecond).char_states[0];
         assert_eq!(8, fischl.get_hp());
@@ -37,9 +35,7 @@ fn vijnana_phala_mine_charged_attack() {
         assert_eq!(6, fischl.get_hp());
         assert_eq!(elem_set![Element::Dendro], fischl.applied);
     }
-    assert!(gs
-        .get_player(PlayerId::PlayerFirst)
-        .has_summon(SummonId::ClusterbloomArrow));
+    assert!(gs.has_summon(PlayerId::PlayerFirst, SummonId::ClusterbloomArrow));
 }
 
 #[test]
@@ -60,9 +56,7 @@ fn vijnana_phala_mine_non_charged_attack() {
         ),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
     ]);
-    assert!(gs
-        .get_player(PlayerId::PlayerFirst)
-        .has_active_character_status(StatusId::VijnanaSuffusion));
+    assert!(gs.has_active_character_status(PlayerId::PlayerFirst, StatusId::VijnanaSuffusion));
     {
         let fischl = &mut gs.get_player_mut(PlayerId::PlayerSecond).char_states[0];
         assert_eq!(8, fischl.get_hp());
@@ -83,9 +77,7 @@ fn vijnana_phala_mine_non_charged_attack() {
         assert_eq!(6, fischl.get_hp());
         assert_eq!(elem_set![], fischl.applied);
     }
-    assert!(!gs
-        .get_player(PlayerId::PlayerFirst)
-        .has_summon(SummonId::ClusterbloomArrow));
+    assert!(!gs.has_summon(PlayerId::PlayerFirst, SummonId::ClusterbloomArrow));
 }
 
 #[test]
@@ -111,9 +103,7 @@ fn talent_card_charged_attack() {
         ),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
     ]);
-    assert!(gs
-        .get_player(PlayerId::PlayerFirst)
-        .has_active_character_status(StatusId::VijnanaSuffusion));
+    assert!(gs.has_active_character_status(PlayerId::PlayerFirst, StatusId::VijnanaSuffusion));
     assert!(gs
         .get_player(PlayerId::PlayerFirst)
         .flags
@@ -128,7 +118,5 @@ fn talent_card_charged_attack() {
         assert_eq!(6, fischl.get_hp());
         assert_eq!(elem_set![Element::Dendro], fischl.applied);
     }
-    assert!(gs
-        .get_player(PlayerId::PlayerFirst)
-        .has_summon(SummonId::ClusterbloomArrow));
+    assert!(gs.has_summon(PlayerId::PlayerFirst, SummonId::ClusterbloomArrow));
 }

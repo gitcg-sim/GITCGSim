@@ -161,7 +161,7 @@ fn trigger_effects_after_post_death_switch() {
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::BoltsOfDownfall)),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::PostDeathSwitch(1)),
     ]);
-    assert!(gs.players.1.has_team_status(StatusId::Icicle));
+    assert!(gs.has_team_status(PlayerId::PlayerSecond, StatusId::Icicle));
     assert_eq!(7, gs.players.0.char_states[0].get_hp());
 }
 

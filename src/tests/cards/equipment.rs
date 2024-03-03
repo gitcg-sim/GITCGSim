@@ -99,6 +99,7 @@ fn artifact_3_dice_guarantee() {
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
     ]);
 
+    let sc = &gs.status_collections.0;
     assert_eq!(2, gs.players.0.get_dice_distribution(sc).fixed_count());
     assert_eq!(
         2,

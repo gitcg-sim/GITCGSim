@@ -34,7 +34,7 @@ fn melody_loop_heals_and_applies_hydro_to_active_character() {
         ),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
     ]);
-    assert!(gs.get_player(PlayerId::PlayerFirst).has_summon(SummonId::MelodyLoop));
+    assert!(gs.has_summon(PlayerId::PlayerFirst, SummonId::MelodyLoop));
     assert_eq!(4, gs.get_player(PlayerId::PlayerFirst).char_states[0].get_hp());
     assert_eq!(8, gs.get_player(PlayerId::PlayerFirst).char_states[1].get_hp());
     gs.advance_multiple([Input::NoAction]);

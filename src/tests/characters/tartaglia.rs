@@ -19,9 +19,8 @@ fn foul_legacy_raging_tide_melee_stance_and_riptide_transfer() {
         p2.char_states[1].set_hp(3);
     }
     {
-        let p = gs.get_player(PlayerId::PlayerFirst);
-        assert!(p.has_active_character_status(StatusId::RangedStance));
-        assert!(!p.has_active_character_status(StatusId::MeleeStance));
+        assert!(gs.has_active_character_status(PlayerId::PlayerFirst, StatusId::RangedStance));
+        assert!(!gs.has_active_character_status(PlayerId::PlayerFirst, StatusId::MeleeStance));
     }
     gs.advance_multiple([
         Input::FromPlayer(
@@ -31,9 +30,8 @@ fn foul_legacy_raging_tide_melee_stance_and_riptide_transfer() {
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::SwitchCharacter(1)),
     ]);
     {
-        let p = gs.get_player(PlayerId::PlayerFirst);
-        assert!(!p.has_active_character_status(StatusId::RangedStance));
-        assert!(p.has_active_character_status(StatusId::MeleeStance));
+        assert!(!gs.has_active_character_status(PlayerId::PlayerFirst, StatusId::RangedStance));
+        assert!(gs.has_active_character_status(PlayerId::PlayerFirst, StatusId::MeleeStance));
     }
 
     assert!(gs
@@ -44,16 +42,10 @@ fn foul_legacy_raging_tide_melee_stance_and_riptide_transfer() {
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::CuttingTorrent)),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
     ]);
-    {
-        let p2 = gs.get_player(PlayerId::PlayerSecond);
-        assert!(p2.has_character_status(1, StatusId::Riptide));
-    }
+    assert!(gs.has_character_status(PlayerId::PlayerSecond, 1, StatusId::Riptide));
     gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::CuttingTorrent)),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::PostDeathSwitch(0)),
     ]);
-    {
-        let p2 = gs.get_player(PlayerId::PlayerSecond);
-        assert!(p2.has_character_status(0, StatusId::Riptide));
-    }
+    assert!(gs.has_character_status(PlayerId::PlayerSecond, 0, StatusId::Riptide));
 }

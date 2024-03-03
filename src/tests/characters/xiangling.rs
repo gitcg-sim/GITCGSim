@@ -17,7 +17,7 @@ fn guoba_attack_deals_dmg_at_end_phase() {
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::EndRound),
         Input::NoAction,
     ]);
-    assert!(gs.get_player(PlayerId::PlayerFirst).has_summon(SummonId::Guoba));
+    assert!(gs.has_summon(PlayerId::PlayerFirst, SummonId::Guoba));
     assert_eq!(8, gs.get_player(PlayerId::PlayerSecond).char_states[0].get_hp());
     assert_eq!(
         elem_set![Element::Pyro],
@@ -41,7 +41,7 @@ fn talent_card_deals_pyro_dmg_on_skill_cast() {
         PlayerId::PlayerFirst,
         PlayerAction::PlayCard(CardId::Crossfire, Some(CardSelection::OwnCharacter(0))),
     )]);
-    assert!(gs.get_player(PlayerId::PlayerFirst).has_summon(SummonId::Guoba));
+    assert!(gs.has_summon(PlayerId::PlayerFirst, SummonId::Guoba));
     assert_eq!(9, gs.get_player(PlayerId::PlayerSecond).char_states[0].get_hp());
     assert_eq!(
         elem_set![Element::Pyro],
@@ -63,7 +63,7 @@ fn pyronado_deals_dmg_on_skill_cast() {
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::Pyronado)),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::SwitchCharacter(1)),
     ]);
-    assert!(gs.get_player(PlayerId::PlayerFirst).has_team_status(StatusId::Pyronado));
+    assert!(gs.has_team_status(PlayerId::PlayerFirst, StatusId::Pyronado));
     assert_eq!(8, gs.get_player(PlayerId::PlayerSecond).char_states[0].get_hp());
     assert_eq!(
         elem_set![Element::Pyro],

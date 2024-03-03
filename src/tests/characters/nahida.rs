@@ -19,9 +19,8 @@ fn seed_of_skandha_receive_pd() {
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
     ]);
     {
-        let p = gs.get_player(PlayerId::PlayerSecond);
         for i in 0..=3 {
-            assert!(p.has_character_status(i, StatusId::SeedOfSkandha));
+            assert!(gs.has_character_status(PlayerId::PlayerSecond, i, StatusId::SeedOfSkandha));
         }
     }
     // Artificially remove last status
@@ -62,8 +61,7 @@ fn shrine_of_maya_increases_outgoing_reaction_dmg() {
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::IllusoryHeart)),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
     ]);
-    gs.get_player(PlayerId::PlayerFirst)
-        .has_team_status(StatusId::ShrineOfMaya);
+    gs.has_team_status(PlayerId::PlayerFirst, StatusId::ShrineOfMaya);
     assert_eq!(6, gs.get_player(PlayerId::PlayerSecond).char_states[0].get_hp());
     assert_eq!(
         elem_set![Element::Dendro],

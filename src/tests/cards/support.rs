@@ -116,12 +116,10 @@ fn jade_chamber_guarantees_dice_with_active_character_elem() {
         .get_status_collection(PlayerId::PlayerFirst)
         .find_support(SupportSlot::Slot0)
         .is_some());
-    assert_eq!(2, gs.players.0.get_dice_distribution().fixed_count());
+    assert_eq!(2, gs.get_dice_distribution(PlayerId::PlayerFirst).fixed_count());
     assert_eq!(
         2,
-        gs.players
-            .0
-            .get_dice_distribution()
+        gs.get_dice_distribution(PlayerId::PlayerFirst)
             .fixed_count_for_elem(Element::Electro)
     );
 
@@ -129,10 +127,11 @@ fn jade_chamber_guarantees_dice_with_active_character_elem() {
         PlayerId::PlayerFirst,
         PlayerAction::SwitchCharacter(1),
     )]);
-    assert_eq!(2, gs.players.0.get_dice_distribution().fixed_count());
+    assert_eq!(2, gs.get_dice_distribution(PlayerId::PlayerFirst).fixed_count());
     assert_eq!(
         2,
-        gs.players.0.get_dice_distribution().fixed_count_for_elem(Element::Cryo)
+        gs.get_dice_distribution(PlayerId::PlayerFirst)
+            .fixed_count_for_elem(Element::Cryo)
     );
 }
 
@@ -154,7 +153,7 @@ fn knights_of_favonius_library_updates_reroll_counts() {
         .get_status_collection(PlayerId::PlayerFirst)
         .find_support(SupportSlot::Slot0)
         .is_some());
-    assert_eq!(2, gs.players.0.get_dice_distribution().rerolls);
+    assert_eq!(2, gs.get_dice_distribution(PlayerId::PlayerFirst).rerolls);
 }
 
 #[test]

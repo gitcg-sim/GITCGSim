@@ -68,9 +68,7 @@ fn large_wind_spirit_deals_anemo_dmg_without_infusion() {
         PlayerAction::CastSkill(SkillId::ForbiddenCreationIsomer75TypeII),
     )]);
     assert_eq!(9, gs.get_player(PlayerId::PlayerSecond).char_states[0].get_hp());
-    assert!(gs
-        .get_player(PlayerId::PlayerFirst)
-        .has_summon(SummonId::LargeWindSpirit));
+    assert!(gs.has_summon(PlayerId::PlayerFirst, SummonId::LargeWindSpirit));
     {
         let summon_state = gs
             .get_status_collection_mut(PlayerId::PlayerFirst)
@@ -106,9 +104,7 @@ fn large_wind_spirit_deals_infuses_after_swirling() {
         PlayerAction::CastSkill(SkillId::ForbiddenCreationIsomer75TypeII),
     )]);
     assert_eq!(9, gs.get_player(PlayerId::PlayerSecond).char_states[0].get_hp());
-    assert!(gs
-        .get_player(PlayerId::PlayerFirst)
-        .has_summon(SummonId::LargeWindSpirit));
+    assert!(gs.has_summon(PlayerId::PlayerFirst, SummonId::LargeWindSpirit));
     gs.get_player_mut(PlayerId::PlayerSecond)
         .try_get_character_mut(0)
         .unwrap()
@@ -177,9 +173,7 @@ fn large_wind_spirit_infused_dmg_after_own_character_swirling() {
         PlayerAction::CastSkill(SkillId::ForbiddenCreationIsomer75TypeII),
     )]);
     assert_eq!(9, gs.get_player(PlayerId::PlayerSecond).char_states[0].get_hp());
-    assert!(gs
-        .get_player(PlayerId::PlayerFirst)
-        .has_summon(SummonId::LargeWindSpirit));
+    assert!(gs.has_summon(PlayerId::PlayerFirst, SummonId::LargeWindSpirit));
     gs.get_player_mut(PlayerId::PlayerSecond)
         .try_get_character_mut(0)
         .unwrap()
@@ -237,12 +231,8 @@ fn large_wind_spirit_does_not_infuse_after_opponent_summon_swirling() {
             PlayerAction::CastSkill(SkillId::ForbiddenCreationIsomer75TypeII),
         ),
     ]);
-    assert!(gs
-        .get_player(PlayerId::PlayerFirst)
-        .has_summon(SummonId::LargeWindSpirit));
-    assert!(gs
-        .get_player(PlayerId::PlayerSecond)
-        .has_summon(SummonId::LargeWindSpirit));
+    assert!(gs.has_summon(PlayerId::PlayerFirst, SummonId::LargeWindSpirit));
+    assert!(gs.has_summon(PlayerId::PlayerSecond, SummonId::LargeWindSpirit));
     gs.get_player_mut(PlayerId::PlayerFirst)
         .try_get_character_mut(0)
         .unwrap()
@@ -286,9 +276,7 @@ fn large_wind_spirit_does_not_infuse_after_opponent_skill_swirling() {
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::ForbiddenCreationIsomer75TypeII),
     )]);
-    assert!(gs
-        .get_player(PlayerId::PlayerFirst)
-        .has_summon(SummonId::LargeWindSpirit));
+    assert!(gs.has_summon(PlayerId::PlayerFirst, SummonId::LargeWindSpirit));
     gs.get_player_mut(PlayerId::PlayerFirst)
         .try_get_character_mut(0)
         .unwrap()
