@@ -45,22 +45,21 @@ impl SkillImpl for KyougenFiveCeremonialPlaysImpl {
     fn get_commands(
         &self,
         src_player: &PlayerState,
+        status_collection: &StatusCollection,
         ctx: &CommandContext,
         cmds: &mut CommandList<(CommandContext, Command)>,
     ) {
         let char_idx = src_player.active_char_idx;
-        if src_player
-            .status_collection
-            .has_character_status(char_idx, StatusId::Windfavored)
-        {
-            cmds.push((*ctx, Command::DealDMG(deal_elem_dmg(Element::Anemo, 8, 0))));
-            cmds.push((
-                *ctx,
-                Command::DeleteStatus(StatusKey::Character(char_idx, StatusId::Windfavored)),
-            ));
-        } else {
+        if !status_collection.has_character_status(char_idx, StatusId::Windfavored) {
             cmds.push((*ctx, Command::DealDMG(deal_elem_dmg(Element::Anemo, 7, 0))));
+            return;
         }
+
+        cmds.push((*ctx, Command::DealDMG(deal_elem_dmg(Element::Anemo, 8, 0))));
+        cmds.push((
+            *ctx,
+            Command::DeleteStatus(StatusKey::Character(char_idx, StatusId::Windfavored)),
+        ));
     }
 }
 

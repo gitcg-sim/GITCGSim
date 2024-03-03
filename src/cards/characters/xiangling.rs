@@ -27,6 +27,7 @@ impl SkillImpl for GuobaAttack {
     fn get_commands(
         &self,
         src_player: &PlayerState,
+        _: &StatusCollection,
         ctx: &CommandContext,
         cmds: &mut crate::data_structures::CommandList<(CommandContext, Command)>,
     ) {

@@ -9,7 +9,7 @@ use crate::{
 use super::{
     card_impl::CardImpl,
     command::{Command, CommandContext},
-    game_state::PlayerState,
+    game_state::{PlayerState, StatusCollection},
     tcg_model::*,
 };
 
@@ -221,6 +221,7 @@ pub trait SkillImpl {
     fn get_commands(
         &self,
         src_player: &PlayerState,
+        status_collection: &StatusCollection,
         ctx: &CommandContext,
         cmds: &mut CommandList<(CommandContext, Command)>,
     ) {

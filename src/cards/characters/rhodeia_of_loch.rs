@@ -67,11 +67,12 @@ pub struct TideAndTorrent();
 impl SkillImpl for TideAndTorrent {
     fn get_commands(
         &self,
-        src_player: &PlayerState,
+        _: &PlayerState,
+        status_collection: &StatusCollection,
         ctx: &CommandContext,
         cmds: &mut CommandList<(CommandContext, Command)>,
     ) {
-        let summon_count = src_player.status_collection.summon_count() as u8;
+        let summon_count = status_collection.summon_count() as u8;
         let dmg = 2 + summon_count;
         cmds.push((*ctx, Command::DealDMG(DealDMG::new(DealDMGType::HYDRO, dmg, 0))));
     }

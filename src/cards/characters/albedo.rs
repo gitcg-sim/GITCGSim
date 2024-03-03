@@ -47,11 +47,12 @@ pub struct RiteOfProgenitureTectonicTide();
 impl SkillImpl for RiteOfProgenitureTectonicTide {
     fn get_commands(
         &self,
-        src_player: &PlayerState,
+        _: &PlayerState,
+        status_collection: &StatusCollection,
         ctx: &CommandContext,
         cmds: &mut CommandList<(CommandContext, Command)>,
     ) {
-        let dmg = if src_player.status_collection.has_summon(SummonId::SolarIsotoma) {
+        let dmg = if status_collection.has_summon(SummonId::SolarIsotoma) {
             6
         } else {
             4

@@ -35,20 +35,20 @@ struct IcetideVortex();
 impl SkillImpl for IcetideVortex {
     fn get_commands(
         &self,
-        src_player: &PlayerState,
+        _: &PlayerState,
+        status_collection: &StatusCollection,
         ctx: &CommandContext,
         cmds: &mut CommandList<(CommandContext, Command)>,
     ) {
         let Some(char_idx) = ctx.src.char_idx() else { return };
-        if !src_player
-            .status_collection
-            .has_character_status(char_idx, StatusId::Grimheart)
-        {
-            cmds.push((
-                *ctx,
-                Command::ApplyCharacterStatus(StatusId::Grimheart, CmdCharIdx::Active),
-            ))
+        if status_collection.has_character_status(char_idx, StatusId::Grimheart) {
+            return;
         }
+
+        cmds.push((
+            *ctx,
+            Command::ApplyCharacterStatus(StatusId::Grimheart, CmdCharIdx::Active),
+        ))
     }
 }
 

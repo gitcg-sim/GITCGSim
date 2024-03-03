@@ -56,6 +56,7 @@ impl SkillImpl for FoulLegacyRagingTide {
     fn get_commands(
         &self,
         src_player: &PlayerState,
+        _: &StatusCollection,
         ctx: &CommandContext,
         cmds: &mut CommandList<(CommandContext, Command)>,
     ) {
@@ -79,6 +80,7 @@ impl SkillImpl for HavocObliteration {
     fn get_commands(
         &self,
         src_player: &PlayerState,
+        _: &StatusCollection,
         ctx: &CommandContext,
         cmds: &mut CommandList<(CommandContext, Command)>,
     ) {

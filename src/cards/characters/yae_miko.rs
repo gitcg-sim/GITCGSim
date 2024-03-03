@@ -44,11 +44,12 @@ pub struct GreatSecretArtTenkoKenshin();
 impl SkillImpl for GreatSecretArtTenkoKenshin {
     fn get_commands(
         &self,
-        src_player: &PlayerState,
+        _: &PlayerState,
+        status_collection: &StatusCollection,
         ctx: &CommandContext,
         cmds: &mut CommandList<(CommandContext, Command)>,
     ) {
-        if !src_player.status_collection.has_summon(SummonId::SesshouSakura) {
+        if !status_collection.has_summon(SummonId::SesshouSakura) {
             return;
         }
         cmds.push((*ctx, Command::DeleteStatus(StatusKey::Summon(SummonId::SesshouSakura))));

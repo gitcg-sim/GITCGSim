@@ -15,7 +15,7 @@ use crate::types::card_impl::*;
 use crate::types::char_state::{AppliedEffectResult, AppliedEffectState};
 use crate::types::command::*;
 use crate::types::dice_counter::DiceDistribution;
-use crate::types::game_state::{CardSelectionSpec, PlayerState};
+use crate::types::game_state::{CardSelectionSpec, PlayerState, StatusCollection};
 use crate::types::status_impl::{RespondsTo, StatusImpl};
 use crate::types::StatusSpecModifier;
 use char_reexports::*;
@@ -122,12 +122,13 @@ impl SkillImpl for SkillId {
     fn get_commands(
         &self,
         src_player: &PlayerState,
+        status_collection: &StatusCollection,
         ctx: &CommandContext,
         cmds: &mut CommandList<(CommandContext, Command)>,
     ) {
         match self.get_skill().skill_impl {
             None => {}
-            Some(si) => si.get_commands(src_player, ctx, cmds),
+            Some(si) => si.get_commands(src_player, status_collection, ctx, cmds),
         }
     }
 }

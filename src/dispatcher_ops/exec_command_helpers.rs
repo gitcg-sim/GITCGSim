@@ -416,7 +416,7 @@ pub fn get_cast_skill_cmds(
     let mut gains_energy = !skill.no_energy;
     update_gains_energy(src_player, ctx, &mut gains_energy);
     if let Some(si) = skill.skill_impl {
-        si.get_commands(src_player, ctx, &mut cmds);
+        si.get_commands(src_player, &src_player.status_collection, ctx, &mut cmds);
     }
 
     if gains_energy && skill.skill_type != SkillType::ElementalBurst {
