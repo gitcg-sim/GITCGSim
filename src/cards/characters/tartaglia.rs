@@ -43,14 +43,6 @@ pub const SKILLS: [(SkillId, Skill); 3] = [
     (SkillId::HavocObliteration, HAVOC_OBLITERATION),
 ];
 
-impl PlayerState {
-    #[inline]
-    fn is_melee_stance(&self) -> bool {
-        self.status_collection
-            .has_character_status(self.active_char_idx, StatusId::MeleeStance)
-    }
-}
-
 struct FoulLegacyRagingTide();
 impl SkillImpl for FoulLegacyRagingTide {
     fn get_commands(

@@ -72,7 +72,7 @@ pub mod stormzone {
 pub mod stormeye {
     use super::*;
 
-    use crate::dispatcher_ops::exec_command_helpers::RelativeCharIdx;
+    use crate::dispatcher_ops::RelativeCharIdx;
 
     pub const S: Status = Status::new_usages("Stormeye", StatusAttachMode::Summon, 2, None);
 

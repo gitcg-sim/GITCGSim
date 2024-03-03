@@ -10,7 +10,7 @@ use crate::{
     zobrist_hash::ZobristHasher,
 };
 
-pub(crate) mod state_ops;
+mod state_ops;
 
 pub mod transpose;
 
@@ -22,8 +22,11 @@ mod nondet;
 
 mod suspension;
 
-pub(crate) mod exec_command;
+mod relative_char_idx;
+pub(crate) use relative_char_idx::{CharIdxSet, RelativeCharIdx};
 
-pub(crate) mod exec_command_helpers;
+mod exec_command;
+
+mod exec_command_helpers;
 
 pub use types::*;

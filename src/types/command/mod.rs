@@ -8,7 +8,7 @@ use super::{
 };
 use crate::cards::ids::*;
 use crate::data_structures::{CommandList, ConstDefault, List8};
-pub use crate::dispatcher_ops::exec_command_helpers::RelativeCharIdx;
+pub(crate) use crate::dispatcher_ops::RelativeCharIdx;
 use enumset::{EnumSet, EnumSetType};
 
 mod command_context;

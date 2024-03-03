@@ -51,3 +51,15 @@ pub enum DispatchError {
     #[cfg_attr(feature = "std", error("invalid selecction target"))]
     InvalidSelection,
 }
+
+#[derive(Debug)]
+pub enum ExecResult {
+    Success,
+    /// Suspend execution of commands and hand control back to the dispatcher.
+    /// Then the dispatcher will return `suspended_state.get_dispatch_result()`
+    Suspend(SuspendedState, Option<CommandList<(CommandContext, Command)>>),
+    /// Stop executing commands and the dispatcher will return the specified result.
+    Return(DispatchResult),
+    /// Run additional commands before running the next command.
+    AdditionalCmds(CommandList<(CommandContext, Command)>),
+}
