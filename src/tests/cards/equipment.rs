@@ -8,7 +8,7 @@ fn game_state_for_artifacts(card_id: CardId) -> GameState {
     .enable_log(true)
     .build();
     gs.advance_roll_phase_no_dice();
-    gs.players.0.dice.add_in_place(&DiceCounter::omni(8));
+    gs.players.0.dice.add_single(Dice::Omni, 8);
     gs.players.0.add_to_hand_ignore(card_id);
     gs.players.0.add_to_hand_ignore(card_id);
     gs
@@ -43,7 +43,7 @@ fn artifact_2_reduces_talent_cost_once_per_round() {
     ]);
     // Next round
     gs.advance_roll_phase_no_dice();
-    gs.players.0.dice.add_in_place(&DiceCounter::omni(8));
+    gs.players.0.dice.add_single(Dice::Omni, 8);
     assert_eq!(9, gs.players.0.dice.total());
     gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),

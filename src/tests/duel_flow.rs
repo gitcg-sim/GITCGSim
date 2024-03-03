@@ -239,8 +239,8 @@ fn play_card() {
     .build();
     gs.advance_roll_phase_no_dice();
     gs.players.0.hand = [CardId::BlankCard, CardId::Starsigns, CardId::TheBestestTravelCompanion].into();
-    gs.players.0.dice[Dice::PYRO] = 1;
-    gs.players.0.dice[Dice::DENDRO] = 1;
+    gs.players.0.dice.set_single(Dice::PYRO, 1);
+    gs.players.0.dice.set_single(Dice::DENDRO, 1);
     assert_eq!(0, gs.players.0.dice[Dice::Omni]);
     gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
@@ -261,7 +261,7 @@ fn elemental_tuning() {
     let mut gs =
         GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Yoimiya], vector![CharId::Fischl]).build();
     gs.advance_roll_phase_no_dice();
-    gs.players.0.dice[Dice::DENDRO] = 1;
+    gs.players.0.dice.set_single(Dice::DENDRO, 1);
     gs.players.0.hand = [
         CardId::BlankCard,
         CardId::Starsigns,
@@ -466,7 +466,7 @@ fn hand_size_limit() {
     let mut hand = [CardId::BlankCard; PlayerState::HAND_SIZE_LIMIT];
     hand[0] = CardId::Strategize;
     gs.players.0.hand = hand.into();
-    gs.players.0.dice[Dice::Omni] = 1;
+    gs.players.0.dice.set_single(Dice::Omni, 1);
     assert_eq!(PlayerState::HAND_SIZE_LIMIT, gs.players.0.hand_len() as usize);
     gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::PlayCard(CardId::Strategize, None)),
@@ -483,8 +483,8 @@ fn auto_cost_payment_for_switching_based_on_switch_target() {
         GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Yoimiya, CharId::Ganyu], vector![CharId::Fischl])
             .build();
     gs.advance_roll_phase_no_dice();
-    gs.players.0.dice[Dice::PYRO] = 1;
-    gs.players.0.dice[Dice::CRYO] = 1;
+    gs.players.0.dice.set_single(Dice::PYRO, 1);
+    gs.players.0.dice.set_single(Dice::CRYO, 1);
     gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::SwitchCharacter(1),

@@ -7,7 +7,7 @@ fn charged_attack_affected_by_explosive_spark() {
         .build();
 
     gs.advance_roll_phase_no_dice();
-    gs.players.0.dice.add_in_place(&DiceCounter::omni(9));
+    gs.players.0.dice.add_single(Dice::Omni, 9);
     gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::JumpyDumpty)),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
@@ -31,7 +31,7 @@ fn normal_attack_not_affected_by_explosive_spark() {
         .build();
 
     gs.advance_roll_phase_no_dice();
-    gs.players.0.dice.add_in_place(&DiceCounter::omni(8));
+    gs.players.0.dice.add_single(Dice::Omni, 8);
     gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::JumpyDumpty)),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
@@ -62,7 +62,7 @@ fn talent_card_increases_explosive_spark_usages() {
 
     gs.advance_roll_phase_no_dice();
     gs.players.0.add_to_hand_ignore(CardId::PoundingSurprise);
-    gs.players.0.dice.add_in_place(&DiceCounter::omni(8));
+    gs.players.0.dice.add_single(Dice::Omni, 8);
     gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::PlayCard(CardId::PoundingSurprise, Some(CardSelection::OwnCharacter(0))),

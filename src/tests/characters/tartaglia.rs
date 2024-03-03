@@ -10,12 +10,10 @@ fn foul_legacy_raging_tide_melee_stance_and_riptide_transfer() {
     .build();
 
     gs.advance_roll_phase_no_dice();
-    gs.get_player_mut(PlayerId::PlayerFirst)
-        .dice
-        .add_in_place(&DiceCounter::omni(9));
+    gs.get_player_mut(PlayerId::PlayerFirst).dice.add_single(Dice::Omni, 9);
     {
         let p2 = gs.get_player_mut(PlayerId::PlayerSecond);
-        p2.dice.add_in_place(&DiceCounter::omni(1));
+        p2.dice.add_single(Dice::Omni, 1);
         p2.char_states[1].set_hp(3);
     }
     {

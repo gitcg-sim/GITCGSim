@@ -134,8 +134,8 @@ impl PlayerState {
             while dice[Dice::Elem(elem)] > 0 && !self.hand.is_empty() {
                 // TODO pick CardId::BlankCard only
                 self.remove_card_from_hand_by_index((h, player_id), 0);
-                dice[Dice::Elem(elem)] -= 1;
-                dice[Dice::Omni] += 1;
+                dice.sub_single(Dice::Elem(elem), 1);
+                dice.add_single(Dice::Omni, 1);
             }
 
             if self.hand.is_empty() {
@@ -150,8 +150,8 @@ impl PlayerState {
             }
 
             // 1 additional ET for free
-            dice[Dice::Elem(elem)] -= 1;
-            dice[Dice::Omni] += 1;
+            dice.sub_single(Dice::Elem(elem), 1);
+            dice.add_single(Dice::Omni, 1);
             break;
         }
         self.set_dice((h, player_id), &dice);

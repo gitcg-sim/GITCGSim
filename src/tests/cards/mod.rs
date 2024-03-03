@@ -63,7 +63,7 @@ fn leave_it_to_me() {
     .build();
 
     gs.advance_roll_phase_no_dice();
-    gs.players.0.dice[Dice::Omni] += 2;
+    gs.players.0.dice.add_single(Dice::Omni, 2);
     gs.players.0.add_to_hand_ignore(CardId::LeaveItToMe);
     gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::PlayCard(CardId::LeaveItToMe, None)),
@@ -146,8 +146,8 @@ fn i_havent_lost_yet_activation_condition() {
         GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Kaeya, CharId::Fischl], vector![CharId::Yoimiya])
             .build();
 
-    gs.players.0.dice.add_in_place(&DiceCounter::omni(8));
-    gs.players.1.dice.add_in_place(&DiceCounter::omni(8));
+    gs.players.0.dice.add_single(Dice::Omni, 8);
+    gs.players.1.dice.add_single(Dice::Omni, 8);
     gs.players.0.add_to_hand_ignore(CardId::IHaventLostYet);
     gs.players.0.try_get_character_mut(1).unwrap().set_hp(1);
     gs.advance_roll_phase_no_dice();
@@ -188,8 +188,8 @@ fn i_havent_lost_yet_activation_condition() {
 fn strategize() {
     let mut gs = GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Kaeya], vector![CharId::Yoimiya]).build();
 
-    gs.players.0.dice.add_in_place(&DiceCounter::omni(8));
-    gs.players.1.dice.add_in_place(&DiceCounter::omni(8));
+    gs.players.0.dice.add_single(Dice::Omni, 8);
+    gs.players.1.dice.add_single(Dice::Omni, 8);
     gs.players.0.add_to_hand_ignore(CardId::IHaventLostYet);
     gs.players.0.add_to_hand_ignore(CardId::Strategize);
     gs.advance_roll_phase_no_dice();

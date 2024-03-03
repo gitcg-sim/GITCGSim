@@ -79,7 +79,7 @@ impl PlayerState {
     #[inline]
     pub fn add_dice(&mut self, (h, player_id): PlayerHashContext, dice: &DiceCounter) {
         Self::dice_hash(h, player_id, &self.dice);
-        self.dice.add_in_place(dice);
+        self.dice.add_dice(dice);
         Self::dice_hash(h, player_id, &self.dice);
         self.check_for_charged_attack((h, player_id));
     }
@@ -87,7 +87,7 @@ impl PlayerState {
     #[inline]
     pub fn subtract_dice(&mut self, (h, player_id): PlayerHashContext, dice: &DiceCounter) {
         Self::dice_hash(h, player_id, &self.dice);
-        self.dice.subtract_in_place(dice);
+        self.dice.subtract_dice(dice);
         Self::dice_hash(h, player_id, &self.dice);
         self.check_for_charged_attack((h, player_id));
     }

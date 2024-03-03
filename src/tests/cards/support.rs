@@ -37,7 +37,7 @@ fn paimon_adds_omni_dice() {
         .enable_log(true)
         .build();
 
-    gs.players.0.dice.add_in_place(&DiceCounter::omni(3));
+    gs.players.0.dice.add_single(Dice::Omni, 3);
     gs.advance_roll_phase_no_dice();
     gs.players.0.add_to_hand_ignore(CardId::Paimon);
     gs.advance_multiple([
@@ -76,7 +76,7 @@ fn multiple_paimon_adds_additional_omni_dice() {
         .enable_log(true)
         .build();
 
-    gs.players.0.dice.add_in_place(&DiceCounter::omni(6));
+    gs.players.0.dice.add_single(Dice::Omni, 6);
     gs.advance_roll_phase_no_dice();
     gs.players.0.add_to_hand_ignore(CardId::Paimon);
     gs.players.0.add_to_hand_ignore(CardId::Paimon);
@@ -106,7 +106,7 @@ fn jade_chamber_guarantees_dice_with_active_character_elem() {
             .build();
 
     gs.advance_roll_phase_no_dice();
-    gs.players.0.dice.add_in_place(&DiceCounter::omni(4));
+    gs.players.0.dice.add_single(Dice::Omni, 4);
     gs.players.0.add_to_hand_ignore(CardId::JadeChamber);
     gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
@@ -143,7 +143,7 @@ fn knights_of_favonius_library_updates_reroll_counts() {
             .build();
 
     gs.advance_roll_phase_no_dice();
-    gs.players.0.dice.add_in_place(&DiceCounter::omni(4));
+    gs.players.0.dice.add_single(Dice::Omni, 4);
     gs.players.0.add_to_hand_ignore(CardId::KnightsOfFavoniusLibrary);
     gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
@@ -164,10 +164,7 @@ fn liben() {
             .build();
 
     gs.advance_roll_phase_no_dice();
-    gs.players
-        .0
-        .dice
-        .add_in_place(&DiceCounter::new(&vec![(Dice::Omni, 1), (Dice::CRYO, 2)]));
+    gs.players.0.dice.add_tally([(Dice::Omni, 1), (Dice::CRYO, 2)]);
     gs.players.0.add_to_hand_ignore(CardId::Liben);
     gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::PlayCard(CardId::Liben, None)),

@@ -45,10 +45,7 @@ fn vijnana_phala_mine_non_charged_attack() {
         .ignore_costs(true)
         .build();
     gs.advance_roll_phase_no_dice();
-    gs.players
-        .get_mut(PlayerId::PlayerFirst)
-        .dice
-        .add_in_place(&DiceCounter::omni(1));
+    gs.players.get_mut(PlayerId::PlayerFirst).dice.add_single(Dice::Omni, 1);
     gs.advance_multiple([
         Input::FromPlayer(
             PlayerId::PlayerFirst,
@@ -89,8 +86,7 @@ fn talent_card_charged_attack() {
     gs.advance_roll_phase_no_dice();
     {
         let dice = &mut gs.players.get_mut(PlayerId::PlayerFirst).dice;
-        dice.add_in_place(&DiceCounter::elem(Element::Dendro, 5));
-        dice.add_in_place(&DiceCounter::elem(Element::Pyro, 1));
+        dice.add_tally([(Dice::DENDRO, 5), (Dice::PYRO, 1)]);
     }
     gs.players
         .get_mut(PlayerId::PlayerFirst)

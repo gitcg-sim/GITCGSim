@@ -5,8 +5,8 @@ fn elemental_resonance_sprawling_greenery_does_not_increase_non_reaction_dmg() {
     let mut gs =
         GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Fischl], vector![CharId::Yoimiya]).build();
 
-    gs.players.0.dice.add_in_place(&DiceCounter::omni(8));
-    gs.players.1.dice.add_in_place(&DiceCounter::omni(8));
+    gs.players.0.dice.add_single(Dice::Omni, 8);
+    gs.players.1.dice.add_single(Dice::Omni, 8);
     gs.players
         .0
         .add_to_hand_ignore(CardId::ElementalResonanceSprawlingGreenery);
@@ -33,8 +33,8 @@ fn elemental_resonance_sprawling_greenery_increases_reaction_dmg() {
     let mut gs =
         GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Fischl], vector![CharId::Yoimiya]).build();
 
-    gs.players.0.dice.add_in_place(&DiceCounter::omni(8));
-    gs.players.1.dice.add_in_place(&DiceCounter::omni(8));
+    gs.players.0.dice.add_single(Dice::Omni, 8);
+    gs.players.1.dice.add_single(Dice::Omni, 8);
     gs.players
         .0
         .add_to_hand_ignore(CardId::ElementalResonanceSprawlingGreenery);

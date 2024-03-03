@@ -1,7 +1,4 @@
-use crate::std_subset::{
-    ops::{Index, IndexMut},
-    vec, Vec,
-};
+use crate::std_subset::{ops::Index, vec, Vec};
 
 use smallvec::SmallVec;
 
@@ -120,7 +117,7 @@ impl DiceCounter {
     #[inline]
     pub const fn elem(elem: Element, count: u8) -> DiceCounter {
         let mut c = DiceCounter::EMPTY;
-        c.elem[elem.to_index_const()] += count;
+        c.elem[elem.to_index()] += count;
         c
     }
 
@@ -178,6 +175,14 @@ impl DiceCounter {
     }
 
     #[inline]
+    pub fn set_single(&mut self, dice: Dice, value: u8) {
+        match dice {
+            Dice::Omni => self.omni = value,
+            Dice::Elem(e) => self.elem[e.to_index()] = value,
+        }
+    }
+
+    #[inline]
     pub fn add_single(&mut self, dice: Dice, increase: u8) {
         match dice {
             Dice::Omni => Self::add(&mut self.omni, increase),
@@ -194,7 +199,14 @@ impl DiceCounter {
     }
 
     #[inline]
-    pub fn add_in_place(&mut self, other: &DiceCounter) {
+    pub fn add_tally<T: IntoIterator<Item = (Dice, u8)>>(&mut self, it: T) {
+        for (dice, increase) in it.into_iter() {
+            self.add_single(dice, increase);
+        }
+    }
+
+    #[inline]
+    pub fn add_dice(&mut self, other: &DiceCounter) {
         Self::add(&mut self.omni, other.omni);
         for i in 0..7 {
             Self::add(&mut self.elem[i], other.elem[i]);
@@ -202,7 +214,7 @@ impl DiceCounter {
     }
 
     #[inline]
-    pub fn subtract_in_place(&mut self, other: &DiceCounter) {
+    pub fn subtract_dice(&mut self, other: &DiceCounter) {
         Self::sub(&mut self.omni, other.omni);
         for i in 0..7 {
             Self::sub(&mut self.elem[i], other.elem[i]);
@@ -357,12 +369,12 @@ impl DiceCounter {
             if v == 0 {
                 continue;
             }
-            counter[Dice::Elem(elem)] += 1;
+            counter.add_single(Dice::Elem(elem), 1);
             taken += 1
         }
 
         if taken < count && self[Dice::Omni] > 0 {
-            counter[Dice::Omni] += 1;
+            counter.add_single(Dice::Omni, 1);
             taken += 1
         }
 
@@ -382,16 +394,6 @@ impl Index<Dice> for DiceCounter {
         match index {
             Dice::Omni => &self.omni,
             Dice::Elem(e) => &self.elem[e.to_index()],
-        }
-    }
-}
-
-impl IndexMut<Dice> for DiceCounter {
-    #[inline]
-    fn index_mut(&mut self, index: Dice) -> &mut Self::Output {
-        match index {
-            Dice::Omni => &mut self.omni,
-            Dice::Elem(e) => &mut self.elem[e.to_index()],
         }
     }
 }

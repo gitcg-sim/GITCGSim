@@ -135,12 +135,12 @@ impl DiceCounter {
         let mut dice_counter = DiceCounter::omni(omni_count);
         if omni_count < free {
             if let Some(off_elem) = dist.priority.get_off_element() {
-                dice_counter[Dice::Elem(off_elem)] += free - omni_count;
+                dice_counter.add_single(Dice::Elem(off_elem), free - omni_count);
             }
         }
 
         for (e, c) in dist.fixed {
-            dice_counter[Dice::Elem(e)] += c;
+            dice_counter.add_single(Dice::Elem(e), c);
         }
 
         dice_counter
@@ -187,11 +187,11 @@ impl DiceCounter {
 
         let mut c = Self::default();
         for d in es {
-            c[d] += 1;
+            c.add_single(d, 1);
         }
 
         for (e, count) in fixed {
-            c[Dice::Elem(e)] += count;
+            c.add_single(Dice::Elem(e), count);
         }
         c
     }

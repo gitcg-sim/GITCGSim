@@ -63,12 +63,8 @@ impl Element {
     }
 
     #[inline]
-    pub fn to_index(&self) -> usize {
+    pub const fn to_index(&self) -> usize {
         *self as u8 as usize
-    }
-
-    pub const fn to_index_const(self) -> usize {
-        self as u8 as usize
     }
 }
 

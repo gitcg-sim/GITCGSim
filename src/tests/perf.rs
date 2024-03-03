@@ -26,8 +26,8 @@ fn get_game_state() -> GameState {
     .build();
 
     gs.advance_roll_phase_no_dice();
-    gs.players.0.dice.add_in_place(&DiceCounter::omni(8));
-    gs.players.1.dice.add_in_place(&DiceCounter::omni(8));
+    gs.players.0.dice.add_single(Dice::Omni, 8);
+    gs.players.1.dice.add_single(Dice::Omni, 8);
     gs
 }
 
