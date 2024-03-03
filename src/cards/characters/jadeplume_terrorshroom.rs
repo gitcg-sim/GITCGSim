@@ -46,7 +46,7 @@ pub mod radical_vitality {
         .counter(CounterSpec::new("Radical Vitality", 0));
 
     #[inline]
-    fn increase_stacks(s: u8) -> u8 {
+    const fn increase_stacks(s: u8) -> u8 {
         if s >= 3 {
             3
         } else {

@@ -41,12 +41,12 @@ impl<T: ConstDefault, const N: usize> CappedLengthList8<T, N> {
         _marker: Self::LENGTH_RESTRICTION_32,
     };
 
-    #[inline(always)]
+    #[inline]
     pub const fn is_empty(&self) -> bool {
         self.len == 0
     }
 
-    #[inline(always)]
+    #[inline]
     pub const fn len(&self) -> u8 {
         self.len
     }

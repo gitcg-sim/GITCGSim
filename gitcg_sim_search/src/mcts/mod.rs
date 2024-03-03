@@ -148,7 +148,6 @@ impl CpuctConfig {
         factor: 4.0,
     };
 
-    #[inline(always)]
     pub fn cpuct(&self, n: f32) -> f32 {
         let Self { init, factor: k, base } = *self;
         init + if k >= 0.0 { f32::log2((n + base) / base) } else { 0.0 }

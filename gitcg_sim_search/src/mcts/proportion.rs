@@ -16,12 +16,12 @@ impl Display for Proportion {
 }
 
 impl Proportion {
-    #[inline(always)]
+    #[inline]
     pub fn new(q: u32, n: u32) -> Self {
         Self { q, n }
     }
 
-    #[inline(always)]
+    #[inline]
     pub fn ratio(self) -> f32 {
         ((self.q + 1) as f32) / ((self.n + 2) as f32)
     }
@@ -31,7 +31,7 @@ impl Proportion {
         f32::sqrt(r * (1.0 - r) / ((self.n + 2) as f32))
     }
 
-    #[inline(always)]
+    #[inline]
     pub fn complement(self) -> Self {
         Self::new(self.n - self.q, self.n)
     }
@@ -40,7 +40,7 @@ impl Proportion {
 impl Add for Proportion {
     type Output = Self;
 
-    #[inline(always)]
+    #[inline]
     fn add(self, rhs: Self) -> Self::Output {
         Self::new(self.q + rhs.q, self.n + rhs.n)
     }
@@ -54,7 +54,7 @@ impl AddAssign for Proportion {
 }
 
 impl From<(u32, u32)> for Proportion {
-    #[inline(always)]
+    #[inline]
     fn from(value: (u32, u32)) -> Self {
         Self::new(value.0, value.1)
     }

@@ -584,7 +584,6 @@ impl GameState {
         acts.push(Input::FromPlayer(player_id, PlayerAction::EndRound));
     }
 
-    #[inline(always)]
     fn available_actions_play_card<A: Array<Item = Input>>(&self, player_id: PlayerId, acts: &mut SmallVec<A>) {
         let player = self.get_player(player_id);
         let mut found = EnumSet::default();
@@ -602,7 +601,6 @@ impl GameState {
         }
     }
 
-    #[inline(always)]
     fn available_actions_cast_skill<A: Array<Item = Input>>(
         &self,
         active_char: &CharState,
@@ -617,7 +615,6 @@ impl GameState {
         }
     }
 
-    #[inline(always)]
     fn available_actions_switch<A: Array<Item = Input>>(&self, player_id: PlayerId, acts: &mut SmallVec<A>) {
         let player = self.get_player(player_id);
         for (char_idx, _) in player.char_states.enumerate_valid() {
@@ -627,7 +624,6 @@ impl GameState {
         }
     }
 
-    #[inline(always)]
     fn available_actions_et<A: Array<Item = Input>>(&self, player_id: PlayerId, acts: &mut SmallVec<A>) {
         let player = self.get_player(player_id);
         let mut found = EnumSet::default();

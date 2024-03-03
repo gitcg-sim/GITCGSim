@@ -62,14 +62,14 @@ impl NondetResult {
 }
 
 impl PlayerId {
-    #[inline(always)]
+    #[inline]
     fn flip(&mut self) {
         *self = self.opposite();
     }
 }
 
 impl SelectStartingCharacterState {
-    #[inline(always)]
+    #[inline]
     fn flip(&mut self) {
         match self {
             SelectStartingCharacterState::Start { to_select } => to_select.flip(),
@@ -79,7 +79,7 @@ impl SelectStartingCharacterState {
 }
 
 impl ByPlayer<PlayerState> {
-    #[inline(always)]
+    #[inline]
     fn transpose_in_place(&mut self) {
         // Nothing to transpose for PlayerState
         crate::std_subset::mem::swap(&mut self.0, &mut self.1);
@@ -87,7 +87,7 @@ impl ByPlayer<PlayerState> {
 }
 
 impl ByPlayer<StatusCollection> {
-    #[inline(always)]
+    #[inline]
     fn transpose_in_place(&mut self) {
         // Nothing to transpose for StatusCollection
         crate::std_subset::mem::swap(&mut self.0, &mut self.1);

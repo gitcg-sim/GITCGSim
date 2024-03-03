@@ -35,7 +35,7 @@ pub struct TeamStatusFeatures<T> {
 }
 
 impl<T: Copy + Add<Output = T>> TeamStatusFeatures<T> {
-    #[inline(always)]
+    #[inline]
     fn total(&self) -> T {
         self.status_count + self.summon_count + self.support_count
     }
@@ -50,7 +50,7 @@ pub struct CharStatusFeatures<T> {
 }
 
 impl<T: Copy + Add<Output = T>> CharStatusFeatures<T> {
-    #[inline(always)]
+    #[inline]
     fn total(&self) -> T {
         self.equip_count + self.status_count
     }

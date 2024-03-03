@@ -136,7 +136,6 @@ impl GameStateInitializer<HasCharacters, HasStartingCondition> {
         GameStateInitializer::<_, _>::new(c1, c2).starting_condition(StartingCondition::new(StartingPhase::RollPhase))
     }
 
-    #[inline(always)]
     fn empty_game_state() -> GameState {
         GameState {
             players: ByPlayer::new(PlayerState::new([]), PlayerState::new([])),

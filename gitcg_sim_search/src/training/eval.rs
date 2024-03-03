@@ -83,12 +83,12 @@ pub struct SelfPlaySearch {
 }
 
 impl GetSelfPlayModel for SelfPlaySearch {
-    #[inline(always)]
+    #[inline]
     fn get_self_play_model(&self) -> &SelfPlayModel {
         &self.model
     }
 
-    #[inline(always)]
+    #[inline]
     fn get_self_play_model_mut(&mut self) -> &mut SelfPlayModel {
         &mut self.model
     }
@@ -136,12 +136,12 @@ impl<S: NondetState> GameTreeSearch<GameStateWrapper<S>> for SelfPlaySearch {
 }
 
 impl<S: NondetState> GetSelfPlayModel for MCTS<GameStateWrapper<S>, SelfPlayModel> {
-    #[inline(always)]
+    #[inline]
     fn get_self_play_model(&self) -> &SelfPlayModel {
         &self.eval_policy
     }
 
-    #[inline(always)]
+    #[inline]
     fn get_self_play_model_mut(&mut self) -> &mut SelfPlayModel {
         &mut self.eval_policy
     }

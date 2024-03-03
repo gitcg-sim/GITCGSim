@@ -87,7 +87,7 @@ impl CharStates {
         }
     }
 
-    #[inline(always)]
+    #[inline]
     pub fn new<T: Into<heapless::Vec<CharState, { Self::MAX_CHAR_STATES }>>>(char_states: T) -> Self {
         let v = char_states.into();
         Self {
@@ -103,12 +103,12 @@ impl CharStates {
         false
     }
 
-    #[inline(always)]
+    #[inline]
     pub fn is_empty(&self) -> bool {
         self.char_states.is_empty()
     }
 
-    #[inline(always)]
+    #[inline]
     pub fn len(&self) -> u8 {
         self.char_states.len()
     }
@@ -166,14 +166,14 @@ impl CharStates {
 
 impl Index<u8> for CharStates {
     type Output = CharState;
-    #[inline(always)]
+    #[inline]
     fn index(&self, index: u8) -> &Self::Output {
         &self.char_states[index]
     }
 }
 
 impl IndexMut<u8> for CharStates {
-    #[inline(always)]
+    #[inline]
     fn index_mut(&mut self, index: u8) -> &mut Self::Output {
         &mut self.char_states[index]
     }
