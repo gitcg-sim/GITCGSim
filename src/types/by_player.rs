@@ -26,11 +26,6 @@ impl<T> ByPlayer<T> {
     }
 
     #[inline]
-    pub const fn as_ref(&self) -> ByPlayer<&T> {
-        ByPlayer(&self.0, &self.1)
-    }
-
-    #[inline]
     pub fn get(&self, player_id: PlayerId) -> &T {
         match player_id {
             PlayerId::PlayerFirst => &self.0,

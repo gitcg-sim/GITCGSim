@@ -6,7 +6,7 @@ use crate::{
     cmd_list,
     data_structures::ActionList,
     dispatcher_ops::*,
-    mutate_statuses, phc,
+    phc,
     prelude::ByPlayer,
     types::{
         card_defs::Cost,
@@ -131,7 +131,11 @@ impl GameState {
         }
 
         if self.ignore_costs
-            || player.can_pay_dice_cost(&SWITCHING_COST, CostType::Switching { dst_char_idx: char_idx })
+            || player.can_pay_dice_cost(
+                self.status_collections.get(player_id),
+                &SWITCHING_COST,
+                CostType::Switching { dst_char_idx: char_idx },
+            )
         {
             Ok(())
         } else {
@@ -147,7 +151,8 @@ impl GameState {
         if !player.is_valid_char_idx(player.active_char_idx) {
             return false;
         }
-        if player.status_collection.cannot_perform_actions(player.active_char_idx) {
+        let status_collection = self.status_collections.get(player_id);
+        if status_collection.cannot_perform_actions(player.active_char_idx) {
             return false;
         }
 
@@ -165,7 +170,7 @@ impl GameState {
             return false;
         }
 
-        player.can_pay_dice_cost(&cost, CostType::Skill(skill_id))
+        player.can_pay_dice_cost(status_collection, &cost, CostType::Skill(skill_id))
     }
 
     fn cmd_tgt(&self, player_id: PlayerId) -> Option<CommandTarget> {
@@ -190,8 +195,8 @@ impl GameState {
         }
 
         if self
-            .get_player(player_id)
-            .status_collection
+            .status_collections
+            .get(player_id)
             .cannot_perform_actions(self.get_player(player_id).active_char_idx)
         {
             return Err(DispatchError::CannotCastSkills);
@@ -227,7 +232,8 @@ impl GameState {
             .active_player()
             .expect("can_play_card: must have active player");
         if !self.ignore_costs {
-            if !player.can_pay_dice_cost(&card.cost, CostType::Card(card_id)) {
+            let status_collection = self.status_collections.get(active_player_id);
+            if !player.can_pay_dice_cost(status_collection, &card.cost, CostType::Card(card_id)) {
                 return false;
             }
 
@@ -246,7 +252,7 @@ impl GameState {
 
             let cic = CardImplContext {
                 players: &self.players,
-                status_collections: self.players.as_ref().map(|p| &p.status_collection),
+                status_collections: &self.status_collections,
                 active_player_id,
                 card_id,
                 card,
@@ -287,7 +293,7 @@ impl GameState {
         self.pay_cost(&card.cost, CostType::Card(card_id))?;
         let cic = CardImplContext {
             players: &self.players,
-            status_collections: self.players.as_ref().map(|p| &p.status_collection),
+            status_collections: &self.status_collections,
             active_player_id,
             card_id,
             card,
@@ -322,7 +328,9 @@ impl GameState {
             (None, None) => true,
             (None, Some(..)) => false,
             (Some(..), None) => false,
-            (Some(spec), Some(sel)) => spec.validate_selection(sel, &self.players, active_player_id),
+            (Some(spec), Some(sel)) => {
+                spec.validate_selection(sel, &self.players, &self.status_collections, active_player_id)
+            }
         }
     }
 
@@ -365,7 +373,7 @@ impl GameState {
 
         ci.selection()
             .map(|s| {
-                s.available_selections(&self.players, player_id)
+                s.available_selections(&self.players, &self.status_collections, player_id)
                     .iter()
                     .copied()
                     .map(Option::Some)
@@ -408,7 +416,7 @@ impl GameState {
                     return NONE;
                 };
 
-                player.augment_cost_immutable(&mut cost, cost_type);
+                player.augment_cost_immutable(self.status_collections.get(active_player_id), &mut cost, cost_type);
 
                 (cost, is_fast_action)
             }
@@ -546,7 +554,11 @@ impl GameState {
         let player = self.get_player(player_id);
         let init_acts_len = acts.len();
 
-        if player.is_preparing_skill() {
+        if self
+            .status_collections
+            .get(player_id)
+            .is_preparing_skill(player.active_char_idx)
+        {
             return;
         }
 
@@ -711,7 +723,11 @@ impl GameState {
                     use IteratorState::*;
                     match &mut self.state {
                         Start => {
-                            if player.is_preparing_skill() {
+                            if game_state
+                                .status_collections
+                                .get(player_id)
+                                .is_preparing_skill(player.active_char_idx)
+                            {
                                 self.state = End;
                             }
                             let mut actions = SmallVec::default();
@@ -830,7 +846,11 @@ impl GameState {
             Phase::RollPhase { .. } => None,
             Phase::ActionPhase { active_player, .. } => {
                 let player = self.players.get(active_player);
-                if player.is_preparing_skill() {
+                if self
+                    .status_collections
+                    .get(active_player)
+                    .is_preparing_skill(player.active_char_idx)
+                {
                     None
                 } else {
                     Some(active_player)
@@ -855,8 +875,10 @@ impl GameState {
                 }
                 RollPhaseState::Rolling => Some(NondetRequest::RollDice(
                     (
-                        self.get_player(PlayerId::PlayerFirst).get_dice_distribution(),
-                        self.get_player(PlayerId::PlayerSecond).get_dice_distribution(),
+                        self.get_player(PlayerId::PlayerFirst)
+                            .get_dice_distribution(self.status_collections.get(PlayerId::PlayerFirst)),
+                        self.get_player(PlayerId::PlayerSecond)
+                            .get_dice_distribution(self.status_collections.get(PlayerId::PlayerSecond)),
                     )
                         .into(),
                 )),
@@ -1030,21 +1052,22 @@ impl GameState {
         active_player_id: PlayerId,
     ) -> Option<Result<DispatchResult, DispatchError>> {
         let player = self.players.get(active_player_id);
-        let active_char_idx = player.active_char_idx;
-        let Some((skill_id, key, turns_remaining)) = player
-            .status_collection
-            .find_preparing_skill_with_status_key_and_turns_remaining()
+        let status_collection = self.status_collections.get(active_player_id);
+        let Some((skill_id, key, turns_remaining)) =
+            status_collection.find_preparing_skill_with_status_key_and_turns_remaining()
         else {
             return None;
         };
+        let active_char_idx = player.active_char_idx;
         let Input::NoAction = input else {
             return Some(Err(DispatchError::InvalidInput("Preparing skill")));
         };
         let char_idx = key.char_idx().expect("Prepared skills must be character statuses.");
         if active_char_idx != char_idx {
-            mutate_statuses!(self, active_player_id, |sc| {
-                sc.delete(key);
-            });
+            self.status_collections
+                .mutate_hashed(phc!(self, active_player_id), |sc| {
+                    sc.delete(key);
+                });
             // Character switched away -> cancel preparation and delete status
             let res = self
                 .exec_commands(&cmd_list![(
@@ -1056,23 +1079,24 @@ impl GameState {
         }
 
         let res = if turns_remaining == 0 {
-            mutate_statuses!(self, active_player_id, |sc| {
-                sc.delete(key);
-            });
+            self.status_collections
+                .mutate_hashed(phc!(self, active_player_id), |sc| {
+                    sc.delete(key);
+                });
             if self
-                .players
+                .status_collections
                 .get(active_player_id)
-                .status_collection
                 .cannot_perform_actions(char_idx)
             {
                 return Some(Ok(self.handle_post_exec(None)));
             }
             self.cast_skill(skill_id, true).map(|opt| self.handle_post_exec(opt))
         } else {
-            mutate_statuses!(self, active_player_id, |sc| {
-                let state = sc.get_mut(key).expect("Status key must exist.");
-                state.set_counter(turns_remaining - 1);
-            });
+            self.status_collections
+                .mutate_hashed(phc!(self, active_player_id), |sc| {
+                    let state = sc.get_mut(key).expect("Status key must exist.");
+                    state.set_counter(turns_remaining - 1);
+                });
             self.exec_commands(&cmd_list![(
                 CommandContext::new_event(active_player_id),
                 Command::HandOverPlayer

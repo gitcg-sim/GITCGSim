@@ -44,17 +44,20 @@ pub struct GameState {
     /// 0 (PlayerFirst) goes first at turn 1
     pub(crate) players: ByPlayer<PlayerState>,
 
-    // Transient states below
-
-    // TODO use a Box<dyn> event log handler instead
-    pub log: Option<Box<EventLog>>,
-    /// If this field is set to `true`, costs (dice and energy) will not
-    /// be checked and will not be paid. Effects that reduce costs will never be consumed.
-    pub ignore_costs: bool,
     /// The incrementally-updated portion of the Zobrist hash of this `GameState`.
     pub(crate) _incremental_hash: ZobristHasher,
     /// The entire Zobrist hash of this `GmaeState`.
     pub(crate) _hash: ZobristHasher,
+
+    /// If this field is set to `true`, costs (dice and energy) will not
+    /// be checked and will not be paid. Effects that reduce costs will never be consumed.
+    pub ignore_costs: bool,
+
+    // Non-copyable fields below
+    pub(crate) status_collections: ByPlayer<StatusCollection>,
+
+    // TODO use a Box<dyn> event log handler instead
+    pub log: Option<Box<EventLog>>,
 }
 
 #[derive(Debug, Clone)]
@@ -235,7 +238,7 @@ impl PlayerFlag {
     pub const END_OF_TURN_CLEAR: EnumSet<Self> = enum_set![Self::DiedThisRound];
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct PlayerState {
     pub(crate) active_char_idx: u8,
@@ -244,7 +247,6 @@ pub struct PlayerState {
     pub(crate) char_states: CharStates,
     // TODO use wrapper type for hand
     pub(crate) hand: CappedLengthList8<CardId, { PlayerState::HAND_SIZE_LIMIT }>,
-    pub(crate) status_collection: StatusCollection,
 }
 
 impl PlayerState {
@@ -257,7 +259,6 @@ impl PlayerState {
             active_char_idx: 0,
             hand: Default::default(),
             flags: enum_set![],
-            status_collection: StatusCollection::default(),
         }
     }
 
@@ -274,11 +275,6 @@ impl PlayerState {
     #[inline]
     pub fn get_dice_counter(&self) -> DiceCounter {
         self.dice
-    }
-
-    #[inline]
-    pub fn get_status_collection(&self) -> &StatusCollection {
-        &self.status_collection
     }
 
     #[inline]

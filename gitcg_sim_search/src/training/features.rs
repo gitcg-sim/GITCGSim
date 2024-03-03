@@ -158,15 +158,14 @@ impl BoolValue for bool {
 pub mod player_state_features {
     use super::*;
 
-    fn char_status_features(player_state: &PlayerState, char_idx: u8) -> CharStatusFeatures<f32> {
-        let sc = player_state.get_status_collection();
+    fn char_status_features(sc: &StatusCollection, char_idx: u8) -> CharStatusFeatures<f32> {
         CharStatusFeatures {
             equip_count: sc.equipment_count(char_idx) as f32,
             status_count: sc.character_status_count(char_idx) as f32,
         }
     }
 
-    pub fn char_features(player_state: &PlayerState, char_idx: u8) -> CharFeatures<f32> {
+    pub fn char_features(player_state: &PlayerState, sc: &StatusCollection, char_idx: u8) -> CharFeatures<f32> {
         if !player_state.is_valid_char_idx(char_idx) {
             return Default::default();
         }
@@ -178,11 +177,15 @@ pub mod player_state_features {
             hp: char_state.get_hp() as f32,
             energy: char_state.get_energy() as f32,
             applied_count: char_state.get_applied().len() as f32,
-            status: char_status_features(player_state, char_idx),
+            status: char_status_features(sc, char_idx),
         }
     }
 
-    pub fn express_char_features(player_state: &PlayerState, char_idx: u8) -> ExpressCharFeatures<f32> {
+    pub fn express_char_features(
+        player_state: &PlayerState,
+        sc: &StatusCollection,
+        char_idx: u8,
+    ) -> ExpressCharFeatures<f32> {
         if !player_state.is_valid_char_idx(char_idx) {
             return Default::default();
         }
@@ -192,12 +195,11 @@ pub mod player_state_features {
             has_applied: if char_state.get_applied().is_empty() { 0.0 } else { 1.0 },
             hp: char_state.get_hp() as f32,
             energy: char_state.get_energy() as f32,
-            status_count: char_status_features(player_state, char_idx).total(),
+            status_count: char_status_features(sc, char_idx).total(),
         }
     }
 
-    pub fn team_features(player_state: &PlayerState) -> TeamStatusFeatures<f32> {
-        let sc = player_state.get_status_collection();
+    pub fn team_features(sc: &StatusCollection) -> TeamStatusFeatures<f32> {
         TeamStatusFeatures {
             status_count: sc.team_status_count() as f32,
             summon_count: sc.summon_count() as f32,
@@ -261,7 +263,11 @@ pub mod game_state_features {
         let active_char_idx = player_state.get_active_char_idx();
         let mut chars: [ExpressCharFeatures<f32>; N_CHARS] = Default::default();
         for (char_idx, c) in chars.iter_mut().enumerate() {
-            *c = express_char_features(player_state, char_idx as u8);
+            *c = express_char_features(
+                player_state,
+                game_state.get_status_collection(player_id),
+                char_idx as u8,
+            );
         }
 
         let mut active_char = Default::default();
@@ -283,7 +289,7 @@ pub mod game_state_features {
             dice: dice_features(player_state),
             hand_count: player_state.hand_len() as f32,
             // team: player_state.team_features(),
-            team_status_count: team_features(player_state).total(),
+            team_status_count: team_features(game_state.get_status_collection(player_id)).total(),
             active_char,
             inactive_chars: chars,
             char_ids,
@@ -292,13 +298,14 @@ pub mod game_state_features {
 
     fn player_state_features(game_state: &GameState, player_id: PlayerId) -> PlayerStateFeatures<f32> {
         let player_state = game_state.get_player(player_id);
+        let sc = game_state.get_status_collection(player_id);
         let switch_is_fast_action = (0u8..(N_CHARS as u8))
             .any(|char_idx| game_state.check_switch_is_fast_action(player_id, char_idx))
             .bv();
 
         let mut chars: [CharFeatures<f32>; N_CHARS] = Default::default();
         for (char_idx, c) in chars.iter_mut().enumerate() {
-            *c = char_features(player_state, char_idx as u8);
+            *c = char_features(player_state, sc, char_idx as u8);
         }
 
         PlayerStateFeatures {
@@ -307,7 +314,7 @@ pub mod game_state_features {
             switch_is_fast_action,
             dice: dice_features(player_state),
             hand_count: player_state.hand_len() as f32,
-            team: team_features(player_state),
+            team: team_features(sc),
             chars,
         }
     }

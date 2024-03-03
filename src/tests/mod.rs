@@ -43,34 +43,30 @@ impl GameState {
         }
     }
 
-    fn get_status_collection(&self, player_id: PlayerId) -> &StatusCollection {
-        &self.get_player(player_id).status_collection
+    fn get_status_collection_mut(&mut self, player_id: PlayerId) -> &mut StatusCollection {
+        self.status_collections.get_mut(player_id)
+    }
+}
+
+impl GameState {
+    fn has_team_status(&self, player_id: PlayerId, status_id: StatusId) -> bool {
+        self.status_collections.get(player_id).has_team_status(status_id)
     }
 
-    fn get_status_collection_mut(&mut self, player_id: PlayerId) -> &mut StatusCollection {
-        &mut self.get_player_mut(player_id).status_collection
+    pub fn has_character_status(&self, player_id: PlayerId, char_idx: u8, status_id: StatusId) -> bool {
+        self.status_collections
+            .get(player_id)
+            .has_character_status(char_idx, status_id)
+    }
+
+    pub fn has_active_character_status(&self, player_id: PlayerId, status_id: StatusId) -> bool {
+        self.status_collections
+            .get(player_id)
+            .has_character_status(self.players.get(player_id).active_char_idx, status_id)
     }
 }
 
 impl PlayerState {
-    #[allow(dead_code)]
-    fn has_summon(&self, summon_id: SummonId) -> bool {
-        self.status_collection.has_summon(summon_id)
-    }
-
-    fn has_team_status(&self, status_id: StatusId) -> bool {
-        self.status_collection.has_team_status(status_id)
-    }
-
-    pub fn has_character_status(&self, char_idx: u8, status_id: StatusId) -> bool {
-        self.status_collection.has_character_status(char_idx, status_id)
-    }
-
-    pub fn has_active_character_status(&self, status_id: StatusId) -> bool {
-        self.status_collection
-            .has_character_status(self.active_char_idx, status_id)
-    }
-
     /// Add card to hand, ignoring the result.
     pub fn add_to_hand_ignore(&mut self, card_id: CardId) {
         let _ = self.hand.push(card_id);

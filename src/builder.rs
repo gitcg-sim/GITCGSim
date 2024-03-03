@@ -140,6 +140,7 @@ impl GameStateInitializer<HasCharacters, HasStartingCondition> {
     fn empty_game_state() -> GameState {
         GameState {
             players: ByPlayer::new(PlayerState::new([]), PlayerState::new([])),
+            status_collections: Default::default(),
             pending_cmds: None,
             phase: Phase::new_roll_phase(PlayerId::PlayerFirst),
             round_number: 1,
@@ -188,6 +189,7 @@ crate::with_updaters!(
         pub round_number: u8,
         pub phase: Phase,
         pub players: ByPlayer<PlayerState>,
+        pub status_collections: ByPlayer<StatusCollection>,
 
         // Transient states
         #[cfg_attr(feature = "serde", serde(default))]
@@ -209,6 +211,7 @@ impl GameStateBuilder {
                 state: Default::default(),
             },
             players,
+            status_collections: Default::default(),
             log: Default::default(),
             ignore_costs: Default::default(),
             override_hash: Default::default(),
@@ -223,6 +226,7 @@ impl GameStateBuilder {
             round_number: self.round_number,
             phase: self.phase,
             players: self.players,
+            status_collections: self.status_collections,
             log: self.log.map(Box::new),
             ignore_costs: self.ignore_costs,
             _hash: self.override_hash.unwrap_or_default(),
@@ -242,6 +246,7 @@ impl GameState {
             round_number: self.round_number,
             phase: self.phase,
             players: self.players,
+            status_collections: self.status_collections,
             log: self.log.map(|b| *b.clone()),
             ignore_costs: self.ignore_costs,
             override_hash: Some(self._hash),

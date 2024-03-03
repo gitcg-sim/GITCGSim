@@ -7,10 +7,7 @@ use crate::{
 
 use smallvec::{smallvec, SmallVec};
 
-use crate::{
-    chc, cmd_list, dispatcher::cmd_trigger_event, mutate_statuses, mutate_statuses_1, phc, reaction::find_reaction,
-    view,
-};
+use crate::{chc, cmd_list, dispatcher::cmd_trigger_event, phc, reaction::find_reaction, view};
 
 impl GameState {
     /// Attempt to pay the cost. Succeeds without cost payment if `ignore_costs` is true.
@@ -24,7 +21,12 @@ impl GameState {
         };
         let player = self.players.get_mut(active_player_id);
         let mut cost = *cost;
-        player.augment_cost(phc!(self, active_player_id), &mut cost, cost_type);
+        player.augment_cost(
+            &mut self.status_collections,
+            phc!(self, active_player_id),
+            &mut cost,
+            cost_type,
+        );
 
         if cost.energy_cost > 0 {
             let ec = cost.energy_cost;
@@ -43,7 +45,12 @@ impl GameState {
         if let Some(log) = &mut self.log {
             log.log(Event::PayCost(active_player_id, cost, cost_type));
         }
-        let Some(d) = player.try_pay_dice_cost(phc!(self, active_player_id), &cost, cost_type) else {
+        let Some(d) = player.try_pay_dice_cost(
+            &mut self.status_collections,
+            phc!(self, active_player_id),
+            &cost,
+            cost_type,
+        ) else {
             return Err(DispatchError::UnableToPayCost);
         };
 
@@ -52,9 +59,8 @@ impl GameState {
     }
 
     pub fn check_switch_is_fast_action(&self, player_id: PlayerId, src_char_idx: u8) -> bool {
-        let player = self.players.get(player_id);
         let mut res = false;
-        let sc = &player.status_collection;
+        let sc = self.status_collections.get(player_id);
         if sc.responds_to(RespondsTo::SwitchIsFastAction) {
             sc.consume_statuses_immutable(
                 CharIdxSelector::One(src_char_idx),
@@ -68,10 +74,13 @@ impl GameState {
     /// Consumes the usages of the relevant statuses
     pub fn try_switch_is_fast_action(&mut self, player_id: PlayerId, src_char_idx: u8) -> bool {
         // TODO consume 1st instance, priortizing character passive first
-        let player = self.players.get(player_id);
         let mut res = false;
-        if player.status_collection.responds_to(RespondsTo::SwitchIsFastAction) {
-            mutate_statuses!(self, player_id, |sc| {
+        if self
+            .status_collections
+            .get(player_id)
+            .responds_to(RespondsTo::SwitchIsFastAction)
+        {
+            self.status_collections.mutate_hashed(phc!(self, player_id), |sc| {
                 sc.consume_statuses_first(
                     CharIdxSelector::One(src_char_idx),
                     |si| si.responds_to().contains(RespondsTo::SwitchIsFastAction),
@@ -88,7 +97,7 @@ impl GameState {
         } = self.phase
         {
             for player_id in [PlayerId::PlayerFirst, PlayerId::PlayerSecond] {
-                mutate_statuses!(self, player_id, |sc| {
+                self.status_collections.mutate_hashed(phc!(self, player_id), |sc| {
                     sc.consume_statuses(
                         CharIdxSelector::All,
                         |_| true,
@@ -145,10 +154,12 @@ impl GameState {
         }
 
         let mut cmds = cmd_list![];
-        if src_player.status_collection.responds_to_trigger_event(event_id) {
+        let status_collection = self.status_collections.get(src_player_id);
+        if status_collection.responds_to_trigger_event(event_id) {
             let src_player_state = &view!(src_player);
             let sicb = StatusImplContextBuilder::new(src_player_state, ctx, ());
-            mutate_statuses_1!(phc!(self, src_player_id), src_player, |sc| {
+
+            self.status_collections.mutate_hashed(phc!(self, src_player_id), |sc| {
                 sc.consume_statuses(
                     CharIdxSelector::All,
                     |si| {
@@ -186,29 +197,31 @@ impl GameState {
             let ctx_for_dmg = self.ctx_for_dmg(src_player_id, src);
             let src_player = self.players.get_mut(src_player_id);
             let mask = xevt.mask(src_player_id);
-            if src_player.status_collection.responds_to_events(mask) {
-                let src_player_state = &view!(src_player);
-                let sicb = StatusImplContextBuilder::new(src_player_state, ctx, ());
-                mutate_statuses_1!(phc!(self, src_player_id), src_player, |sc| {
-                    sc.consume_statuses(
-                        CharIdxSelector::All,
-                        |si| {
-                            si.responds_to().contains(RespondsTo::TriggerXEvent)
-                                && !(si.responds_to_events() & mask).is_empty()
-                        },
-                        |es, status_key, si| {
-                            let mut ectx = TriggerEventContext {
-                                c: sicb.build(status_key, es),
-                                event_id: xevt,
-                                status_key,
-                                ctx_for_dmg: &ctx_for_dmg,
-                                out_cmds: &mut cmds,
-                            };
-                            si.trigger_xevent(&mut ectx)
-                        },
-                    );
-                })
+            if !self.status_collections.get(src_player_id).responds_to_events(mask) {
+                continue;
             }
+
+            let src_player_state = &view!(src_player);
+            let sicb = StatusImplContextBuilder::new(src_player_state, ctx, ());
+            self.status_collections.mutate_hashed(phc!(self, src_player_id), |sc| {
+                sc.consume_statuses(
+                    CharIdxSelector::All,
+                    |si| {
+                        si.responds_to().contains(RespondsTo::TriggerXEvent)
+                            && !(si.responds_to_events() & mask).is_empty()
+                    },
+                    |es, status_key, si| {
+                        let mut ectx = TriggerEventContext {
+                            c: sicb.build(status_key, es),
+                            event_id: xevt,
+                            status_key,
+                            ctx_for_dmg: &ctx_for_dmg,
+                            out_cmds: &mut cmds,
+                        };
+                        si.trigger_xevent(&mut ectx)
+                    },
+                );
+            })
             // TODO log this
             // if self.log.enabled && !cmds.is_empty() {
             //     self.log.log(Event::TriggerEvent(ctx.src, event_id));
@@ -304,10 +317,10 @@ impl GameState {
                 let tgt_char = &tgt_player.char_states[tgt_char_idx];
                 let tgt_applied = tgt_char.applied;
                 let log_tgt = (tgt_char_idx, tgt_char.char_id);
+                let tgt_status_collection = self.status_collections.get(tgt_player_id);
                 let dmg_info: DMGInfo = DMGInfo {
                     target_hp: tgt_char.get_hp(),
-                    target_affected_by_riptide: tgt_player
-                        .status_collection
+                    target_affected_by_riptide: tgt_status_collection
                         .has_character_status(tgt_char_idx, StatusId::Riptide),
                 };
                 (tgt_applied, log_tgt, dmg_info)
@@ -315,10 +328,15 @@ impl GameState {
 
             macro_rules! apply_statuses {
                 (($src_player: ident, $src_player_id: ident, $rto: expr, $dmg_info: expr), |$sc_src: ident, $sicb: ident| $expr: expr) => {
-                    if $src_player.status_collection.responds_to($rto) {
+                    if self
+                        .status_collections
+                        .get($src_player_id)
+                        .responds_to($rto)
+                    {
                         let view = &view!($src_player);
                         let $sicb = StatusImplContextBuilder::new(view, ctx, $dmg_info);
-                        mutate_statuses_1!(phc!(self, $src_player_id), $src_player, |$sc_src| { $expr });
+                        self.status_collections
+                            .mutate_hashed(phc!(self, $src_player_id), |$sc_src| $expr);
                     }
                 };
             }
@@ -364,10 +382,9 @@ impl GameState {
                         if i == 0 {
                             reaction = Some((rxn, te));
                         }
+                        let src_status_collection = self.status_collections.get(src_player_id);
                         let (dmg_bonus, piercing, rxn_cmd) = if matches!(reaction, Some((Reaction::Bloom, _)))
-                            && src_player
-                                .status_collection
-                                .has_team_status(StatusId::GoldenChalicesBounty)
+                            && src_status_collection.has_team_status(StatusId::GoldenChalicesBounty)
                         {
                             (1, 0, Some(Command::Summon(SummonId::BountifulCore)))
                         } else {
@@ -409,10 +426,12 @@ impl GameState {
                 );
                 dmg.dmg *= mult;
 
-                if tgt_player.status_collection.has_shield_points() {
-                    mutate_statuses_1!(phc!(self, tgt_player_id), tgt_player, |sc_tgt| {
-                        sc_tgt.consume_shield_points_for_statuses(tgt_char_idx, &mut dmg);
-                    });
+                let tgt_status_collection = self.status_collections.get(tgt_player_id);
+                if tgt_status_collection.has_shield_points() {
+                    self.status_collections
+                        .mutate_hashed(phc!(self, tgt_player_id), |sc_tgt| {
+                            sc_tgt.consume_shield_points_for_statuses(tgt_char_idx, &mut dmg);
+                        });
                 }
 
                 apply_statuses!(
@@ -554,7 +573,7 @@ impl GameState {
             char_state.set_applied_elements_hashed(chc!(self, player_id, char_idx), Default::default());
             char_state.set_flags_hashed(chc!(self, player_id, char_idx), Default::default());
 
-            mutate_statuses_1!(phc!(self, player_id), player, |sc| {
+            self.status_collections.mutate_hashed(phc!(self, player_id), |sc| {
                 sc.clear_character_statuses(char_idx, &mut shifts_to_next_active);
             });
 
@@ -592,15 +611,16 @@ impl GameState {
     }
 
     fn take_dmg_for_affected_by(&mut self, ctx: &CommandContext, status_id: StatusId, dmg: DealDMG) -> ExecResult {
-        let player = self.players.get_mut(ctx.src_player_id);
-        let sc = &player.status_collection;
+        let player_id = ctx.src_player_id;
+        let player = self.players.get_mut(player_id);
+        let sc = self.status_collections.get(player_id);
         let mut cmds = smallvec![];
         for (char_idx, _c) in player.char_states.enumerate_valid() {
             if !sc.has_character_status(char_idx, status_id) {
                 continue;
             }
 
-            let ctx = CommandContext::new(ctx.src_player_id, CommandSource::Character { char_idx }, None);
+            let ctx = CommandContext::new(player_id, CommandSource::Character { char_idx }, None);
             cmds.push((ctx, Command::TakeDMG(dmg)));
         }
         ExecResult::AdditionalCmds(cmds)
@@ -680,11 +700,12 @@ impl GameState {
     }
 
     fn increase_status_usages(&mut self, ctx: &CommandContext, key: StatusKey, usages: u8) -> ExecResult {
-        if self.get_player(ctx.src_player_id).status_collection.get(key).is_none() {
+        let player_id = ctx.src_player_id;
+        if self.status_collections.get(player_id).get(key).is_none() {
             return ExecResult::Success;
         }
 
-        mutate_statuses!(self, ctx.src_player_id, |sc| {
+        self.status_collections.mutate_hashed(phc!(self, player_id), |sc| {
             let eff_state = sc.get_mut(key).expect("Status key must be present.");
             let status = key.get_status();
             if status.duration_rounds.is_some() {
@@ -702,12 +723,14 @@ impl GameState {
     }
 
     fn delete_status(&mut self, ctx: &CommandContext, key: StatusKey) -> ExecResult {
-        mutate_statuses!(self, ctx.src_player_id, |sc| { sc.delete(key) });
+        self.status_collections
+            .mutate_hashed(phc!(self, ctx.src_player_id), |sc| sc.delete(key));
         ExecResult::Success
     }
 
     fn delete_status_for_target(&mut self, ctx: &CommandContext, key: StatusKey) -> ExecResult {
-        mutate_statuses!(self, ctx.src_player_id.opposite(), |sc| { sc.delete(key) });
+        self.status_collections
+            .mutate_hashed(phc!(self, ctx.src_player_id.opposite()), |sc| sc.delete(key));
         ExecResult::Success
     }
 
@@ -784,8 +807,8 @@ impl GameState {
     #[inline]
     fn apply_or_refresh_status(&mut self, src_player_id: PlayerId, key: StatusKey, status: &'static Status) {
         let src_player = self.players.get_mut(src_player_id);
-        let modifiers = src_player.get_status_spec_modifiers(key);
-        mutate_statuses_1!(phc!(self, src_player_id), src_player, |sc| {
+        let modifiers = src_player.get_status_spec_modifiers(self.status_collections.get(src_player_id), key);
+        self.status_collections.mutate_hashed(phc!(self, src_player_id), |sc| {
             sc.apply_or_refresh_status(key, status, &modifiers);
         });
     }
@@ -961,11 +984,12 @@ impl GameState {
         }
 
         let status = status_id.get_status();
-        mutate_statuses_1!(phc!(self, ctx.src_player_id), player, |sc| {
-            sc.ensure_unequipped(char_idx, slot);
-            // Equipment usages cannot be buffed
-            sc.apply_or_refresh_status(StatusKey::Equipment(char_idx, slot, status_id), status, &None);
-        });
+        self.status_collections
+            .mutate_hashed(phc!(self, ctx.src_player_id), |sc| {
+                sc.ensure_unequipped(char_idx, slot);
+                // Equipment usages cannot be buffed
+                sc.apply_or_refresh_status(StatusKey::Equipment(char_idx, slot, status_id), status, &None);
+            });
         if let Some(log) = &mut self.log {
             log.log(Event::Equip(
                 ctx.src_player_id,
@@ -996,10 +1020,11 @@ impl GameState {
         if let Some(status_id) = status_id {
             let slot = EquipSlot::Talent;
             let status = status_id.get_status();
-            mutate_statuses_1!(phc!(self, ctx.src_player_id), player, |sc| {
-                sc.ensure_unequipped(char_idx, slot);
-                sc.apply_or_refresh_status(StatusKey::Equipment(char_idx, slot, status_id), status, &None);
-            });
+            self.status_collections
+                .mutate_hashed(phc!(self, ctx.src_player_id), |sc| {
+                    sc.ensure_unequipped(char_idx, slot);
+                    sc.apply_or_refresh_status(StatusKey::Equipment(char_idx, slot, status_id), status, &None);
+                });
         }
 
         char_state.set_flags_hashed(chc!(self, ctx.src_player_id, char_idx), flags);
@@ -1024,7 +1049,7 @@ impl GameState {
         eff_state: AppliedEffectState,
     ) -> ExecResult {
         let active_char_idx = self.get_player(player_id).active_char_idx;
-        mutate_statuses!(self, player_id, |sc| {
+        self.status_collections.mutate_hashed(phc!(self, player_id), |sc| {
             sc.set_status(StatusKey::Character(active_char_idx, status_id), eff_state)
         });
         ExecResult::Success
@@ -1032,8 +1057,7 @@ impl GameState {
 
     fn add_support(&mut self, ctx: &CommandContext, slot: SupportSlot, support_id: SupportId) -> ExecResult {
         let player_id = ctx.src_player_id;
-        let player = self.players.get_mut(player_id);
-        mutate_statuses_1!(phc!(self, ctx.src_player_id), player, |sc| {
+        self.status_collections.mutate_hashed(phc!(self, player_id), |sc| {
             sc.add_support_to_slot_replacing_existing(slot, support_id);
         });
         ExecResult::Success
@@ -1129,7 +1153,7 @@ impl GameState {
             let flags = char.flags | char.skill_flags(skill_id);
             char.set_flags_hashed(chc, flags);
         }
-        let cmds = player.get_cast_skill_cmds(ctx, skill_id);
+        let cmds = player.get_cast_skill_cmds(self.status_collections.get(player_id), ctx, skill_id);
         ExecResult::AdditionalCmds(cmds)
     }
 

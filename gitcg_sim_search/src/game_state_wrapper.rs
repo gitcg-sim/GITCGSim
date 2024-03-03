@@ -99,8 +99,14 @@ impl<S: NondetState> Game for GameStateWrapper<S> {
 
     #[inline]
     fn eval(&self, player_id: PlayerId) -> Self::Eval {
-        let e1 = self.game_state.get_player(player_id).eval();
-        let e2 = self.game_state.get_player(player_id.opposite()).eval();
+        let e1 = self
+            .game_state
+            .get_player(player_id)
+            .eval(self.game_state.get_status_collection(player_id));
+        let e2 = self
+            .game_state
+            .get_player(player_id.opposite())
+            .eval(self.game_state.get_status_collection(player_id.opposite()));
         let h = e1 - e2;
         if let Some(winner) = self.winner() {
             if winner == player_id {

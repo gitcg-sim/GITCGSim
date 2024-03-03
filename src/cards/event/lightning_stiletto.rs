@@ -36,7 +36,8 @@ impl CardImpl for LightningStiletto {
         else {
             return;
         };
+        let status_collection = cic.status_collections.get(cic.active_player_id);
         commands.push((*ctx, Command::SwitchCharacter(ci)));
-        commands.append(&mut player.get_cast_skill_cmds(ctx, SkillId::StellarRestoration));
+        commands.append(&mut player.get_cast_skill_cmds(status_collection, ctx, SkillId::StellarRestoration));
     }
 }

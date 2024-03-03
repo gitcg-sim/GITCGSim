@@ -1,4 +1,4 @@
-use crate::prelude::{CharState, PlayerState};
+use crate::prelude::{CharState, PlayerState, StatusCollection};
 
 type HV = i16;
 
@@ -22,14 +22,14 @@ impl CharState {
 
 impl PlayerState {
     #[allow(clippy::identity_op)]
-    pub fn eval(&self) -> HV {
+    pub fn eval(&self, status_collection: &StatusCollection) -> HV {
         let dice_value = self.dice.total();
         let hand_value = self.hand.len();
         let hp_total: u8 = self.char_states.iter_valid().map(CharState::get_hp).sum();
         let energy_total: u8 = self.char_states.iter_valid().map(CharState::get_energy).sum();
-        let support_total = self.status_collection.support_count() as HV;
-        let status_total = self.status_collection.status_count() as HV;
-        let summons_total = self.status_collection.summon_count() as HV;
+        let support_total = status_collection.support_count() as HV;
+        let status_total = status_collection.status_count() as HV;
+        let summons_total = status_collection.summon_count() as HV;
         let elem_total = self
             .char_states
             .iter_valid()

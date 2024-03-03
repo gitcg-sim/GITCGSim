@@ -251,3 +251,31 @@ impl CharState {
         self.set_flags_hashed(chc, self.flags - flag);
     }
 }
+
+impl crate::types::by_player::ByPlayer<StatusCollection> {
+    pub fn mutate_hashed<F: FnOnce(&mut StatusCollection) -> R, R>(
+        &mut self,
+        (h, player_id): PlayerHashContext,
+        f: F,
+    ) -> R {
+        let status_collection = self.get_mut(player_id);
+        status_collection.zobrist_hash(h, player_id);
+        let r = f(status_collection);
+        status_collection.zobrist_hash(h, player_id);
+        r
+    }
+}
+
+impl StatusCollection {
+    #[deprecated(note = "Use ByPlayer<StatusCollection> method instead")]
+    pub fn update_hashed<F: FnOnce(&mut StatusCollection) -> R, R>(
+        &mut self,
+        (h, player_id): PlayerHashContext,
+        f: F,
+    ) -> R {
+        self.zobrist_hash(h, player_id);
+        let r = f(self);
+        self.zobrist_hash(h, player_id);
+        r
+    }
+}

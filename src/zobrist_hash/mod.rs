@@ -331,6 +331,8 @@ impl GameState {
         h.hash(HASH_PROVIDER.phase(self.phase));
         self.players.0.incremental_zobrist_hash(h, PlayerId::PlayerFirst);
         self.players.1.incremental_zobrist_hash(h, PlayerId::PlayerSecond);
+        self.status_collections.0.zobrist_hash(h, PlayerId::PlayerFirst);
+        self.status_collections.1.zobrist_hash(h, PlayerId::PlayerSecond);
     }
 
     /// Compute the non-incremental portion of the Zobrist hash
@@ -434,7 +436,6 @@ impl PlayerState {
 
     pub fn incremental_zobrist_hash(&self, h: &mut ZobristHasher, player_id: PlayerId) {
         h.hash(HASH_PROVIDER.active_char_idx(player_id, self.active_char_idx));
-        self.status_collection.zobrist_hash(h, player_id);
         self.zobrist_hash_for_flags(h, player_id);
         self.zobrist_hash_for_dice(h, player_id);
         self.zobrist_hash_for_hand(h, player_id);

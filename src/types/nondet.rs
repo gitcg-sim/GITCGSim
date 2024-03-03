@@ -163,14 +163,20 @@ impl NondetState for StandardNondetHandlerState {
             StandardNondetHandlerFlags::PlayerSecondPrivate,
         )));
 
+        let determinized = {
+            let player = game_state.get_player(private_player_id);
+            self.dice_determinization.determinize(
+                &mut self.rng,
+                player.get_dice_distribution(game_state.status_collections.get(private_player_id)),
+            )
+        };
+
         let player = game_state.get_player_mut(private_player_id);
         for c in player.hand.iter_mut() {
             *c = CardId::BlankCard;
         }
         player.flags.insert(super::game_state::PlayerFlag::Tactical);
-        player.dice = self
-            .dice_determinization
-            .determinize(&mut self.rng, player.get_dice_distribution());
+        player.dice = determinized;
         game_state.rehash();
     }
 

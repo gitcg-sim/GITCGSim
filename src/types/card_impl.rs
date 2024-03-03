@@ -10,7 +10,7 @@ use super::by_player::ByPlayer;
 
 pub struct CardImplContext<'a> {
     pub players: &'a ByPlayer<PlayerState>,
-    pub status_collections: ByPlayer<&'a StatusCollection>,
+    pub status_collections: &'a ByPlayer<StatusCollection>,
     pub active_player_id: PlayerId,
     pub card_id: CardId,
     pub card: &'static Card,

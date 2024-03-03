@@ -84,10 +84,14 @@ fn artifact_3_dice_guarantee() {
         PlayerId::PlayerFirst,
         PlayerAction::PlayCard(CardId::BlizzardStrayer, Some(CardSelection::OwnCharacter(0))),
     )]);
-    assert_eq!(2, gs.players.0.get_dice_distribution().fixed_count());
+    let sc = &gs.status_collections.0;
+    assert_eq!(2, gs.players.0.get_dice_distribution(sc).fixed_count());
     assert_eq!(
         2,
-        gs.players.0.get_dice_distribution().fixed_count_for_elem(Element::Cryo)
+        gs.players
+            .0
+            .get_dice_distribution(sc)
+            .fixed_count_for_elem(Element::Cryo)
     );
 
     gs.advance_multiple([
@@ -95,10 +99,13 @@ fn artifact_3_dice_guarantee() {
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
     ]);
 
-    assert_eq!(2, gs.players.0.get_dice_distribution().fixed_count());
+    assert_eq!(2, gs.players.0.get_dice_distribution(sc).fixed_count());
     assert_eq!(
         2,
-        gs.players.0.get_dice_distribution().fixed_count_for_elem(Element::Cryo)
+        gs.players
+            .0
+            .get_dice_distribution(sc)
+            .fixed_count_for_elem(Element::Cryo)
     );
 }
 

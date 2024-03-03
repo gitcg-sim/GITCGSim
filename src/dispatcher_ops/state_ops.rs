@@ -107,9 +107,9 @@ impl PlayerState {
         ep
     }
 
-    pub fn get_dice_distribution(&self) -> DiceDistribution {
+    pub fn get_dice_distribution(&self, status_collection: &StatusCollection) -> DiceDistribution {
         let mut dist = DiceDistribution::new(8, 1, self.get_element_priority(), Default::default());
-        self.update_dice_distribution(&mut dist);
+        self.update_dice_distribution(status_collection, &mut dist);
         dist
     }
 
@@ -157,7 +157,11 @@ impl PlayerState {
         self.set_dice((h, player_id), &dice);
     }
 
-    pub fn get_status_spec_modifiers(&self, key: StatusKey) -> Option<StatusSpecModifier> {
+    pub fn get_status_spec_modifiers(
+        &self,
+        status_collection: &StatusCollection,
+        key: StatusKey,
+    ) -> Option<StatusSpecModifier> {
         let mut modifiers = StatusSpecModifier::default();
         let mut changed = false;
         let active_char = self.get_active_character();
@@ -171,12 +175,8 @@ impl PlayerState {
             }
         }
 
-        if self
-            .status_collection
-            .responds_to
-            .contains(RespondsTo::UpdateStatusSpec)
-        {
-            self.status_collection.consume_statuses_immutable(
+        if status_collection.responds_to.contains(RespondsTo::UpdateStatusSpec) {
+            status_collection.consume_statuses_immutable(
                 CharIdxSelector::One(self.active_char_idx),
                 |si| si.responds_to().contains(RespondsTo::UpdateStatusSpec),
                 |_, _sk, si| {
@@ -200,13 +200,6 @@ impl PlayerState {
     pub fn active_character_has_talent_equipped(&self) -> bool {
         self.get_active_character().has_talent_equipped()
     }
-
-    #[inline]
-    pub fn is_preparing_skill(&self) -> bool {
-        self.status_collection
-            .find_preparing_skill(self.active_char_idx)
-            .is_some()
-    }
 }
 
 impl StatusCollection {
@@ -224,6 +217,11 @@ impl StatusCollection {
         // Support usages cannot be buffed
         self.apply_or_refresh_status(StatusKey::Support(slot, support_id), status_spec, &None);
     }
+
+    #[inline]
+    pub fn is_preparing_skill(&self, active_char_idx: u8) -> bool {
+        self.find_preparing_skill(active_char_idx).is_some()
+    }
 }
 
 impl GameState {
@@ -237,10 +235,12 @@ impl GameState {
 
     #[inline]
     pub fn get_player_mut(&mut self, player_id: PlayerId) -> &mut PlayerState {
-        match player_id {
-            PlayerId::PlayerFirst => &mut self.players.0,
-            PlayerId::PlayerSecond => &mut self.players.1,
-        }
+        self.players.get_mut(player_id)
+    }
+
+    #[inline]
+    pub fn get_status_collection(&self, player_id: PlayerId) -> &StatusCollection {
+        self.status_collections.get(player_id)
     }
 
     #[inline]
@@ -272,8 +272,8 @@ impl GameState {
     pub fn with_player(&self, player_id: PlayerId, player_state: &PlayerState) -> GameState {
         let mut gs1 = self.clone();
         match player_id {
-            PlayerId::PlayerFirst => gs1.players.0 = player_state.clone(),
-            PlayerId::PlayerSecond => gs1.players.1 = player_state.clone(),
+            PlayerId::PlayerFirst => gs1.players.0 = *player_state,
+            PlayerId::PlayerSecond => gs1.players.1 = *player_state,
         }
         gs1
     }

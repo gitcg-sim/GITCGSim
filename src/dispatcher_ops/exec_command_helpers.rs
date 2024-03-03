@@ -20,37 +20,6 @@ macro_rules! view {
     };
 }
 
-/// Mutate a particular `StatusCollection` within the `GameState` in the code block
-/// while updating the Zobrish hash before and after the block.
-///
-/// Do not early terminate inside the block to preserve hash coherency.
-#[macro_export]
-#[doc(hidden)]
-macro_rules! mutate_statuses {
-    ($self: expr, $player_id: expr, | $sc: ident | $closure: block) => {{
-        let player_id: PlayerId = $player_id;
-        let player: &mut _ = $self.players.get_mut(player_id);
-        $crate::mutate_statuses_1!(phc!($self, player_id), player, |$sc| $closure)
-    }};
-}
-
-/// Mutate a particular `StatusCollection` within the `GameState` in the code block
-/// while updating the Zobrish hash before and after the block.
-///
-/// Do not early terminate inside the block to preserve hash coherency.
-#[macro_export]
-#[doc(hidden)]
-macro_rules! mutate_statuses_1 {
-    ($c: expr, $player: ident, | $sc: ident | $closure: block) => {{
-        let (h, player_id): $crate::zobrist_hash::PlayerHashContext = $c;
-        let $sc: &mut $crate::types::game_state::StatusCollection = &mut $player.status_collection;
-        $sc.zobrist_hash(h, player_id);
-        let _r = $closure;
-        $sc.zobrist_hash(h, player_id);
-        _r
-    }};
-}
-
 impl StatusCollection {
     pub fn augment_outgoing_dmg_for_statuses(
         &mut self,
@@ -187,14 +156,20 @@ impl PlayerState {
 
     // TODO can reduce cost for character talent cards
     // TODO separate status_collection
-    pub fn augment_cost(&mut self, c: PlayerHashContext, cost: &mut Cost, cost_type: CostType) -> bool {
-        let char_idx = self.active_char_idx;
-        if !self.status_collection.responds_to(RespondsTo::UpdateCost) {
+    pub fn augment_cost(
+        &mut self,
+        status_collections: &mut ByPlayer<StatusCollection>,
+        c: PlayerHashContext,
+        cost: &mut Cost,
+        cost_type: CostType,
+    ) -> bool {
+        if !status_collections.get(c.1).responds_to(RespondsTo::UpdateCost) {
             return false;
         }
 
         let view = &view!(self);
-        mutate_statuses_1!(c, self, |sc| {
+        let char_idx = self.active_char_idx;
+        status_collections.mutate_hashed(c, |sc| {
             let ctx = &CommandContext::EMPTY.with_src(cost_type.into_cmd_src(self.active_char_idx));
             let sicb = StatusImplContextBuilder::new(view, ctx, ());
             sc.consume_statuses(
@@ -205,10 +180,8 @@ impl PlayerState {
         })
     }
 
-    // TODO separate status_collection
-    pub fn augment_cost_immutable(&self, cost: &mut Cost, cost_type: CostType) {
-        let sc = &self.status_collection;
-        if !sc.responds_to(RespondsTo::UpdateCost) {
+    pub fn augment_cost_immutable(&self, status_collection: &StatusCollection, cost: &mut Cost, cost_type: CostType) {
+        if !status_collection.responds_to(RespondsTo::UpdateCost) {
             return;
         }
 
@@ -216,17 +189,20 @@ impl PlayerState {
         let view = &view!(self);
         let ctx = &CommandContext::EMPTY.with_src(cost_type.into_cmd_src(self.active_char_idx));
         let sicb = StatusImplContextBuilder::new(view, ctx, ());
-        sc.consume_statuses_immutable(
+        status_collection.consume_statuses_immutable(
             CharIdxSelector::One(char_idx),
             |si| si.responds_to().contains(RespondsTo::UpdateCost),
             |es, sk, si| si.update_cost(&sicb.build(sk, es), cost, cost_type),
         );
     }
 
-    // TODO separate status_collection
-    pub fn update_gains_energy(&self, ctx_for_skill: &CommandContext, gains_energy: &mut bool) {
-        let sc = &self.status_collection;
-        if !sc.responds_to(RespondsTo::GainsEnergy) {
+    pub fn update_gains_energy(
+        &self,
+        status_collection: &StatusCollection,
+        ctx_for_skill: &CommandContext,
+        gains_energy: &mut bool,
+    ) {
+        if !status_collection.responds_to(RespondsTo::GainsEnergy) {
             return;
         }
 
@@ -234,7 +210,7 @@ impl PlayerState {
         let view = &view!(self);
         let ctx = &CommandContext::EMPTY;
         let sicb = StatusImplContextBuilder::new(view, ctx, ());
-        sc.consume_statuses_immutable(
+        status_collection.consume_statuses_immutable(
             CharIdxSelector::One(char_idx),
             |si| si.responds_to().contains(RespondsTo::GainsEnergy),
             |es, sk, si| {
@@ -244,17 +220,15 @@ impl PlayerState {
         );
     }
 
-    // TODO separate status_collection
-    pub fn update_dice_distribution(&self, dist: &mut DiceDistribution) {
-        let sc = &self.status_collection;
-        if !sc.responds_to(RespondsTo::DiceDistribution) {
+    pub fn update_dice_distribution(&self, status_collection: &StatusCollection, dist: &mut DiceDistribution) {
+        if !status_collection.responds_to(RespondsTo::DiceDistribution) {
             return;
         }
 
         let view = &view!(self);
         let ctx = &CommandContext::EMPTY;
         let sicb = StatusImplContextBuilder::new(view, ctx, ());
-        sc.consume_statuses_immutable(
+        status_collection.consume_statuses_immutable(
             // Does not need to be active character to take effect
             CharIdxSelector::All,
             |si| si.responds_to().contains(RespondsTo::DiceDistribution),
@@ -265,27 +239,34 @@ impl PlayerState {
         );
     }
 
-    pub fn can_pay_dice_cost(&self, cost: &Cost, cost_type: CostType) -> bool {
+    pub fn can_pay_dice_cost(&self, status_collection: &StatusCollection, cost: &Cost, cost_type: CostType) -> bool {
         let ep = self.get_element_priority_for_cost_type(cost_type);
         let mut cost = *cost;
-        self.augment_cost_immutable(&mut cost, cost_type);
+        self.augment_cost_immutable(status_collection, &mut cost, cost_type);
         self.dice.try_pay_cost(&cost, &ep).is_some()
     }
 
     /// Assumption: augment_cost will never increase costs
-    pub fn try_pay_dice_cost(&mut self, c: PlayerHashContext, cost: &Cost, cost_type: CostType) -> Option<DiceCounter> {
+    pub fn try_pay_dice_cost(
+        &mut self,
+        status_collections: &mut ByPlayer<StatusCollection>,
+        c: PlayerHashContext,
+        cost: &Cost,
+        cost_type: CostType,
+    ) -> Option<DiceCounter> {
         let ep = self.get_element_priority_for_cost_type(cost_type);
         if let Some(d) = self.dice.try_pay_cost(cost, &ep) {
             Some(d)
         } else {
             let mut cost = *cost;
-            self.augment_cost(c, &mut cost, cost_type);
+            self.augment_cost(status_collections, c, &mut cost, cost_type);
             self.dice.try_pay_cost(&cost, &ep)
         }
     }
 
     pub fn get_cast_skill_cmds(
         &self,
+        status_collection: &StatusCollection,
         ctx: &CommandContext,
         skill_id: SkillId,
     ) -> CommandList<(CommandContext, Command)> {
@@ -322,8 +303,7 @@ impl PlayerState {
                     prioritize_new,
                 } => {
                     let existing_summon_ids = if prioritize_new {
-                        src_player
-                            .status_collection
+                        status_collection
                             .iter_entries()
                             .filter_map(|k| match k.key {
                                 StatusKey::Summon(summon_id) => Some(summon_id),
@@ -346,9 +326,9 @@ impl PlayerState {
         }
 
         let mut gains_energy = !skill.no_energy;
-        src_player.update_gains_energy(ctx, &mut gains_energy);
+        src_player.update_gains_energy(status_collection, ctx, &mut gains_energy);
         if let Some(si) = skill.skill_impl {
-            si.get_commands(src_player, &src_player.status_collection, ctx, &mut cmds);
+            si.get_commands(src_player, status_collection, ctx, &mut cmds);
         }
 
         if gains_energy && skill.skill_type != SkillType::ElementalBurst {

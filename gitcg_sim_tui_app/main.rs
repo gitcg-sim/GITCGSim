@@ -336,7 +336,7 @@ impl<B: Backend> App<B> {
             })
             .split(player_chunk);
 
-        let sc = player.get_status_collection();
+        let sc = game_state.get_status_collection(player_id);
 
         let support_chunks = {
             let supports_rect = char_chunks[0];
