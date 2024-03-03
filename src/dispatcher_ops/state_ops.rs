@@ -120,14 +120,7 @@ impl PlayerState {
             return;
         }
 
-        let off_elems = {
-            let ep = self.get_element_priority();
-            let mut es = ep.important_elems;
-            if let Some(e) = ep.active_elem {
-                es |= e;
-            }
-            !es
-        };
+        let off_elems = self.get_element_priority().off_elems();
 
         let mut dice = self.dice;
         for elem in off_elems {

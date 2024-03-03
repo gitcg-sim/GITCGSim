@@ -64,6 +64,16 @@ impl ElementPriority {
         }
     }
 
+    /// Get the elements outside the priority
+    #[inline]
+    pub fn off_elems(&self) -> ElementSet {
+        let mut es = self.important_elems;
+        if let Some(e) = self.active_elem {
+            es |= e;
+        }
+        !es
+    }
+
     /// Get the first element (lowest position in `Element::ALL`) that is not part of this priority.
     #[inline]
     pub fn get_off_element(&self) -> Option<Element> {
@@ -72,6 +82,22 @@ impl ElementPriority {
             elems.insert(e);
         }
         Element::VALUES.iter().copied().find(|&e| elems.contains(e))
+    }
+
+    #[inline]
+    pub fn sort_key(&self, dice: Dice) -> u8 {
+        match dice {
+            Dice::Omni => 0,
+            Dice::Elem(e) => {
+                if self.active_elem == Some(e) {
+                    1
+                } else if self.important_elems.contains(e) {
+                    2
+                } else {
+                    3
+                }
+            }
+        }
     }
 }
 

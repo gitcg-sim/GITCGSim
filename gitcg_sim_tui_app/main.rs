@@ -854,11 +854,7 @@ fn get_dice_body(dice: &DiceCounter, ep: ElementPriority) -> Paragraph {
                 v.push(d)
             }
         }
-        v.sort_by_key(|&k| match k {
-            Dice::Omni => 0u8,
-            Dice::Elem(e) if ep.important_elems.contains(e) => 1,
-            _ => 2,
-        });
+        v.sort_by_key(|&dice| ep.sort_key(dice));
         v
     };
     let mut i = 0;
