@@ -246,6 +246,7 @@ impl GameState {
 
             let cic = CardImplContext {
                 players: &self.players,
+                status_collections: self.players.as_ref().map(|p| &p.status_collection),
                 active_player_id,
                 card_id,
                 card,
@@ -286,6 +287,7 @@ impl GameState {
         self.pay_cost(&card.cost, CostType::Card(card_id))?;
         let cic = CardImplContext {
             players: &self.players,
+            status_collections: self.players.as_ref().map(|p| &p.status_collection),
             active_player_id,
             card_id,
             card,

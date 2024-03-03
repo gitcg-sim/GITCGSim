@@ -10,6 +10,7 @@ use super::by_player::ByPlayer;
 
 pub struct CardImplContext<'a> {
     pub players: &'a ByPlayer<PlayerState>,
+    pub status_collections: ByPlayer<&'a StatusCollection>,
     pub active_player_id: PlayerId,
     pub card_id: CardId,
     pub card: &'static Card,
@@ -19,9 +20,7 @@ pub struct CardImplContext<'a> {
 impl<'a> CardImplContext<'a> {
     #[inline]
     pub fn get_next_available_suport_slot(&self) -> Option<SupportSlot> {
-        self.players[self.active_player_id]
-            .status_collection
-            .get_next_available_support_slot()
+        self.status_collections[self.active_player_id].get_next_available_support_slot()
     }
 }
 
