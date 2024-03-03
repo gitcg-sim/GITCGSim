@@ -72,7 +72,7 @@ impl PlayerState {
         &mut self.char_states[self.active_char_idx]
     }
 
-    pub(crate) fn switch_character_hashed(&mut self, c: PlayerHashContext, char_idx: u8) -> bool {
+    pub fn switch_character_hashed(&mut self, c: PlayerHashContext, char_idx: u8) -> bool {
         if !self.is_valid_char_idx(char_idx) || char_idx == self.active_char_idx {
             false
         } else {
@@ -115,7 +115,7 @@ impl PlayerState {
 
     /// While there is an off-element dice and a card on hand:
     /// Remove the dice and card and add an Omni dice
-    pub(crate) fn pseudo_elemental_tuning(&mut self, (h, player_id): PlayerHashContext) {
+    pub fn pseudo_elemental_tuning(&mut self, (h, player_id): PlayerHashContext) {
         if self.hand.is_empty() {
             return;
         }
@@ -157,7 +157,7 @@ impl PlayerState {
         self.set_dice((h, player_id), &dice);
     }
 
-    pub(crate) fn get_status_spec_modifiers(&self, key: StatusKey) -> Option<StatusSpecModifier> {
+    pub fn get_status_spec_modifiers(&self, key: StatusKey) -> Option<StatusSpecModifier> {
         let mut modifiers = StatusSpecModifier::default();
         let mut changed = false;
         let active_char = self.get_active_character();
@@ -197,7 +197,7 @@ impl PlayerState {
     }
 
     #[inline]
-    pub(crate) fn active_character_has_talent_equipped(&self) -> bool {
+    pub fn active_character_has_talent_equipped(&self) -> bool {
         self.get_active_character().has_talent_equipped()
     }
 
@@ -287,7 +287,7 @@ impl GameState {
         self.rehash();
     }
 
-    pub(crate) fn perform_pseudo_elemental_tuning(&mut self, player_id: PlayerId) {
+    pub fn perform_pseudo_elemental_tuning(&mut self, player_id: PlayerId) {
         match player_id {
             PlayerId::PlayerFirst => self.players.0.pseudo_elemental_tuning(phc!(self, player_id)),
             PlayerId::PlayerSecond => self.players.1.pseudo_elemental_tuning(phc!(self, player_id)),
