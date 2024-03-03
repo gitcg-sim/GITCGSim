@@ -171,34 +171,14 @@ impl StatusCollection {
         );
         found
     }
-}
 
-impl CostType {
     #[inline]
-    fn into_cmd_src(self, active_char_idx: u8) -> CommandSource {
-        match self {
-            CostType::Switching {
-                dst_char_idx: tgt_char_idx,
-            } => CommandSource::Switch {
-                from_char_idx: active_char_idx,
-                dst_char_idx: tgt_char_idx,
-            },
-            CostType::Card(card_id) => CommandSource::Card { card_id, target: None },
-            CostType::Skill(skill_id) => CommandSource::Skill {
-                char_idx: active_char_idx,
-                skill_id,
-            },
-        }
+    pub fn is_melee_stance(&self, active_char_idx: u8) -> bool {
+        self.has_character_status(active_char_idx, StatusId::MeleeStance)
     }
 }
 
 impl PlayerState {
-    #[inline]
-    pub fn is_melee_stance(&self) -> bool {
-        self.status_collection
-            .has_character_status(self.active_char_idx, StatusId::MeleeStance)
-    }
-
     #[inline]
     pub fn relative_switch_char_idx(&self, switch_type: RelativeCharIdx) -> Option<u8> {
         self.char_states
@@ -398,5 +378,24 @@ impl CharStates {
 
     pub fn get_taken_most_dmg(&self) -> Option<(u8, &CharState)> {
         self.enumerate_valid().max_by_key(|(_, c)| c.get_total_dmg_taken())
+    }
+}
+
+impl CostType {
+    #[inline]
+    fn into_cmd_src(self, active_char_idx: u8) -> CommandSource {
+        match self {
+            CostType::Switching {
+                dst_char_idx: tgt_char_idx,
+            } => CommandSource::Switch {
+                from_char_idx: active_char_idx,
+                dst_char_idx: tgt_char_idx,
+            },
+            CostType::Card(card_id) => CommandSource::Card { card_id, target: None },
+            CostType::Skill(skill_id) => CommandSource::Skill {
+                char_idx: active_char_idx,
+                skill_id,
+            },
+        }
     }
 }

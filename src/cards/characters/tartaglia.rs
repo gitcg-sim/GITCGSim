@@ -48,14 +48,14 @@ impl SkillImpl for FoulLegacyRagingTide {
     fn get_commands(
         &self,
         src_player: &PlayerState,
-        _: &StatusCollection,
+        status_collection: &StatusCollection,
         ctx: &CommandContext,
         cmds: &mut CommandList<(CommandContext, Command)>,
     ) {
-        if src_player.is_melee_stance() {
+        let char_idx = src_player.active_char_idx;
+        if status_collection.is_melee_stance(char_idx) {
             return;
         }
-        let char_idx = src_player.active_char_idx;
         cmds.push((
             *ctx,
             Command::DeleteStatus(StatusKey::Character(char_idx, StatusId::RangedStance)),
@@ -72,11 +72,11 @@ impl SkillImpl for HavocObliteration {
     fn get_commands(
         &self,
         src_player: &PlayerState,
-        _: &StatusCollection,
+        status_collection: &StatusCollection,
         ctx: &CommandContext,
         cmds: &mut CommandList<(CommandContext, Command)>,
     ) {
-        if src_player.is_melee_stance() {
+        if status_collection.is_melee_stance(src_player.active_char_idx) {
             cmds.push((*ctx, Command::DealDMG(deal_elem_dmg(Element::Hydro, 7, 0))));
         } else {
             cmds.push((*ctx, Command::DealDMG(deal_elem_dmg(Element::Hydro, 4, 0))));
