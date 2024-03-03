@@ -31,7 +31,7 @@ impl StatusImpl for Tenshukaku {
         if e.c.src_player_state.dice.distinct_count() < 5 {
             return None;
         }
-        e.add_cmd(Command::AddDice(DiceCounter::omni(1)));
+        e.add_cmd(Command::AddSingleDice(Dice::Omni, 1));
         Some(AppliedEffectResult::ConsumeUsage)
     }
 }

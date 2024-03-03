@@ -218,7 +218,7 @@ pub mod gamblers_earrings {
             if equip_char_idx != active_char_idx {
                 return None;
             }
-            e.add_cmd(Command::AddDice(DiceCounter::omni(2)));
+            e.add_cmd(Command::AddSingleDice(Dice::Omni, 2));
             Some(AppliedEffectResult::NoChange)
         }
     }

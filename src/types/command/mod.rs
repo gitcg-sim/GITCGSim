@@ -2,6 +2,7 @@ use super::applied_effect_state::AppliedEffectState;
 use super::card_defs::{Card, CardType, Skill};
 use super::dice_counter::DiceCounter;
 use super::game_state::*;
+use super::tcg_model::Dice;
 use super::{
     game_state::PlayerId,
     tcg_model::{DealDMG, Element, EquipSlot},
@@ -412,6 +413,8 @@ pub enum Command {
     /// Delete a status for command target player.
     DeleteStatusForTarget(StatusKey),
     RerollDice,
+    /// Add a single Elemental Dice by a specified amount to the player. Faster than AddDice.
+    AddSingleDice(Dice, u8),
     /// Add Elemental Dice to the player.
     AddDice(DiceCounter),
     /// Sub Elemental Dice from the player's dice pool.

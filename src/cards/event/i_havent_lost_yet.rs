@@ -6,7 +6,7 @@ pub const C: Card = Card {
     card_type: CardType::Event,
     card_impl: Some(&I),
     effects: list8![
-        Command::AddDice(DiceCounter::omni(1)),
+        Command::AddSingleDice(Dice::Omni, 1),
         Command::AddEnergy(1, CmdCharIdx::Active),
     ],
 };

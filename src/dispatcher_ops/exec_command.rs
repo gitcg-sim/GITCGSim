@@ -774,6 +774,14 @@ impl GameState {
         ExecResult::Success
     }
 
+    fn add_single_dice(&mut self, ctx: &CommandContext, dice: Dice, value: u8) -> ExecResult {
+        let player_id = ctx.src_player_id;
+        self.players
+            .get_mut(player_id)
+            .add_single_dice(phc!(self, player_id), dice, value);
+        ExecResult::Success
+    }
+
     fn add_dice(&mut self, ctx: &CommandContext, dice: &DiceCounter) -> ExecResult {
         let player_id = ctx.src_player_id;
         self.players.get_mut(player_id).add_dice(phc!(self, player_id), dice);
@@ -1194,6 +1202,7 @@ impl GameState {
             Command::DeleteStatus(key) => self.delete_status(ctx, key),
             Command::DeleteStatusForTarget(key) => self.delete_status_for_target(ctx, key),
             Command::RerollDice => self.reroll_dice(ctx),
+            Command::AddSingleDice(dice, value) => self.add_single_dice(ctx, dice, value),
             Command::AddDice(dice) => self.add_dice(ctx, &dice),
             Command::SubtractDice(dice) => self.subtract_dice(ctx, &dice),
             Command::AddCardsToHand(cards) => self.add_cards_to_hand(ctx.src_player_id, &cards),

@@ -12,4 +12,4 @@ pub const C: Card = Card {
 
 pub const S: Status = Status::new_usages(NAME, StatusAttachMode::Support, 2, None);
 
-pub const I: EndPhaseCommands = EndPhaseCommands(list8![Command::AddDice(DiceCounter::omni(2))]);
+pub const I: EndPhaseCommands = EndPhaseCommands(list8![Command::AddSingleDice(Dice::Omni, 2)]);

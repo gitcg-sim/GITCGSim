@@ -233,7 +233,7 @@ mod tests {
             let SkillType::ElementalBurst = skill_id.get_skill().skill_type else {
                 return None;
             };
-            e.add_cmd(Command::AddDice(DiceCounter::omni(1)));
+            e.add_cmd(Command::AddSingleDice(Dice::Omni, 1));
             Some(AppliedEffectResult::NoChange)
         }
     }

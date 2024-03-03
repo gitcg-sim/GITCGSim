@@ -17,7 +17,7 @@ pub mod the_bestest_travel_companion {
     pub const C: Card = Card {
         name: "The Bestest Travel Companion!",
         cost: Cost::unaligned(2),
-        effects: list8![Command::AddDice(DiceCounter::omni(2))],
+        effects: list8![Command::AddSingleDice(Dice::Omni, 2)],
         card_type: CardType::Event,
         card_impl: None,
     };

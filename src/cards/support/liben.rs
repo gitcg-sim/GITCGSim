@@ -44,7 +44,7 @@ impl StatusImpl for Liben {
             )))
         } else {
             e.add_cmd(Command::DrawCards(2, None));
-            e.add_cmd(Command::AddDice(DiceCounter::omni(2)));
+            e.add_cmd(Command::AddSingleDice(Dice::Omni, 2));
             Some(AppliedEffectResult::DeleteSelf)
         }
     }

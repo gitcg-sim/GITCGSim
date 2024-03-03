@@ -77,6 +77,14 @@ impl PlayerState {
     }
 
     #[inline]
+    pub fn add_single_dice(&mut self, (h, player_id): PlayerHashContext, dice: Dice, value: u8) {
+        h.hash(HASH_PROVIDER.dice(player_id, dice, self.dice[dice]));
+        self.dice.add_single(dice, value);
+        h.hash(HASH_PROVIDER.dice(player_id, dice, self.dice[dice]));
+        self.check_for_charged_attack((h, player_id));
+    }
+
+    #[inline]
     pub fn add_dice(&mut self, (h, player_id): PlayerHashContext, dice: &DiceCounter) {
         Self::dice_hash(h, player_id, &self.dice);
         self.dice.add_dice(dice);
