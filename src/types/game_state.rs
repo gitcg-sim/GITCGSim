@@ -44,7 +44,7 @@ pub struct GameState {
 
     /// The incrementally-updated portion of the Zobrist hash of this `GameState`.
     pub(crate) _incremental_hash: ZobristHasher,
-    /// The entire Zobrist hash of this `GmaeState`.
+    /// The entire Zobrist hash of this `GameState`.
     pub(crate) _hash: ZobristHasher,
 
     /// If this field is set to `true`, costs (dice and energy) will not
@@ -57,7 +57,7 @@ pub struct GameState {
 
     pub(crate) status_collections: ByPlayer<StatusCollection>,
 
-    // TODO use a Box<dyn> event log handler instead
+    // TODO make this generic
     pub log: Option<Box<EventLog>>,
 }
 

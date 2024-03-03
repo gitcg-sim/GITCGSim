@@ -69,7 +69,7 @@ impl CardImpl for SupportImpl {
             // TODO support replacing
             return;
         };
-        for eff in cic.card.effects.to_vec_copy() {
+        for &eff in cic.card.effects.iter() {
             commands.push((*ctx, eff))
         }
         // TODO card's own commands

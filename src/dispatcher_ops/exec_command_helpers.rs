@@ -321,8 +321,8 @@ impl PlayerState {
             }
         }
 
-        for c in skill.commands.to_vec_copy() {
-            cmds.push((*ctx, c));
+        for &cmd in skill.commands.iter() {
+            cmds.push((*ctx, cmd));
         }
 
         let mut gains_energy = !skill.no_energy;

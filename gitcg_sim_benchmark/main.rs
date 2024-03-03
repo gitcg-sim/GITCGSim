@@ -29,25 +29,25 @@ pub enum BenchmarkOpts {
     },
     #[structopt(help = "Run a game in parallel or sequential execution.")]
     Benchmark {
-        #[structopt(long = "--parallel", short = "-P")]
+        #[structopt(long = "--parallel")]
         parallel: bool,
         #[structopt(flatten)]
         search: SearchOpts,
     },
     #[structopt(help = "Evaluate the first move of a position.")]
     Evaluate {
-        #[structopt(long = "--parallel", short = "-P")]
+        #[structopt(long = "--parallel")]
         parallel: bool,
         #[structopt(flatten)]
         search: SearchOpts,
     },
     #[structopt(help = "Measure win rate against a standarized opponent.")]
     Match {
-        #[structopt(long = "--parallel", short = "-P")]
+        #[structopt(long = "--parallel")]
         parallel: bool,
 
         #[structopt(long)]
-        steps: Option<u32>,
+        match_steps: Option<u32>,
 
         #[structopt(long)]
         rounds: Option<u32>,
@@ -70,14 +70,10 @@ pub enum BenchmarkOpts {
         help = "Count the total number of positions visited at a given depth, starting from a particular initial position."
     )]
     Perft {
-        #[structopt(long = "--parallel", short = "-P")]
+        #[structopt(long = "--parallel")]
         parallel: bool,
 
-        #[structopt(
-            long = "--iterative",
-            short = "-I",
-            help = "Run perft for each depth starting from 1."
-        )]
+        #[structopt(long = "--iterative", help = "Run perft for each depth starting from 1.")]
         iterative: bool,
 
         #[structopt(flatten)]
@@ -218,7 +214,7 @@ fn main() -> Result<(), std::io::Error> {
         BenchmarkOpts::Evaluate { parallel, .. } => benchmark(parallel, 1),
         BenchmarkOpts::Match {
             parallel,
-            steps,
+            match_steps: steps,
             rounds,
             standard_algorithm,
             standard_time_limit_ms,

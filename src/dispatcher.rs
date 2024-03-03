@@ -158,7 +158,7 @@ impl GameState {
 
         let active_char = player.get_active_character();
         let char_skills = &active_char.char_id.get_char_card().skills;
-        if !char_skills.to_vec_copy().iter().any(|&s| s == skill_id) {
+        if !char_skills.iter().any(|&s| s == skill_id) {
             return false;
         }
 
@@ -188,7 +188,7 @@ impl GameState {
         let char_id = self.get_player(player_id).get_active_character().char_id;
         let char_skills = &char_id.get_char_card().skills;
         if !from_prepare {
-            let found = char_skills.to_vec_copy().iter().any(|&s| s == skill_id);
+            let found = char_skills.iter().any(|&s| s == skill_id);
             if !found {
                 return Err(DispatchError::InvalidSkillId);
             }
@@ -610,9 +610,7 @@ impl GameState {
         acts: &mut SmallVec<A>,
     ) {
         let skills = active_char.char_id.get_char_card().skills;
-        let mut skills_vec = skills.to_vec_copy();
-        skills_vec.reverse();
-        for skill_id in skills_vec {
+        for &skill_id in skills.iter().rev() {
             if self.can_cast_skill(player_id, skill_id) {
                 acts.push(Input::FromPlayer(player_id, PlayerAction::CastSkill(skill_id)));
             }
@@ -808,7 +806,7 @@ impl GameState {
             let mut to_apply = vector![];
             for (i, c) in player.char_states.enumerate_valid() {
                 if let Some(p) = &c.char_id.get_char_card().passive {
-                    for status_id in p.apply_statuses.to_vec_copy() {
+                    for &status_id in p.apply_statuses.iter() {
                         to_apply.push((i, status_id));
                     }
                 }

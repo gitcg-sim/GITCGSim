@@ -64,7 +64,7 @@ impl<T: ConstDefault, const N: usize> CappedLengthList8<T, N> {
     }
 
     #[inline(always)]
-    pub fn iter(&self) -> impl Iterator<Item = &T> + '_ {
+    pub fn iter(&self) -> core::slice::Iter<'_, T> {
         self.slice().iter()
     }
 
@@ -144,10 +144,6 @@ from_fixed_slice_impl!(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10; 10);
 impl<T: ConstDefault + Copy, const N: usize> CappedLengthList8<T, N> {
     pub fn fold_copy<A, F: FnMut(A, T) -> A>(&self, init: A, f: F) -> A {
         self.slice().iter().copied().fold(init, f)
-    }
-
-    pub fn to_vec_copy(&self) -> smallvec::SmallVec<[T; 8]> {
-        self.slice().into()
     }
 
     /// Panics: When `N > M`
