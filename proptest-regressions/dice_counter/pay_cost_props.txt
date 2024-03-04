@@ -1,0 +1,9 @@
+# Seeds for failure cases proptest has generated in the past. It is
+# automatically read and these particular cases re-run before any
+# novel cases are generated.
+#
+# It is recommended to check this file in to source control so that
+# everyone who runs the test benefits from these saved cases.
+cc e343b5b28d3cee8223201ec37a526d4beb34e5b1ee56ec76ef63f118783965e4 # shrinks to d = DiceCounter([(E.Cryo, 1), (E.Geo, 2)]), cost = Cost { elem_cost: None, unaligned_cost: 1, aligned_cost: 0, energy_cost: 0 }, (ep1, ep2, elem) = (ElementPriority { important_elems: EnumSet(Pyro | Electro | Geo | Anemo), active_elem: None }, ElementPriority { important_elems: EnumSet(Pyro | Electro | Anemo), active_elem: None }, Geo)
+cc aa1fae6c25d5434a2efddb51166800983dd151a11b4b19adfa437e7ecd286059 # shrinks to d = DiceCounter([(Omni, 2), (E.Pyro, 1), (E.Dendro, 2)]), cost = Cost { elem_cost: None, unaligned_cost: 0, aligned_cost: 2, energy_cost: 0 }, (ep1, ep2, _) = (ElementPriority { important_elems: EnumSet(Hydro | Dendro), active_elem: None }, ElementPriority { important_elems: EnumSet(Hydro), active_elem: None }, Dendro)
+cc 40936f49711428d0b75647a1148031dca18bf91c48442ffcb371519fb2a33a16 # shrinks to (d1, d2) = (DiceCounter([(E.Pyro, 4)]), DiceCounter([(Omni, 1), (E.Pyro, 4), (E.Hydro, 3)])), cost = Cost { elem_cost: None, unaligned_cost: 0, aligned_cost: 4, energy_cost: 0 }, ep = ElementPriority { important_elems: EnumSet(Pyro), active_elem: None }
