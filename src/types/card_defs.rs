@@ -143,6 +143,10 @@ impl Cost {
         }
     }
 
+    pub const fn with_aligned(self, aligned_cost: u8) -> Cost {
+        Cost { aligned_cost, ..self }
+    }
+
     pub const fn with_unaligned(self, unaligned_cost: u8) -> Cost {
         Cost { unaligned_cost, ..self }
     }

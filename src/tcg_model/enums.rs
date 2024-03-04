@@ -82,6 +82,16 @@ impl Dice {
     pub const DENDRO: Dice = Dice::Elem(Element::Dendro);
     pub const GEO: Dice = Dice::Elem(Element::Geo);
     pub const ANEMO: Dice = Dice::Elem(Element::Anemo);
+    pub const VALUES: [Self; 8] = [
+        Self::Omni,
+        Self::PYRO,
+        Self::HYDRO,
+        Self::CRYO,
+        Self::ELECTRO,
+        Self::DENDRO,
+        Self::GEO,
+        Self::ANEMO,
+    ];
 
     #[inline]
     pub fn to_index(&self) -> usize {
