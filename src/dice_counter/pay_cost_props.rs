@@ -304,6 +304,22 @@ mod downgrade_elem_priority {
             };
             assert!(elem_paid <= elem_paid_downgrade);
         }
+
+        #[test]
+        fn unaligned_or_aligned_affected_by_element_priority_single_elem(n in 0..10u8, e1 in arb_elem(), e2 in arb_elem(), ep in arb_element_priority(), is_aligned in any::<bool>()) {
+            prop_assume!(e1 != e2);
+            let mut ep = ep;
+            ep.downgrade_elem(e2);
+            ep.downgrade_elem(e2);
+            prop_assume!(ep.elems().contains(e1));
+            let cost = if is_aligned { Cost::aligned(n) } else { Cost::unaligned(n) };
+            let mut d = DiceCounter::default();
+            d.add_single(Dice::Elem(e1), n);
+            d.add_single(Dice::Elem(e2), n);
+            let d1 = d.try_pay_cost(&cost, &ep).expect("fail");
+            assert_eq!(d1[Dice::Elem(e1)], n);
+            assert_eq!(d1[Dice::Elem(e2)], 0);
+        }
     }
 }
 
@@ -340,6 +356,17 @@ mod unaligned_cost {
             let diff = d.total() - paid.total();
             assert_eq!(diff, n);
         }
+
+        #[test]
+        fn preferred_elem_not_paid_if_possible(d in arb_dice_counter(), n in 0..10u8, ep in arb_element_priority(), e in arb_elem()) {
+            let mut d = d;
+            d.set_single(Dice::Elem(e), 0);
+            prop_assume!(ep.elems().contains(e));
+            prop_assume!(d.total() - d[Dice::Elem(e)] >= n);
+            let cost = Cost::unaligned(n);
+            let Some(paid) = d.try_pay_cost(&cost, &ep) else { prop_assume!(false); unreachable!(); };
+            assert_eq!(d[Dice::Elem(e)], paid[Dice::Elem(e)]);
+        }
     }
 }
 
@@ -364,5 +391,14 @@ mod elem_cost {
                 assert_eq!(elems_paid, elem_set![e]);
             }
         }
+
+        #[test]
+        fn not_affected_by_element_priority(d in arb_dice_counter(), n in 0..10u8, (ep1, ep2, e) in arb_element_priority_with_downgrade()) {
+            let cost = Cost::elem(e, n);
+            assert_eq!(d.try_pay_cost(&cost, &ep1), d.try_pay_cost(&cost, &ep2));
+        }
     }
 }
+
+// TODO ElementPriority tests: A + B where A contains EP elements and B does not at all
+// TODO ELementPriority: more-preferred properties
