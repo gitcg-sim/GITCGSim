@@ -300,10 +300,7 @@ mod tests {
         test_rand_with_reroll(
             &mut r,
             SAMPLES,
-            ElementPriority {
-                important_elems: elem_set![],
-                active_elem: Some(Element::Pyro),
-            },
+            ElementPriority::new(Default::default(), Some(Element::Pyro)),
         );
     }
 
@@ -313,10 +310,7 @@ mod tests {
         test_rand_with_reroll(
             &mut r,
             SAMPLES,
-            ElementPriority {
-                important_elems: elem_set![Element::Pyro, Element::Hydro],
-                active_elem: Some(Element::Pyro),
-            },
+            ElementPriority::new(elem_set![Element::Pyro, Element::Hydro], Some(Element::Pyro)),
         );
     }
 
@@ -326,10 +320,10 @@ mod tests {
         test_rand_with_reroll(
             &mut r,
             SAMPLES,
-            ElementPriority {
-                important_elems: elem_set![Element::Pyro, Element::Hydro, Element::Dendro],
-                active_elem: Some(Element::Pyro),
-            },
+            ElementPriority::new(
+                elem_set![Element::Pyro, Element::Hydro, Element::Dendro],
+                Some(Element::Pyro),
+            ),
         );
     }
 }

@@ -1,3 +1,5 @@
+use core::cell::RefCell;
+
 use crate::std_subset::{ops::Index, vec, Vec};
 
 use constdefault::ConstDefault;
@@ -35,21 +37,29 @@ impl crate::std_subset::fmt::Debug for DiceCounter {
     }
 }
 
+thread_local! {
+    /// Memoization for ElementPriority::elem_order. Index by 8 possible values of `active_elem` (7 `Some(elem)` and `None`)
+    /// and 128 possible values of `important_elems` (2^7)
+    static ELEM_ORDER_CACHE: RefCell<[[Option<[Element; 7]>; 128]; 8]> = RefCell::new([[None; 128]; 8]);
+}
+
 /// Describes the preferred elements to keep for selecting Elemental Dice for
 /// (1) cost payments and (2) automatic dice rerolls
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct ElementPriority {
     /// Preferred elements (lower priority)
-    pub important_elems: ElementSet,
+    important_elems: ElementSet,
     /// Element of the active character, if applicable (higher priority)
-    pub active_elem: Option<Element>,
+    active_elem: Option<Element>,
+    elem_order: [Element; 7],
 }
 
 impl ConstDefault for ElementPriority {
     const DEFAULT: Self = Self {
         important_elems: enum_set![],
         active_elem: None,
+        elem_order: Element::VALUES,
     };
 }
 
@@ -61,11 +71,21 @@ impl Default for ElementPriority {
 
 impl ElementPriority {
     #[inline]
-    pub fn new(important_elems: ElementSet, active_elem: Option<Element>) -> ElementPriority {
+    pub fn new(mut important_elems: ElementSet, active_elem: Option<Element>) -> ElementPriority {
+        if let Some(e) = active_elem {
+            important_elems.insert(e);
+        };
+        let elem_order = Self::get_updated_elem_order(active_elem, important_elems);
         ElementPriority {
             important_elems,
             active_elem,
+            elem_order,
         }
+    }
+
+    #[inline]
+    pub fn elem_order(&self) -> [Element; 7] {
+        self.elem_order
     }
 
     #[inline]
@@ -113,6 +133,38 @@ impl ElementPriority {
                 }
             }
         }
+    }
+
+    fn get_updated_elem_order(active_elem: Option<Element>, important_elems: ElementSet) -> [Element; 7] {
+        #[inline]
+        fn option_elem_to_index(e: Option<Element>) -> usize {
+            e.map_or(7, |e| e.to_index())
+        }
+
+        let compute = || {
+            let mut elem_order = Element::VALUES;
+            elem_order.sort_by_key(|&e| {
+                if active_elem == Some(e) {
+                    2
+                } else if important_elems.contains(e) {
+                    1
+                } else {
+                    0
+                }
+            });
+            elem_order
+        };
+
+        ELEM_ORDER_CACHE.with_borrow_mut(|arr| {
+            let entry = &mut arr[option_elem_to_index(active_elem)][important_elems.as_u8() as usize];
+            if let Some(es) = entry {
+                *es
+            } else {
+                let es = compute();
+                *entry = Some(es);
+                es
+            }
+        })
     }
 }
 
@@ -277,7 +329,39 @@ impl DiceCounter {
         self.try_pay_cost(cost, &ElementPriority::default())
     }
 
-    pub fn elem_order(&self, ep: &ElementPriority) -> SmallVec<[Element; 7]> {
+    /// Produce an ordering of elements to pay cost for given current Elemental
+    /// Dice and and `ElementPriority`.
+    ///
+    /// The ordering is as follows:
+    /// 1. Not prioritized, dice count below 3
+    /// 2. Not prioritized, dice count 3 or above
+    /// 3. Prioritized in preferred elements
+    /// 4. Prioritized in active element
+    fn elem_order(&self, ep: &ElementPriority) -> heapless::Vec<Element, 7> {
+        let mut elems: heapless::Vec<Element, 7> = ep
+            .elem_order()
+            .iter()
+            .copied()
+            .filter(|&e| self.elem[e.to_index()] > 0)
+            .collect();
+        let in_ep = ep.elems();
+        elems.sort_by_key(|&e| {
+            if in_ep.contains(e) {
+                2
+            } else {
+                let v = self.elem[e.to_index()];
+                if v >= 3 {
+                    1
+                } else {
+                    0
+                }
+            }
+        });
+        elems
+    }
+
+    #[cfg(any())]
+    fn elem_order(&self, ep: &ElementPriority) -> heapless::Vec<Element, 7> {
         let mut elems: SmallVec<[Element; 7]> = Element::VALUES
             .iter()
             .copied()
@@ -287,6 +371,7 @@ impl DiceCounter {
         let ElementPriority {
             important_elems,
             active_elem,
+            ..
         } = *ep;
         elems.sort_unstable_by_key(|&e| {
             (0x200_u16 - (self.elem[e.to_index()] as u16))

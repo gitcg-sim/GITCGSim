@@ -1,6 +1,6 @@
 use super::*;
 
-use crate::{phc, status_impls::prelude::Cost, zobrist_hash::PlayerHashContext};
+use crate::{phc, status_impls::prelude::Cost, types::ElementSet, zobrist_hash::PlayerHashContext};
 
 impl CharState {
     #[inline]
@@ -115,15 +115,16 @@ impl PlayerState {
     }
 
     pub fn get_element_priority_switch(&self, dst_char_idx: u8) -> ElementPriority {
-        let mut ep = ElementPriority::default();
+        let mut important_elems = ElementSet::default();
+        let mut active_elem = Default::default();
         for (i, c) in self.char_states.enumerate_valid() {
             let e = c.char_id.get_char_card().elem;
-            ep.important_elems |= e;
+            important_elems.insert(e);
             if i == dst_char_idx {
-                ep.active_elem = Some(e);
+                active_elem = Some(e);
             }
         }
-        ep
+        ElementPriority::new(important_elems, active_elem)
     }
 
     pub fn get_dice_distribution(&self, status_collection: &StatusCollection) -> DiceDistribution {

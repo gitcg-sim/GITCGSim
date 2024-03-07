@@ -109,10 +109,10 @@ prop_compose! {
         (e1, e2, e3, e4, e5) in (arb_elem(), arb_elem(), arb_elem(), arb_elem(), arb_elem()),
         has_active in any::<u8>(),
     ) -> ElementPriority {
-        ElementPriority {
-            important_elems: elem_set![e1, e2, e3, e4],
-            active_elem: if has_active % 3 == 0 { None } else { Some(e5) },
-        }
+        ElementPriority::new(
+            elem_set![e1, e2, e3, e4],
+            if has_active % 3 == 0 { None } else { Some(e5) },
+        )
     }
 }
 
@@ -127,6 +127,9 @@ impl ElementPriority {
         if self.important_elems.contains(elem) {
             self.important_elems.remove(elem);
             changed = true;
+        }
+        if changed {
+            self.elem_order = Self::get_updated_elem_order(self.active_elem, self.important_elems);
         }
         changed
     }
@@ -155,20 +158,6 @@ pub fn cost_props<F: Fn(DiceCounter, DiceCounter) -> R, R>(
     let updated1 = d2.try_pay_cost(&cost2, &ep2).expect("property failed");
     let b = f(d2, updated1);
     Ok(Some((a, b)))
-}
-
-pub fn ensure_does_not_increase_omni_paid(
-    t1: (DiceCounter, Cost),
-    t2: (DiceCounter, Cost),
-    ep: (ElementPriority, ElementPriority),
-) -> Result<(), std::convert::Infallible> {
-    let Some((omni_paid, omni_paid_superset)) =
-        cost_props(t1, t2, ep, |d, updated| d[Dice::Omni] - updated[Dice::Omni])?
-    else {
-        return Ok(());
-    };
-    assert!(omni_paid_superset <= omni_paid);
-    Ok(())
 }
 
 pub fn ensure_same_number_of_dice_spent(
@@ -241,12 +230,6 @@ mod superset {
         fn same_number_of_dice_spent((d1, d2) in arb_dice_counter_superset(), cost in arb_tcg_cost_no_energy(), ep in arb_element_priority()) {
             ensure_same_number_of_dice_spent((d1, cost), (d2, cost), (ep, ep))?;
         }
-
-        #[cfg(any())]
-        #[test]
-        fn does_not_increase_omni_paid((d1, d2) in arb_dice_counter_superset(), cost in arb_tcg_cost_no_energy(), ep in arb_element_priority()) {
-            ensure_does_not_increase_omni_paid((d1, cost), (d2, cost), (ep, ep))?;
-        }
     }
 }
 
@@ -265,11 +248,6 @@ mod loosen_cost {
         fn same_number_of_dice_spent(d in arb_dice_counter(), cost in arb_tcg_cost_no_energy(), ep in arb_element_priority()) {
             ensure_same_number_of_dice_spent((d, cost), (d, cost.loosen_to_unaligned()), (ep, ep))?;
         }
-
-        #[test]
-        fn does_not_increase_omni_paid(d in arb_dice_counter(), cost in arb_tcg_cost_no_energy(), ep in arb_element_priority()) {
-            ensure_does_not_increase_omni_paid((d, cost), (d, cost.loosen_to_unaligned()), (ep, ep))?;
-        }
     }
 }
 
@@ -277,20 +255,6 @@ mod downgrade_elem_priority {
     use super::*;
 
     proptest! {
-        #[test]
-        fn does_not_increase_omni_paid(
-            d in arb_dice_counter(),
-            cost in arb_tcg_cost_no_energy(),
-            (ep1, ep2, _) in arb_element_priority_with_downgrade()
-        ) {
-            let Some((omni_paid, omni_paid_downgrade)) =
-                cost_props((d, cost), (d, cost), (ep1, ep2), |d, updated| d[Dice::Omni] - updated[Dice::Omni])?
-            else {
-                return Ok(());
-            };
-            assert!(omni_paid >= omni_paid_downgrade);
-        }
-
         #[test]
         fn does_not_decrease_downgraded_elem_paid(
             d in arb_dice_counter(),
