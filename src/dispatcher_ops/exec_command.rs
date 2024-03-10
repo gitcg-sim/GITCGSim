@@ -113,18 +113,16 @@ impl GameState {
                         },
                     );
                 });
-                {
-                    let player = self.players.get_mut(player_id);
-                    player.clear_flags_for_end_of_turn(phc!(self, player_id));
-                    for (char_idx, char_state) in player.char_states.iter_all_mut().enumerate() {
-                        let next_flags = char_state.flags & CharFlag::RETAIN;
-                        char_state.set_flags_hashed(chc!(self, player_id, char_idx as u8), next_flags);
-                    }
+                let player = self.players.get_mut(player_id);
+                player.clear_flags_for_end_of_turn(phc!(self, player_id));
+                for (char_idx, char_state) in player.char_states.iter_all_mut().enumerate() {
+                    let next_flags = char_state.flags & CharFlag::RETAIN;
+                    char_state.set_flags_hashed(chc!(self, player_id, char_idx as u8), next_flags);
                 }
             }
 
             self.round_number += 1;
-            self.set_phase(Phase::new_roll_phase(first_active_player));
+            self.set_phase(Phase::Drawing { first_active_player });
             if let Some(log) = &mut self.log {
                 log.log(Event::Phase(self.phase));
             }

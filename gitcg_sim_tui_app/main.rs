@@ -266,6 +266,7 @@ impl<B: Backend> App<B> {
 
             let info = Paragraph::new({
                 let phase_part = match game_state.get_phase() {
+                    Phase::Drawing { .. } => "Drawing Cards".to_string(),
                     Phase::SelectStartingCharacter { .. } => "Select Starting".to_string(),
                     Phase::RollPhase { .. } => "Roll Phase".to_string(),
                     Phase::ActionPhase { first_end_round, .. } => {

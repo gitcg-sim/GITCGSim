@@ -131,12 +131,20 @@ impl PlayerId {
     }
 }
 
+// TODO
+// #[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
+// #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+// pub enum DrawingState {
+//     #[default]
+//     AskingForCards,
+//     WaitingForMulligan(PlayerId),
+// }
+
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum RollPhaseState {
     #[default]
     Start,
-    Drawing,
     Rolling,
 }
 
@@ -158,6 +166,9 @@ impl Default for SelectStartingCharacterState {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum Phase {
+    Drawing {
+        first_active_player: PlayerId,
+    },
     SelectStartingCharacter {
         state: SelectStartingCharacterState,
     },
@@ -187,7 +198,12 @@ impl SelectStartingCharacterState {
     }
 }
 
+// TODO Add DispatchResult to part of Phase instead of manually returning them after set_phase
 impl Phase {
+    pub const INITIAL: Self = Self::Drawing {
+        first_active_player: PlayerId::PlayerFirst,
+    };
+
     #[inline]
     pub fn new_roll_phase(first_active_player: PlayerId) -> Phase {
         Phase::RollPhase {

@@ -39,7 +39,10 @@ macro_rules! action_list {
         $crate::smallvec::SmallVec::<[_; 16]>::new()
     };
     ($($e : expr),+ $(,)?) => {
-        $crate::smallvec::smallvec![$($e),+]
+        {
+            let v: $crate::smallvec::SmallVec::<[_; 16]> = $crate::smallvec::smallvec![$($e),+];
+            v
+        }
     }
 }
 

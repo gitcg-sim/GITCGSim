@@ -149,14 +149,11 @@ let mut game_state: GameState = GameStateInitializer::default()
        vec![CharId::Yoimiya, CharId::KamisatoAyaka, CharId::Bennett],
        vec![CharId::Fischl, CharId::RhodeiaOfLoch, CharId::FatuiPyroAgent],
     )
-    .skip_to_roll_phase()
+    .start_at_beginning()
     .build();
 
 // Waiting for nondeterministic input, so no player is to move
 assert_eq!(None, game_state.to_move_player());
-
-// Required to initialize.
-game_state.advance(Input::NoAction).unwrap();
 
 // Add cards to both players hands
 game_state
@@ -168,6 +165,18 @@ game_state
         ).into()
     )))
     .unwrap();
+
+// Select starting characters
+game_state
+    .advance(Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::SwitchCharacter(1)))
+    .unwrap();
+
+game_state
+    .advance(Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::SwitchCharacter(0)))
+    .unwrap();
+
+// Advance Roll Phase
+game_state.advance(Input::NoAction).unwrap();
 
 // Add 8 Omni dice to both players
 game_state

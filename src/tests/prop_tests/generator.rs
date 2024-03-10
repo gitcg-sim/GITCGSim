@@ -52,7 +52,7 @@ prop_compose! {
     pub fn arb_init_game_state()(p1_chars in arb_char_ids(), p2_chars in arb_char_ids()) -> GameState {
         GameStateInitializer::default()
             .characters(p1_chars, p2_chars)
-            .start_at_select_character()
+            .start_at_beginning()
             .build()
     }
 }

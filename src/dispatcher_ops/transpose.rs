@@ -97,6 +97,9 @@ impl ByPlayer<StatusCollection> {
 impl Phase {
     pub fn transpose_in_place(&mut self) {
         match self {
+            Phase::Drawing { first_active_player } => {
+                first_active_player.flip();
+            }
             Phase::SelectStartingCharacter { state } => state.flip(),
             Phase::RollPhase {
                 first_active_player,

@@ -17,7 +17,6 @@ skills, etc) into invocations of card/effect implementations.
 The card/effect implementations generate actions performed on the game state
 through the command pattern.
 
-
 ## 2. Commands
 
 Commands represent units of card effects such as:

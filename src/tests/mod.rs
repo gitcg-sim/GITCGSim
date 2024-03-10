@@ -2,7 +2,7 @@ use crate::builder::*;
 use crate::cards::ids::*;
 use crate::dispatcher_ops::*;
 use crate::types::{dice_counter::*, game_state::*, input::*, tcg_model::*};
-use crate::{elem_set, list8, vector};
+use crate::{action_list, elem_set, list8, vector};
 use enumset::enum_set;
 
 pub mod characters;
@@ -24,16 +24,71 @@ pub mod serialization;
 
 pub mod prop_tests;
 
+// TODO inline this constant
 pub const NO_ACTION: Input = Input::NoAction;
 
 impl GameState {
+    /// Handle advancing the game state through RollPhase until the start of Action Phase
     /// Panics: If `advance` causes an error.
-    fn advance_roll_phase_no_dice(self: &mut GameState) {
-        self.advance(NO_ACTION).unwrap();
-        self.advance(Input::NondetResult(NondetResult::ProvideCards(Default::default())))
-            .unwrap();
+    fn advance_roll_phase_no_dice(&mut self) {
+        assert!(
+            !matches!(
+                self.phase,
+                Phase::ActionPhase { .. } | Phase::EndPhase { .. } | Phase::WinnerDecided { .. }
+            ),
+            "invalid phase: {:?}",
+            self.phase
+        );
+        if matches!(self.phase, Phase::Drawing { .. }) {
+            assert!(matches!(self.get_nondet_request(), Some(NondetRequest::DrawCards(..))));
+            self.advance(Input::NondetResult(NondetResult::ProvideCards(Default::default())))
+                .unwrap();
+            if self.round_number == 1 {
+                // TODO mulligan here
+                assert!(
+                    matches!(self.phase, Phase::SelectStartingCharacter { .. }),
+                    "must be on Phase::SelectStartingCharacter"
+                );
+                assert!(self.get_nondet_request().is_none(), "must have no NondetRequest");
+                self.advance(Input::FromPlayer(
+                    PlayerId::PlayerFirst,
+                    PlayerAction::SwitchCharacter(0),
+                ))
+                .unwrap();
+                self.advance(Input::FromPlayer(
+                    PlayerId::PlayerSecond,
+                    PlayerAction::SwitchCharacter(0),
+                ))
+                .unwrap();
+            }
+        }
+
+        // Roll Phase
+        assert!(
+            matches!(self.phase, Phase::RollPhase { .. }),
+            "must be on Phase::RollPhase"
+        );
+        match self.phase {
+            Phase::RollPhase {
+                roll_phase_state: RollPhaseState::Start,
+                ..
+            } => {
+                self.advance(NO_ACTION).unwrap();
+            }
+            Phase::RollPhase {
+                roll_phase_state: RollPhaseState::Rolling,
+                ..
+            } => {
+                // do nothing
+            }
+            _ => unreachable!(),
+        }
         self.advance(Input::NondetResult(NondetResult::ProvideDice(Default::default())))
             .unwrap();
+        assert!(
+            matches!(self.phase, Phase::ActionPhase { .. }),
+            "must be on Phase::ActionPhase"
+        );
     }
 
     /// Panics: If `advance` causes an error.

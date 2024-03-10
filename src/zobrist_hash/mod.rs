@@ -117,6 +117,12 @@ impl ZobristHasher {
 
 impl Phase {
     const VALUES: [Phase; 20] = [
+        Self::Drawing {
+            first_active_player: PlayerId::PlayerFirst,
+        },
+        Self::Drawing {
+            first_active_player: PlayerId::PlayerSecond,
+        },
         Self::RollPhase {
             first_active_player: PlayerId::PlayerFirst,
             roll_phase_state: RollPhaseState::Start,
@@ -124,14 +130,6 @@ impl Phase {
         Self::RollPhase {
             first_active_player: PlayerId::PlayerSecond,
             roll_phase_state: RollPhaseState::Start,
-        },
-        Self::RollPhase {
-            first_active_player: PlayerId::PlayerFirst,
-            roll_phase_state: RollPhaseState::Drawing,
-        },
-        Self::RollPhase {
-            first_active_player: PlayerId::PlayerSecond,
-            roll_phase_state: RollPhaseState::Drawing,
         },
         Self::RollPhase {
             first_active_player: PlayerId::PlayerFirst,
@@ -203,21 +201,19 @@ impl Phase {
     #[inline]
     const fn to_index(self) -> usize {
         match self {
-            Self::RollPhase {
+            Self::Drawing {
                 first_active_player: PlayerId::PlayerFirst,
-                roll_phase_state: RollPhaseState::Start,
             } => 0,
-            Self::RollPhase {
+            Self::Drawing {
                 first_active_player: PlayerId::PlayerSecond,
-                roll_phase_state: RollPhaseState::Start,
             } => 1,
             Self::RollPhase {
                 first_active_player: PlayerId::PlayerFirst,
-                roll_phase_state: RollPhaseState::Drawing,
+                roll_phase_state: RollPhaseState::Start,
             } => 2,
             Self::RollPhase {
                 first_active_player: PlayerId::PlayerSecond,
-                roll_phase_state: RollPhaseState::Drawing,
+                roll_phase_state: RollPhaseState::Start,
             } => 3,
             Self::RollPhase {
                 first_active_player: PlayerId::PlayerFirst,

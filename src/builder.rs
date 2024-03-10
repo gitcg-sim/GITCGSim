@@ -3,8 +3,10 @@ use crate::std_subset::{marker::PhantomData, Box};
 use crate::zobrist_hash::ZobristHasher;
 use crate::{cards::ids::*, data_structures::Vector, prelude::*, types::by_player::ByPlayer};
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Default)]
 pub enum StartingPhase {
+    #[default]
+    Beginning,
     SelectStartingCharacter,
     RollPhase,
 }
@@ -29,6 +31,9 @@ impl StartingCondition {
 
     pub fn starting_phase(&self) -> Phase {
         match self.starting_phase {
+            StartingPhase::Beginning => Phase::Drawing {
+                first_active_player: PlayerId::PlayerFirst,
+            },
             StartingPhase::RollPhase => Phase::new_roll_phase(PlayerId::PlayerFirst),
             StartingPhase::SelectStartingCharacter => Phase::SelectStartingCharacter {
                 state: Default::default(),
@@ -107,6 +112,12 @@ impl<C: CharactersState, S: StartingConditionState> GameStateInitializer<C, S> {
         }
     }
 
+    pub fn start_at_beginning(self) -> GameStateInitializer<C, HasStartingCondition> {
+        self.starting_condition(StartingCondition {
+            starting_phase: Default::default(),
+        })
+    }
+
     pub fn start_at_select_character(self) -> GameStateInitializer<C, HasStartingCondition> {
         // TODO Select starting character broken?
         self.starting_condition(StartingCondition {
@@ -141,7 +152,7 @@ impl GameStateInitializer<HasCharacters, HasStartingCondition> {
             players: ByPlayer::new(PlayerState::new([]), PlayerState::new([])),
             status_collections: Default::default(),
             pending_cmds: None,
-            phase: Phase::new_roll_phase(PlayerId::PlayerFirst),
+            phase: Phase::INITIAL,
             round_number: 1,
             ignore_costs: false,
             log: None,

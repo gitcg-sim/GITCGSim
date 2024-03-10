@@ -1,13 +1,101 @@
+use crate::prelude::ByPlayer;
+
 use super::*;
 
 #[test]
-fn first_phase_is_roll_phase() {
-    let gs = GameStateInitializer::new_skip_to_roll_phase(
+fn first_round_phases_before_action_phase() {
+    let mut gs = GameStateInitializer::new(
         vector![CharId::Kaeya, CharId::Fischl],
-        vector![CharId::KamisatoAyaka],
+        vector![CharId::KamisatoAyaka, CharId::Yoimiya, CharId::Xingqiu],
     )
+    .start_at_beginning()
     .build();
     assert_eq!(1, gs.round_number);
+
+    // Drawing cards
+    assert_eq!(
+        Phase::Drawing {
+            first_active_player: PlayerId::PlayerFirst
+        },
+        gs.phase
+    );
+    assert_eq!(None, gs.to_move_player());
+    assert_eq!(Some(NondetRequest::DrawCards((5, 5).into())), gs.get_nondet_request());
+    assert!(gs.available_actions().is_empty());
+    assert_eq!(
+        Ok(DispatchResult::PlayerInput(PlayerId::PlayerFirst)),
+        gs.advance(Input::NondetResult(NondetResult::ProvideCards(
+            (
+                [
+                    CardId::BlankCard,
+                    CardId::BlankCard,
+                    CardId::LeaveItToMe,
+                    CardId::AdeptusTemptation,
+                    CardId::BlankCard
+                ]
+                .into(),
+                [
+                    CardId::DawnWinery,
+                    CardId::CalxsArts,
+                    CardId::AquilaFavonia,
+                    CardId::BlankCard,
+                    CardId::SweetMadame
+                ]
+                .into(),
+            )
+                .into()
+        )))
+    );
+
+    // TODO mulligan here
+
+    // Select starting character 1
+    assert_eq!(Some(PlayerId::PlayerFirst), gs.to_move_player());
+    assert_eq!(None, gs.get_nondet_request());
+    assert_eq!(
+        action_list![
+            Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::SwitchCharacter(0)),
+            Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::SwitchCharacter(1)),
+        ],
+        gs.available_actions()
+    );
+    assert_eq!(
+        Ok(DispatchResult::PlayerInput(PlayerId::PlayerSecond)),
+        gs.advance(Input::FromPlayer(
+            PlayerId::PlayerFirst,
+            PlayerAction::SwitchCharacter(1)
+        ))
+    );
+    assert_eq!(1, gs.get_player(PlayerId::PlayerFirst).active_char_idx);
+
+    // Select starting character 2
+    assert_eq!(Some(PlayerId::PlayerSecond), gs.to_move_player());
+    assert_eq!(None, gs.get_nondet_request());
+    assert_eq!(
+        action_list![
+            Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::SwitchCharacter(0)),
+            Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::SwitchCharacter(1)),
+            Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::SwitchCharacter(2)),
+        ],
+        gs.available_actions()
+    );
+    assert_eq!(
+        Ok(DispatchResult::NoInput),
+        gs.advance(Input::FromPlayer(
+            PlayerId::PlayerSecond,
+            PlayerAction::SwitchCharacter(0)
+        ))
+    );
+    assert_eq!(1, gs.get_player(PlayerId::PlayerFirst).active_char_idx);
+    assert_eq!(0, gs.get_player(PlayerId::PlayerSecond).active_char_idx);
+
+    // Start of Roll Phase
+    let dice_distrs = ByPlayer::new(
+        gs.get_player(PlayerId::PlayerFirst)
+            .get_dice_distribution(gs.get_status_collection(PlayerId::PlayerFirst)),
+        gs.get_player(PlayerId::PlayerSecond)
+            .get_dice_distribution(gs.get_status_collection(PlayerId::PlayerSecond)),
+    );
     assert_eq!(
         Phase::RollPhase {
             first_active_player: PlayerId::PlayerFirst,
@@ -15,6 +103,44 @@ fn first_phase_is_roll_phase() {
         },
         gs.phase
     );
+    assert_eq!(None, gs.to_move_player());
+    assert_eq!(None, gs.get_nondet_request());
+    assert_eq!(1, gs.available_actions().len());
+    assert_eq!(
+        Ok(DispatchResult::NondetRequest(NondetRequest::RollDice(dice_distrs))),
+        gs.advance(Input::NoAction)
+    );
+
+    // Provide Dice
+    assert_eq!(
+        Phase::RollPhase {
+            first_active_player: PlayerId::PlayerFirst,
+            roll_phase_state: RollPhaseState::Rolling
+        },
+        gs.phase
+    );
+    assert_eq!(None, gs.to_move_player());
+    assert_eq!(Some(NondetRequest::RollDice(dice_distrs)), gs.get_nondet_request());
+    assert_eq!(1, gs.available_actions().len());
+    assert_eq!(
+        Ok(DispatchResult::PlayerInput(PlayerId::PlayerFirst)),
+        gs.advance(Input::NondetResult(NondetResult::ProvideDice(
+            (DiceCounter::omni(8), DiceCounter::omni(8)).into()
+        )))
+    );
+
+    // Enter Action Phase
+    assert_eq!(1, gs.round_number);
+    assert_eq!(
+        Phase::ActionPhase {
+            first_end_round: None,
+            active_player: PlayerId::PlayerFirst
+        },
+        gs.phase
+    );
+    assert_eq!(Some(PlayerId::PlayerFirst), gs.to_move_player());
+    assert_eq!(None, gs.get_nondet_request());
+    assert!(!gs.available_actions().is_empty());
 }
 
 #[test]
@@ -50,8 +176,22 @@ fn action_phase_and_first_player_to_end_round() {
         gs.phase
     );
 
-    gs.advance_multiple([NO_ACTION]);
+    gs.advance(NO_ACTION).unwrap();
+
     assert_eq!(2, gs.round_number);
+    assert_eq!(
+        Phase::Drawing {
+            first_active_player: PlayerId::PlayerFirst,
+        },
+        gs.phase
+    );
+    assert!(gs.get_nondet_request().is_some());
+    assert_eq!(
+        Ok(DispatchResult::NoInput),
+        gs.advance(Input::NondetResult(NondetResult::ProvideCards(Default::default())))
+    );
+
+    assert_eq!(None, gs.get_nondet_request());
     assert_eq!(
         Phase::RollPhase {
             first_active_player: PlayerId::PlayerFirst,
@@ -59,8 +199,11 @@ fn action_phase_and_first_player_to_end_round() {
         },
         gs.phase
     );
+    gs.advance(Input::NoAction).unwrap();
 
-    gs.advance_roll_phase_no_dice();
+    assert!(gs.get_nondet_request().is_some());
+    gs.advance(Input::NondetResult(NondetResult::ProvideDice(Default::default())))
+        .unwrap();
     assert_eq!(
         Phase::ActionPhase {
             first_end_round: None,
@@ -68,6 +211,32 @@ fn action_phase_and_first_player_to_end_round() {
         },
         gs.phase
     );
+}
+
+#[test]
+fn player_second_ended_round_first_should_start_next_round_first() {
+    let mut gs = GameStateInitializer::new_skip_to_roll_phase(
+        vector![CharId::Kaeya, CharId::Fischl],
+        vector![CharId::KamisatoAyaka],
+    )
+    .ignore_costs(true)
+    .build();
+    gs.advance_roll_phase_no_dice();
+    gs.advance_multiple([
+        Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::SwitchCharacter(1)),
+        Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
+        Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::EndRound),
+        NO_ACTION,
+    ]);
+    gs.advance_roll_phase_no_dice();
+    assert_eq!(
+        Phase::ActionPhase {
+            first_end_round: None,
+            active_player: PlayerId::PlayerSecond
+        },
+        gs.get_phase()
+    );
+    assert_eq!(Some(PlayerId::PlayerSecond), gs.to_move_player());
 }
 
 #[test]
@@ -167,10 +336,11 @@ fn trigger_effects_after_post_death_switch() {
 
 #[test]
 fn end_phase_post_death_switch() {
-    let mut gs = GameStateInitializer::new_skip_to_roll_phase(
+    let mut gs = GameStateInitializer::new(
         vector![CharId::Yoimiya, CharId::Ganyu],
         vector![CharId::Fischl, CharId::KamisatoAyaka, CharId::Collei],
     )
+    .start_at_beginning()
     .ignore_costs(true)
     .build();
     {
@@ -191,9 +361,14 @@ fn end_phase_post_death_switch() {
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
         NO_ACTION,
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::PostDeathSwitch(1)),
-        NO_ACTION,
     ]);
-    // No crashes
+    assert_eq!(2, gs.get_round_number());
+    assert_eq!(
+        Phase::Drawing {
+            first_active_player: PlayerId::PlayerFirst
+        },
+        gs.get_phase()
+    );
 }
 
 #[test]
@@ -343,10 +518,11 @@ fn weapon_equip_replace() {
 
 #[test]
 fn skill_cast_tracker() {
-    let mut gs = GameStateInitializer::new_skip_to_roll_phase(
+    let mut gs = GameStateInitializer::new(
         vector![CharId::Ganyu, CharId::Yoimiya],
         vector![CharId::Fischl, CharId::Noelle],
     )
+    .start_at_beginning()
     .ignore_costs(true)
     .build();
 
@@ -402,9 +578,14 @@ fn skill_cast_tracker() {
     gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::EndRound),
         Input::NoAction,
-        Input::NoAction,
     ]);
-    assert_eq!(2, gs.round_number);
+    assert_eq!(2, gs.get_round_number());
+    assert_eq!(
+        Phase::Drawing {
+            first_active_player: PlayerId::PlayerSecond
+        },
+        gs.get_phase()
+    );
     {
         let ganyu = gs.get_player(PlayerId::PlayerFirst).get_active_character();
         assert_eq!(enum_set![], ganyu.flags);
@@ -421,6 +602,8 @@ fn skill_cast_tracker() {
         let noelle = gs.get_player(PlayerId::PlayerSecond).char_states[1];
         assert_eq!(enum_set![], noelle.flags);
     }
+    gs.advance_roll_phase_no_dice();
+    assert_eq!(Some(PlayerId::PlayerSecond), gs.get_phase().active_player());
 }
 
 #[test]

@@ -432,6 +432,9 @@ impl GameState {
         let mut acts = smallvec![];
 
         match self.phase {
+            Phase::Drawing { .. } => {
+                // nothing
+            }
             Phase::SelectStartingCharacter { state } => {
                 let player_id = state.active_player();
                 for (char_idx, _) in self.get_player(player_id).char_states.enumerate_valid() {
@@ -581,6 +584,7 @@ impl GameState {
         }
 
         match self.phase {
+            Phase::Drawing { .. } => None,
             Phase::SelectStartingCharacter { state } => Some(state.active_player()),
             Phase::RollPhase { .. } => None,
             Phase::ActionPhase { active_player, .. } => {
@@ -606,12 +610,12 @@ impl GameState {
         }
 
         match self.phase {
+            Phase::Drawing { .. } => {
+                let n = if self.round_number == 1 { 5 } else { 2 };
+                Some(NondetRequest::DrawCards((n, n).into()))
+            }
             Phase::RollPhase { roll_phase_state, .. } => match roll_phase_state {
                 RollPhaseState::Start => None,
-                RollPhaseState::Drawing => {
-                    let n = if self.round_number == 1 { 5 } else { 2 };
-                    Some(NondetRequest::DrawCards((n, n).into()))
-                }
                 RollPhaseState::Rolling => Some(NondetRequest::RollDice(
                     (
                         self.get_player(PlayerId::PlayerFirst)
@@ -643,6 +647,7 @@ impl GameState {
         }
 
         let res = match self.phase {
+            Phase::Drawing { first_active_player } => self.advance_drawing_phase(input, first_active_player),
             Phase::SelectStartingCharacter { state } => self.advance_select_starting(input, state),
             Phase::RollPhase {
                 first_active_player: active_player,
@@ -659,6 +664,35 @@ impl GameState {
         };
         self.update_hash();
         res
+    }
+
+    fn advance_drawing_phase(
+        &mut self,
+        input: Input,
+        first_active_player: PlayerId,
+    ) -> Result<DispatchResult, DispatchError> {
+        match input {
+            Input::NondetResult(NondetResult::ProvideCards(ByPlayer(cards1, cards2))) => {
+                self.add_cards_to_hand(PlayerId::PlayerFirst, &cards1);
+                self.add_cards_to_hand(PlayerId::PlayerSecond, &cards2);
+                if self.round_number == 1 {
+                    self.set_phase(Phase::SelectStartingCharacter {
+                        state: SelectStartingCharacterState::Start {
+                            to_select: first_active_player,
+                        },
+                    });
+                    Ok(DispatchResult::PlayerInput(first_active_player))
+                } else {
+                    self.set_phase(Phase::RollPhase {
+                        first_active_player,
+                        roll_phase_state: RollPhaseState::Start,
+                    });
+                    Ok(DispatchResult::NoInput)
+                }
+            }
+            Input::NondetResult(..) => Err(DispatchError::NondetResultInvalid),
+            Input::FromPlayer(..) | Input::NoAction => Err(DispatchError::NondetResultRequired),
+        }
     }
 
     fn advance_select_starting(
@@ -683,18 +717,24 @@ impl GameState {
                     // player.char_states[char_idx].insert_flag_hashed(chc!(self, player_id, char_idx), CharFlag::PlungingAttack);
                     player.set_active_char_idx(phc!(self, player_id), char_idx);
                 }
-                self.set_phase(match state {
-                    SelectStartingCharacterState::Start { to_select } => Phase::SelectStartingCharacter {
-                        state: SelectStartingCharacterState::FirstSelected {
-                            to_select: to_select.opposite(),
-                        },
-                    },
-                    SelectStartingCharacterState::FirstSelected { to_select } => Phase::RollPhase {
-                        first_active_player: to_select.opposite(),
-                        roll_phase_state: Default::default(),
-                    },
-                });
-                Ok(DispatchResult::PlayerInput(player_id.opposite()))
+
+                match state {
+                    SelectStartingCharacterState::Start { to_select } => {
+                        self.set_phase(Phase::SelectStartingCharacter {
+                            state: SelectStartingCharacterState::FirstSelected {
+                                to_select: to_select.opposite(),
+                            },
+                        });
+                        Ok(DispatchResult::PlayerInput(player_id.opposite()))
+                    }
+                    SelectStartingCharacterState::FirstSelected { to_select } => {
+                        self.set_phase(Phase::RollPhase {
+                            first_active_player: to_select.opposite(),
+                            roll_phase_state: Default::default(),
+                        });
+                        Ok(DispatchResult::NoInput)
+                    }
+                }
             }
             _ => Err(DispatchError::InvalidInput("Must select a starting character.")),
         }
@@ -733,31 +773,13 @@ impl GameState {
                     }
                     self.set_phase(Phase::RollPhase {
                         first_active_player: active_player,
-                        roll_phase_state: RollPhaseState::Drawing,
+                        roll_phase_state: RollPhaseState::Rolling,
                     });
                     Ok(DispatchResult::NondetRequest(
                         self.get_nondet_request().expect("get_nondet_request"),
                     ))
                 }
             },
-            RollPhaseState::Drawing => {
-                match input {
-                    Input::NondetResult(NondetResult::ProvideCards(ByPlayer(cards1, cards2))) => {
-                        self.add_cards_to_hand(PlayerId::PlayerFirst, &cards1);
-                        self.add_cards_to_hand(PlayerId::PlayerSecond, &cards2);
-                        self.set_phase(Phase::RollPhase {
-                            first_active_player: active_player,
-                            roll_phase_state: RollPhaseState::Rolling,
-                        });
-                        // TODO effects that change reroll counts
-                        Ok(DispatchResult::NondetRequest(
-                            self.get_nondet_request().expect("get_nondet_request"),
-                        ))
-                    }
-                    Input::NondetResult(..) => Err(DispatchError::NondetResultInvalid),
-                    Input::FromPlayer(..) | Input::NoAction => Err(DispatchError::NondetResultRequired),
-                }
-            }
             RollPhaseState::Rolling => match input {
                 Input::NondetResult(NondetResult::ProvideDice(ByPlayer(dice1, dice2))) => {
                     self.players.0.update_incremental_element_priority();
