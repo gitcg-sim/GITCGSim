@@ -263,14 +263,14 @@ fn main_tdl(mut deck: SearchOpts, opts: TDLOpts) -> Result<(), std::io::Error> {
 
 fn generate_data_points_mcts<I: FnMut() -> GameStateWrapper<S>, S: NondetState>(
     tx: Sender<(Features, InputFeatures<f32>, u8)>,
-    mut initial: I,
+    mut make_initial: I,
     searches: &RefCell<ByPlayer<MCTS<GameStateWrapper<S>>>>,
     mcts_min_depth: i8,
     data_points_per_iter: usize,
     iterations: usize,
 ) {
     let mut rng = thread_rng();
-    let mut initial = initial();
+    let mut initial = make_initial();
     for i in 0..iterations {
         println!(
             "{}",
@@ -331,7 +331,7 @@ fn generate_data_points_mcts<I: FnMut() -> GameStateWrapper<S>, S: NondetState>(
         if last_game_state.winner().is_none() {
             initial = last_game_state;
         } else {
-            initial = initial();
+            initial = make_initial();
         }
     }
 }

@@ -294,14 +294,14 @@ impl<G: Game, E: EvalPolicy<G>, S: SelectionPolicy<G>> MCTS<G, E, S> {
             is_maximize,
         };
         let children = parent_node.children(tree).collect::<SmallVec<[_; 16]>>();
-        let children = || {
+        let get_children = || {
             children
                 .iter()
                 .copied()
                 .map(|child| child.data.action.expect("child node action must exist"))
                 .collect()
         };
-        let state = &policy.on_parent(&ctx, children);
+        let state = &policy.on_parent(&ctx, get_children);
         let policy_values = {
             let mut policy_cache = parent.policy_cache.lock().expect("policy_cache unlock");
             if policy_cache.is_empty() && !children.is_empty() {
