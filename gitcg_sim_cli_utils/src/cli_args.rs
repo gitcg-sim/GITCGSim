@@ -263,7 +263,7 @@ impl SearchOpts {
     pub fn standard_game(&self, rng: Option<SmallRng>) -> Result<GameStateWrapper, std::io::Error> {
         let (d1, d2) = self.decks()?;
         let rng = rng.unwrap_or_else(|| SmallRng::seed_from_u64(self.seed.unwrap_or(100)));
-        let mut game = new_standard_game(&d1, &d2, rng);
+        let mut game = new_standard_game((&d1, &d2).into(), rng);
         if self.tactical {
             game.convert_to_tactical_search();
         }

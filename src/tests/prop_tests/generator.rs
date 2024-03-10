@@ -93,7 +93,7 @@ prop_compose! {
         decklist1 in arb_decklist(),
         decklist2 in arb_decklist()
     ) -> GameStateWrapper<StandardNondetHandlerState> {
-        new_standard_game(&decklist1, &decklist2, SmallRng::seed_from_u64(seed))
+        new_standard_game((&decklist1, &decklist2).into(), SmallRng::seed_from_u64(seed))
     }
 }
 

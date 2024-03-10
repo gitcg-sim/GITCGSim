@@ -980,7 +980,7 @@ pub fn main() -> Result<(), io::Error> {
     let (decklist1, decklist2) = deck_opts.decks()?;
     {
         let rand1 = SmallRng::seed_from_u64(deck_opts.seed.unwrap_or(100));
-        let mut game = new_standard_game(&decklist1, &decklist2, rand1);
+        let mut game = new_standard_game((&decklist1, &decklist2).into(), rand1);
         if deck_opts.tactical {
             game.convert_to_tactical_search();
         }

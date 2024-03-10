@@ -47,22 +47,6 @@ impl<T> ByPlayer<T> {
         }
     }
 
-    #[inline]
-    pub fn two(&self, player_id: PlayerId) -> (&T, &T) {
-        match player_id {
-            PlayerId::PlayerFirst => (&self.0, &self.1),
-            PlayerId::PlayerSecond => (&self.1, &self.0),
-        }
-    }
-
-    #[inline]
-    pub fn two_mut(&mut self, player_id: PlayerId) -> (&mut T, &mut T) {
-        match player_id {
-            PlayerId::PlayerFirst => (&mut self.0, &mut self.1),
-            PlayerId::PlayerSecond => (&mut self.1, &mut self.0),
-        }
-    }
-
     pub fn map<A, F: FnMut(T) -> A>(self, mut f: F) -> ByPlayer<A> {
         ByPlayer::<A>::new(f(self.0), f(self.1))
     }
@@ -75,6 +59,10 @@ impl<T> ByPlayer<T> {
     pub fn for_each_mut<F: FnMut(PlayerId, &mut T)>(&mut self, mut f: F) {
         f(PlayerId::PlayerFirst, &mut self.0);
         f(PlayerId::PlayerSecond, &mut self.1);
+    }
+
+    pub fn as_ref(&self) -> ByPlayer<&T> {
+        ByPlayer(&self.0, &self.1)
     }
 }
 

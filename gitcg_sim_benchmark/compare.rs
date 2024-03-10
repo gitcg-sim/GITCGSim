@@ -103,14 +103,13 @@ pub fn parse_compare_opts(json_path: &PathBuf) -> Result<CompareOpts, ParseCompa
 }
 
 fn standard_game(decks: ByPlayer<&Decklist>, mut rng: SmallRng, random_decks: bool) -> GameStateWrapper {
-    // TODO use ByPlayer in the call tree including new_standard_game
-    let (d1, d2) = if random_decks {
-        (random_decklist(&mut rng), random_decklist(&mut rng))
+    let decklists = if random_decks {
+        ByPlayer::generate(|_| random_decklist(&mut rng))
     } else {
-        (decks.0.clone(), decks.1.clone())
+        decks.map(|d| d.clone())
     };
     let rng = SmallRng::seed_from_u64(rng.next_u64());
-    gitcg_sim::prelude::new_standard_game(&d1, &d2, rng)
+    gitcg_sim::prelude::new_standard_game(decklists.as_ref(), rng)
 }
 
 pub fn main_compare(opts: CompareOpts) -> Result<(), String> {

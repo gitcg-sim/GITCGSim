@@ -67,10 +67,10 @@ impl<S: NondetState> GameStateWrapper<S> {
 
 // TODO take ByPlayer instead
 pub fn new_standard_game(
-    decklist1: &Decklist,
-    decklist2: &Decklist,
+    decklists: ByPlayer<&Decklist>,
     rng: SmallRng,
 ) -> GameStateWrapper<StandardNondetHandlerState> {
+    let ByPlayer(decklist1, decklist2) = decklists;
     let game_state = {
         GameStateInitializer::new(decklist1.characters.clone(), decklist2.characters.clone())
             .start_at_beginning()

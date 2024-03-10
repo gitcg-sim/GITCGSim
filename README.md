@@ -131,7 +131,7 @@ use gitcg_sim::rand::{rngs::SmallRng, SeedableRng}; // Re-exports of rand crate
 let deck1 = Decklist::new(vector![CharId::Yoimiya, CharId::KamisatoAyaka, CharId::Bennett], vec![/* CardId::... */].into());
 let deck2 = Decklist::new(vector![CharId::Fischl, CharId::RhodeiaOfLoch, CharId::FatuiPyroAgent], vec![].into());
 let rng = SmallRng::seed_from_u64(100).into();
-let game_state_wrapper = new_standard_game(&deck1, &deck2, rng);
+let game_state_wrapper = new_standard_game((&deck1, &deck2).into(), rng);
 ```
 
 ### State evolution

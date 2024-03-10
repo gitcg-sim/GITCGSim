@@ -293,7 +293,11 @@ impl GameState {
         }
 
         let (src_player_id, tgt_player_id) = (ctx.src_player_id, ctx.src_player_id.opposite());
-        let (src_player, tgt_player) = self.players.two_mut(src_player_id);
+        let (src_player, tgt_player) = if src_player_id == PlayerId::PlayerSecond {
+            (&mut self.players.1, &mut self.players.0)
+        } else {
+            (&mut self.players.0, &mut self.players.1)
+        };
         if !tgt_player.is_valid_char_idx(tgt_char_idx) {
             return ExecResult::Success;
         }
@@ -301,7 +305,7 @@ impl GameState {
         let mut defeated = CharIdxSet::default();
         let mut addl_cmds: SmallVec<[(CommandContext, Command); 8]> = cmd_list![];
         let mut i = 0usize;
-        let mut targets: SmallVec<[_; 4]> = smallvec![(tgt_char_idx, dmg)];
+        let mut targets: SmallVec<[_; CharStates::MAX_CHAR_STATES]> = smallvec![(tgt_char_idx, dmg)];
         while i < targets.len() {
             let (tgt_char_idx, mut dmg) = targets[i];
             let is_piercing = dmg.dmg_type == DealDMGType::Piercing;
