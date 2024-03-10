@@ -24,9 +24,6 @@ pub mod serialization;
 
 pub mod prop_tests;
 
-// TODO inline this constant
-pub const NO_ACTION: Input = Input::NoAction;
-
 impl GameState {
     /// Handle advancing the game state through RollPhase until the start of Action Phase
     /// Panics: If `advance` causes an error.
@@ -73,7 +70,7 @@ impl GameState {
                 roll_phase_state: RollPhaseState::Start,
                 ..
             } => {
-                self.advance(NO_ACTION).unwrap();
+                self.advance(Input::NoAction).unwrap();
             }
             Phase::RollPhase {
                 roll_phase_state: RollPhaseState::Rolling,

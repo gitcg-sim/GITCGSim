@@ -38,7 +38,7 @@ fn cryo_infusion() {
         let fischl = gs.get_player(PlayerId::PlayerSecond).get_active_character();
         assert_eq!(4, fischl.get_hp());
     }
-    gs.advance_multiple([NO_ACTION]);
+    gs.advance_multiple([Input::NoAction]);
     gs.advance_roll_phase_no_dice();
     gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::SwitchCharacter(1)),
@@ -94,7 +94,7 @@ fn kamisato_art_soumetsu_summon() {
     gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::EndRound),
-        NO_ACTION,
+        Input::NoAction,
     ]);
     gs.advance_roll_phase_no_dice();
     assert_eq!(2, gs.round_number);
@@ -107,7 +107,7 @@ fn kamisato_art_soumetsu_summon() {
     gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::EndRound),
-        NO_ACTION,
+        Input::NoAction,
     ]);
     gs.advance_roll_phase_no_dice();
     assert_eq!(3, gs.round_number);
@@ -119,7 +119,7 @@ fn kamisato_art_soumetsu_summon() {
     gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::EndRound),
-        NO_ACTION,
+        Input::NoAction,
     ]);
     gs.advance_roll_phase_no_dice();
     {
@@ -169,7 +169,7 @@ fn cryo_infusion_under_talent_card() {
     }
     gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::EndRound),
-        NO_ACTION,
+        Input::NoAction,
     ]);
     gs.advance_roll_phase_no_dice();
     assert!(gs

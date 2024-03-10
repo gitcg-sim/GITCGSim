@@ -129,7 +129,7 @@ fn food() {
     gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::EndRound),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
-        NO_ACTION,
+        Input::NoAction,
     ]);
     gs.advance_roll_phase_no_dice();
     gs.advance(Input::FromPlayer(
@@ -167,7 +167,7 @@ fn i_havent_lost_yet_activation_condition() {
     gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::EndRound),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
-        NO_ACTION,
+        Input::NoAction,
     ]);
     gs.advance_roll_phase_no_dice();
     assert_eq!(2, gs.round_number);

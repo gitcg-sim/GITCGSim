@@ -176,7 +176,7 @@ fn action_phase_and_first_player_to_end_round() {
         gs.phase
     );
 
-    gs.advance(NO_ACTION).unwrap();
+    gs.advance(Input::NoAction).unwrap();
 
     assert_eq!(2, gs.round_number);
     assert_eq!(
@@ -226,7 +226,7 @@ fn player_second_ended_round_first_should_start_next_round_first() {
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::SwitchCharacter(1)),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::EndRound),
-        NO_ACTION,
+        Input::NoAction,
     ]);
     gs.advance_roll_phase_no_dice();
     assert_eq!(
@@ -359,7 +359,7 @@ fn end_phase_post_death_switch() {
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::SwitchCharacter(2)),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::CastSkill(SkillId::TrumpCardKitty)),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
-        NO_ACTION,
+        Input::NoAction,
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::PostDeathSwitch(1)),
     ]);
     assert_eq!(2, gs.get_round_number());
@@ -395,7 +395,7 @@ fn end_phase_winner_decided() {
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::SwitchCharacter(2)),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::CastSkill(SkillId::TrumpCardKitty)),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
-        NO_ACTION,
+        Input::NoAction,
     ]);
     assert_eq!(
         Phase::WinnerDecided {
