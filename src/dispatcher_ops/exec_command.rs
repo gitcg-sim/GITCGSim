@@ -42,9 +42,7 @@ impl<P: GameStateParams> GameState<P> {
             active_char.set_energy_hashed(chc!(self, active_player_id, active_char_idx), e - ec);
         }
 
-        if let Some(log) = &mut self.log {
-            log.log(Event::PayCost(active_player_id, cost, cost_type));
-        }
+        self.log.log(Event::PayCost(active_player_id, cost, cost_type));
         let Some(d) = player.try_pay_dice_cost(
             &mut self.status_collections,
             phc!(self, active_player_id),
@@ -123,9 +121,7 @@ impl<P: GameStateParams> GameState<P> {
 
             self.round_number += 1;
             self.set_phase(Phase::Drawing { first_active_player });
-            if let Some(log) = &mut self.log {
-                log.log(Event::Phase(self.phase));
-            }
+            self.log.log(Event::Phase(self.phase));
         } else {
             panic!("end_of_turn: Not at End Phase.");
         }
@@ -178,9 +174,7 @@ impl<P: GameStateParams> GameState<P> {
             })
         }
         if !cmds.is_empty() {
-            if let Some(log) = &mut self.log {
-                log.log(Event::TriggerEvent(ctx.src, event_id));
-            }
+            self.log.log(Event::TriggerEvent(ctx.src, event_id));
         }
         ExecResult::AdditionalCmds(cmds)
     }
@@ -472,12 +466,12 @@ impl<P: GameStateParams> GameState<P> {
                 ));
             }
 
-            if let Some(log) = &mut self.log {
+            {
                 // TODO support DMGSource
                 let dmg_source = None;
-                log.log(Event::DealDMG(dmg_source, (tgt_player_id, log_tgt), dmg));
+                self.log.log(Event::DealDMG(dmg_source, (tgt_player_id, log_tgt), dmg));
                 if let Some(e) = log_rxn {
-                    log.log(e);
+                    self.log.log(e);
                 }
             }
 
@@ -577,12 +571,10 @@ impl<P: GameStateParams> GameState<P> {
                 sc.clear_character_statuses(char_idx, &mut shifts_to_next_active);
             });
 
-            if let Some(log) = &mut self.log {
-                log.log(Event::CharacterDied(
-                    player_id,
-                    (char_idx, player.active_character().char_id),
-                ));
-            }
+            self.log.log(Event::CharacterDied(
+                player_id,
+                (char_idx, player.active_character().char_id),
+            ));
         }
 
         for (status_id, eff_state) in shifts_to_next_active {
@@ -744,9 +736,8 @@ impl<P: GameStateParams> GameState<P> {
             return ExecResult::Success;
         };
         active_char.heal_hashed(chc!(self, ctx.src_player_id, char_idx), hp);
-        if let Some(log) = &mut self.log {
-            log.log(Event::Heal(ctx.src_player_id, (char_idx, active_char.char_id), hp));
-        }
+        self.log
+            .log(Event::Heal(ctx.src_player_id, (char_idx, active_char.char_id), hp));
         ExecResult::Success
     }
 
@@ -766,9 +757,8 @@ impl<P: GameStateParams> GameState<P> {
         let p = self.players.get_mut(ctx.src_player_id);
         for (char_idx, character) in p.char_states.enumerate_valid_mut() {
             character.heal_hashed(chc!(self, ctx.src_player_id, char_idx), hp);
-            if let Some(log) = &mut self.log {
-                log.log(Event::Heal(ctx.src_player_id, (char_idx, character.char_id), hp));
-            }
+            self.log
+                .log(Event::Heal(ctx.src_player_id, (char_idx, character.char_id), hp));
         }
         ExecResult::Success
     }
@@ -851,9 +841,7 @@ impl<P: GameStateParams> GameState<P> {
     }
 
     fn apply_status_to_team(&mut self, ctx: &CommandContext, status_id: StatusId) -> ExecResult {
-        if let Some(log) = &mut self.log {
-            log.log(Event::ApplyTeamStatus(ctx.src_player_id, status_id));
-        }
+        self.log.log(Event::ApplyTeamStatus(ctx.src_player_id, status_id));
         let status = status_id.status();
         if status.attach_mode != StatusAttachMode::Team {
             panic!("apply_status_to_team: wrong StatusAttachMode");
@@ -882,13 +870,11 @@ impl<P: GameStateParams> GameState<P> {
             return ExecResult::Success;
         }
 
-        if let Some(log) = &mut self.log {
-            log.log(Event::ApplyCharStatus(
-                tgt_player_id,
-                (tgt_char_idx, tgt_player.active_character().char_id),
-                status_id,
-            ));
-        }
+        self.log.log(Event::ApplyCharStatus(
+            tgt_player_id,
+            (tgt_char_idx, tgt_player.active_character().char_id),
+            status_id,
+        ));
 
         self.apply_or_refresh_status(tgt_player_id, StatusKey::Character(tgt_char_idx, status_id), status);
         ExecResult::Success
@@ -906,9 +892,7 @@ impl<P: GameStateParams> GameState<P> {
             panic!("apply_status_to_target_player: no target player");
         };
 
-        if let Some(log) = &mut self.log {
-            log.log(Event::ApplyTeamStatus(tgt_player_id, status_id));
-        }
+        self.log.log(Event::ApplyTeamStatus(tgt_player_id, status_id));
         self.apply_or_refresh_status(tgt_player_id, StatusKey::Team(status_id), status);
         ExecResult::Success
     }
@@ -932,13 +916,11 @@ impl<P: GameStateParams> GameState<P> {
         let tgt_char_states = &self.players[tgt_player_id].char_states;
         let to_apply: Vector<(u8, CharId)> = tgt_char_states.enumerate_valid().map(|(i, c)| (i, c.char_id)).collect();
         for (tgt_char_idx, char_id) in to_apply {
-            if let Some(log) = &mut self.log {
-                log.log(Event::ApplyCharStatus(
-                    tgt_player_id,
-                    (tgt_char_idx, char_id),
-                    status_id,
-                ));
-            }
+            self.log.log(Event::ApplyCharStatus(
+                tgt_player_id,
+                (tgt_char_idx, char_id),
+                status_id,
+            ));
 
             self.apply_or_refresh_status(tgt_player_id, StatusKey::Character(tgt_char_idx, status_id), status);
         }
@@ -963,9 +945,9 @@ impl<P: GameStateParams> GameState<P> {
         }
         self.apply_or_refresh_status(ctx.src_player_id, StatusKey::Character(char_idx, status_id), status);
 
-        if let Some(log) = &mut self.log {
+        {
             let player = self.players.get(ctx.src_player_id);
-            log.log(Event::ApplyCharStatus(
+            self.log.log(Event::ApplyCharStatus(
                 ctx.src_player_id,
                 (
                     char_idx,
@@ -997,17 +979,15 @@ impl<P: GameStateParams> GameState<P> {
                 // Equipment usages cannot be buffed
                 sc.apply_or_refresh_status(StatusKey::Equipment(char_idx, slot, status_id), status, &None);
             });
-        if let Some(log) = &mut self.log {
-            log.log(Event::Equip(
-                ctx.src_player_id,
-                (
-                    char_idx,
-                    player.try_get_character(char_idx).expect("try_get_character").char_id,
-                ),
-                slot,
-                Some(status_id),
-            ));
-        }
+        self.log.log(Event::Equip(
+            ctx.src_player_id,
+            (
+                char_idx,
+                player.try_get_character(char_idx).expect("try_get_character").char_id,
+            ),
+            slot,
+            Some(status_id),
+        ));
         ExecResult::Success
     }
 
@@ -1035,17 +1015,15 @@ impl<P: GameStateParams> GameState<P> {
         }
 
         char_state.set_flags_hashed(chc!(self, ctx.src_player_id, char_idx), flags);
-        if let Some(log) = &mut self.log {
-            log.log(Event::Equip(
-                ctx.src_player_id,
-                (
-                    char_idx,
-                    player.try_get_character(char_idx).expect("try_get_character").char_id,
-                ),
-                EquipSlot::Talent,
-                status_id,
-            ));
-        }
+        self.log.log(Event::Equip(
+            ctx.src_player_id,
+            (
+                char_idx,
+                player.try_get_character(char_idx).expect("try_get_character").char_id,
+            ),
+            EquipSlot::Talent,
+            status_id,
+        ));
         ExecResult::Success
     }
 
@@ -1090,9 +1068,7 @@ impl<P: GameStateParams> GameState<P> {
     }
 
     fn summon(&mut self, ctx: &CommandContext, summon_id: SummonId) -> ExecResult {
-        if let Some(log) = &mut self.log {
-            log.log(Event::Summon(ctx.src_player_id, summon_id));
-        }
+        self.log.log(Event::Summon(ctx.src_player_id, summon_id));
         let status = summon_id.status();
         self.apply_or_refresh_status(ctx.src_player_id, StatusKey::Summon(summon_id), status);
         ExecResult::Success

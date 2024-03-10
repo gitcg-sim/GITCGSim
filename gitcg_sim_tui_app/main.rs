@@ -21,7 +21,12 @@ use tui::{
 
 use gitcg_sim::{
     action_list,
-    prelude::{card_defs::*, tcg_model::*, *},
+    prelude::{
+        card_defs::*,
+        logging::{NullEventLog, VecEventLog},
+        tcg_model::*,
+        *,
+    },
     rand::{rngs::SmallRng, SeedableRng},
     smallvec::SmallVec,
 };
@@ -29,6 +34,13 @@ use gitcg_sim_cli_utils::cli_args::{GenericSearch, SearchOpts};
 use gitcg_sim_search::prelude::*;
 
 mod grid;
+
+#[derive(Debug, Copy, Clone, Default)]
+struct WithVecEventLog();
+
+impl GameStateParams for WithVecEventLog {
+    type EventLog = VecEventLog;
+}
 
 enum Animation {
     Message(String),
@@ -114,7 +126,7 @@ enum RectKey {
 struct App<B: Backend> {
     pub terminal: Terminal<B>,
     pub rects: HashMap<(PlayerId, RectKey), Rect>,
-    pub game: GameStateWrapper<StandardNondetHandlerState>,
+    pub game: GameStateWrapper<StandardNondetHandlerState, WithVecEventLog>,
     pub search: GenericSearch<StandardNondetHandlerState>,
     pub actions: SmallVec<[Input; 16]>,
     pub status: String,
@@ -137,7 +149,8 @@ impl<B: Backend> App<B> {
                 PlayerId::PlayerSecond => {
                     self.actions = action_list![];
                     self.status = "Opponent moving...".to_string();
-                    let res = self.search.search_hidden(&self.game, PlayerId::PlayerSecond);
+                    let game1 = self.game.clone().with_log::<NullEventLog, ()>(());
+                    let res = self.search.search_hidden(&game1, PlayerId::PlayerSecond);
                     let pv = res.pv;
                     let input = pv.head().unwrap();
                     advance_and_add_logs(input, &mut self.game, &mut self.anim, &self.rects);
@@ -631,12 +644,18 @@ impl<B: Backend> App<B> {
         }
     }
 
-    fn render_log<P: GameStateParams>(f: &mut Frame<B>, game_state: &GameState<P>, rect: Rect, scroll_y: &i16) {
+    fn render_log<P: GameStateParams<EventLog = VecEventLog>>(
+        f: &mut Frame<B>,
+        game_state: &GameState<P>,
+        rect: Rect,
+        scroll_y: &i16,
+    ) {
         let log_block = Block::default()
             .title("Log")
             .border_type(BorderType::Rounded)
             .borders(Borders::ALL);
-        let log_lines = if let Some(log) = &game_state.log {
+        let log_lines = {
+            let log = &game_state.log;
             let mut log_lines = Vec::with_capacity(log.events.len() + 4);
             let mut i = 0;
             for e in &log.events {
@@ -654,8 +673,6 @@ impl<B: Backend> App<B> {
             log_lines.push(String::default());
             let log_lines = truncate_with_scroll(&log_lines, (log_lines.len() as i16) + *scroll_y + 2, rect.height);
             log_lines.join("\n")
-        } else {
-            Default::default()
         };
         let log_body = Paragraph::new(log_lines).block(log_block);
         f.render_widget(log_body, rect);
@@ -724,25 +741,25 @@ impl<B: Backend> App<B> {
     }
 }
 
-fn advance_and_add_logs<S: std::fmt::Debug + NondetState>(
+fn advance_and_add_logs<S: std::fmt::Debug + NondetState, P: GameStateParams<EventLog = VecEventLog>>(
     input: Input,
-    game: &mut GameStateWrapper<S>,
+    game: &mut GameStateWrapper<S, P>,
     anim: &mut VecDeque<Animation>,
     rects: &HashMap<(PlayerId, RectKey), Rect>,
 ) {
-    let Some(log) = &game.game_state.log else { return };
+    let log = &game.game_state.log;
     let log_idx = log.events.len();
     game.advance(input).unwrap();
     add_logs(log_idx, &game.game_state, anim, rects);
 }
 
-fn add_logs<P: GameStateParams>(
+fn add_logs<P: GameStateParams<EventLog = VecEventLog>>(
     log_idx: usize,
     game_state: &GameState<P>,
     anim: &mut VecDeque<Animation>,
     rects: &HashMap<(PlayerId, RectKey), Rect>,
 ) {
-    let Some(log) = &game_state.log else { return };
+    let log = &game_state.log;
     let new_log_idx = log.events.len();
     let new_log_entries = log.events[log_idx..new_log_idx].to_vec();
     for entry in new_log_entries {
@@ -999,7 +1016,7 @@ pub fn main() -> Result<(), io::Error> {
 
         let mut app_state = App {
             terminal,
-            game,
+            game: game.with_log(Default::default()),
             search,
             status: "".to_string(),
             actions: action_list![],

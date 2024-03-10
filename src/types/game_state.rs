@@ -1,5 +1,7 @@
 #![allow(non_snake_case)]
 
+use core::marker::PhantomData;
+
 use crate::{
     data_structures::capped_list::CappedLengthList8,
     std_subset::{
@@ -20,7 +22,7 @@ use super::by_player::ByPlayer;
 use super::{
     command::{Command, CommandContext},
     dice_counter::DiceCounter,
-    logging::EventLog,
+    logging::{EventLog, NullEventLog},
 };
 
 pub use super::applied_effect_state::AppliedEffectState;
@@ -29,11 +31,11 @@ pub use super::char_state::*;
 pub use super::status_collection::*;
 
 pub trait GameStateParams: Debug + Copy + Clone + Default {
-    type EventLog: Debug + Clone + Default;
+    type EventLog: Debug + Clone + Default + EventLog;
 }
 
 impl GameStateParams for () {
-    type EventLog = ();
+    type EventLog = NullEventLog;
 }
 
 /// The deterministic and perfect information portion of the Genius Invokation TCG game state.
@@ -65,8 +67,10 @@ pub struct GameState<P: GameStateParams = ()> {
 
     pub(crate) status_collections: ByPlayer<StatusCollection>,
 
-    // TODO make this generic
-    pub log: Option<Box<EventLog>>,
+    #[cfg_attr(feature = "serde", serde(skip))]
+    pub log: P::EventLog,
+
+    #[cfg_attr(feature = "serde", serde(skip))]
     pub(crate) _marker: crate::std_subset::marker::PhantomData<P>,
 }
 
@@ -358,5 +362,21 @@ impl<P: GameStateParams> GameState<P> {
     #[inline]
     pub fn round_number(&self) -> u8 {
         self.round_number
+    }
+
+    #[inline]
+    pub fn with_log<L, Q: GameStateParams<EventLog = L>>(self, log: L) -> GameState<Q> {
+        GameState::<Q> {
+            pending_cmds: self.pending_cmds,
+            phase: self.phase,
+            round_number: self.round_number,
+            players: self.players,
+            status_collections: self.status_collections,
+            ignore_costs: self.ignore_costs,
+            _hash: self._hash,
+            _incremental_hash: self._incremental_hash,
+            log,
+            _marker: PhantomData,
+        }
     }
 }

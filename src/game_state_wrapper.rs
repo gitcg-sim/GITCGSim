@@ -34,8 +34,14 @@ impl<S: NondetState, P: GameStateParams> GameStateWrapper<S, P> {
     }
 
     pub fn hide_private_information(&mut self, player_to_hide: PlayerId) {
-        self.game_state.log = None;
         self.nd.hide_private_information(&mut self.game_state, player_to_hide);
+    }
+
+    pub fn with_log<L: EventLog, Q: GameStateParams<EventLog = L>>(self, log: L) -> GameStateWrapper<S, Q> {
+        GameStateWrapper::<S, Q> {
+            game_state: self.game_state.with_log(log),
+            nd: self.nd,
+        }
     }
 }
 

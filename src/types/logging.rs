@@ -106,25 +106,37 @@ impl Display for Event {
     }
 }
 
+pub trait EventLog {
+    #[inline]
+    #[allow(unused_variables)]
+    fn log(&mut self, event: Event) {}
+}
+
+impl EventLog for () {}
+
+pub type NullEventLog = ();
+
 #[derive(Clone, Default)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct EventLog {
+pub struct VecEventLog {
     pub events: Vec<Event>,
 }
 
-impl crate::std_subset::fmt::Debug for EventLog {
+impl crate::std_subset::fmt::Debug for VecEventLog {
     fn fmt(&self, f: &mut crate::std_subset::fmt::Formatter<'_>) -> crate::std_subset::fmt::Result {
         f.debug_struct("EventLog").finish()
     }
 }
 
-impl EventLog {
-    pub fn new() -> EventLog {
-        Self::default()
-    }
-
-    pub fn log(&mut self, event: Event) {
+impl EventLog for VecEventLog {
+    fn log(&mut self, event: Event) {
         self.events.push(event)
+    }
+}
+
+impl VecEventLog {
+    pub fn new() -> Self {
+        Default::default()
     }
 
     #[cfg(feature = "std")]

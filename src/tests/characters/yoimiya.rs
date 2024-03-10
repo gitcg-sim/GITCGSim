@@ -84,10 +84,6 @@ fn ryuukin_saxifrage_trigger_duration() {
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::SwitchCharacter(1)),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::BoltsOfDownfall)),
     ]);
-    #[cfg(feature = "std")]
-    if let Some(log) = &gs.log {
-        log.print();
-    }
     {
         let kaeya = gs.player(PlayerId::PlayerSecond).active_character();
         assert_eq!(elem_set![Element::Pyro], kaeya.applied);

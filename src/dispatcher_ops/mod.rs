@@ -4,8 +4,15 @@ use crate::{
     data_structures::{ActionList, CommandList, Vector},
     tcg_model::*,
     types::{
-        by_player::ByPlayer, card_defs::*, command::*, dice_counter::*, game_state::*, input::*, logging::Event,
-        status_impl::*, StatusSpecModifier,
+        by_player::ByPlayer,
+        card_defs::*,
+        command::*,
+        dice_counter::*,
+        game_state::*,
+        input::*,
+        logging::{Event, EventLog},
+        status_impl::*,
+        StatusSpecModifier,
     },
     zobrist_hash::ZobristHasher,
 };
