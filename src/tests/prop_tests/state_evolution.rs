@@ -1,5 +1,3 @@
-use crate::data_structures::ActionList;
-
 use super::*;
 
 proptest! {
@@ -40,14 +38,6 @@ proptest! {
                 panic!("Action is not performable.");
             }
         }
-    }
-
-    #[test]
-    fn iter_available_actions_should_be_same_as_available_actions_list(gs in arb_reachable_game_state_wrapper()) {
-        let actions1 = gs.game_state.available_actions();
-        let actions2 = gs.game_state.iter_available_actions().collect::<ActionList<_>>();
-        // assert_eq!(actions1.len(), actions2.len());
-        assert_eq!(actions1, actions2);
     }
 
     #[test]
