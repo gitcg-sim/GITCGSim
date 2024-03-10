@@ -240,10 +240,7 @@ impl StatusCollection {
 impl GameState {
     #[inline]
     pub fn player(&self, player_id: PlayerId) -> &PlayerState {
-        match player_id {
-            PlayerId::PlayerFirst => &self.players.0,
-            PlayerId::PlayerSecond => &self.players.1,
-        }
+        self.players.get(player_id)
     }
 
     #[inline]

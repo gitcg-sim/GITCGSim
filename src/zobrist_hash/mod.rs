@@ -325,16 +325,16 @@ impl GameState {
     /// Recompute the incremental portion of the Zobrist hash without updating `self._hash`.
     pub fn incremental_zobrist_hash(&self, h: &mut ZobristHasher) {
         h.hash(HASH_PROVIDER.phase(self.phase));
-        self.players.0.incremental_zobrist_hash(h, PlayerId::PlayerFirst);
-        self.players.1.incremental_zobrist_hash(h, PlayerId::PlayerSecond);
-        self.status_collections.0.zobrist_hash(h, PlayerId::PlayerFirst);
-        self.status_collections.1.zobrist_hash(h, PlayerId::PlayerSecond);
+        self.players
+            .for_each(|player_id, player| player.incremental_zobrist_hash(h, player_id));
+        self.status_collections
+            .for_each(|player_id, sc| sc.zobrist_hash(h, player_id));
     }
 
     /// Compute the non-incremental portion of the Zobrist hash
     pub fn non_incremental_zobrist_hash(&self, h: &mut ZobristHasher) {
-        self.players.0.non_incremental_zobrist_hash(h, PlayerId::PlayerFirst);
-        self.players.1.non_incremental_zobrist_hash(h, PlayerId::PlayerSecond);
+        self.players
+            .for_each(|player_id, player| player.non_incremental_zobrist_hash(h, player_id));
         self.pending_cmds_hash(h);
     }
 

@@ -63,9 +63,18 @@ impl<T> ByPlayer<T> {
         }
     }
 
-    #[inline]
     pub fn map<A, F: FnMut(T) -> A>(self, mut f: F) -> ByPlayer<A> {
         ByPlayer::<A>::new(f(self.0), f(self.1))
+    }
+
+    pub fn for_each<F: FnMut(PlayerId, &T)>(&self, mut f: F) {
+        f(PlayerId::PlayerFirst, &self.0);
+        f(PlayerId::PlayerSecond, &self.1);
+    }
+
+    pub fn for_each_mut<F: FnMut(PlayerId, &mut T)>(&mut self, mut f: F) {
+        f(PlayerId::PlayerFirst, &mut self.0);
+        f(PlayerId::PlayerSecond, &mut self.1);
     }
 }
 

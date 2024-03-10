@@ -1300,12 +1300,10 @@ impl GameState {
             }
             return r;
         }
-        self.players
-            .0
-            .check_for_charged_attack(phc!(self, PlayerId::PlayerFirst));
-        self.players
-            .1
-            .check_for_charged_attack(phc!(self, PlayerId::PlayerSecond));
+
+        self.players.for_each_mut(|player_id, player| {
+            player.check_for_charged_attack(phc!(self, player_id));
+        });
 
         if let Some(active_player) = self.phase.active_player() {
             DispatchResult::PlayerInput(active_player)

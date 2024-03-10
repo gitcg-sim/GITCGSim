@@ -103,6 +103,7 @@ pub fn parse_compare_opts(json_path: &PathBuf) -> Result<CompareOpts, ParseCompa
 }
 
 fn standard_game(decks: ByPlayer<&Decklist>, mut rng: SmallRng, random_decks: bool) -> GameStateWrapper {
+    // TODO use ByPlayer in the call tree including new_standard_game
     let (d1, d2) = if random_decks {
         (random_decklist(&mut rng), random_decklist(&mut rng))
     } else {
