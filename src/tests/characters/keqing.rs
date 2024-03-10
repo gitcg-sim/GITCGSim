@@ -5,7 +5,6 @@ fn game_state_after_stellar_restoration() -> GameState {
         vector![CharId::Keqing, CharId::Ganyu],
         vector![CharId::Fischl, CharId::Yoimiya],
     )
-    .enable_log(true)
     .ignore_costs(true)
     .build();
 

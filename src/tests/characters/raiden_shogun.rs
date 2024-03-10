@@ -6,7 +6,6 @@ fn secret_art_musou_shinsetsu_increases_energy() {
         vector![CharId::RaidenShogun, CharId::Noelle, CharId::Fischl],
         vector![CharId::Ganyu, CharId::Xiangling, CharId::Xingqiu],
     )
-    .enable_log(true)
     .ignore_costs(true)
     .build();
 
@@ -39,7 +38,6 @@ fn eye_of_stormy_judgment_increases_burst_dmg() {
         vector![CharId::RaidenShogun, CharId::Noelle, CharId::Fischl],
         vector![CharId::Ganyu, CharId::Xiangling, CharId::Xingqiu],
     )
-    .enable_log(true)
     .ignore_costs(true)
     .build();
 
@@ -71,7 +69,6 @@ fn chakra_desiderata_buffs_burst() {
         vector![CharId::Noelle, CharId::Fischl, CharId::RaidenShogun],
         vector![CharId::Ganyu, CharId::Xiangling, CharId::Xingqiu],
     )
-    .enable_log(true)
     .ignore_costs(true)
     .build();
 
@@ -111,7 +108,6 @@ fn chakra_desiderata_under_talent_card_buffs_burst_twice() {
         vector![CharId::Noelle, CharId::Fischl, CharId::RaidenShogun],
         vector![CharId::Ganyu, CharId::Xiangling, CharId::Xingqiu],
     )
-    .enable_log(true)
     .ignore_costs(true)
     .build();
     gs.advance_roll_phase_no_dice();
@@ -143,7 +139,6 @@ fn chakra_desiderata_under_talent_card_buffs_burst_twice() {
 fn chakra_desiderata_counter_not_increased() {
     let mut gs: GameState<()> =
         GameStateInitializer::new_skip_to_roll_phase(vector![CharId::RaidenShogun], vector![CharId::Ganyu])
-            .enable_log(true)
             .ignore_costs(true)
             .build();
 

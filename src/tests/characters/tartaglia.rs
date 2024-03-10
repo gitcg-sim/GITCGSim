@@ -6,7 +6,6 @@ fn foul_legacy_raging_tide_melee_stance_and_riptide_transfer() {
         vector![CharId::Tartaglia],
         vector![CharId::Ganyu, CharId::Fischl],
     )
-    .enable_log(true)
     .build();
 
     gs.advance_roll_phase_no_dice();

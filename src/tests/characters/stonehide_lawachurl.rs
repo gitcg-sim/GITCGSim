@@ -4,7 +4,6 @@ use super::*;
 fn stonehide_consumes_2_usages_for_geo_dmg() {
     let mut gs: GameState<()> =
         GameStateInitializer::new_skip_to_roll_phase(vector![CharId::StonehideLawachurl], vector![CharId::Ningguang])
-            .enable_log(true)
             .ignore_costs(true)
             .build();
     gs.advance_roll_phase_no_dice();
@@ -37,7 +36,6 @@ fn stonehide_consumes_2_usages_for_geo_dmg() {
 fn stonehide_removes_stone_force_at_zero_usages() {
     let mut gs: GameState<()> =
         GameStateInitializer::new_skip_to_roll_phase(vector![CharId::StonehideLawachurl], vector![CharId::Ningguang])
-            .enable_log(true)
             .ignore_costs(true)
             .build();
     gs.advance_roll_phase_no_dice();
@@ -80,7 +78,6 @@ fn stonehide_removes_stone_force_at_zero_usages() {
 fn stone_force_infuses_geo() {
     let mut gs: GameState<()> =
         GameStateInitializer::new_skip_to_roll_phase(vector![CharId::StonehideLawachurl], vector![CharId::Ningguang])
-            .enable_log(true)
             .ignore_costs(true)
             .build();
     gs.advance_roll_phase_no_dice();

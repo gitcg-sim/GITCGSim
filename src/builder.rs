@@ -60,7 +60,6 @@ typestate_trait!(pub StartingConditionState { MissingStartingCondition, HasStart
 pub struct GameStateInitializer<C: CharactersState, S: StartingConditionState> {
     pub characters: ByPlayer<Vector<CharId>>,
     pub starting_condition: StartingCondition,
-    pub enable_log: bool,
     pub ignore_costs: bool,
     _marker: PhantomData<(C, S)>,
 }
@@ -70,7 +69,6 @@ impl Default for GameStateInitializer<MissingCharacters, MissingStartingConditio
         Self {
             characters: Default::default(),
             starting_condition: Default::default(),
-            enable_log: Default::default(),
             ignore_costs: false,
             _marker: PhantomData,
         }
@@ -82,7 +80,6 @@ impl GameStateInitializer<HasCharacters, MissingStartingCondition> {
         Self {
             characters: (c1.into(), c2.into()).into(),
             starting_condition: Default::default(),
-            enable_log: Default::default(),
             ignore_costs: false,
             _marker: PhantomData,
         }
@@ -91,11 +88,6 @@ impl GameStateInitializer<HasCharacters, MissingStartingCondition> {
 
 // TODO starting dice/hands
 impl<C: CharactersState, S: StartingConditionState> GameStateInitializer<C, S> {
-    #[deprecated(note = "TODO Does nothing")]
-    pub fn enable_log(self, enable_log: bool) -> Self {
-        Self { enable_log, ..self }
-    }
-
     pub fn ignore_costs(self, ignore_costs: bool) -> Self {
         Self { ignore_costs, ..self }
     }
@@ -107,7 +99,6 @@ impl<C: CharactersState, S: StartingConditionState> GameStateInitializer<C, S> {
         GameStateInitializer {
             characters: self.characters,
             starting_condition,
-            enable_log: self.enable_log,
             ignore_costs: self.ignore_costs,
             _marker: PhantomData,
         }
@@ -136,7 +127,6 @@ impl<C: CharactersState, S: StartingConditionState> GameStateInitializer<C, S> {
         GameStateInitializer {
             characters: (chars1.into(), chars2.into()).into(),
             starting_condition: self.starting_condition,
-            enable_log: self.enable_log,
             ignore_costs: self.ignore_costs,
             _marker: PhantomData,
         }
@@ -287,16 +277,5 @@ mod tests {
             .starting_condition(StartingCondition::default())
             .build();
         assert!(game_state.ignore_costs);
-    }
-
-    // TODO fix this
-    #[cfg(any())]
-    #[test]
-    fn test_initializer_enable_log() {
-        let game_state: GameState<()> = GameStateInitializer::new(vec![CharId::Yoimiya], vec![CharId::Fischl])
-            .enable_log(true)
-            .starting_condition(StartingCondition::default())
-            .build();
-        assert!(game_state.log.is_some());
     }
 }

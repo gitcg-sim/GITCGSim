@@ -6,7 +6,6 @@ fn cryo_infusion() {
         vector![CharId::Yoimiya, CharId::KamisatoAyaka],
         vector![CharId::Fischl, CharId::Ganyu],
     )
-    .enable_log(true)
     .ignore_costs(true)
     .build();
     gs.advance_roll_phase_no_dice();
@@ -58,7 +57,6 @@ fn cryo_infusion() {
 fn cryo_infusion_at_duel_start() {
     let mut gs: GameState<()> =
         GameStateInitializer::new_skip_to_roll_phase(vector![CharId::KamisatoAyaka], vector![CharId::Fischl])
-            .enable_log(true)
             .ignore_costs(true)
             .build();
     gs.advance_roll_phase_no_dice();
@@ -77,7 +75,6 @@ fn cryo_infusion_at_duel_start() {
 fn kamisato_art_soumetsu_summon() {
     let mut gs: GameState<()> =
         GameStateInitializer::new_skip_to_roll_phase(vector![CharId::KamisatoAyaka], vector![CharId::Fischl])
-            .enable_log(true)
             .ignore_costs(true)
             .build();
     gs.advance_roll_phase_no_dice();
@@ -138,7 +135,6 @@ fn cryo_infusion_under_talent_card() {
         vector![CharId::Yoimiya, CharId::KamisatoAyaka],
         vector![CharId::Fischl, CharId::Ganyu],
     )
-    .enable_log(true)
     .ignore_costs(true)
     .build();
     gs.advance_roll_phase_no_dice();

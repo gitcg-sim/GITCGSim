@@ -4,7 +4,6 @@ use super::*;
 fn vijnana_phala_mine_charged_attack() {
     let mut gs: GameState<()> =
         GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Tighnari], vector![CharId::Fischl])
-            .enable_log(true)
             .ignore_costs(true)
             .build();
     gs.advance_roll_phase_no_dice();
@@ -43,7 +42,6 @@ fn vijnana_phala_mine_charged_attack() {
 fn vijnana_phala_mine_non_charged_attack() {
     let mut gs: GameState<()> =
         GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Tighnari], vector![CharId::Fischl])
-            .enable_log(true)
             .ignore_costs(true)
             .build();
     gs.advance_roll_phase_no_dice();
@@ -82,9 +80,7 @@ fn vijnana_phala_mine_non_charged_attack() {
 #[test]
 fn talent_card_charged_attack() {
     let mut gs: GameState<()> =
-        GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Tighnari], vector![CharId::Fischl])
-            .enable_log(true)
-            .build();
+        GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Tighnari], vector![CharId::Fischl]).build();
 
     gs.advance_roll_phase_no_dice();
     {

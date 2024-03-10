@@ -4,7 +4,6 @@ use super::*;
 fn playing_up_to_4_supports() {
     let mut gs: GameState<()> =
         GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Fischl], vector![CharId::Yoimiya])
-            .enable_log(true)
             .ignore_costs(true)
             .build();
     gs.advance_roll_phase_no_dice();
@@ -35,9 +34,7 @@ fn playing_up_to_4_supports() {
 #[test]
 fn paimon_adds_omni_dice() {
     let mut gs: GameState<()> =
-        GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Fischl], vector![CharId::Yoimiya])
-            .enable_log(true)
-            .build();
+        GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Fischl], vector![CharId::Yoimiya]).build();
 
     gs.players.0.dice.add_single(Dice::Omni, 3);
     gs.advance_roll_phase_no_dice();
@@ -75,9 +72,7 @@ fn paimon_adds_omni_dice() {
 #[test]
 fn multiple_paimon_adds_additional_omni_dice() {
     let mut gs: GameState<()> =
-        GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Fischl], vector![CharId::Yoimiya])
-            .enable_log(true)
-            .build();
+        GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Fischl], vector![CharId::Yoimiya]).build();
 
     gs.players.0.dice.add_single(Dice::Omni, 6);
     gs.advance_roll_phase_no_dice();
@@ -105,7 +100,6 @@ fn multiple_paimon_adds_additional_omni_dice() {
 fn jade_chamber_guarantees_dice_with_active_character_elem() {
     let mut gs: GameState<()> =
         GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Fischl, CharId::Ganyu], vector![CharId::Yoimiya])
-            .enable_log(true)
             .build();
 
     gs.advance_roll_phase_no_dice();
@@ -142,7 +136,6 @@ fn jade_chamber_guarantees_dice_with_active_character_elem() {
 fn knights_of_favonius_library_updates_reroll_counts() {
     let mut gs: GameState<()> =
         GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Fischl, CharId::Ganyu], vector![CharId::Yoimiya])
-            .enable_log(true)
             .build();
 
     gs.advance_roll_phase_no_dice();
@@ -163,7 +156,6 @@ fn knights_of_favonius_library_updates_reroll_counts() {
 fn liben() {
     let mut gs: GameState<()> =
         GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Fischl, CharId::Ganyu], vector![CharId::Yoimiya])
-            .enable_log(true)
             .build();
 
     gs.advance_roll_phase_no_dice();

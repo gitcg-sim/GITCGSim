@@ -4,7 +4,6 @@ use super::*;
 fn breastplate_shield_points() {
     let mut gs: GameState<()> =
         GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Noelle], vector![CharId::Ganyu])
-            .enable_log(true)
             .ignore_costs(true)
             .build();
 
@@ -46,7 +45,6 @@ fn talent_card_heals_all() {
         vector![CharId::Noelle, CharId::Yoimiya, CharId::Ganyu],
         vector![CharId::Ganyu],
     )
-    .enable_log(true)
     .ignore_costs(true)
     .build();
 
@@ -87,9 +85,7 @@ fn talent_card_heals_all() {
 #[test]
 fn sweeping_time_reduces_cost_for_na() {
     let mut gs: GameState<()> =
-        GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Noelle], vector![CharId::Ganyu])
-            .enable_log(true)
-            .build();
+        GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Noelle], vector![CharId::Ganyu]).build();
     gs.advance_roll_phase_no_dice();
     {
         let p = gs.player_mut(PlayerId::PlayerFirst);

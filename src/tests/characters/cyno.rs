@@ -3,9 +3,7 @@ use super::*;
 #[test]
 fn indwelling_level_increase_at_end_phase() {
     let mut gs: GameState<()> =
-        GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Cyno], vector![CharId::Yoimiya])
-            .enable_log(true)
-            .build();
+        GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Cyno], vector![CharId::Yoimiya]).build();
     macro_rules! assert_counter {
         ($n: expr) => {
             assert_eq!(
@@ -43,7 +41,6 @@ fn indwelling_level_increase_at_end_phase() {
 fn indwelling_level_ge_2_electro_infusion() {
     let mut gs: GameState<()> =
         GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Cyno], vector![CharId::Yoimiya])
-            .enable_log(true)
             .ignore_costs(true)
             .build();
 
@@ -80,7 +77,6 @@ fn indwelling_level_ge_2_electro_infusion() {
 fn indwelling_level_ge_4_increases_dmg_by_2() {
     let mut gs: GameState<()> =
         GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Cyno], vector![CharId::Yoimiya])
-            .enable_log(true)
             .ignore_costs(true)
             .build();
 
@@ -119,7 +115,6 @@ fn indwelling_level_ge_4_increases_dmg_by_2() {
 fn sacred_rite_wolfs_swiftness_uses_indwelling_level_pre_increase_and_increases_indwelling_level_by_2() {
     let mut gs: GameState<()> =
         GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Cyno], vector![CharId::Yoimiya])
-            .enable_log(true)
             .ignore_costs(true)
             .build();
     gs.advance_roll_phase_no_dice();

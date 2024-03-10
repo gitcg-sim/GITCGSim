@@ -6,7 +6,6 @@ fn inspiration_field_dmg_bonus_and_no_heal_for_character_above_7hp() {
         vector![CharId::Bennett, CharId::Ganyu],
         vector![CharId::Fischl, CharId::Noelle],
     )
-    .enable_log(true)
     .ignore_costs(true)
     .build();
     gs.advance_roll_phase_no_dice();
@@ -27,7 +26,6 @@ fn inspiration_field_no_dmg_bonus_and_heals_for_character_above_7hp() {
         vector![CharId::Bennett, CharId::Ganyu],
         vector![CharId::Fischl, CharId::Noelle],
     )
-    .enable_log(true)
     .ignore_costs(true)
     .build();
     gs.advance_roll_phase_no_dice();
@@ -48,7 +46,6 @@ fn talent_card_has_dmg_bonus_and_no_heal_for_character_above_7hp() {
         vector![CharId::Bennett, CharId::Ganyu],
         vector![CharId::Fischl, CharId::Noelle],
     )
-    .enable_log(true)
     .ignore_costs(true)
     .build();
     gs.advance_roll_phase_no_dice();
@@ -76,7 +73,6 @@ fn talent_card_has_dmg_bonus_and_heals_for_character_below_7hp() {
         vector![CharId::Bennett, CharId::Ganyu],
         vector![CharId::Fischl, CharId::Noelle],
     )
-    .enable_log(true)
     .ignore_costs(true)
     .build();
     gs.advance_roll_phase_no_dice();

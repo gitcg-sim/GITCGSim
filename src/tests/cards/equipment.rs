@@ -5,7 +5,6 @@ fn game_state_for_artifacts(card_id: CardId) -> GameState {
         vector![CharId::KamisatoAyaka, CharId::Yoimiya],
         vector![CharId::Fischl],
     )
-    .enable_log(true)
     .build();
     gs.advance_roll_phase_no_dice();
     gs.players.0.dice.add_single(Dice::Omni, 8);
@@ -110,7 +109,6 @@ fn talent_equip_must_be_on_matching_and_active_character() {
         vector![CharId::Xingqiu, CharId::Yoimiya],
         vector![CharId::Fischl],
     )
-    .enable_log(true)
     .ignore_costs(true)
     .build();
     gs.advance_roll_phase_no_dice();
@@ -152,7 +150,6 @@ fn talent_equip_without_skill_must_be_on_matching_character() {
         vector![CharId::Xingqiu, CharId::KamisatoAyaka],
         vector![CharId::Fischl],
     )
-    .enable_log(true)
     .ignore_costs(true)
     .build();
     gs.advance_roll_phase_no_dice();
@@ -172,7 +169,6 @@ fn gamblers_earrings_triggers_on_skill_defeat() {
         vector![CharId::Fischl, CharId::Kaeya],
         vector![CharId::Ganyu, CharId::Xingqiu],
     )
-    .enable_log(true)
     .ignore_costs(true)
     .build();
     gs.advance_roll_phase_no_dice();
@@ -196,7 +192,6 @@ fn gamblers_earrings_triggers_on_summon_defeat() {
         vector![CharId::Fischl, CharId::Kaeya],
         vector![CharId::Ganyu, CharId::Xingqiu],
     )
-    .enable_log(true)
     .ignore_costs(true)
     .build();
     gs.advance_roll_phase_no_dice();
@@ -226,7 +221,6 @@ fn gamblers_earrings_does_not_trigger_on_non_active_defeat() {
         vector![CharId::Fischl, CharId::Kaeya],
         vector![CharId::Ganyu, CharId::Xingqiu],
     )
-    .enable_log(true)
     .ignore_costs(true)
     .build();
     gs.advance_roll_phase_no_dice();
@@ -254,7 +248,6 @@ fn gamblers_earrings_does_not_trigger_on_non_active_summon_defeat() {
         vector![CharId::Fischl, CharId::Kaeya],
         vector![CharId::Ganyu, CharId::Xingqiu],
     )
-    .enable_log(true)
     .ignore_costs(true)
     .build();
     gs.advance_roll_phase_no_dice();
@@ -285,7 +278,6 @@ fn lithic_spear_grants_shield_points() {
         vector![CharId::Xiangling, CharId::Yoimiya, CharId::Xingqiu],
         vector![CharId::Fischl],
     )
-    .enable_log(true)
     .ignore_costs(true)
     .build();
     gs.advance_roll_phase_no_dice();
@@ -328,7 +320,6 @@ mod lucky_dogs_silver_circlet {
             vector![CharId::Xiangling, CharId::Yoimiya, CharId::Xingqiu],
             vector![CharId::Fischl],
         )
-        .enable_log(true)
         .ignore_costs(true)
         .build();
         gs.advance_roll_phase_no_dice();
@@ -421,7 +412,6 @@ mod ornate_kabuto {
             vector![CharId::Xingqiu, CharId::Yoimiya],
             vector![CharId::Fischl],
         )
-        .enable_log(true)
         .ignore_costs(true)
         .build();
         gs.advance_roll_phase_no_dice();
@@ -442,7 +432,6 @@ mod ornate_kabuto {
             vector![CharId::Xingqiu, CharId::Yoimiya],
             vector![CharId::Fischl],
         )
-        .enable_log(true)
         .ignore_costs(true)
         .build();
         gs.advance_roll_phase_no_dice();
@@ -469,7 +458,6 @@ mod favonius_sword {
             vector![CharId::Xingqiu, CharId::Yoimiya],
             vector![CharId::Fischl],
         )
-        .enable_log(true)
         .ignore_costs(true)
         .build();
         gs.advance_roll_phase_no_dice();
@@ -492,7 +480,6 @@ mod favonius_sword {
             vector![CharId::Xingqiu, CharId::Yoimiya],
             vector![CharId::Fischl],
         )
-        .enable_log(true)
         .ignore_costs(true)
         .build();
         gs.advance_roll_phase_no_dice();
@@ -513,7 +500,6 @@ mod favonius_sword {
             vector![CharId::Yoimiya, CharId::Xingqiu],
             vector![CharId::Fischl],
         )
-        .enable_log(true)
         .ignore_costs(true)
         .build();
         gs.advance_roll_phase_no_dice();
@@ -537,7 +523,6 @@ mod aquila_favonia {
             vector![CharId::Bennett, CharId::Fischl],
             vector![CharId::Yoimiya, CharId::Ganyu],
         )
-        .enable_log(true)
         .ignore_costs(true)
         .build();
         gs.advance_roll_phase_no_dice();

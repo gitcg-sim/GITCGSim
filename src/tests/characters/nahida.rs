@@ -6,7 +6,6 @@ fn seed_of_skandha_receive_pd() {
         vector![CharId::Nahida, CharId::Mona],
         vector![CharId::Ganyu, CharId::Fischl, CharId::Kaeya, CharId::Noelle],
     )
-    .enable_log(true)
     .ignore_costs(true)
     .build();
 
@@ -52,7 +51,6 @@ fn shrine_of_maya_increases_outgoing_reaction_dmg() {
         vector![CharId::Nahida, CharId::Mona],
         vector![CharId::Ganyu, CharId::Fischl, CharId::Kaeya, CharId::Noelle],
     )
-    .enable_log(true)
     .ignore_costs(true)
     .build();
 

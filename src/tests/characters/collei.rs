@@ -4,7 +4,6 @@ use super::*;
 fn talent_card() {
     let mut gs: GameState<()> =
         GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Collei, CharId::Fischl], vector![CharId::Ganyu])
-            .enable_log(true)
             .ignore_costs(true)
             .build();
 
@@ -33,7 +32,6 @@ fn talent_card() {
 fn talent_card_immediate_reaction() {
     let mut gs: GameState<()> =
         GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Collei, CharId::Fischl], vector![CharId::Ganyu])
-            .enable_log(true)
             .ignore_costs(true)
             .build();
 
@@ -57,7 +55,6 @@ fn talent_card_immediate_reaction() {
 fn talent_card_does_not_trigger_on_incoming_dendro_reaction() {
     let mut gs: GameState<()> =
         GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Collei, CharId::Fischl], vector![CharId::Collei])
-            .enable_log(true)
             .ignore_costs(true)
             .build();
 

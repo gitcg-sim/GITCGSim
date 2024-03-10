@@ -6,7 +6,6 @@ fn melody_loop_heals_and_applies_hydro_to_active_character() {
         vector![CharId::Barbara, CharId::Noelle],
         vector![CharId::Fischl, CharId::Yoimiya],
     )
-    .enable_log(true)
     .ignore_costs(true)
     .build();
 

@@ -6,7 +6,6 @@ fn guoba_attack_deals_dmg_at_end_phase() {
         vector![CharId::Xiangling, CharId::Fischl],
         vector![CharId::Kaeya],
     )
-    .enable_log(true)
     .ignore_costs(true)
     .build();
     gs.advance_roll_phase_no_dice();
@@ -31,7 +30,6 @@ fn talent_card_deals_pyro_dmg_on_skill_cast() {
         vector![CharId::Xiangling, CharId::Fischl],
         vector![CharId::Kaeya],
     )
-    .enable_log(true)
     .ignore_costs(true)
     .build();
     gs.advance_roll_phase_no_dice();
@@ -55,7 +53,6 @@ fn pyronado_deals_dmg_on_skill_cast() {
         vector![CharId::Xiangling, CharId::Fischl],
         vector![CharId::Kaeya, CharId::Xingqiu],
     )
-    .enable_log(true)
     .ignore_costs(true)
     .build();
     gs.advance_roll_phase_no_dice();

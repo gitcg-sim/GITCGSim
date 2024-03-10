@@ -4,7 +4,6 @@ use super::*;
 fn tidecaller_prepared_skill_not_discarded_by_lost_shield_points() {
     let mut gs: GameState<()> =
         GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Beidou, CharId::Noelle], vector![CharId::Fischl])
-            .enable_log(true)
             .ignore_costs(true)
             .build();
 
@@ -37,7 +36,6 @@ fn tidecaller_prepared_skill_not_discarded_by_lost_shield_points() {
 fn tidecaller_prepared_skill_interrupted_by_overload() {
     let mut gs: GameState<()> =
         GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Beidou, CharId::Noelle], vector![CharId::Fischl])
-            .enable_log(true)
             .ignore_costs(true)
             .build();
 
@@ -70,7 +68,6 @@ fn tidecaller_prepared_skill_frozen() {
         vector![CharId::Beidou, CharId::Noelle],
         vector![CharId::SangonomiyaKokomi],
     )
-    .enable_log(true)
     .ignore_costs(true)
     .build();
 
