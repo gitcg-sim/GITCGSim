@@ -65,6 +65,7 @@ impl<S: NondetState> GameStateWrapper<S> {
     }
 }
 
+// TODO take ByPlayer instead
 pub fn new_standard_game(
     decklist1: &Decklist,
     decklist2: &Decklist,
@@ -72,7 +73,7 @@ pub fn new_standard_game(
 ) -> GameStateWrapper<StandardNondetHandlerState> {
     let game_state = {
         GameStateInitializer::new(decklist1.characters.clone(), decklist2.characters.clone())
-            .start_at_select_character()
+            .start_at_beginning()
             .enable_log(false)
             .build()
     };
