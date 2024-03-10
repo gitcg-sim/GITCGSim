@@ -44,7 +44,7 @@ pub const SKILLS: [(SkillId, Skill); 3] = [
 
 pub struct FloralBrush();
 impl SkillImpl for FloralBrush {
-    fn get_commands(
+    fn commands(
         &self,
         src_player: &PlayerState,
         _: &StatusCollection,

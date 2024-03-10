@@ -9,10 +9,10 @@ fn indwelling_level_increase_at_end_phase() {
         ($n: expr) => {
             assert_eq!(
                 $n,
-                gs.get_status_collection_mut(PlayerId::PlayerFirst)
+                gs.status_collection_mut(PlayerId::PlayerFirst)
                     .get(StatusKey::Character(0, StatusId::PactswornPathclearer))
                     .unwrap()
-                    .get_counter()
+                    .counter()
             );
         };
     }
@@ -50,15 +50,15 @@ fn indwelling_level_ge_2_electro_infusion() {
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::InvokersSpear)),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
     ]);
-    assert_eq!(8, gs.get_player(PlayerId::PlayerSecond).get_active_character().get_hp());
+    assert_eq!(8, gs.player(PlayerId::PlayerSecond).active_character().hp());
     assert_eq!(
         elem_set![],
-        gs.get_player(PlayerId::PlayerSecond).get_active_character().applied
+        gs.player(PlayerId::PlayerSecond).active_character().applied
     );
 
     for level in 2..=5 {
         let mut gs = gs.clone();
-        gs.get_status_collection_mut(PlayerId::PlayerFirst)
+        gs.status_collection_mut(PlayerId::PlayerFirst)
             .get_mut(StatusKey::Character(0, StatusId::PactswornPathclearer))
             .unwrap()
             .set_counter(level);
@@ -66,10 +66,10 @@ fn indwelling_level_ge_2_electro_infusion() {
             PlayerId::PlayerFirst,
             PlayerAction::CastSkill(SkillId::InvokersSpear),
         )]);
-        assert!(gs.get_player(PlayerId::PlayerSecond).get_active_character().get_hp() <= 6);
+        assert!(gs.player(PlayerId::PlayerSecond).active_character().hp() <= 6);
         assert_eq!(
             elem_set![Element::Electro],
-            gs.get_player(PlayerId::PlayerSecond).get_active_character().applied
+            gs.player(PlayerId::PlayerSecond).active_character().applied
         );
     }
 }
@@ -88,7 +88,7 @@ fn indwelling_level_ge_4_increases_dmg_by_2() {
     ]);
 
     for level in 4..=5 {
-        gs.get_status_collection_mut(PlayerId::PlayerFirst)
+        gs.status_collection_mut(PlayerId::PlayerFirst)
             .get_mut(StatusKey::Character(0, StatusId::PactswornPathclearer))
             .unwrap()
             .set_counter(level);
@@ -99,7 +99,7 @@ fn indwelling_level_ge_4_increases_dmg_by_2() {
                 PlayerId::PlayerFirst,
                 PlayerAction::CastSkill(SkillId::InvokersSpear),
             )]);
-            assert_eq!(4, gs.get_player(PlayerId::PlayerSecond).get_active_character().get_hp());
+            assert_eq!(4, gs.player(PlayerId::PlayerSecond).active_character().hp());
         }
         {
             let mut gs = gs.clone();
@@ -107,7 +107,7 @@ fn indwelling_level_ge_4_increases_dmg_by_2() {
                 PlayerId::PlayerFirst,
                 PlayerAction::CastSkill(SkillId::SecretRiteChasmicSoulfarer),
             )]);
-            assert_eq!(3, gs.get_player(PlayerId::PlayerSecond).get_active_character().get_hp());
+            assert_eq!(3, gs.player(PlayerId::PlayerSecond).active_character().hp());
         }
     }
 }
@@ -122,7 +122,7 @@ fn sacred_rite_wolfs_swiftness_uses_indwelling_level_pre_increase_and_increases_
 
     for level in 0..=5 {
         let mut gs = gs.clone();
-        gs.get_status_collection_mut(PlayerId::PlayerFirst)
+        gs.status_collection_mut(PlayerId::PlayerFirst)
             .get_mut(StatusKey::Character(0, StatusId::PactswornPathclearer))
             .unwrap()
             .set_counter(level);
@@ -133,14 +133,14 @@ fn sacred_rite_wolfs_swiftness_uses_indwelling_level_pre_increase_and_increases_
         )]);
         assert_eq!(
             10 - 4 - (if level >= 4 { 2 } else { 0 }),
-            gs.get_player(PlayerId::PlayerSecond).get_active_character().get_hp()
+            gs.player(PlayerId::PlayerSecond).active_character().hp()
         );
         assert_eq!(
             level + 2 - (if level + 2 >= 6 { 4 } else { 0 }),
-            gs.get_status_collection_mut(PlayerId::PlayerFirst)
+            gs.status_collection_mut(PlayerId::PlayerFirst)
                 .get(StatusKey::Character(0, StatusId::PactswornPathclearer))
                 .unwrap()
-                .get_counter()
+                .counter()
         );
     }
 }

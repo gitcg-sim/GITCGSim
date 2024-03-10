@@ -34,7 +34,7 @@ impl GameState {
             let Some(active_char) = player.try_get_character_mut(active_char_idx) else {
                 return Err(DispatchError::UnableToPayCost);
             };
-            let e = active_char.get_energy();
+            let e = active_char.energy();
             if e < ec {
                 return Err(DispatchError::UnableToPayCost);
             }
@@ -102,7 +102,7 @@ impl GameState {
                         CharIdxSelector::All,
                         |_| true,
                         |eff_state, status_key, _| {
-                            let status = status_key.get_status();
+                            let status = status_key.status();
                             eff_state.end_of_turn(status);
 
                             if eff_state.should_be_eliminated(status) {
@@ -284,8 +284,7 @@ impl GameState {
     }
 
     fn deal_dmg(&mut self, ctx: &CommandContext, dmg: DealDMG) -> ExecResult {
-        let (Some(tgt_char_idx), Some(tgt_player_id)) = (ctx.get_dmg_tgt_char_idx(), ctx.get_dmg_tgt_player_id())
-        else {
+        let (Some(tgt_char_idx), Some(tgt_player_id)) = (ctx.dmg_tgt_char_idx(), ctx.dmg_tgt_player_id()) else {
             panic!("deal_dmg: No dst_char for ctx");
         };
 
@@ -294,7 +293,7 @@ impl GameState {
         }
 
         let (src_player_id, tgt_player_id) = (ctx.src_player_id, ctx.src_player_id.opposite());
-        let (src_player, tgt_player) = self.players.get_two_mut(src_player_id);
+        let (src_player, tgt_player) = self.players.two_mut(src_player_id);
         if !tgt_player.is_valid_char_idx(tgt_char_idx) {
             return ExecResult::Success;
         }
@@ -317,7 +316,7 @@ impl GameState {
                 let log_tgt = (tgt_char_idx, tgt_char.char_id);
                 let tgt_status_collection = self.status_collections.get(tgt_player_id);
                 let dmg_info: DMGInfo = DMGInfo {
-                    target_hp: tgt_char.get_hp(),
+                    target_hp: tgt_char.hp(),
                     target_affected_by_riptide: tgt_status_collection
                         .has_character_status(tgt_char_idx, StatusId::Riptide),
                 };
@@ -537,8 +536,7 @@ impl GameState {
     }
 
     fn deal_dmg_relative(&mut self, ctx: &CommandContext, dmg: DealDMG, relative: RelativeCharIdx) -> ExecResult {
-        let (Some(tgt_player_id), Some(tgt_char_idx)) = (ctx.get_dmg_tgt_player_id(), ctx.get_dmg_tgt_char_idx())
-        else {
+        let (Some(tgt_player_id), Some(tgt_char_idx)) = (ctx.dmg_tgt_player_id(), ctx.dmg_tgt_char_idx()) else {
             panic!("deal_dmg_relative(relative={relative:?}): cmd has no target.");
         };
         let tgt_char_idx = self.players[tgt_player_id]
@@ -578,7 +576,7 @@ impl GameState {
             if let Some(log) = &mut self.log {
                 log.log(Event::CharacterDied(
                     player_id,
-                    (char_idx, player.get_active_character().char_id),
+                    (char_idx, player.active_character().char_id),
                 ));
             }
         }
@@ -599,7 +597,7 @@ impl GameState {
         // TODO refactor TakeDMG targeting
         let take_dmg_player_id = ctx.src_player_id;
         let char_idx = ctx.src.char_idx().unwrap_or_else(|| {
-            let player = self.get_player(take_dmg_player_id);
+            let player = self.player(take_dmg_player_id);
             player.active_char_idx
         });
         let ctx = CommandContext::new(
@@ -627,10 +625,10 @@ impl GameState {
     }
 
     fn add_energy_without_maximum(&mut self, ctx: &CommandContext, energy: u8) -> ExecResult {
-        let check = |c: &CharState| !c.is_invalid() && c.get_energy() < c.char_id.get_char_card().max_energy;
+        let check = |c: &CharState| !c.is_invalid() && c.energy() < c.char_id.char_card().max_energy;
         let char_idx = {
             let p = self.players.get(ctx.src_player_id);
-            let active_char = p.get_active_character();
+            let active_char = p.active_character();
             if check(active_char) {
                 Some(p.active_char_idx)
             } else {
@@ -681,20 +679,17 @@ impl GameState {
         let player = self.players.get_mut(ctx.src_player_id);
         let mut total = 0;
         for (i, char_state) in player.char_states.enumerate_valid_mut() {
-            if i == char_idx || char_state.get_energy() == 0 {
+            if i == char_idx || char_state.energy() == 0 {
                 continue;
             }
-            char_state.set_energy_hashed(chc!(self, ctx.src_player_id, i), char_state.get_energy() - 1);
+            char_state.set_energy_hashed(chc!(self, ctx.src_player_id, i), char_state.energy() - 1);
             total += 1;
             if total >= 2 {
                 break;
             }
         }
         let char_state = &mut player.char_states[char_idx];
-        let new_energy = min(
-            char_state.get_energy() + total,
-            char_state.char_id.get_char_card().max_energy,
-        );
+        let new_energy = min(char_state.energy() + total, char_state.char_id.char_card().max_energy);
         char_state.set_energy_hashed(chc!(self, ctx.src_player_id, char_idx), new_energy);
         ExecResult::Success
     }
@@ -707,11 +702,11 @@ impl GameState {
 
         self.status_collections.mutate_hashed(phc!(self, player_id), |sc| {
             let eff_state = sc.get_mut(key).expect("Status key must be present.");
-            let status = key.get_status();
+            let status = key.status();
             if status.duration_rounds.is_some() {
-                eff_state.set_duration(eff_state.get_duration() + usages);
+                eff_state.set_duration(eff_state.duration() + usages);
             } else if status.usages.is_some() {
-                eff_state.set_usages(eff_state.get_usages() + usages);
+                eff_state.set_usages(eff_state.usages() + usages);
             } else {
                 panic!(
                     "increase_status_usages: Does not have a Usages/Duration counter: {:?}",
@@ -753,7 +748,7 @@ impl GameState {
 
     fn heal_taken_most_dmg(&mut self, ctx: &CommandContext, hp: u8) -> ExecResult {
         let char_states = &self.players.get(ctx.src_player_id).char_states;
-        let Some((char_idx, _)) = char_states.get_taken_most_dmg() else {
+        let Some((char_idx, _)) = char_states.taken_most_dmg() else {
             return ExecResult::Success;
         };
         self.heal(
@@ -815,7 +810,7 @@ impl GameState {
     #[inline]
     fn apply_or_refresh_status(&mut self, src_player_id: PlayerId, key: StatusKey, status: &'static Status) {
         let src_player = self.players.get_mut(src_player_id);
-        let modifiers = src_player.get_status_spec_modifiers(self.status_collections.get(src_player_id), key);
+        let modifiers = src_player.status_spec_modifiers(self.status_collections.get(src_player_id), key);
         self.status_collections.mutate_hashed(phc!(self, src_player_id), |sc| {
             sc.apply_or_refresh_status(key, status, &modifiers);
         });
@@ -825,7 +820,7 @@ impl GameState {
         if let Some(player_id) = self.phase.active_player() {
             let player = &mut self.players[player_id];
             let c = chc!(self, player_id, player.active_char_idx);
-            let char = player.get_active_character_mut();
+            let char = player.active_character_mut();
             char.remove_flag_hashed(c, CharFlag::PlungingAttack);
         }
 
@@ -855,7 +850,7 @@ impl GameState {
         if let Some(log) = &mut self.log {
             log.log(Event::ApplyTeamStatus(ctx.src_player_id, status_id));
         }
-        let status = status_id.get_status();
+        let status = status_id.status();
         if status.attach_mode != StatusAttachMode::Team {
             panic!("apply_status_to_team: wrong StatusAttachMode");
         }
@@ -865,7 +860,7 @@ impl GameState {
     }
 
     fn apply_character_status_to_target(&mut self, ctx: &CommandContext, status_id: StatusId) -> ExecResult {
-        let status = status_id.get_status();
+        let status = status_id.status();
         if status.attach_mode != StatusAttachMode::Character {
             panic!("apply_status_to_target: wrong StatusAttachMode");
         }
@@ -874,11 +869,11 @@ impl GameState {
             panic!("apply_status_to_target: applies_to_opposing is false");
         }
 
-        let Some(tgt_player_id) = ctx.get_dmg_tgt_player_id() else {
+        let Some(tgt_player_id) = ctx.dmg_tgt_player_id() else {
             panic!("apply_status_to_target: no target");
         };
         let tgt_player = self.players.get_mut(tgt_player_id);
-        let tgt_char_idx = ctx.get_dmg_tgt_char_idx().unwrap_or(tgt_player.active_char_idx);
+        let tgt_char_idx = ctx.dmg_tgt_char_idx().unwrap_or(tgt_player.active_char_idx);
         if !tgt_player.is_valid_char_idx(tgt_char_idx) {
             return ExecResult::Success;
         }
@@ -886,7 +881,7 @@ impl GameState {
         if let Some(log) = &mut self.log {
             log.log(Event::ApplyCharStatus(
                 tgt_player_id,
-                (tgt_char_idx, tgt_player.get_active_character().char_id),
+                (tgt_char_idx, tgt_player.active_character().char_id),
                 status_id,
             ));
         }
@@ -896,14 +891,14 @@ impl GameState {
     }
 
     fn apply_team_status_to_target_player(&mut self, ctx: &CommandContext, status_id: StatusId) -> ExecResult {
-        let status = status_id.get_status();
+        let status = status_id.status();
         if status.attach_mode != StatusAttachMode::Team {
             panic!("apply_status_to_target_player: wrong StatusAttachMode");
         }
         if !status.applies_to_opposing {
             panic!("apply_status_to_target_player: applies_to_opposing is false");
         }
-        let Some(tgt_player_id) = ctx.get_dmg_tgt_player_id() else {
+        let Some(tgt_player_id) = ctx.dmg_tgt_player_id() else {
             panic!("apply_status_to_target_player: no target player");
         };
 
@@ -919,14 +914,14 @@ impl GameState {
         ctx: &CommandContext,
         status_id: StatusId,
     ) -> ExecResult {
-        let status = status_id.get_status();
+        let status = status_id.status();
         if status.attach_mode != StatusAttachMode::Character {
             panic!("apply_character_status_to_all_opponent_characters: wrong StatusAttachMode");
         }
         if !status.applies_to_opposing {
             panic!("apply_character_status_to_all_opponent_characters: applies_to_opposing is false");
         }
-        let Some(tgt_player_id) = ctx.get_dmg_tgt_player_id() else {
+        let Some(tgt_player_id) = ctx.dmg_tgt_player_id() else {
             panic!("apply_character_status_to_all_opponent_characters: no target");
         };
 
@@ -958,7 +953,7 @@ impl GameState {
             return ExecResult::Success;
         }
 
-        let status = status_id.get_status();
+        let status = status_id.status();
         if status.attach_mode != StatusAttachMode::Character {
             panic!("apply_character_status: wrong StatusAttachMode");
         }
@@ -991,7 +986,7 @@ impl GameState {
             return ExecResult::Success;
         }
 
-        let status = status_id.get_status();
+        let status = status_id.status();
         self.status_collections
             .mutate_hashed(phc!(self, ctx.src_player_id), |sc| {
                 sc.ensure_unequipped(char_idx, slot);
@@ -1027,7 +1022,7 @@ impl GameState {
         let flags = char_state.flags | CharFlag::TalentEquipped;
         if let Some(status_id) = status_id {
             let slot = EquipSlot::Talent;
-            let status = status_id.get_status();
+            let status = status_id.status();
             self.status_collections
                 .mutate_hashed(phc!(self, ctx.src_player_id), |sc| {
                     sc.ensure_unequipped(char_idx, slot);
@@ -1056,7 +1051,7 @@ impl GameState {
         status_id: StatusId,
         eff_state: AppliedEffectState,
     ) -> ExecResult {
-        let active_char_idx = self.get_player(player_id).active_char_idx;
+        let active_char_idx = self.player(player_id).active_char_idx;
         self.status_collections.mutate_hashed(phc!(self, player_id), |sc| {
             sc.set_status(StatusKey::Character(active_char_idx, status_id), eff_state)
         });
@@ -1072,11 +1067,11 @@ impl GameState {
     }
 
     fn force_switch_for_target(&mut self, ctx: &CommandContext, force_switch_type: RelativeCharIdx) -> ExecResult {
-        let Some(tgt_player_id) = ctx.get_dmg_tgt_player_id() else {
+        let Some(tgt_player_id) = ctx.dmg_tgt_player_id() else {
             panic!("force_switch_for_target: no target");
         };
         let tgt_player = self.players.get_mut(tgt_player_id);
-        let tgt_char_idx = ctx.get_dmg_tgt_char_idx().unwrap_or(tgt_player.active_char_idx);
+        let tgt_char_idx = ctx.dmg_tgt_char_idx().unwrap_or(tgt_player.active_char_idx);
 
         if tgt_player.active_char_idx != tgt_char_idx {
             return ExecResult::Success;
@@ -1094,7 +1089,7 @@ impl GameState {
         if let Some(log) = &mut self.log {
             log.log(Event::Summon(ctx.src_player_id, summon_id));
         }
-        let status = summon_id.get_status();
+        let status = summon_id.status();
         self.apply_or_refresh_status(ctx.src_player_id, StatusKey::Summon(summon_id), status);
         ExecResult::Success
     }
@@ -1161,7 +1156,7 @@ impl GameState {
             let flags = char.flags | char.skill_flags(skill_id);
             char.set_flags_hashed(chc, flags);
         }
-        let cmds = player.get_cast_skill_cmds(self.status_collections.get(player_id), ctx, skill_id);
+        let cmds = player.cast_skill_cmds(self.status_collections.get(player_id), ctx, skill_id);
         ExecResult::AdditionalCmds(cmds)
     }
 
@@ -1243,7 +1238,7 @@ impl GameState {
             suspended_state,
             pending_cmds,
         }));
-        Ok(Some(suspended_state.get_dispatch_result()))
+        Ok(Some(suspended_state.dispatch_result()))
     }
 
     /// Execute commands on the game state.

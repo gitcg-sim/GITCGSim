@@ -64,7 +64,7 @@ impl<E: Clone + Sync + Send, A: Clone + Sync + Send> std::fmt::Debug for TT<E, A
         }
         #[cfg(not(feature = "old_tt"))]
         f.debug_struct("TT")
-            .field("megabytes", &self.table.get_megabytes())
+            .field("megabytes", &self.table.megabytes())
             .finish()
     }
 }

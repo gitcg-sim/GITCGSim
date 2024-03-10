@@ -47,7 +47,7 @@ pub trait SelectionPolicy<G: Game>: Send + Sync {
     }
 
     /// Evaluate the parent node.
-    fn on_parent<F: FnOnce() -> G::Actions>(&self, ctx: &SelectionPolicyContext<G>, get_children: F) -> Self::State;
+    fn on_parent<F: FnOnce() -> G::Actions>(&self, ctx: &SelectionPolicyContext<G>, children: F) -> Self::State;
 
     /// Evaluate the policy value of a particular child node.
     fn policy(&self, _ctx: &SelectionPolicyContext<G>, _cctx: &SelectionPolicyChildContext<G, Self::State>) -> f32 {
@@ -107,14 +107,14 @@ impl<S: NondetState> SelectionPolicy<GameStateWrapper<S>> for RuleBasedPuct {
     fn on_parent<F: FnOnce() -> <GameStateWrapper<S> as Game>::Actions>(
         &self,
         ctx: &SelectionPolicyContext<GameStateWrapper<S>>,
-        get_children: F,
+        children: F,
     ) -> Self::State {
         let parent = ctx.parent;
         let mut gs = parent.state.game_state.clone();
         if !ctx.is_maximize {
             gs.transpose_in_place();
         }
-        let actions = get_children();
+        let actions = children();
         let evals = parent
             .state
             .action_weights(&actions)

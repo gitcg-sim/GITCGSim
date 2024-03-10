@@ -233,7 +233,7 @@ pub mod cold_blooded_strike {
         }
 
         fn trigger_xevent(&self, e: &mut TriggerEventContext<XEvent>) -> Option<AppliedEffectResult> {
-            let SkillId::Frostgnaw = e.get_event_skill_ensuring_attached_character()?.skill_id else {
+            let SkillId::Frostgnaw = e.event_skill_ensuring_attached_character()?.skill_id else {
                 return None;
             };
             if !e.c.eff_state.can_use_once_per_round() {

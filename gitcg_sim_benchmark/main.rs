@@ -132,9 +132,9 @@ fn main() -> Result<(), std::io::Error> {
         let search_opts = &deck_opts.search;
         let depth: u8 = search_opts.search_depth.unwrap_or(8);
         let bf = move |n: f64| n.powf(1_f64 / (depth as f64));
-        let game = Rc::new(deck_opts.get_standard_game(None)?);
+        let game = Rc::new(deck_opts.standard_game(None)?);
         let benchmark = move |parallel: bool, steps: u32| {
-            let f = || deck_opts.make_search(parallel, deck_opts.get_limits());
+            let f = || deck_opts.make_search(parallel, deck_opts.limits());
             let mut searches = ByPlayer::new(f(), f());
             let game = game.deref();
             let (dt_ns, c) = trace_search(game, &mut searches, steps);
@@ -175,22 +175,22 @@ fn main() -> Result<(), std::io::Error> {
     let do_match = |parallel: bool,
                     steps: u32,
                     rounds: u32,
-                    get_standard_search_opts: &dyn Fn() -> SearchConfig|
+                    standard_search_opts: &dyn Fn() -> SearchConfig|
      -> Result<(f32, Duration), std::io::Error> {
         let deck_opts = opts.deck().expect("Deck is expected.");
         let t0 = Instant::now();
-        let standard_opts = get_standard_search_opts();
+        let standard_opts = standard_search_opts();
         let make_search = || {
             ByPlayer(
-                deck_opts.make_search(parallel, deck_opts.get_limits()),
-                standard_opts.make_search(parallel, standard_opts.get_limits()),
+                deck_opts.make_search(parallel, deck_opts.limits()),
+                standard_opts.make_search(parallel, standard_opts.limits()),
             )
         };
         let (_, score, total_counter) = iterate_match(
             &make_search,
             &|rng| {
                 deck_opts
-                    .get_standard_game(Some(rng))
+                    .standard_game(Some(rng))
                     .expect("Failed to create initial game state.")
             },
             IterateMatchOpts {

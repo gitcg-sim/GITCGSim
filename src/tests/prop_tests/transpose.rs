@@ -12,7 +12,7 @@ fn advance(game_state: &GameState, input: Input) -> GameState {
     gs1
 }
 
-fn get_action(gs: &GameState, n: usize) -> Result<Input, TestCaseError> {
+fn action(gs: &GameState, n: usize) -> Result<Input, TestCaseError> {
     let actions = gs.available_actions();
     prop_assume!(!actions.is_empty());
     Ok(actions[n % actions.len()])
@@ -57,7 +57,7 @@ proptest! {
     /// `advance(G, a) = t(advance(t(G), t(a))) where a in actions(G)`
     #[test]
     fn advance_under_transpose(gs in arb_reachable_game_state(), n in any::<usize>()) {
-        let a = get_action(&gs, n)?;
+        let a = action(&gs, n)?;
         let gs1 = advance(&gs, a);
         let gs2 = advance(&gs.transpose(), a.transpose()).transpose();
         assert_eq!(format!("{gs1:?}"), format!("{gs2:?}"));
@@ -67,9 +67,9 @@ proptest! {
     /// `advance(advance(G, a), a') = t(advance(advance(t(G), t(a)), t(a'))) where a in actions(G), a' in actions(advance(G, a))`
     #[test]
     fn advance_under_transpose_secondary(gs in arb_reachable_game_state(), n in any::<usize>(), m in any::<usize>()) {
-        let a = get_action(&gs, n)?;
+        let a = action(&gs, n)?;
         let gs1 = advance(&gs, a);
-        let a1 = get_action(&gs1, m)?;
+        let a1 = action(&gs1, m)?;
         let gs1 = advance(&gs1, a1);
         let gs2 = advance(&advance(&gs.transpose(), a.transpose()), a1.transpose()).transpose();
         assert_eq!(format!("{gs1:?}"), format!("{gs2:?}"));

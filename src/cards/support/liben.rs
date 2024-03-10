@@ -27,7 +27,7 @@ impl StatusImpl for Liben {
     fn trigger_event(&self, e: &mut TriggerEventContext) -> Option<AppliedEffectResult> {
         // TODO Each Omni can count as a different dice
         let EventId::EndPhase = e.event_id else { return None };
-        let counter = e.c.eff_state.get_counter();
+        let counter = e.c.eff_state.counter();
         if counter >= 3 {
             panic!("Liben: counter >= 3")
         }

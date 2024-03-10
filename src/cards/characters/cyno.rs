@@ -70,7 +70,7 @@ pub mod pactsworn_pathclearer {
         }
 
         fn outgoing_dmg(&self, e: &StatusImplContext<DMGInfo>, dmg: &mut DealDMG) -> Option<AppliedEffectResult> {
-            let level = e.eff_state.get_counter();
+            let level = e.eff_state.counter();
             let mut changed = false;
             if level >= 2 && dmg.infuse(DealDMGType::Elemental(Element::Electro)) {
                 changed = true;
@@ -86,15 +86,15 @@ pub mod pactsworn_pathclearer {
         // TODO need level decrease check for equipping Talent Card
         fn trigger_event(&self, e: &mut TriggerEventContext) -> Option<AppliedEffectResult> {
             let EventId::EndPhase = e.event_id else { return None };
-            let level = e.c.eff_state.get_counter();
+            let level = e.c.eff_state.counter();
             Some(AppliedEffectResult::SetCounter(increase_indwelling_level(level, 1)))
         }
 
         fn trigger_xevent(&self, e: &mut TriggerEventContext<XEvent>) -> Option<AppliedEffectResult> {
-            let SkillId::SacredRiteWolfsSwiftness = e.get_event_skill_ensuring_attached_character()?.skill_id else {
+            let SkillId::SacredRiteWolfsSwiftness = e.event_skill_ensuring_attached_character()?.skill_id else {
                 return None;
             };
-            let level = e.c.eff_state.get_counter();
+            let level = e.c.eff_state.counter();
             Some(AppliedEffectResult::SetCounter(increase_indwelling_level(level, 2)))
         }
     }

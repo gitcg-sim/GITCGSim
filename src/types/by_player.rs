@@ -42,7 +42,7 @@ impl<T> ByPlayer<T> {
     }
 
     #[inline]
-    pub fn get_two(&self, player_id: PlayerId) -> (&T, &T) {
+    pub fn two(&self, player_id: PlayerId) -> (&T, &T) {
         match player_id {
             PlayerId::PlayerFirst => (&self.0, &self.1),
             PlayerId::PlayerSecond => (&self.1, &self.0),
@@ -50,7 +50,7 @@ impl<T> ByPlayer<T> {
     }
 
     #[inline]
-    pub fn get_two_mut(&mut self, player_id: PlayerId) -> (&mut T, &mut T) {
+    pub fn two_mut(&mut self, player_id: PlayerId) -> (&mut T, &mut T) {
         match player_id {
             PlayerId::PlayerFirst => (&mut self.0, &mut self.1),
             PlayerId::PlayerSecond => (&mut self.1, &mut self.0),

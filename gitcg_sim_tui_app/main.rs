@@ -147,17 +147,17 @@ impl<B: Backend> App<B> {
                     let Self { game, .. } = self;
                     let game_state = &mut game.game_state;
                     let players = (
-                        game_state.get_player(PlayerId::PlayerFirst),
-                        game_state.get_player(PlayerId::PlayerSecond),
+                        game_state.player(PlayerId::PlayerFirst),
+                        game_state.player(PlayerId::PlayerSecond),
                     );
                     self.status = format!(
                         "  Your move.  You: (Hand: {}, Dice: {}), Opp: (Hand: {}, Dice: {}). {}",
                         players.0.hand_len(),
-                        players.0.get_dice_counter().total(),
+                        players.0.dice_counter().total(),
                         players.1.hand_len(),
-                        players.1.get_dice_counter().total(),
+                        players.1.dice_counter().total(),
                         {
-                            match game_state.get_phase() {
+                            match game_state.phase() {
                                 Phase::ActionPhase {
                                     first_end_round: Some(p),
                                     ..
@@ -265,7 +265,7 @@ impl<B: Backend> App<B> {
             f.render_widget(duel_block, ui_chunks[0]);
 
             let info = Paragraph::new({
-                let phase_part = match game_state.get_phase() {
+                let phase_part = match game_state.phase() {
                     Phase::Drawing { .. } => "Drawing Cards".to_string(),
                     Phase::SelectStartingCharacter { .. } => "Select Starting".to_string(),
                     Phase::RollPhase { .. } => "Roll Phase".to_string(),
@@ -276,7 +276,7 @@ impl<B: Backend> App<B> {
                     Phase::WinnerDecided { winner } => format!("Winner Decided: {winner}"),
                 };
 
-                let round = game_state.get_round_number();
+                let round = game_state.round_number();
                 format!("Round {round} | {phase_part}")
             })
             .alignment(Alignment::Center)
@@ -290,7 +290,7 @@ impl<B: Backend> App<B> {
 
             Self::render_actions_table(f, game_state, *action_row_index, actions, &acts_chunk, scroll_y_value);
 
-            Self::render_dice(f, game_state.get_player(PlayerId::PlayerFirst), dice_chunk);
+            Self::render_dice(f, game_state.player(PlayerId::PlayerFirst), dice_chunk);
 
             Self::render_log(f, game_state, ui_chunks[2], scroll_y);
 
@@ -310,7 +310,7 @@ impl<B: Backend> App<B> {
         rect: Rect,
         rects: &mut HashMap<(PlayerId, RectKey), Rect>,
     ) {
-        let player = game_state.get_player(player_id);
+        let player = game_state.player(player_id);
         let player_chunks = Layout::default()
             .direction(Direction::Vertical)
             .horizontal_margin(0)
@@ -321,8 +321,8 @@ impl<B: Backend> App<B> {
         let player_chunk = player_chunks[0];
 
         let n_chars = std::cmp::max(
-            game_state.get_player(PlayerId::PlayerFirst).get_char_states().len(),
-            game_state.get_player(PlayerId::PlayerSecond).get_char_states().len(),
+            game_state.player(PlayerId::PlayerFirst).char_states().len(),
+            game_state.player(PlayerId::PlayerSecond).char_states().len(),
         );
         let char_chunks = Layout::default()
             .direction(Direction::Horizontal)
@@ -337,7 +337,7 @@ impl<B: Backend> App<B> {
             })
             .split(player_chunk);
 
-        let sc = game_state.get_status_collection(player_id);
+        let sc = game_state.status_collection(player_id);
 
         let support_chunks = {
             let supports_rect = char_chunks[0];
@@ -367,7 +367,7 @@ impl<B: Backend> App<B> {
                 break;
             }
             let support_id = ss.support_id().unwrap();
-            let support = support_id.get_status();
+            let support = support_id.status();
             render_box(
                 support.name,
                 format_status(&ss.state, support),
@@ -394,7 +394,7 @@ impl<B: Backend> App<B> {
                 break;
             }
             let summon_id = ss.summon_id().unwrap();
-            let summon = summon_id.get_status();
+            let summon = summon_id.status();
             render_box(
                 summon.name,
                 format_status(&ss.state, summon),
@@ -403,8 +403,8 @@ impl<B: Backend> App<B> {
             rects.insert((player_id, RectKey::Summon(summon_id)), rect);
         }
 
-        let ac = player.get_active_char_idx();
-        for (j, c) in player.get_char_states().iter_all().enumerate() {
+        let ac = player.active_char_idx();
+        for (j, c) in player.char_states().iter_all().enumerate() {
             let is_active = j == (ac as usize);
             let rect = {
                 let i_first_char_chunk = 1;
@@ -428,13 +428,13 @@ impl<B: Backend> App<B> {
     }
 
     fn render_dice(f: &mut tui::Frame<B>, player: &PlayerState, rect: Rect) {
-        let dice = player.get_dice_counter();
+        let dice = player.dice_counter();
         let dice_block = Block::default()
             .title(format!("Dice ({})", dice.total()))
             .border_type(BorderType::Rounded)
             .borders(Borders::ALL);
 
-        let dice_body = get_dice_body(&dice, player.get_element_priority()).block(dice_block);
+        let dice_body = dice_body(&dice, player.element_priority()).block(dice_block);
         f.render_widget(dice_body, rect);
     }
 
@@ -456,7 +456,7 @@ impl<B: Backend> App<B> {
             for (i, act) in acts.iter().enumerate() {
                 let k = i + 1;
                 let (cost, is_fast_action) = gs.action_info(*act);
-                let (a, b) = describe_action(gs.get_player(PlayerId::PlayerFirst), act);
+                let (a, b) = describe_action(gs.player(PlayerId::PlayerFirst), act);
                 rows.push(
                     Row::new(vec![
                         Cell::from(format!("{k:2}")),
@@ -510,9 +510,9 @@ impl<B: Backend> App<B> {
         let c = char_state;
         let is_dead = c.is_invalid();
         let j = char_idx;
-        let char_id = c.get_char_id();
-        let char_card = char_id.get_char_card();
-        let ci = char_id.get_char_card();
+        let char_id = c.char_id();
+        let char_card = char_id.char_card();
+        let ci = char_id.char_card();
 
         let char_block = Block::default()
             .title(char_card.name.to_string())
@@ -531,7 +531,7 @@ impl<B: Backend> App<B> {
             let mut lines = vec![];
             {
                 let mut es = vec![Span::raw(" ")];
-                for e in c.get_applied() {
+                for e in c.applied() {
                     let col = elem_short(e).1;
                     es.push(Span::styled(format!(" {e:?} "), Style::default().bg(col)));
                     es.push(Span::raw(" "));
@@ -540,14 +540,14 @@ impl<B: Backend> App<B> {
             }
             lines.push(Spans::from(vec![Span::raw(format!(
                 "H {:2}/{:2}  E {:1}/{:1}",
-                c.get_hp(),
+                c.hp(),
                 ci.max_health,
-                c.get_energy(),
+                c.energy(),
                 ci.max_energy
             ))]));
             lines.push(Spans::from(vec![]));
             for (slot, status_id, state) in sc.equipment_statuses_vec(j as u8) {
-                let status = status_id.get_status();
+                let status = status_id.status();
                 let slot_part = match slot {
                     EquipSlot::Artifact => "A:",
                     EquipSlot::Weapon => "W:",
@@ -572,7 +572,7 @@ impl<B: Backend> App<B> {
             for s in sc.character_statuses_vec(j as u8) {
                 let status = {
                     let status_id = s.status_id().unwrap();
-                    status_id.get_status()
+                    status_id.status()
                 };
                 lines.push(Spans::from(vec![Span::raw(limited_concat(
                     max_width,
@@ -585,7 +585,7 @@ impl<B: Backend> App<B> {
                 for s in &sc.team_statuses_vec() {
                     let status = {
                         let status_id = s.status_id().unwrap();
-                        status_id.get_status()
+                        status_id.status()
                     };
                     lines.push(Spans::from(vec![Span::raw(limited_concat(
                         max_width,
@@ -748,7 +748,7 @@ fn add_logs(
     for entry in new_log_entries {
         if let logging::Event::DealDMG(_src, (dst_player_id, (dst_char_idx, _)), deal_dmg) = entry {
             let src_player_id = dst_player_id.opposite();
-            let src_char_idx = game_state.get_player(src_player_id).get_active_char_idx();
+            let src_char_idx = game_state.player(src_player_id).active_char_idx();
             let Some(src) = rects.get(&(src_player_id, RectKey::Character(src_char_idx))) else {
                 continue;
             };
@@ -773,17 +773,17 @@ fn truncate_with_scroll<T: Clone>(rows: &[T], scroll_y: i16, height: u16) -> Vec
 
 fn format_status(es: &AppliedEffectState, s: &'static Status) -> String {
     let part1 = if s.usages_as_shield_points {
-        format!("<{}>", es.get_usages())
+        format!("<{}>", es.usages())
     } else if s.usages.is_some() {
-        format!("[{}]", es.get_usages())
+        format!("[{}]", es.usages())
     } else if s.duration_rounds.is_some() {
-        format!("({})", es.get_duration())
+        format!("({})", es.duration())
     } else {
         String::default()
     };
 
     if s.counter_spec.is_some() {
-        format!("{part1}({})", es.get_counter())
+        format!("{part1}({})", es.counter())
     } else {
         part1
     }
@@ -845,7 +845,7 @@ fn limited_concat(max_width: u16, left: &'static str, right: String) -> String {
     }
 }
 
-fn get_dice_body(dice: &DiceCounter, ep: ElementPriority) -> Paragraph {
+fn dice_body(dice: &DiceCounter, ep: ElementPriority) -> Paragraph {
     let mut lines = Vec::with_capacity(2);
     let mut v = Vec::with_capacity(8);
     let dice_list = {
@@ -903,13 +903,13 @@ fn sort_key_for_action(input: &Input) -> String {
         Input::NondetResult(..) => String::default(),
         Input::FromPlayer(_, action) => match action {
             PlayerAction::EndRound => "9".to_string(),
-            PlayerAction::ElementalTuning(card_id) => format!("8{}", card_id.get_card().name),
+            PlayerAction::ElementalTuning(card_id) => format!("8{}", card_id.card().name),
             PlayerAction::PlayCard(card_id, tgt) => {
-                format!("7{} {:?}", card_id.get_card().name, tgt)
+                format!("7{} {:?}", card_id.card().name, tgt)
             }
             PlayerAction::SwitchCharacter(i) => format!("6{i}"),
             PlayerAction::CastSkill(skill_id) => {
-                let skill = skill_id.get_skill();
+                let skill = skill_id.skill();
                 format!(
                     "5{}",
                     match skill.skill_type {
@@ -925,23 +925,23 @@ fn sort_key_for_action(input: &Input) -> String {
 }
 
 fn describe_action<'a, 'b>(player_state: &'b PlayerState, input: &'b Input) -> (Cell<'a>, Cell<'a>) {
-    let get_character_name = |i: u8| -> Cell<'a> {
-        Cell::from(player_state.get_char_states()[i].get_char_card().name).style(Style::default().fg(Color::Yellow))
+    let character_name = |i: u8| -> Cell<'a> {
+        Cell::from(player_state.char_states()[i].char_card().name).style(Style::default().fg(Color::Yellow))
     };
 
     fn card_cell<'a>(card_id: CardId) -> Cell<'a> {
-        Cell::from(card_id.get_card().name).style(Style::default().fg(Color::LightGreen))
+        Cell::from(card_id.card().name).style(Style::default().fg(Color::LightGreen))
     }
 
     fn et_cell<'a>(card_id: CardId) -> Cell<'a> {
         Cell::from(Spans::from(vec![
             Span::from("ET: "),
-            Span::styled(card_id.get_card().name, Style::default().fg(Color::LightGreen)),
+            Span::styled(card_id.card().name, Style::default().fg(Color::LightGreen)),
         ]))
     }
 
     fn skill_cell<'a>(skill_id: SkillId) -> Cell<'a> {
-        Cell::from(skill_id.get_skill().name).style(Style::default().fg(Color::LightBlue))
+        Cell::from(skill_id.skill().name).style(Style::default().fg(Color::LightBlue))
     }
 
     macro_rules! empty {
@@ -958,18 +958,16 @@ fn describe_action<'a, 'b>(player_state: &'b PlayerState, input: &'b Input) -> (
             PlayerAction::PlayCard(card_id, tgt) => {
                 let tgt_desc = match tgt {
                     None => empty!(),
-                    Some(CardSelection::OwnCharacter(i)) => get_character_name(i),
-                    Some(CardSelection::OwnSummon(summon_id)) => format!("Own:{}", summon_id.get_status().name).into(),
-                    Some(CardSelection::OpponentSummon(summon_id)) => {
-                        format!("Opp:{}", summon_id.get_status().name).into()
-                    }
+                    Some(CardSelection::OwnCharacter(i)) => character_name(i),
+                    Some(CardSelection::OwnSummon(summon_id)) => format!("Own:{}", summon_id.status().name).into(),
+                    Some(CardSelection::OpponentSummon(summon_id)) => format!("Opp:{}", summon_id.status().name).into(),
                 };
                 (card_cell(card_id), tgt_desc)
             }
             PlayerAction::ElementalTuning(card_id) => (et_cell(card_id), empty!()),
             PlayerAction::CastSkill(skill_id) => (skill_cell(skill_id), empty!()),
             PlayerAction::SwitchCharacter(i) | PlayerAction::PostDeathSwitch(i) => {
-                (Cell::from("Switch: "), get_character_name(i))
+                (Cell::from("Switch: "), character_name(i))
             }
         },
     }
@@ -979,14 +977,14 @@ pub fn main() -> Result<(), io::Error> {
     let mut deck_opts = SearchOpts::from_args();
     // Ignore debug flag
     deck_opts.search.debug = false;
-    let (decklist1, decklist2) = deck_opts.get_decks()?;
+    let (decklist1, decklist2) = deck_opts.decks()?;
     {
         let rand1 = SmallRng::seed_from_u64(deck_opts.seed.unwrap_or(100));
         let mut game = new_standard_game(&decklist1, &decklist2, rand1);
         if deck_opts.tactical {
             game.convert_to_tactical_search();
         }
-        let search = deck_opts.make_search(true, deck_opts.get_limits());
+        let search = deck_opts.make_search(true, deck_opts.limits());
 
         // setup terminal
         enable_raw_mode()?;

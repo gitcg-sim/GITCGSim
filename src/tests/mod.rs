@@ -37,7 +37,7 @@ impl GameState {
             self.phase
         );
         if matches!(self.phase, Phase::Drawing { .. }) {
-            assert!(matches!(self.get_nondet_request(), Some(NondetRequest::DrawCards(..))));
+            assert!(matches!(self.nondet_request(), Some(NondetRequest::DrawCards(..))));
             self.advance(Input::NondetResult(NondetResult::ProvideCards(Default::default())))
                 .unwrap();
             if self.round_number == 1 {
@@ -46,7 +46,7 @@ impl GameState {
                     matches!(self.phase, Phase::SelectStartingCharacter { .. }),
                     "must be on Phase::SelectStartingCharacter"
                 );
-                assert!(self.get_nondet_request().is_none(), "must have no NondetRequest");
+                assert!(self.nondet_request().is_none(), "must have no NondetRequest");
                 self.advance(Input::FromPlayer(
                     PlayerId::PlayerFirst,
                     PlayerAction::SwitchCharacter(0),
@@ -95,13 +95,13 @@ impl GameState {
         }
     }
 
-    fn get_status_collection_mut(&mut self, player_id: PlayerId) -> &mut StatusCollection {
+    fn status_collection_mut(&mut self, player_id: PlayerId) -> &mut StatusCollection {
         self.status_collections.get_mut(player_id)
     }
 
-    fn get_dice_distribution(&self, player_id: PlayerId) -> DiceDistribution {
-        self.get_player(player_id)
-            .get_dice_distribution(self.get_status_collection(player_id))
+    fn dice_distribution(&self, player_id: PlayerId) -> DiceDistribution {
+        self.player(player_id)
+            .dice_distribution(self.status_collection(player_id))
     }
 
     fn has_summon(&self, player_id: PlayerId, summon_id: SummonId) -> bool {

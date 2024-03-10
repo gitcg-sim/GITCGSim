@@ -32,7 +32,7 @@ use char_reexports::*;
 /// let si_static: StaticStatusImpl = status_id.into();
 /// assert_eq!(StaticStatusImpl::Status(status_id), si_static);
 ///
-/// let si_dynamic: &dyn StatusImpl = status_id.get_status_impl();
+/// let si_dynamic: &dyn StatusImpl = status_id.status_impl();
 /// assert_eq!(si_static.responds_to(), si_dynamic.responds_to());
 /// ```
 #[cfg(not(feature = "no_static_status_impl"))]
@@ -74,7 +74,7 @@ pub struct StaticStatusImpl {
 impl From<StatusId> for StaticStatusImpl {
     fn from(value: StatusId) -> Self {
         Self {
-            status_impl: value.get_status_impl(),
+            status_impl: value.status_impl(),
         }
     }
 }
@@ -83,7 +83,7 @@ impl From<StatusId> for StaticStatusImpl {
 impl From<SummonId> for StaticStatusImpl {
     fn from(value: SummonId) -> Self {
         Self {
-            status_impl: value.get_status_impl(),
+            status_impl: value.status_impl(),
         }
     }
 }
@@ -92,43 +92,43 @@ impl From<SummonId> for StaticStatusImpl {
 impl From<SupportId> for StaticStatusImpl {
     fn from(value: SupportId) -> Self {
         Self {
-            status_impl: value.get_status_impl(),
+            status_impl: value.status_impl(),
         }
     }
 }
 
 impl CardImpl for CardId {
     fn can_be_played(&self, cic: &CardImplContext) -> CanBePlayedResult {
-        self.get_card_impl().unwrap_or(&DefaultCardImpl()).can_be_played(cic)
+        self.card_impl().unwrap_or(&DefaultCardImpl()).can_be_played(cic)
     }
 
     fn selection(&self) -> Option<CardSelectionSpec> {
-        self.get_card_impl().unwrap_or(&DefaultCardImpl()).selection()
+        self.card_impl().unwrap_or(&DefaultCardImpl()).selection()
     }
 
-    fn get_effects(
+    fn effects(
         &self,
         cic: &CardImplContext,
         ctx: &CommandContext,
         commands: &mut CommandList<(CommandContext, Command)>,
     ) {
-        self.get_card_impl()
+        self.card_impl()
             .unwrap_or(&DefaultCardImpl())
-            .get_effects(cic, ctx, commands)
+            .effects(cic, ctx, commands)
     }
 }
 
 impl SkillImpl for SkillId {
-    fn get_commands(
+    fn commands(
         &self,
         src_player: &PlayerState,
         status_collection: &StatusCollection,
         ctx: &CommandContext,
         cmds: &mut CommandList<(CommandContext, Command)>,
     ) {
-        match self.get_skill().skill_impl {
+        match self.skill().skill_impl {
             None => {}
-            Some(si) => si.get_commands(src_player, status_collection, ctx, cmds),
+            Some(si) => si.commands(src_player, status_collection, ctx, cmds),
         }
     }
 }
@@ -270,7 +270,7 @@ mod tests {
         let si_static: StaticStatusImpl = status_id.into();
         assert_eq!(StaticStatusImpl::Status(status_id), si_static);
 
-        let si_dynamic: &dyn StatusImpl = status_id.get_status_impl();
+        let si_dynamic: &dyn StatusImpl = status_id.status_impl();
         assert_eq!(si_static.responds_to(), si_dynamic.responds_to());
     }
 }

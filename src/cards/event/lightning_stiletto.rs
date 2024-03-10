@@ -22,7 +22,7 @@ impl CardImpl for LightningStiletto {
         }
     }
 
-    fn get_effects(
+    fn effects(
         &self,
         cic: &CardImplContext,
         ctx: &CommandContext,
@@ -38,6 +38,6 @@ impl CardImpl for LightningStiletto {
         };
         let status_collection = cic.status_collections.get(cic.active_player_id);
         commands.push((*ctx, Command::SwitchCharacter(ci)));
-        commands.append(&mut player.get_cast_skill_cmds(status_collection, ctx, SkillId::StellarRestoration));
+        commands.append(&mut player.cast_skill_cmds(status_collection, ctx, SkillId::StellarRestoration));
     }
 }

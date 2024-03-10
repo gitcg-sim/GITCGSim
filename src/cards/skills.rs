@@ -42,7 +42,7 @@ const fn find_skill(skill_id: SkillId) -> Option<&'static Skill> {
     None
 }
 
-const fn get_precomputed_find_skill() -> [&'static Skill; <SkillId as enum_map::Enum>::LENGTH] {
+const fn precomputed_find_skill() -> [&'static Skill; <SkillId as enum_map::Enum>::LENGTH] {
     let mut res = [&yoimiya::NIWABI_FIRE_DANCE; <SkillId as enum_map::Enum>::LENGTH];
     for_each_enum!(skill_id: SkillId => {
         let idx = skill_id as u8 as usize;
@@ -55,14 +55,14 @@ const fn get_precomputed_find_skill() -> [&'static Skill; <SkillId as enum_map::
     res
 }
 
-const PRECOMPUTED_FIND_SKILL: [&Skill; <SkillId as enum_map::Enum>::LENGTH] = get_precomputed_find_skill();
+const PRECOMPUTED_FIND_SKILL: [&Skill; <SkillId as enum_map::Enum>::LENGTH] = precomputed_find_skill();
 
 const fn find_skill_precomputed(skill_id: SkillId) -> &'static Skill {
     PRECOMPUTED_FIND_SKILL[skill_id as u8 as usize]
 }
 
 impl GetSkill for SkillId {
-    fn get_skill(self) -> &'static Skill {
+    fn skill(self) -> &'static Skill {
         find_skill_precomputed(self)
     }
 }
@@ -90,7 +90,7 @@ mod tests {
     #[test]
     fn find_skill_is_same_as_get_skill_exhaustive() {
         for_each_enum!(skill_id: SkillId => {
-            assert_eq!(Some(skill_id.get_skill().name), find_skill(skill_id).map(|s| s.name));
+            assert_eq!(Some(skill_id.skill().name), find_skill(skill_id).map(|s| s.name));
         });
     }
 

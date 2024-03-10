@@ -72,11 +72,9 @@ impl Display for Event {
             Event::Action(act) => match act {
                 Input::FromPlayer(p, a) => match a {
                     PlayerAction::EndRound => f.write_fmt(format_args!("{p} ends their Round")),
-                    PlayerAction::PlayCard(c, _) => {
-                        f.write_fmt(format_args!("{p} played a Card: {}", c.get_card().name))
-                    }
+                    PlayerAction::PlayCard(c, _) => f.write_fmt(format_args!("{p} played a Card: {}", c.card().name)),
                     PlayerAction::ElementalTuning(_) => f.write_fmt(format_args!("{p} performed Elemental Tuning")),
-                    PlayerAction::CastSkill(s) => f.write_fmt(format_args!("{p} used Skill: {}", s.get_skill().name)),
+                    PlayerAction::CastSkill(s) => f.write_fmt(format_args!("{p} used Skill: {}", s.skill().name)),
                     PlayerAction::PostDeathSwitch(c) | PlayerAction::SwitchCharacter(c) => {
                         f.write_fmt(format_args!("{p} switched character to: {c}"))
                     }
@@ -85,7 +83,7 @@ impl Display for Event {
             },
             Event::DealDMG(_, (tgt_player, (_, char_id)), dmg) => {
                 let dmg_val = dmg.dmg;
-                let char_name = char_id.get_char_card().name;
+                let char_name = char_id.char_card().name;
                 f.write_fmt(format_args!("{tgt_player} {char_name} received {dmg_val}"))?;
                 match dmg.dmg_type {
                     DealDMGType::Piercing => f.write_str(" Piercing DMG")?,
@@ -99,12 +97,10 @@ impl Display for Event {
                     Ok(())
                 }
             }
-            Event::Heal(p, (_, c), v) => {
-                f.write_fmt(format_args!("{p} {}: Healed by {v:?} HP", c.get_char_card().name))
-            }
+            Event::Heal(p, (_, c), v) => f.write_fmt(format_args!("{p} {}: Healed by {v:?} HP", c.char_card().name)),
             Event::Reaction(_, _, r) => f.write_fmt(format_args!("Reaction triggered: {r:?}")),
             Event::TriggerEvent(_, e) => f.write_fmt(format_args!("Event triggered: {e:?}")),
-            Event::Summon(p, s) => f.write_fmt(format_args!("{p} summoned: {}", s.get_status().name)),
+            Event::Summon(p, s) => f.write_fmt(format_args!("{p} summoned: {}", s.status().name)),
             _ => Ok(()),
         }
     }

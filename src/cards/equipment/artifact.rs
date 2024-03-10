@@ -134,7 +134,7 @@ impl StatusImpl for HealArtifact {
     }
 
     fn trigger_xevent(&self, e: &mut TriggerEventContext<XEvent>) -> Option<AppliedEffectResult> {
-        let skill_type = e.get_event_skill_ensuring_attached_character()?.skill_type();
+        let skill_type = e.event_skill_ensuring_attached_character()?.skill_type();
         if skill_type != self.skill_type {
             return None;
         }
@@ -149,7 +149,7 @@ impl StatusImpl for HealArtifact {
             return Some(AppliedEffectResult::ConsumeOncePerRound);
         }
 
-        let c = e.c.eff_state.get_counter();
+        let c = e.c.eff_state.counter();
         if c == 0 {
             return None;
         }
@@ -209,7 +209,7 @@ pub mod gamblers_earrings {
         }
 
         fn trigger_xevent(&self, e: &mut TriggerEventContext<XEvent>) -> Option<AppliedEffectResult> {
-            let dmg = e.get_outgoing_dmg_ensuring_own_player()?;
+            let dmg = e.outgoing_dmg_ensuring_own_player()?;
             if !dmg.defeated {
                 return None;
             }
@@ -241,7 +241,7 @@ pub mod exiles_circlet {
         }
 
         fn trigger_xevent(&self, e: &mut TriggerEventContext<XEvent>) -> Option<AppliedEffectResult> {
-            let SkillType::ElementalBurst = e.get_event_skill_ensuring_attached_character()?.skill_type() else {
+            let SkillType::ElementalBurst = e.event_skill_ensuring_attached_character()?.skill_type() else {
                 return None;
             };
             for (char_idx, _) in e.c.src_player_state.char_states.enumerate_valid() {
@@ -273,7 +273,7 @@ pub mod ornate_kabuto {
         }
 
         fn trigger_xevent(&self, e: &mut TriggerEventContext<XEvent>) -> Option<AppliedEffectResult> {
-            let SkillType::ElementalBurst = e.get_event_skill_ensuring_own_player()?.skill_type() else {
+            let SkillType::ElementalBurst = e.event_skill_ensuring_own_player()?.skill_type() else {
                 return None;
             };
             let Some(own_char_idx) = e.c.status_key.char_idx() else {

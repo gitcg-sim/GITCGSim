@@ -6,7 +6,7 @@ impl CharId {
     pub fn from_name(name: &str) -> Option<Self> {
         (0..Self::LENGTH).find_map(|i| {
             let char_id = Self::from_usize(i);
-            (char_id.get_char_card().name == name).then_some(char_id)
+            (char_id.char_card().name == name).then_some(char_id)
         })
     }
 }
@@ -15,7 +15,7 @@ impl CardId {
     pub fn from_name(name: &str) -> Option<Self> {
         (0..Self::LENGTH).find_map(|i| {
             let card_id = Self::from_usize(i);
-            (card_id.get_card().name == name).then_some(card_id)
+            (card_id.card().name == name).then_some(card_id)
         })
     }
 }

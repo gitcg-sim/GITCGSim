@@ -13,7 +13,7 @@ fn searing_onslaught_increases_dmg_every_3rd_use_per_round() {
             Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
         ]);
         {
-            let kaeya = &mut gs.get_player_mut(PlayerId::PlayerSecond).char_states[0];
+            let kaeya = &mut gs.player_mut(PlayerId::PlayerSecond).char_states[0];
             kaeya.set_hp(10);
         }
         for i in 1..=8 {
@@ -22,13 +22,13 @@ fn searing_onslaught_increases_dmg_every_3rd_use_per_round() {
                 PlayerAction::CastSkill(SkillId::SearingOnslaught),
             )]);
             let counter = gs
-                .get_status_collection_mut(PlayerId::PlayerFirst)
+                .status_collection_mut(PlayerId::PlayerFirst)
                 .get(StatusKey::Character(0, StatusId::SearingOnslaughtCounter))
                 .unwrap()
-                .get_counter();
+                .counter();
             assert_eq!(std::cmp::min(3, i), counter);
-            let kaeya = &mut gs.get_player_mut(PlayerId::PlayerSecond).char_states[0];
-            assert_eq!(if i == 3 { 5 } else { 7 }, kaeya.get_hp());
+            let kaeya = &mut gs.player_mut(PlayerId::PlayerSecond).char_states[0];
+            assert_eq!(if i == 3 { 5 } else { 7 }, kaeya.hp());
             kaeya.set_hp(10);
         }
         gs.advance_multiple([
@@ -56,14 +56,14 @@ fn dawn_grants_pyro_infusion() {
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::Dawn)),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::SwitchCharacter(1)),
     ]);
-    assert_eq!(2, gs.get_player(PlayerId::PlayerSecond).char_states[0].get_hp());
+    assert_eq!(2, gs.player(PlayerId::PlayerSecond).char_states[0].hp());
     gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::TemperedSword),
     )]);
-    assert_eq!(8, gs.get_player(PlayerId::PlayerSecond).char_states[1].get_hp());
+    assert_eq!(8, gs.player(PlayerId::PlayerSecond).char_states[1].hp());
     assert_eq!(
         elem_set![Element::Pyro],
-        gs.get_player(PlayerId::PlayerSecond).char_states[1].applied
+        gs.player(PlayerId::PlayerSecond).char_states[1].applied
     );
 }

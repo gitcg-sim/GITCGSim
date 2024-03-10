@@ -75,7 +75,7 @@ impl ElementPriority {
         if let Some(e) = active_elem {
             important_elems.insert(e);
         };
-        let elem_order = Self::get_updated_elem_order(active_elem, important_elems);
+        let elem_order = Self::updated_elem_order(active_elem, important_elems);
         ElementPriority {
             important_elems,
             active_elem,
@@ -111,7 +111,7 @@ impl ElementPriority {
 
     /// Get the first element (lowest position in `Element::ALL`) that is not part of this priority.
     #[inline]
-    pub fn get_off_element(&self) -> Option<Element> {
+    pub fn off_element(&self) -> Option<Element> {
         let mut elems = self.important_elems;
         if let Some(e) = self.active_elem {
             elems.insert(e);
@@ -135,7 +135,7 @@ impl ElementPriority {
         }
     }
 
-    fn get_updated_elem_order(active_elem: Option<Element>, important_elems: ElementSet) -> [Element; 7] {
+    fn updated_elem_order(active_elem: Option<Element>, important_elems: ElementSet) -> [Element; 7] {
         #[inline]
         fn option_elem_to_index(e: Option<Element>) -> usize {
             e.map_or(7, |e| e.to_index())

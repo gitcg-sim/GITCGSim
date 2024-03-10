@@ -77,12 +77,12 @@ impl AppliedEffectState {
     }
 
     #[inline]
-    pub fn get_usages(self) -> u8 {
+    pub fn usages(self) -> u8 {
         self._repr & USAGES_MASK
     }
 
     #[inline]
-    pub fn get_counter(self) -> u8 {
+    pub fn counter(self) -> u8 {
         (self._repr & COUNTER_MASK) >> COUNTER_SHIFT
     }
 
@@ -93,7 +93,7 @@ impl AppliedEffectState {
     }
 
     #[inline]
-    pub fn get_duration(self) -> u8 {
+    pub fn duration(self) -> u8 {
         self._repr & DURATION_MASK
     }
 
@@ -126,13 +126,13 @@ impl AppliedEffectState {
 
     #[inline]
     pub fn decrement_usages(&mut self) {
-        let u = max(1, self.get_usages()) - 1;
+        let u = max(1, self.usages()) - 1;
         self.set_usages(u);
     }
 
     #[inline]
     pub fn decrement_duration(&mut self) {
-        let d = max(1, self.get_duration()) - 1;
+        let d = max(1, self.duration()) - 1;
         self.set_duration(d);
     }
 
@@ -150,8 +150,8 @@ impl AppliedEffectState {
 impl crate::std_subset::fmt::Debug for AppliedEffectState {
     fn fmt(&self, f: &mut crate::std_subset::fmt::Formatter<'_>) -> crate::std_subset::fmt::Result {
         f.debug_struct("AppliedEffectState")
-            .field("usages_duration", &self.get_usages())
-            .field("counter", &self.get_counter())
+            .field("usages_duration", &self.usages())
+            .field("counter", &self.counter())
             .field("once_per_round", &self.can_use_once_per_round())
             .finish()
     }
@@ -164,45 +164,45 @@ mod tests {
     fn test_decrement_usages() {
         let mut s = AppliedEffectState::from_fields(3, 0, true);
         assert!(!s.no_usages());
-        assert_eq!(3, s.get_usages());
+        assert_eq!(3, s.usages());
         s.decrement_usages();
-        assert_eq!(2, s.get_usages());
+        assert_eq!(2, s.usages());
         s.decrement_usages();
-        assert_eq!(1, s.get_usages());
+        assert_eq!(1, s.usages());
         s.decrement_usages();
-        assert_eq!(0, s.get_usages());
+        assert_eq!(0, s.usages());
         assert!(s.no_usages());
     }
 
     #[test]
     fn test_decrement_usages_no_once_per_round() {
         let mut s = AppliedEffectState::from_fields(3, 0, false);
-        assert_eq!(3, s.get_usages());
+        assert_eq!(3, s.usages());
         s.decrement_usages();
-        assert_eq!(2, s.get_usages());
+        assert_eq!(2, s.usages());
         s.decrement_usages();
-        assert_eq!(1, s.get_usages());
+        assert_eq!(1, s.usages());
         s.decrement_usages();
-        assert_eq!(0, s.get_usages());
+        assert_eq!(0, s.usages());
     }
 
     #[test]
     fn test_set_usages() {
         let mut s = AppliedEffectState::from_fields(3, 0, true);
-        assert_eq!(3, s.get_usages());
+        assert_eq!(3, s.usages());
         s.set_usages(5);
-        assert_eq!(5, s.get_usages());
+        assert_eq!(5, s.usages());
     }
 
     #[test]
     fn test_set_counter() {
         let mut s = AppliedEffectState::from_fields(3, 0, true);
         assert!(s.can_use_once_per_round());
-        assert_eq!(0, s.get_counter());
-        assert_eq!(3, s.get_usages());
+        assert_eq!(0, s.counter());
+        assert_eq!(3, s.usages());
         s.set_counter(11);
         assert!(s.can_use_once_per_round());
-        assert_eq!(11, s.get_counter());
-        assert_eq!(3, s.get_usages());
+        assert_eq!(11, s.counter());
+        assert_eq!(3, s.usages());
     }
 }

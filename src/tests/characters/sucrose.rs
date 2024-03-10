@@ -11,12 +11,8 @@ fn astable_anemohypostasis_creation_6308_forces_switch_1_character() {
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::AstableAnemohypostasisCreation6308),
     )]);
-    assert_eq!(0, gs.get_player(PlayerId::PlayerSecond).active_char_idx);
-    assert!(gs
-        .get_player(PlayerId::PlayerSecond)
-        .get_active_character()
-        .applied
-        .is_empty());
+    assert_eq!(0, gs.player(PlayerId::PlayerSecond).active_char_idx);
+    assert!(gs.player(PlayerId::PlayerSecond).active_character().applied.is_empty());
 }
 
 #[test]
@@ -33,7 +29,7 @@ fn astable_anemohypostasis_creation_6308_forces_switch_to_prev() {
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::AstableAnemohypostasisCreation6308),
     )]);
-    assert_eq!(2, gs.get_player(PlayerId::PlayerSecond).active_char_idx);
+    assert_eq!(2, gs.player(PlayerId::PlayerSecond).active_char_idx);
     gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
         Input::FromPlayer(
@@ -41,18 +37,18 @@ fn astable_anemohypostasis_creation_6308_forces_switch_to_prev() {
             PlayerAction::CastSkill(SkillId::AstableAnemohypostasisCreation6308),
         ),
     ]);
-    assert_eq!(1, gs.get_player(PlayerId::PlayerSecond).active_char_idx);
+    assert_eq!(1, gs.player(PlayerId::PlayerSecond).active_char_idx);
     gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::AstableAnemohypostasisCreation6308),
     )]);
-    assert_eq!(0, gs.get_player(PlayerId::PlayerSecond).active_char_idx);
-    gs.get_player_mut(PlayerId::PlayerSecond).char_states[2].set_hp(0);
+    assert_eq!(0, gs.player(PlayerId::PlayerSecond).active_char_idx);
+    gs.player_mut(PlayerId::PlayerSecond).char_states[2].set_hp(0);
     gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::AstableAnemohypostasisCreation6308),
     )]);
-    assert_eq!(1, gs.get_player(PlayerId::PlayerSecond).active_char_idx);
+    assert_eq!(1, gs.player(PlayerId::PlayerSecond).active_char_idx);
 }
 
 #[test]
@@ -67,27 +63,27 @@ fn large_wind_spirit_deals_anemo_dmg_without_infusion() {
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::ForbiddenCreationIsomer75TypeII),
     )]);
-    assert_eq!(9, gs.get_player(PlayerId::PlayerSecond).char_states[0].get_hp());
+    assert_eq!(9, gs.player(PlayerId::PlayerSecond).char_states[0].hp());
     assert!(gs.has_summon(PlayerId::PlayerFirst, SummonId::LargeWindSpirit));
     {
         let summon_state = gs
-            .get_status_collection_mut(PlayerId::PlayerFirst)
+            .status_collection_mut(PlayerId::PlayerFirst)
             .get(StatusKey::Summon(SummonId::LargeWindSpirit))
             .unwrap();
-        assert_eq!(3, summon_state.get_usages());
+        assert_eq!(3, summon_state.usages());
     }
     gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::EndRound),
         Input::NoAction,
     ]);
-    assert_eq!(7, gs.get_player(PlayerId::PlayerSecond).char_states[0].get_hp());
+    assert_eq!(7, gs.player(PlayerId::PlayerSecond).char_states[0].hp());
     {
         let summon_state = gs
-            .get_status_collection_mut(PlayerId::PlayerFirst)
+            .status_collection_mut(PlayerId::PlayerFirst)
             .get(StatusKey::Summon(SummonId::LargeWindSpirit))
             .unwrap();
-        assert_eq!(2, summon_state.get_usages());
+        assert_eq!(2, summon_state.usages());
     }
 }
 
@@ -103,9 +99,9 @@ fn large_wind_spirit_deals_infuses_after_swirling() {
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::ForbiddenCreationIsomer75TypeII),
     )]);
-    assert_eq!(9, gs.get_player(PlayerId::PlayerSecond).char_states[0].get_hp());
+    assert_eq!(9, gs.player(PlayerId::PlayerSecond).char_states[0].hp());
     assert!(gs.has_summon(PlayerId::PlayerFirst, SummonId::LargeWindSpirit));
-    gs.get_player_mut(PlayerId::PlayerSecond)
+    gs.player_mut(PlayerId::PlayerSecond)
         .try_get_character_mut(0)
         .unwrap()
         .applied
@@ -115,26 +111,23 @@ fn large_wind_spirit_deals_infuses_after_swirling() {
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::EndRound),
         Input::NoAction,
     ]);
-    assert_eq!(7, gs.get_player(PlayerId::PlayerSecond).char_states[0].get_hp());
-    assert_eq!(
-        elem_set![],
-        gs.get_player(PlayerId::PlayerSecond).char_states[0].applied
-    );
+    assert_eq!(7, gs.player(PlayerId::PlayerSecond).char_states[0].hp());
+    assert_eq!(elem_set![], gs.player(PlayerId::PlayerSecond).char_states[0].applied);
     assert_eq!(
         elem_set![Element::Pyro],
-        gs.get_player(PlayerId::PlayerSecond).char_states[1].applied
+        gs.player(PlayerId::PlayerSecond).char_states[1].applied
     );
     {
         let summon_state = gs
-            .get_status_collection_mut(PlayerId::PlayerFirst)
+            .status_collection_mut(PlayerId::PlayerFirst)
             .get(StatusKey::Summon(SummonId::LargeWindSpirit))
             .unwrap();
-        assert_eq!(2, summon_state.get_usages());
-        assert_eq!(Element::Pyro, Element::VALUES[summon_state.get_counter() as usize]);
+        assert_eq!(2, summon_state.usages());
+        assert_eq!(Element::Pyro, Element::VALUES[summon_state.counter() as usize]);
     }
     gs.advance_roll_phase_no_dice();
     assert_eq!(2, gs.round_number);
-    gs.get_player_mut(PlayerId::PlayerSecond)
+    gs.player_mut(PlayerId::PlayerSecond)
         .try_get_character_mut(0)
         .unwrap()
         .applied
@@ -146,12 +139,12 @@ fn large_wind_spirit_deals_infuses_after_swirling() {
     ]);
     {
         let summon_state = gs
-            .get_status_collection_mut(PlayerId::PlayerFirst)
+            .status_collection_mut(PlayerId::PlayerFirst)
             .get(StatusKey::Summon(SummonId::LargeWindSpirit))
             .unwrap();
-        assert_eq!(1, summon_state.get_usages());
+        assert_eq!(1, summon_state.usages());
         // Did not re-infuse
-        assert_eq!(Element::Pyro, Element::VALUES[summon_state.get_counter() as usize]);
+        assert_eq!(Element::Pyro, Element::VALUES[summon_state.counter() as usize]);
     }
     assert_eq!(3, gs.round_number);
 }
@@ -172,9 +165,9 @@ fn large_wind_spirit_infused_dmg_after_own_character_swirling() {
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::ForbiddenCreationIsomer75TypeII),
     )]);
-    assert_eq!(9, gs.get_player(PlayerId::PlayerSecond).char_states[0].get_hp());
+    assert_eq!(9, gs.player(PlayerId::PlayerSecond).char_states[0].hp());
     assert!(gs.has_summon(PlayerId::PlayerFirst, SummonId::LargeWindSpirit));
-    gs.get_player_mut(PlayerId::PlayerSecond)
+    gs.player_mut(PlayerId::PlayerSecond)
         .try_get_character_mut(0)
         .unwrap()
         .applied
@@ -190,10 +183,10 @@ fn large_wind_spirit_infused_dmg_after_own_character_swirling() {
         ]);
         {
             let summon_state = gs
-                .get_status_collection_mut(PlayerId::PlayerFirst)
+                .status_collection_mut(PlayerId::PlayerFirst)
                 .get(StatusKey::Summon(SummonId::LargeWindSpirit))
                 .unwrap();
-            assert_eq!(Element::Pyro, Element::VALUES[summon_state.get_counter() as usize]);
+            assert_eq!(Element::Pyro, Element::VALUES[summon_state.counter() as usize]);
         }
     }
 
@@ -206,10 +199,10 @@ fn large_wind_spirit_infused_dmg_after_own_character_swirling() {
         ]);
         {
             let summon_state = gs
-                .get_status_collection_mut(PlayerId::PlayerFirst)
+                .status_collection_mut(PlayerId::PlayerFirst)
                 .get(StatusKey::Summon(SummonId::LargeWindSpirit))
                 .unwrap();
-            assert_eq!(Element::Pyro, Element::VALUES[summon_state.get_counter() as usize]);
+            assert_eq!(Element::Pyro, Element::VALUES[summon_state.counter() as usize]);
         }
     }
 }
@@ -233,7 +226,7 @@ fn large_wind_spirit_does_not_infuse_after_opponent_summon_swirling() {
     ]);
     assert!(gs.has_summon(PlayerId::PlayerFirst, SummonId::LargeWindSpirit));
     assert!(gs.has_summon(PlayerId::PlayerSecond, SummonId::LargeWindSpirit));
-    gs.get_player_mut(PlayerId::PlayerFirst)
+    gs.player_mut(PlayerId::PlayerFirst)
         .try_get_character_mut(0)
         .unwrap()
         .applied
@@ -243,25 +236,22 @@ fn large_wind_spirit_does_not_infuse_after_opponent_summon_swirling() {
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
         Input::NoAction,
     ]);
-    assert_eq!(elem_set![], gs.get_player(PlayerId::PlayerFirst).char_states[0].applied);
-    assert_eq!(
-        elem_set![],
-        gs.get_player(PlayerId::PlayerSecond).char_states[0].applied
-    );
+    assert_eq!(elem_set![], gs.player(PlayerId::PlayerFirst).char_states[0].applied);
+    assert_eq!(elem_set![], gs.player(PlayerId::PlayerSecond).char_states[0].applied);
     {
         let summon_state = gs
-            .get_status_collection_mut(PlayerId::PlayerFirst)
+            .status_collection_mut(PlayerId::PlayerFirst)
             .get(StatusKey::Summon(SummonId::LargeWindSpirit))
             .unwrap();
         // Opponent Swirled Pyro
-        assert_eq!(Element::Anemo, Element::VALUES[summon_state.get_counter() as usize]);
+        assert_eq!(Element::Anemo, Element::VALUES[summon_state.counter() as usize]);
     }
     {
         let summon_state = gs
-            .get_status_collection_mut(PlayerId::PlayerSecond)
+            .status_collection_mut(PlayerId::PlayerSecond)
             .get(StatusKey::Summon(SummonId::LargeWindSpirit))
             .unwrap();
-        assert_eq!(Element::Pyro, Element::VALUES[summon_state.get_counter() as usize]);
+        assert_eq!(Element::Pyro, Element::VALUES[summon_state.counter() as usize]);
     }
 }
 
@@ -277,7 +267,7 @@ fn large_wind_spirit_does_not_infuse_after_opponent_skill_swirling() {
         PlayerAction::CastSkill(SkillId::ForbiddenCreationIsomer75TypeII),
     )]);
     assert!(gs.has_summon(PlayerId::PlayerFirst, SummonId::LargeWindSpirit));
-    gs.get_player_mut(PlayerId::PlayerFirst)
+    gs.player_mut(PlayerId::PlayerFirst)
         .try_get_character_mut(0)
         .unwrap()
         .applied
@@ -289,9 +279,9 @@ fn large_wind_spirit_does_not_infuse_after_opponent_skill_swirling() {
     )]);
     {
         let summon_state = gs
-            .get_status_collection_mut(PlayerId::PlayerFirst)
+            .status_collection_mut(PlayerId::PlayerFirst)
             .get(StatusKey::Summon(SummonId::LargeWindSpirit))
             .unwrap();
-        assert_eq!(Element::Anemo, Element::VALUES[summon_state.get_counter() as usize]);
+        assert_eq!(Element::Anemo, Element::VALUES[summon_state.counter() as usize]);
     }
 }

@@ -9,22 +9,20 @@ fn swirl_deals_swirl_dmg_and_applies_element() {
         )
         .ignore_costs(true)
         .build();
-        gs.get_player_mut(PlayerId::PlayerSecond).char_states[0]
-            .applied
-            .insert(e);
+        gs.player_mut(PlayerId::PlayerSecond).char_states[0].applied.insert(e);
         gs.advance_roll_phase_no_dice();
         gs.advance_multiple([Input::FromPlayer(
             PlayerId::PlayerFirst,
             PlayerAction::CastSkill(SkillId::AstableAnemohypostasisCreation6308),
         )]);
         {
-            let player = gs.get_player(PlayerId::PlayerSecond);
+            let player = gs.player(PlayerId::PlayerSecond);
             assert_eq!(elem_set![], player.char_states[0].applied);
             assert_eq!(elem_set![e], player.char_states[1].applied);
             assert_eq!(elem_set![e], player.char_states[2].applied);
-            assert_eq!(7, player.char_states[0].get_hp());
-            assert_eq!(9, player.char_states[1].get_hp());
-            assert_eq!(9, player.char_states[2].get_hp());
+            assert_eq!(7, player.char_states[0].hp());
+            assert_eq!(9, player.char_states[1].hp());
+            assert_eq!(9, player.char_states[2].hp());
         }
     }
 }
@@ -38,7 +36,7 @@ fn swirl_triggers_secondary_reactions_melt_vaporize() {
     .ignore_costs(true)
     .build();
     {
-        let player = gs.get_player_mut(PlayerId::PlayerSecond);
+        let player = gs.player_mut(PlayerId::PlayerSecond);
         player.char_states[0].applied.insert(Element::Pyro);
         player.char_states[1].applied.insert(Element::Cryo);
         player.char_states[2].applied.insert(Element::Hydro);
@@ -50,13 +48,13 @@ fn swirl_triggers_secondary_reactions_melt_vaporize() {
         PlayerAction::CastSkill(SkillId::AstableAnemohypostasisCreation6308),
     )]);
     {
-        let player = gs.get_player(PlayerId::PlayerSecond);
+        let player = gs.player(PlayerId::PlayerSecond);
         assert_eq!(elem_set![], player.char_states[0].applied);
         assert_eq!(elem_set![], player.char_states[1].applied);
         assert_eq!(elem_set![], player.char_states[2].applied);
-        assert_eq!(7, player.char_states[0].get_hp());
-        assert_eq!(7, player.char_states[1].get_hp());
-        assert_eq!(7, player.char_states[2].get_hp());
+        assert_eq!(7, player.char_states[0].hp());
+        assert_eq!(7, player.char_states[1].hp());
+        assert_eq!(7, player.char_states[2].hp());
     }
 }
 
@@ -70,7 +68,7 @@ fn swirl_triggers_secondary_reactions_electro_charged_superconduct() {
         .ignore_costs(true)
         .build();
         {
-            let player = gs.get_player_mut(PlayerId::PlayerSecond);
+            let player = gs.player_mut(PlayerId::PlayerSecond);
             player.char_states[0].applied.insert(Element::Electro);
             player.char_states[1].applied.insert(e);
         }
@@ -81,13 +79,13 @@ fn swirl_triggers_secondary_reactions_electro_charged_superconduct() {
             PlayerAction::CastSkill(SkillId::AstableAnemohypostasisCreation6308),
         )]);
         {
-            let player = gs.get_player(PlayerId::PlayerSecond);
+            let player = gs.player(PlayerId::PlayerSecond);
             assert_eq!(elem_set![], player.char_states[0].applied);
             assert_eq!(elem_set![], player.char_states[1].applied);
             assert_eq!(elem_set![Element::Electro], player.char_states[2].applied);
-            assert_eq!(6, player.char_states[0].get_hp());
-            assert_eq!(8, player.char_states[1].get_hp());
-            assert_eq!(8, player.char_states[2].get_hp());
+            assert_eq!(6, player.char_states[0].hp());
+            assert_eq!(8, player.char_states[1].hp());
+            assert_eq!(8, player.char_states[2].hp());
         }
     }
 }
@@ -101,7 +99,7 @@ fn swirl_triggers_secondary_reactions_bloom_frozen() {
     .ignore_costs(true)
     .build();
     {
-        let player = gs.get_player_mut(PlayerId::PlayerSecond);
+        let player = gs.player_mut(PlayerId::PlayerSecond);
         player.char_states[0].applied.insert(Element::Hydro);
         player.char_states[1].applied.insert(Element::Cryo);
         player.char_states[2].applied.insert(Element::Dendro);
@@ -114,11 +112,11 @@ fn swirl_triggers_secondary_reactions_bloom_frozen() {
     )]);
     assert!(gs.has_team_status(PlayerId::PlayerFirst, StatusId::DendroCore));
     assert!(gs
-        .get_status_collection_mut(PlayerId::PlayerSecond)
+        .status_collection_mut(PlayerId::PlayerSecond)
         .get(StatusKey::Character(1, StatusId::Frozen))
         .is_some());
     {
-        let player = gs.get_player(PlayerId::PlayerSecond);
+        let player = gs.player(PlayerId::PlayerSecond);
         assert_eq!(elem_set![], player.char_states[0].applied);
         assert_eq!(elem_set![], player.char_states[1].applied);
         assert_eq!(elem_set![], player.char_states[2].applied);
@@ -134,7 +132,7 @@ fn swirl_triggers_secondary_reactions_quicken() {
     .ignore_costs(true)
     .build();
     {
-        let player = gs.get_player_mut(PlayerId::PlayerSecond);
+        let player = gs.player_mut(PlayerId::PlayerSecond);
         player.char_states[0].applied.insert(Element::Electro);
         player.char_states[1].applied.insert(Element::Dendro);
     }
@@ -146,7 +144,7 @@ fn swirl_triggers_secondary_reactions_quicken() {
     )]);
     assert!(gs.has_team_status(PlayerId::PlayerFirst, StatusId::CatalyzingField));
     {
-        let player = gs.get_player(PlayerId::PlayerSecond);
+        let player = gs.player(PlayerId::PlayerSecond);
         assert_eq!(elem_set![], player.char_states[0].applied);
         assert_eq!(elem_set![], player.char_states[1].applied);
         assert_eq!(elem_set![Element::Electro], player.char_states[2].applied);
@@ -162,7 +160,7 @@ fn swirl_triggers_secondary_reactions_burning() {
     .ignore_costs(true)
     .build();
     {
-        let player = gs.get_player_mut(PlayerId::PlayerSecond);
+        let player = gs.player_mut(PlayerId::PlayerSecond);
         player.char_states[0].applied.insert(Element::Pyro);
         player.char_states[1].applied.insert(Element::Dendro);
     }
@@ -174,7 +172,7 @@ fn swirl_triggers_secondary_reactions_burning() {
     )]);
     assert!(gs.has_summon(PlayerId::PlayerFirst, SummonId::BurningFlame));
     {
-        let player = gs.get_player(PlayerId::PlayerSecond);
+        let player = gs.player(PlayerId::PlayerSecond);
         assert_eq!(elem_set![], player.char_states[0].applied);
         assert_eq!(elem_set![], player.char_states[1].applied);
         assert_eq!(elem_set![Element::Pyro], player.char_states[2].applied);
@@ -190,7 +188,7 @@ fn swirl_triggers_secondary_reactions_overloaded_no_forced_switch() {
     .ignore_costs(true)
     .build();
     {
-        let player = gs.get_player_mut(PlayerId::PlayerSecond);
+        let player = gs.player_mut(PlayerId::PlayerSecond);
         player.char_states[0].applied.insert(Element::Pyro);
         player.char_states[1].applied.insert(Element::Electro);
         player.char_states[2].applied.insert(Element::Electro);
@@ -205,7 +203,7 @@ fn swirl_triggers_secondary_reactions_overloaded_no_forced_switch() {
         ),
     ]);
     {
-        let player = gs.get_player(PlayerId::PlayerSecond);
+        let player = gs.player(PlayerId::PlayerSecond);
         assert_eq!(elem_set![], player.char_states[0].applied);
         assert_eq!(elem_set![], player.char_states[1].applied);
         assert_eq!(elem_set![], player.char_states[2].applied);

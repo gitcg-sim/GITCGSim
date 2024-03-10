@@ -19,8 +19,8 @@ fn breastplate_shield_points() {
         ),
     ]);
     {
-        let noelle = gs.get_player(PlayerId::PlayerFirst).get_active_character();
-        assert_eq!(8, noelle.get_hp());
+        let noelle = gs.player(PlayerId::PlayerFirst).active_character();
+        assert_eq!(8, noelle.hp());
     }
     gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
@@ -33,8 +33,8 @@ fn breastplate_shield_points() {
         PlayerAction::CastSkill(SkillId::FrostflakeArrow),
     )]);
     {
-        let noelle = gs.get_player(PlayerId::PlayerFirst).get_active_character();
-        assert_eq!(8, noelle.get_hp());
+        let noelle = gs.player(PlayerId::PlayerFirst).active_character();
+        assert_eq!(8, noelle.hp());
     }
     assert!(!gs.has_team_status(PlayerId::PlayerFirst, StatusId::FullPlate));
 }
@@ -70,7 +70,7 @@ fn talent_card_heals_all() {
     assert!(gs.has_team_status(PlayerId::PlayerFirst, StatusId::FullPlate));
 
     for c in gs.players.0.char_states.iter_valid() {
-        assert_eq!(6, c.get_hp())
+        assert_eq!(6, c.hp())
     }
 
     gs.advance_multiple([Input::FromPlayer(
@@ -79,7 +79,7 @@ fn talent_card_heals_all() {
     )]);
 
     for c in gs.players.0.char_states.iter_valid() {
-        assert_eq!(6, c.get_hp())
+        assert_eq!(6, c.hp())
     }
 }
 
@@ -90,7 +90,7 @@ fn sweeping_time_reduces_cost_for_na() {
         .build();
     gs.advance_roll_phase_no_dice();
     {
-        let p = gs.get_player_mut(PlayerId::PlayerFirst);
+        let p = gs.player_mut(PlayerId::PlayerFirst);
         p.dice.add_single(Dice::Omni, 7);
         p.dice.add_single(Dice::DENDRO, 1);
         p.char_states[0].set_energy(3);
@@ -100,12 +100,12 @@ fn sweeping_time_reduces_cost_for_na() {
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::SweepingTime)),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
     ]);
-    assert_eq!(4, gs.get_player(PlayerId::PlayerFirst).dice.total());
+    assert_eq!(4, gs.player(PlayerId::PlayerFirst).dice.total());
     gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::FavoniusBladeworkMaid),
     )]);
-    assert_eq!(2, gs.get_player(PlayerId::PlayerFirst).dice.total());
+    assert_eq!(2, gs.player(PlayerId::PlayerFirst).dice.total());
     assert!(gs
         .advance(Input::FromPlayer(
             PlayerId::PlayerFirst,

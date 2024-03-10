@@ -12,7 +12,7 @@ impl SuspendedState {
     }
 
     #[inline]
-    pub fn get_nondet_request(&self) -> Option<NondetRequest> {
+    pub fn nondet_request(&self) -> Option<NondetRequest> {
         match self {
             SuspendedState::PostDeathSwitch { .. } => None,
             SuspendedState::NondetRequest(req) => Some(*req),
@@ -20,7 +20,7 @@ impl SuspendedState {
     }
 
     #[inline]
-    pub fn get_dispatch_result(&self) -> DispatchResult {
+    pub fn dispatch_result(&self) -> DispatchResult {
         match self {
             SuspendedState::PostDeathSwitch { player_id, .. } => DispatchResult::PlayerInput(*player_id),
             SuspendedState::NondetRequest(req) => DispatchResult::NondetRequest(*req),
@@ -31,7 +31,7 @@ impl SuspendedState {
         let mut acts = action_list![];
         match *self {
             SuspendedState::PostDeathSwitch { player_id, .. } => {
-                let p = game_state.get_player(player_id);
+                let p = game_state.player(player_id);
                 for (char_idx, _) in p.char_states.enumerate_valid() {
                     acts.push(Input::FromPlayer(player_id, PlayerAction::PostDeathSwitch(char_idx)));
                 }
@@ -46,7 +46,7 @@ impl SuspendedState {
         match *self {
             SuspendedState::PostDeathSwitch { player_id, .. } => {
                 let it = game_state
-                    .get_player(player_id)
+                    .player(player_id)
                     .char_states
                     .enumerate_valid()
                     .map(move |(char_idx, _)| Input::FromPlayer(player_id, PlayerAction::PostDeathSwitch(char_idx)));

@@ -18,10 +18,10 @@ fn guoba_attack_deals_dmg_at_end_phase() {
         Input::NoAction,
     ]);
     assert!(gs.has_summon(PlayerId::PlayerFirst, SummonId::Guoba));
-    assert_eq!(8, gs.get_player(PlayerId::PlayerSecond).char_states[0].get_hp());
+    assert_eq!(8, gs.player(PlayerId::PlayerSecond).char_states[0].hp());
     assert_eq!(
         elem_set![Element::Pyro],
-        gs.get_player(PlayerId::PlayerSecond).char_states[0].applied
+        gs.player(PlayerId::PlayerSecond).char_states[0].applied
     );
 }
 
@@ -35,17 +35,17 @@ fn talent_card_deals_pyro_dmg_on_skill_cast() {
     .ignore_costs(true)
     .build();
     gs.advance_roll_phase_no_dice();
-    gs.get_player_mut(PlayerId::PlayerFirst)
+    gs.player_mut(PlayerId::PlayerFirst)
         .add_to_hand_ignore(CardId::Crossfire);
     gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::PlayCard(CardId::Crossfire, Some(CardSelection::OwnCharacter(0))),
     )]);
     assert!(gs.has_summon(PlayerId::PlayerFirst, SummonId::Guoba));
-    assert_eq!(9, gs.get_player(PlayerId::PlayerSecond).char_states[0].get_hp());
+    assert_eq!(9, gs.player(PlayerId::PlayerSecond).char_states[0].hp());
     assert_eq!(
         elem_set![Element::Pyro],
-        gs.get_player(PlayerId::PlayerSecond).char_states[0].applied
+        gs.player(PlayerId::PlayerSecond).char_states[0].applied
     );
 }
 
@@ -64,10 +64,10 @@ fn pyronado_deals_dmg_on_skill_cast() {
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::SwitchCharacter(1)),
     ]);
     assert!(gs.has_team_status(PlayerId::PlayerFirst, StatusId::Pyronado));
-    assert_eq!(8, gs.get_player(PlayerId::PlayerSecond).char_states[0].get_hp());
+    assert_eq!(8, gs.player(PlayerId::PlayerSecond).char_states[0].hp());
     assert_eq!(
         elem_set![Element::Pyro],
-        gs.get_player(PlayerId::PlayerSecond).char_states[0].applied
+        gs.player(PlayerId::PlayerSecond).char_states[0].applied
     );
     {
         let mut gs = gs.clone();
@@ -75,8 +75,8 @@ fn pyronado_deals_dmg_on_skill_cast() {
             PlayerId::PlayerFirst,
             PlayerAction::CastSkill(SkillId::DoughFu),
         )]);
-        let xingqiu = &gs.get_player(PlayerId::PlayerSecond).char_states[1];
-        assert_eq!(6, xingqiu.get_hp());
+        let xingqiu = &gs.player(PlayerId::PlayerSecond).char_states[1];
+        assert_eq!(6, xingqiu.hp());
         assert_eq!(elem_set![Element::Pyro], xingqiu.applied);
     }
     {
@@ -85,8 +85,8 @@ fn pyronado_deals_dmg_on_skill_cast() {
             PlayerId::PlayerFirst,
             PlayerAction::CastSkill(SkillId::GuobaAttack),
         )]);
-        let xingqiu = &gs.get_player(PlayerId::PlayerSecond).char_states[1];
-        assert_eq!(8, xingqiu.get_hp());
+        let xingqiu = &gs.player(PlayerId::PlayerSecond).char_states[1];
+        assert_eq!(8, xingqiu.hp());
         assert_eq!(elem_set![Element::Pyro], xingqiu.applied);
     }
     {
@@ -96,8 +96,8 @@ fn pyronado_deals_dmg_on_skill_cast() {
             Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
             Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::BoltsOfDownfall)),
         ]);
-        let xingqiu = &gs.get_player(PlayerId::PlayerSecond).char_states[1];
-        assert_eq!(6, xingqiu.get_hp());
+        let xingqiu = &gs.player(PlayerId::PlayerSecond).char_states[1];
+        assert_eq!(6, xingqiu.hp());
         assert_eq!(elem_set![Element::Pyro], xingqiu.applied);
     }
     {
@@ -106,8 +106,8 @@ fn pyronado_deals_dmg_on_skill_cast() {
             Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::SwitchCharacter(1)),
             Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::CastSkill(SkillId::GuhuaStyle)),
         ]);
-        let xingqiu = &gs.get_player(PlayerId::PlayerSecond).char_states[1];
-        assert_eq!(10, xingqiu.get_hp());
+        let xingqiu = &gs.player(PlayerId::PlayerSecond).char_states[1];
+        assert_eq!(10, xingqiu.hp());
         assert_eq!(elem_set![], xingqiu.applied);
     }
 }

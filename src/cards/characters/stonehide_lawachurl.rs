@@ -62,8 +62,8 @@ pub mod stonehide {
         }
 
         fn trigger_xevent(&self, e: &mut TriggerEventContext<XEvent>) -> Option<AppliedEffectResult> {
-            let _ = e.get_incoming_dmg_ensuring_attached_character()?;
-            if e.c.eff_state.get_usages() > 0 {
+            let _ = e.incoming_dmg_ensuring_attached_character()?;
+            if e.c.eff_state.usages() > 0 {
                 return None;
             }
 

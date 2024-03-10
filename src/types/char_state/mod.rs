@@ -54,8 +54,8 @@ impl Debug for CharState {
     fn fmt(&self, f: &mut crate::std_subset::fmt::Formatter<'_>) -> crate::std_subset::fmt::Result {
         f.debug_struct("CharState")
             .field("char_id", &self.char_id)
-            .field("hp", &self.get_hp())
-            .field("energy", &self.get_energy())
+            .field("hp", &self.hp())
+            .field("energy", &self.energy())
             .field("applied", &self.applied)
             .field("flags", &self.flags)
             .field("total_dmg_taken", &self.total_dmg_taken)
@@ -226,7 +226,7 @@ impl CharState {
     pub fn new(char_id: CharId) -> CharState {
         CharState {
             char_id,
-            _hp_and_energy: char_id.get_char_card().max_health,
+            _hp_and_energy: char_id.char_card().max_health,
             total_dmg_taken: Default::default(),
             applied: Default::default(),
             flags: Default::default(),
@@ -235,7 +235,7 @@ impl CharState {
     }
 
     #[inline]
-    pub fn get_hp(&self) -> u8 {
+    pub fn hp(&self) -> u8 {
         self._hp_and_energy & Self::HP_MASK
     }
 
@@ -245,7 +245,7 @@ impl CharState {
     }
 
     #[inline]
-    pub fn get_energy(&self) -> u8 {
+    pub fn energy(&self) -> u8 {
         (self._hp_and_energy & Self::ENERGY_MASK) >> Self::ENERGY_SHIFT
     }
 
@@ -256,12 +256,12 @@ impl CharState {
 
     #[inline]
     pub fn is_max_hp(&self) -> bool {
-        self.get_hp() >= self.char_id.get_char_card().max_health
+        self.hp() >= self.char_id.char_card().max_health
     }
 
     #[inline]
     pub fn reduce_hp(&mut self, dmg_value: u8) {
-        let h = self.get_hp();
+        let h = self.hp();
         self.set_hp(h.saturating_sub(dmg_value));
     }
 
@@ -271,12 +271,12 @@ impl CharState {
     }
 
     #[inline]
-    pub fn get_total_dmg_taken(&self) -> u8 {
+    pub fn total_dmg_taken(&self) -> u8 {
         self.total_dmg_taken
     }
 
     pub(crate) fn skill_flags(&self, skill_id: SkillId) -> EnumSet<CharFlag> {
-        let char_chrd = self.char_id.get_char_card();
+        let char_chrd = self.char_id.char_card();
         if let Some((i, _)) = char_chrd
             .skills
             .iter()
@@ -302,17 +302,17 @@ impl CharState {
     }
 
     #[inline]
-    pub fn get_char_id(&self) -> CharId {
+    pub fn char_id(&self) -> CharId {
         self.char_id
     }
 
     #[inline]
-    pub fn get_char_card(&self) -> &'static CharCard {
-        self.char_id.get_char_card()
+    pub fn char_card(&self) -> &'static CharCard {
+        self.char_id.char_card()
     }
 
     #[inline]
-    pub fn get_applied(&self) -> ElementSet {
+    pub fn applied(&self) -> ElementSet {
         self.applied
     }
 

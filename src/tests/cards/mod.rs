@@ -109,7 +109,7 @@ fn food() {
         PlayerAction::PlayCard(CardId::SweetMadame, Some(CardSelection::OwnCharacter(2))),
     ))
     .unwrap();
-    assert_eq!(6, gs.players.0.char_states[2].get_hp());
+    assert_eq!(6, gs.players.0.char_states[2].hp());
     {
         let mut gs = gs.clone();
         assert_eq!(
@@ -125,7 +125,7 @@ fn food() {
         PlayerAction::PlayCard(CardId::SweetMadame, Some(CardSelection::OwnCharacter(0))),
     ))
     .unwrap();
-    assert_eq!(6, gs.players.0.char_states[0].get_hp());
+    assert_eq!(6, gs.players.0.char_states[0].hp());
     gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::EndRound),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
@@ -137,7 +137,7 @@ fn food() {
         PlayerAction::PlayCard(CardId::SweetMadame, Some(CardSelection::OwnCharacter(2))),
     ))
     .unwrap();
-    assert_eq!(7, gs.players.0.char_states[2].get_hp());
+    assert_eq!(7, gs.players.0.char_states[2].hp());
 }
 
 #[test]
@@ -222,10 +222,10 @@ fn quick_knit() {
     ]);
     assert_eq!(
         3,
-        gs.get_status_collection(PlayerId::PlayerFirst)
+        gs.status_collection(PlayerId::PlayerFirst)
             .get(StatusKey::Summon(SummonId::Oz))
             .unwrap()
-            .get_usages()
+            .usages()
     )
 }
 
@@ -241,7 +241,7 @@ fn send_off() {
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::CastSkill(SkillId::Nightrider)),
     ]);
     assert!(gs
-        .get_status_collection(PlayerId::PlayerSecond)
+        .status_collection(PlayerId::PlayerSecond)
         .get(StatusKey::Summon(SummonId::Oz))
         .is_some());
     gs.advance_multiple([Input::FromPlayer(
@@ -249,7 +249,7 @@ fn send_off() {
         PlayerAction::PlayCard(CardId::SendOff, Some(CardSelection::OpponentSummon(SummonId::Oz))),
     )]);
     assert!(gs
-        .get_status_collection(PlayerId::PlayerSecond)
+        .status_collection(PlayerId::PlayerSecond)
         .get(StatusKey::Summon(SummonId::Oz))
         .is_none())
 }
@@ -276,8 +276,8 @@ fn calxs_arts() {
     )]);
     {
         let char_states = &mut gs.players.0.char_states;
-        assert_eq!(3, char_states[0].get_energy());
-        assert_eq!(0, char_states[1].get_energy());
-        assert_eq!(0, char_states[2].get_energy());
+        assert_eq!(3, char_states[0].energy());
+        assert_eq!(0, char_states[1].energy());
+        assert_eq!(0, char_states[2].energy());
     }
 }

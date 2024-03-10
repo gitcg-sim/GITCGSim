@@ -10,9 +10,9 @@ fn foul_legacy_raging_tide_melee_stance_and_riptide_transfer() {
     .build();
 
     gs.advance_roll_phase_no_dice();
-    gs.get_player_mut(PlayerId::PlayerFirst).dice.add_single(Dice::Omni, 9);
+    gs.player_mut(PlayerId::PlayerFirst).dice.add_single(Dice::Omni, 9);
     {
-        let p2 = gs.get_player_mut(PlayerId::PlayerSecond);
+        let p2 = gs.player_mut(PlayerId::PlayerSecond);
         p2.dice.add_single(Dice::Omni, 1);
         p2.char_states[1].set_hp(3);
     }
@@ -33,7 +33,7 @@ fn foul_legacy_raging_tide_melee_stance_and_riptide_transfer() {
     }
 
     assert!(gs
-        .get_player(PlayerId::PlayerFirst)
+        .player(PlayerId::PlayerFirst)
         .flags
         .contains(PlayerFlag::ChargedAttack));
     gs.advance_multiple([

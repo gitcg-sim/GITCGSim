@@ -77,14 +77,14 @@ impl EntryConfig {
         parallel: bool,
         limits: Option<SearchLimits>,
     ) -> Result<(Decklist, impl '_ + Fn() -> GenericSearch<S>), ConstructEntryError> {
-        let decklist = self.deck.get_decklist()?;
+        let decklist = self.deck.decklist()?;
         let make_search = move || self.search_config.make_search(parallel, limits);
         Ok((decklist, make_search))
     }
 }
 
 impl DeckSrc {
-    pub fn get_decklist(&self) -> Result<Decklist, std::io::Error> {
+    pub fn decklist(&self) -> Result<Decklist, std::io::Error> {
         match self {
             Self::Random(seed) => Ok(random_decklist(&mut SmallRng::seed_from_u64(*seed))),
             Self::FromFile(path) => {
@@ -102,7 +102,7 @@ pub fn parse_compare_opts(json_path: &PathBuf) -> Result<CompareOpts, ParseCompa
     Ok(serde_json::from_reader(BufReader::new(File::open(json_path)?))?)
 }
 
-fn get_standard_game(decks: ByPlayer<&Decklist>, mut rng: SmallRng, random_decks: bool) -> GameStateWrapper {
+fn standard_game(decks: ByPlayer<&Decklist>, mut rng: SmallRng, random_decks: bool) -> GameStateWrapper {
     let (d1, d2) = if random_decks {
         (random_decklist(&mut rng), random_decklist(&mut rng))
     } else {
@@ -141,7 +141,7 @@ pub fn main_compare(opts: CompareOpts) -> Result<(), String> {
             // dbg!(&decks);
             let (_, score, _) = iterate_match(
                 &|| cs.map(|(_, x)| x.1()),
-                &|rng| get_standard_game(decks, rng, random_decks),
+                &|rng| standard_game(decks, rng, random_decks),
                 crate::IterateMatchOpts {
                     rounds,
                     steps,

@@ -18,7 +18,7 @@ impl CardImpl for QuickKnit {
             return CanBePlayedResult::InvalidSelection;
         };
 
-        if summon_id.get_status().usages.is_some() {
+        if summon_id.status().usages.is_some() {
             CanBePlayedResult::CanBePlayed
         } else {
             CanBePlayedResult::InvalidSelection
@@ -29,7 +29,7 @@ impl CardImpl for QuickKnit {
         Some(CardSelectionSpec::OwnSummon)
     }
 
-    fn get_effects(
+    fn effects(
         &self,
         cic: &CardImplContext,
         ctx: &CommandContext,

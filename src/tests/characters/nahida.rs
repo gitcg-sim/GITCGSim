@@ -24,13 +24,13 @@ fn seed_of_skandha_receive_pd() {
         }
     }
     // Artificially remove last status
-    gs.get_status_collection_mut(PlayerId::PlayerSecond)
+    gs.status_collection_mut(PlayerId::PlayerSecond)
         .delete(StatusKey::Character(2, StatusId::SeedOfSkandha));
     {
-        let p = gs.get_player(PlayerId::PlayerSecond);
-        assert_eq!(7, p.char_states[0].get_hp());
+        let p = gs.player(PlayerId::PlayerSecond);
+        assert_eq!(7, p.char_states[0].hp());
     }
-    gs.get_player_mut(PlayerId::PlayerSecond).char_states[0]
+    gs.player_mut(PlayerId::PlayerSecond).char_states[0]
         .applied
         .insert(Element::Pyro);
     gs.advance_multiple([
@@ -38,10 +38,10 @@ fn seed_of_skandha_receive_pd() {
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::RippleOfFate)),
     ]);
     {
-        let p = gs.get_player(PlayerId::PlayerSecond);
+        let p = gs.player(PlayerId::PlayerSecond);
         assert_eq!(
             vec![3, 9, 10, 9],
-            p.char_states.iter_valid().map(CharState::get_hp).collect::<Vec<_>>()
+            p.char_states.iter_valid().map(CharState::hp).collect::<Vec<_>>()
         );
     }
 }
@@ -62,18 +62,15 @@ fn shrine_of_maya_increases_outgoing_reaction_dmg() {
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
     ]);
     gs.has_team_status(PlayerId::PlayerFirst, StatusId::ShrineOfMaya);
-    assert_eq!(6, gs.get_player(PlayerId::PlayerSecond).char_states[0].get_hp());
+    assert_eq!(6, gs.player(PlayerId::PlayerSecond).char_states[0].hp());
     assert_eq!(
         elem_set![Element::Dendro],
-        gs.get_player(PlayerId::PlayerSecond).char_states[0].applied
+        gs.player(PlayerId::PlayerSecond).char_states[0].applied
     );
     gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::SwitchCharacter(1)),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::RippleOfFate)),
     ]);
-    assert_eq!(3, gs.get_player(PlayerId::PlayerSecond).char_states[0].get_hp());
-    assert_eq!(
-        elem_set![],
-        gs.get_player(PlayerId::PlayerSecond).char_states[0].applied
-    );
+    assert_eq!(3, gs.player(PlayerId::PlayerSecond).char_states[0].hp());
+    assert_eq!(elem_set![], gs.player(PlayerId::PlayerSecond).char_states[0].applied);
 }

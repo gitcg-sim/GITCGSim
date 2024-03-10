@@ -294,14 +294,14 @@ impl<G: Game, E: EvalPolicy<G>, S: SelectionPolicy<G>> MCTS<G, E, S> {
             is_maximize,
         };
         let children = parent_node.children(tree).collect::<SmallVec<[_; 16]>>();
-        let get_children = || {
+        let children = || {
             children
                 .iter()
                 .copied()
                 .map(|child| child.data.action.expect("child node action must exist"))
                 .collect()
         };
-        let state = &policy.on_parent(&ctx, get_children);
+        let state = &policy.on_parent(&ctx, children);
         let policy_values = {
             let mut policy_cache = parent.policy_cache.lock().expect("policy_cache unlock");
             if policy_cache.is_empty() && !children.is_empty() {
@@ -388,7 +388,7 @@ impl<G: Game, E: EvalPolicy<G>, S: SelectionPolicy<G>> MCTS<G, E, S> {
         }
     }
 
-    fn get_best_child(
+    fn best_child(
         &self,
         node: &atree::Node<NodeData<G>>,
         is_maximize: bool,
@@ -403,28 +403,28 @@ impl<G: Game, E: EvalPolicy<G>, S: SelectionPolicy<G>> MCTS<G, E, S> {
         })
     }
 
-    fn get_pv_rec(&self, node: &atree::Node<NodeData<G>>, tt_hits: Rc<RefCell<u64>>) -> PV<G> {
+    fn pv_rec(&self, node: &atree::Node<NodeData<G>>, tt_hits: Rc<RefCell<u64>>) -> PV<G> {
         if node.is_leaf() {
             return Default::default();
         }
         let is_maximize = node.data.is_maximize(self.maximize_player);
         let best_node = self
-            .get_best_child(node, is_maximize, tt_hits.clone())
-            .expect("get_best_child: Must be non-empty");
+            .best_child(node, is_maximize, tt_hits.clone())
+            .expect("best_child: Must be non-empty");
         let Some(best) = best_node.data.action else {
             return linked_list![];
         };
-        cons!(best, self.get_pv_rec(best_node, tt_hits))
+        cons!(best, self.pv_rec(best_node, tt_hits))
     }
 
-    pub fn get_pv(&self, token: Token) -> PV<G> {
+    pub fn pv(&self, token: Token) -> PV<G> {
         let tt_hits: Rc<RefCell<u64>> = Rc::new(Default::default());
-        let res = self.get_pv_rec(self.tree.get(token).expect("get_pv: node must exist"), tt_hits);
+        let res = self.pv_rec(self.tree.get(token).expect("pv: node must exist"), tt_hits);
         if res.is_empty() {
             let node = self.tree.get(token).expect("get");
             dbg!(&node.data);
             dbg!(&node.children(&self.tree).map(|n| &n.data).collect::<Vec<_>>());
-            panic!("get_pv: empty");
+            panic!("pv: empty");
         } else {
             res
         }
@@ -556,7 +556,7 @@ impl<G: Game, E: EvalPolicy<G>, S: SelectionPolicy<G>> MCTS<G, E, S> {
     }
 
     #[cfg(feature = "training")]
-    pub fn get_self_play_policy_data_points<
+    pub fn self_play_policy_data_points<
         FnCheck: Fn(u8, usize) -> bool,
         FnPush: FnMut(SelfPlayDataPoint<G>) -> ControlFlow<()>,
     >(
@@ -591,7 +591,7 @@ impl<G: Game, E: EvalPolicy<G>, S: SelectionPolicy<G>> MCTS<G, E, S> {
         let tree = &self.tree;
         let tt = &self.tt;
         let Some((_, root)) = self.root else { return };
-        let pv_depth = self.get_pv(root).len();
+        let pv_depth = self.pv(root).len();
         let _ = traverse(&self.tree, root, &mut |token, depth| {
             let node = tree.get(token).expect("get");
             if !should_include(depth, pv_depth) {
@@ -660,7 +660,7 @@ impl<G: Game, E: EvalPolicy<G>, S: SelectionPolicy<G>> GameTreeSearch<G> for MCT
             }
             if self.config.debug && last_print.elapsed().as_millis() >= 500 {
                 last_print = Instant::now();
-                let pv = self.get_pv(root);
+                let pv = self.pv(root);
                 let rate = (states_visited as f64) / (t0.elapsed().as_micros() as f64);
                 println!(
                     "  states_visited={states_visited:8}, PV={:?} rate={:.4}Mstates/s",
@@ -677,7 +677,7 @@ impl<G: Game, E: EvalPolicy<G>, S: SelectionPolicy<G>> GameTreeSearch<G> for MCT
             tt_hits: *ref_tt_hits,
             ..Default::default()
         };
-        let pv = self.get_pv(root);
+        let pv = self.pv(root);
         if self.config.debug {
             self.print_tree(root, 0, 2, 40 * self.config.random_playout_iters);
             println!("PV = {:?}", pv.into_iter().copied().collect::<Vec<_>>());

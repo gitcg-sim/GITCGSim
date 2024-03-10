@@ -129,7 +129,7 @@ impl ElementPriority {
             changed = true;
         }
         if changed {
-            self.elem_order = Self::get_updated_elem_order(self.active_elem, self.important_elems);
+            self.elem_order = Self::updated_elem_order(self.active_elem, self.important_elems);
         }
         changed
     }

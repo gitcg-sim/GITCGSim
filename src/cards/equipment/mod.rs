@@ -23,7 +23,7 @@ macro_rules! card_impl_for_artifact {
                 Some(CardSelectionSpec::OwnCharacter)
             }
 
-            fn get_effects(
+            fn effects(
                 &self,
                 cic: &CardImplContext,
                 ctx: &CommandContext,
@@ -89,7 +89,7 @@ impl StatusImpl for ElementalArtifact {
 
 card_impl_for_artifact!(ElementalArtifact);
 
-fn get_effects_for_weapon(
+fn effects_for_weapon(
     status_id: StatusId,
     cic: &CardImplContext,
     ctx: &CommandContext,
@@ -111,7 +111,7 @@ fn can_be_played_for_weapon(weapon_type: WeaponType, cic: &CardImplContext) -> C
         if !active_player.is_valid_char_idx(char_idx) {
             return CanBePlayedResult::InvalidSelection;
         }
-        let card = active_player.get_character_card(char_idx);
+        let card = active_player.character_card(char_idx);
         if card.weapon != weapon_type {
             return CanBePlayedResult::InvalidSelection;
         }
@@ -134,13 +134,13 @@ macro_rules! card_impl_for_weapon {
                 Some(CardSelectionSpec::OwnCharacter)
             }
 
-            fn get_effects(
+            fn effects(
                 &self,
                 cic: &CardImplContext,
                 ctx: &CommandContext,
                 commands: &mut CommandList<(CommandContext, Command)>,
             ) {
-                get_effects_for_weapon(self.status_id, cic, ctx, commands);
+                effects_for_weapon(self.status_id, cic, ctx, commands);
             }
         }
     };
@@ -190,7 +190,7 @@ impl StatusImpl for SacrificialWeapon {
     }
 
     fn trigger_xevent(&self, e: &mut TriggerEventContext<XEvent>) -> Option<AppliedEffectResult> {
-        let SkillType::ElementalSkill = e.get_event_skill_ensuring_attached_character()?.skill_type() else {
+        let SkillType::ElementalSkill = e.event_skill_ensuring_attached_character()?.skill_type() else {
             return None;
         };
 
@@ -228,7 +228,7 @@ impl StatusImpl for FavoniusWeapon {
     }
 
     fn trigger_xevent(&self, e: &mut TriggerEventContext<XEvent>) -> Option<AppliedEffectResult> {
-        let SkillType::ElementalSkill = e.get_event_skill_ensuring_attached_character()?.skill_type() else {
+        let SkillType::ElementalSkill = e.event_skill_ensuring_attached_character()?.skill_type() else {
             return None;
         };
         e.add_cmd(Command::AddEnergy(1, CmdCharIdx::Active));
@@ -303,7 +303,7 @@ impl CardImpl for Talent {
         Some(CardSelectionSpec::OwnCharacter)
     }
 
-    fn get_effects(
+    fn effects(
         &self,
         cic: &CardImplContext,
         ctx: &CommandContext,

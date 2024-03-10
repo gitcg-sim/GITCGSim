@@ -27,8 +27,7 @@ fn frozen_cannot_perform_action() {
     ]);
     assert_eq!(
         StatusId::Frozen,
-        gs.get_status_collection(PlayerId::PlayerSecond)
-            .character_statuses_vec(0)[0]
+        gs.status_collection(PlayerId::PlayerSecond).character_statuses_vec(0)[0]
             .status_id()
             .unwrap()
     );
@@ -77,10 +76,10 @@ fn frozen_broken_by_pyro() {
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::NiwabiFireDance)),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::FireworkFlareUp)),
     ]);
-    assert_eq!(5, gs.players.1.char_states[0].get_hp());
+    assert_eq!(5, gs.players.1.char_states[0].hp());
     // Frozen must be un-applied
     assert!(gs
-        .get_status_collection(PlayerId::PlayerSecond)
+        .status_collection(PlayerId::PlayerSecond)
         .character_statuses_vec(0)
         .is_empty());
     // Pyro is still applied after unfreezing
@@ -119,10 +118,10 @@ fn frozen_broken_by_physical() {
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::SwitchCharacter(2)),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::FireworkFlareUp)),
     ]);
-    assert_eq!(6, gs.players.1.char_states[0].get_hp());
+    assert_eq!(6, gs.players.1.char_states[0].hp());
     // Frozen must be un-applied
     assert!(gs
-        .get_status_collection(PlayerId::PlayerSecond)
+        .status_collection(PlayerId::PlayerSecond)
         .character_statuses_vec(0)
         .is_empty());
     // Pyro is still applied after unfreezing

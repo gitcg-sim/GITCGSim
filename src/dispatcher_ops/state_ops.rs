@@ -5,26 +5,26 @@ use crate::{phc, status_impls::prelude::Cost, types::ElementSet, zobrist_hash::P
 impl CharState {
     #[inline]
     pub fn add_energy(&mut self, e: u8) {
-        let max_energy = self.char_id.get_char_card().max_energy;
-        let te = self.get_energy() + e;
+        let max_energy = self.char_id.char_card().max_energy;
+        let te = self.energy() + e;
         self.set_energy(if te > max_energy { max_energy } else { te });
     }
 
     #[inline]
     pub fn heal(&mut self, e: u8) {
-        let max_health = self.char_id.get_char_card().max_health;
-        let th = self.get_hp() + e;
+        let max_health = self.char_id.char_card().max_health;
+        let th = self.hp() + e;
         self.set_hp(if th > max_health { max_health } else { th });
     }
 
     #[inline]
     pub fn is_invalid(&self) -> bool {
-        self.get_hp() == 0
+        self.hp() == 0
     }
 
     #[inline]
     pub fn can_pay_energy_cost(&self, cost: &Cost) -> bool {
-        if cost.energy_cost > 0 && self.get_energy() < cost.energy_cost {
+        if cost.energy_cost > 0 && self.energy() < cost.energy_cost {
             return false;
         }
         true
@@ -33,8 +33,8 @@ impl CharState {
 
 impl PlayerState {
     #[inline]
-    pub fn get_character_card(&self, char_idx: u8) -> &'static CharCard {
-        self.char_states[char_idx].char_id.get_char_card()
+    pub fn character_card(&self, char_idx: u8) -> &'static CharCard {
+        self.char_states[char_idx].char_id.char_card()
     }
 
     // TODO inline this
@@ -63,12 +63,12 @@ impl PlayerState {
     }
 
     #[inline]
-    pub fn get_active_character(&self) -> &CharState {
+    pub fn active_character(&self) -> &CharState {
         &self.char_states[self.active_char_idx]
     }
 
     #[inline]
-    pub fn get_active_character_mut(&mut self) -> &mut CharState {
+    pub fn active_character_mut(&mut self) -> &mut CharState {
         &mut self.char_states[self.active_char_idx]
     }
 
@@ -92,33 +92,33 @@ impl PlayerState {
         if self.char_states[char_idx].is_invalid() {
             return;
         }
-        let ep = self.get_element_priority_switch(char_idx);
+        let ep = self.element_priority_switch(char_idx);
         self.char_states[char_idx].set_incremental_element_priority(ep);
     }
 
     #[inline]
-    pub fn get_element_priority_for_cost_type(&self, cost_type: CostType) -> ElementPriority {
+    pub fn element_priority_for_cost_type(&self, cost_type: CostType) -> ElementPriority {
         match cost_type {
-            CostType::Switching { dst_char_idx } => self.get_element_priority_switch(dst_char_idx),
-            CostType::Card(..) | CostType::Skill(..) => self.get_element_priority(),
+            CostType::Switching { dst_char_idx } => self.element_priority_switch(dst_char_idx),
+            CostType::Card(..) | CostType::Skill(..) => self.element_priority(),
         }
     }
 
     #[inline]
-    pub fn get_element_priority(&self) -> ElementPriority {
+    pub fn element_priority(&self) -> ElementPriority {
         let char_idx = self.active_char_idx;
         if let Some(ep) = self.char_states[char_idx].incremental_element_priority() {
             ep
         } else {
-            self.get_element_priority_switch(char_idx)
+            self.element_priority_switch(char_idx)
         }
     }
 
-    pub fn get_element_priority_switch(&self, dst_char_idx: u8) -> ElementPriority {
+    pub fn element_priority_switch(&self, dst_char_idx: u8) -> ElementPriority {
         let mut important_elems = ElementSet::default();
         let mut active_elem = Default::default();
         for (i, c) in self.char_states.enumerate_valid() {
-            let e = c.char_id.get_char_card().elem;
+            let e = c.char_id.char_card().elem;
             important_elems.insert(e);
             if i == dst_char_idx {
                 active_elem = Some(e);
@@ -127,8 +127,8 @@ impl PlayerState {
         ElementPriority::new(important_elems, active_elem)
     }
 
-    pub fn get_dice_distribution(&self, status_collection: &StatusCollection) -> DiceDistribution {
-        let mut dist = DiceDistribution::new(8, 1, self.get_element_priority(), Default::default());
+    pub fn dice_distribution(&self, status_collection: &StatusCollection) -> DiceDistribution {
+        let mut dist = DiceDistribution::new(8, 1, self.element_priority(), Default::default());
         self.update_dice_distribution(status_collection, &mut dist);
         dist
     }
@@ -140,7 +140,7 @@ impl PlayerState {
             return;
         }
 
-        let off_elems = self.get_element_priority().off_elems();
+        let off_elems = self.element_priority().off_elems();
 
         let mut dice = self.dice;
         for elem in off_elems {
@@ -170,16 +170,16 @@ impl PlayerState {
         self.set_dice((h, player_id), &dice);
     }
 
-    pub fn get_status_spec_modifiers(
+    pub fn status_spec_modifiers(
         &self,
         status_collection: &StatusCollection,
         key: StatusKey,
     ) -> Option<StatusSpecModifier> {
         let mut modifiers = StatusSpecModifier::default();
         let mut changed = false;
-        let active_char = self.get_active_character();
+        let active_char = self.active_character();
         if active_char.has_talent_equipped() {
-            let status = key.get_status();
+            let status = key.status();
             if let Some((target_char_id, count)) = status.talent_usages_increase {
                 if target_char_id == active_char.char_id {
                     modifiers.push(key, count);
@@ -211,7 +211,7 @@ impl PlayerState {
 
     #[inline]
     pub fn active_character_has_talent_equipped(&self) -> bool {
-        self.get_active_character().has_talent_equipped()
+        self.active_character().has_talent_equipped()
     }
 }
 
@@ -221,7 +221,7 @@ impl StatusCollection {
     }
 
     pub fn add_support_to_slot_replacing_existing(&mut self, slot: SupportSlot, support_id: SupportId) {
-        let status_spec = support_id.get_status();
+        let status_spec = support_id.status();
         if status_spec.attach_mode != StatusAttachMode::Support {
             panic!("add_support_to_slot_replacing_existing: wrong StatusAttachMode");
         }
@@ -239,7 +239,7 @@ impl StatusCollection {
 
 impl GameState {
     #[inline]
-    pub fn get_player(&self, player_id: PlayerId) -> &PlayerState {
+    pub fn player(&self, player_id: PlayerId) -> &PlayerState {
         match player_id {
             PlayerId::PlayerFirst => &self.players.0,
             PlayerId::PlayerSecond => &self.players.1,
@@ -247,17 +247,17 @@ impl GameState {
     }
 
     #[inline]
-    pub fn get_player_mut(&mut self, player_id: PlayerId) -> &mut PlayerState {
+    pub fn player_mut(&mut self, player_id: PlayerId) -> &mut PlayerState {
         self.players.get_mut(player_id)
     }
 
     #[inline]
-    pub fn get_status_collection(&self, player_id: PlayerId) -> &StatusCollection {
+    pub fn status_collection(&self, player_id: PlayerId) -> &StatusCollection {
         self.status_collections.get(player_id)
     }
 
     #[inline]
-    pub fn get_active_player(&self) -> Option<&PlayerState> {
+    pub fn active_player(&self) -> Option<&PlayerState> {
         self.phase.active_player().map(|p| match p {
             PlayerId::PlayerFirst => &self.players.0,
             PlayerId::PlayerSecond => &self.players.1,
@@ -265,7 +265,7 @@ impl GameState {
     }
 
     #[inline]
-    pub fn get_active_player_mut(&mut self) -> Option<&mut PlayerState> {
+    pub fn active_player_mut(&mut self) -> Option<&mut PlayerState> {
         self.phase.active_player().map(|p| match p {
             PlayerId::PlayerFirst => &mut self.players.0,
             PlayerId::PlayerSecond => &mut self.players.1,
@@ -273,13 +273,13 @@ impl GameState {
     }
 
     #[inline]
-    pub fn get_active_character(&self) -> Option<&CharState> {
-        self.get_active_player().map(|x| x.get_active_character())
+    pub fn active_character(&self) -> Option<&CharState> {
+        self.active_player().map(|x| x.active_character())
     }
 
     #[inline]
-    pub fn get_active_character_id(&self) -> Option<CharId> {
-        self.get_active_player().map(|x| x.get_active_character().char_id)
+    pub fn active_character_id(&self) -> Option<CharId> {
+        self.active_player().map(|x| x.active_character().char_id)
     }
 
     pub fn with_player(&self, player_id: PlayerId, player_state: &PlayerState) -> GameState {

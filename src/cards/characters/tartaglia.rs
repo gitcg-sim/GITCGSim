@@ -45,7 +45,7 @@ pub const SKILLS: [(SkillId, Skill); 3] = [
 
 struct FoulLegacyRagingTide();
 impl SkillImpl for FoulLegacyRagingTide {
-    fn get_commands(
+    fn commands(
         &self,
         src_player: &PlayerState,
         status_collection: &StatusCollection,
@@ -69,7 +69,7 @@ impl SkillImpl for FoulLegacyRagingTide {
 
 struct HavocObliteration();
 impl SkillImpl for HavocObliteration {
-    fn get_commands(
+    fn commands(
         &self,
         src_player: &PlayerState,
         status_collection: &StatusCollection,

@@ -21,9 +21,9 @@ fn talent_card() {
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::Nightrider)),
     ]);
     {
-        let ganyu = gs.players.1.get_active_character();
+        let ganyu = gs.players.1.active_character();
         assert_eq!(elem_set![Element::Dendro], ganyu.applied);
-        assert_eq!(4, ganyu.get_hp());
+        assert_eq!(4, ganyu.hp());
     }
     assert!(gs.has_team_status(PlayerId::PlayerFirst, StatusId::CatalyzingField));
     assert!(!gs.has_team_status(PlayerId::PlayerFirst, StatusId::Sprout));
@@ -46,9 +46,9 @@ fn talent_card_immediate_reaction() {
     )]);
     assert!(!gs.has_team_status(PlayerId::PlayerFirst, StatusId::Sprout));
     {
-        let ganyu = gs.players.1.get_active_character();
+        let ganyu = gs.players.1.active_character();
         assert_eq!(elem_set![Element::Dendro], ganyu.applied);
-        assert_eq!(5, ganyu.get_hp());
+        assert_eq!(5, ganyu.hp());
     }
     assert!(gs.has_team_status(PlayerId::PlayerFirst, StatusId::CatalyzingField));
 }

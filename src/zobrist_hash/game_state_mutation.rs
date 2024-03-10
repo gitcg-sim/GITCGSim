@@ -182,20 +182,20 @@ macro_rules! chc {
 impl CharState {
     #[inline]
     pub fn set_hp_hashed(&mut self, (h, player_id, char_idx): CharacterHashContext, hp: u8) {
-        h.hash(HASH_PROVIDER.hp(player_id, char_idx, self.get_hp()));
+        h.hash(HASH_PROVIDER.hp(player_id, char_idx, self.hp()));
         self.set_hp(hp);
         h.hash(HASH_PROVIDER.hp(player_id, char_idx, hp));
-        if self.get_hp() == 0 {
+        if self.hp() == 0 {
             self.on_death_hashed((h, player_id, char_idx));
         }
     }
 
     #[inline]
     pub fn reduce_hp_hashed(&mut self, (h, player_id, char_idx): CharacterHashContext, dmg_value: u8) {
-        h.hash(HASH_PROVIDER.hp(player_id, char_idx, self.get_hp()));
+        h.hash(HASH_PROVIDER.hp(player_id, char_idx, self.hp()));
         self.reduce_hp(dmg_value);
-        h.hash(HASH_PROVIDER.hp(player_id, char_idx, self.get_hp()));
-        if self.get_hp() == 0 {
+        h.hash(HASH_PROVIDER.hp(player_id, char_idx, self.hp()));
+        if self.hp() == 0 {
             self.on_death_hashed((h, player_id, char_idx));
         } else {
             h.hash(HASH_PROVIDER.total_dmg_taken(player_id, char_idx, self.total_dmg_taken));
@@ -217,23 +217,23 @@ impl CharState {
 
     #[inline]
     pub fn heal_hashed(&mut self, (h, player_id, char_idx): CharacterHashContext, value: u8) {
-        h.hash(HASH_PROVIDER.hp(player_id, char_idx, self.get_hp()));
+        h.hash(HASH_PROVIDER.hp(player_id, char_idx, self.hp()));
         self.heal(value);
-        h.hash(HASH_PROVIDER.hp(player_id, char_idx, self.get_hp()));
+        h.hash(HASH_PROVIDER.hp(player_id, char_idx, self.hp()));
     }
 
     #[inline]
     pub fn set_energy_hashed(&mut self, (h, player_id, char_idx): CharacterHashContext, energy: u8) {
-        h.hash(HASH_PROVIDER.energy(player_id, char_idx, self.get_energy()));
+        h.hash(HASH_PROVIDER.energy(player_id, char_idx, self.energy()));
         self.set_energy(energy);
         h.hash(HASH_PROVIDER.energy(player_id, char_idx, energy));
     }
 
     #[inline]
     pub fn add_energy_hashed(&mut self, (h, player_id, char_idx): CharacterHashContext, energy: u8) {
-        h.hash(HASH_PROVIDER.energy(player_id, char_idx, self.get_energy()));
+        h.hash(HASH_PROVIDER.energy(player_id, char_idx, self.energy()));
         self.add_energy(energy);
-        h.hash(HASH_PROVIDER.energy(player_id, char_idx, self.get_energy()));
+        h.hash(HASH_PROVIDER.energy(player_id, char_idx, self.energy()));
     }
 
     #[inline]

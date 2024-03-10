@@ -31,7 +31,7 @@ impl StatusImpl for LiuSu {
             return None;
         };
         let char_state = &e.c.src_player_state.char_states[dst_char_idx];
-        if char_state.get_energy() < char_state.char_id.get_char_card().max_energy {
+        if char_state.energy() < char_state.char_id.char_card().max_energy {
             e.add_cmd(Command::AddEnergy(1, CmdCharIdx::Active));
             Some(AppliedEffectResult::ConsumeUsage)
         } else {

@@ -42,7 +42,7 @@ pub const SKILLS: [(SkillId, Skill); 3] = [
 
 pub struct KyougenFiveCeremonialPlaysImpl();
 impl SkillImpl for KyougenFiveCeremonialPlaysImpl {
-    fn get_commands(
+    fn commands(
         &self,
         src_player: &PlayerState,
         status_collection: &StatusCollection,

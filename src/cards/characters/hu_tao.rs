@@ -63,14 +63,14 @@ pub mod paramita_papilio {
                 return None;
             }
             dmg.dmg += 1;
-            if e.has_talent_equipped() && Some(true) == e.get_src_character_state().map(|c| c.get_hp() <= 6) {
+            if e.has_talent_equipped() && Some(true) == e.src_character_state().map(|c| c.hp() <= 6) {
                 dmg.dmg += 1;
             }
             Some(AppliedEffectResult::NoChange)
         }
 
         fn trigger_xevent(&self, e: &mut TriggerEventContext<XEvent>) -> Option<AppliedEffectResult> {
-            let SkillType::NormalAttack = e.get_event_skill_ensuring_attached_character()?.skill_type() else {
+            let SkillType::NormalAttack = e.event_skill_ensuring_attached_character()?.skill_type() else {
                 return None;
             };
             if !e.c.is_charged_attack() {

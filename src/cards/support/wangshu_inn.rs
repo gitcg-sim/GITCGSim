@@ -31,7 +31,7 @@ impl StatusImpl for WangshuInn {
             e.c.src_player_state
                 .char_states
                 .enumerate_valid()
-                .min_by_key(|(_, c)| c.get_hp())
+                .min_by_key(|(_, c)| c.hp())
                 .map(|(i, _)| i)
         else {
             return Some(AppliedEffectResult::NoChange);

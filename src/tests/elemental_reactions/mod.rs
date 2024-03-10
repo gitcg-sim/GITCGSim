@@ -22,22 +22,22 @@ fn quicken() {
     assert!(gs.has_team_status(PlayerId::PlayerFirst, StatusId::CatalyzingField));
     assert_eq!(
         2,
-        gs.get_status_collection_mut(PlayerId::PlayerFirst).team_statuses_vec()[0]
+        gs.status_collection_mut(PlayerId::PlayerFirst).team_statuses_vec()[0]
             .state
-            .get_usages()
+            .usages()
     );
-    assert_eq!(6, gs.get_player(PlayerId::PlayerSecond).get_active_character().get_hp());
+    assert_eq!(6, gs.player(PlayerId::PlayerSecond).active_character().hp());
     gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::SwitchCharacter(1)),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::FloralBrush)),
     ]);
     assert_eq!(
         1,
-        gs.get_status_collection_mut(PlayerId::PlayerFirst).team_statuses_vec()[0]
+        gs.status_collection_mut(PlayerId::PlayerFirst).team_statuses_vec()[0]
             .state
-            .get_usages()
+            .usages()
     );
-    assert_eq!(6, gs.get_player(PlayerId::PlayerSecond).get_active_character().get_hp());
+    assert_eq!(6, gs.player(PlayerId::PlayerSecond).active_character().hp());
     gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::SwitchCharacter(1)),
@@ -45,11 +45,11 @@ fn quicken() {
     ]);
     assert_eq!(
         1,
-        gs.get_status_collection_mut(PlayerId::PlayerFirst).team_statuses_vec()[0]
+        gs.status_collection_mut(PlayerId::PlayerFirst).team_statuses_vec()[0]
             .state
-            .get_usages()
+            .usages()
     );
-    assert_eq!(4, gs.get_player(PlayerId::PlayerSecond).get_active_character().get_hp());
+    assert_eq!(4, gs.player(PlayerId::PlayerSecond).active_character().hp());
 }
 
 #[test]
@@ -58,7 +58,7 @@ fn burning_max_2_stacks() {
         .ignore_costs(true)
         .build();
     gs.advance_roll_phase_no_dice();
-    gs.get_player_mut(PlayerId::PlayerSecond).char_states[0]
+    gs.player_mut(PlayerId::PlayerSecond).char_states[0]
         .applied
         .insert(Element::Pyro);
     gs.advance_multiple([
@@ -67,12 +67,12 @@ fn burning_max_2_stacks() {
     ]);
     assert_eq!(
         1,
-        gs.get_status_collection_mut(PlayerId::PlayerFirst)
+        gs.status_collection_mut(PlayerId::PlayerFirst)
             .get(StatusKey::Summon(SummonId::BurningFlame))
             .unwrap()
-            .get_usages()
+            .usages()
     );
-    gs.get_player_mut(PlayerId::PlayerSecond).char_states[0]
+    gs.player_mut(PlayerId::PlayerSecond).char_states[0]
         .applied
         .insert(Element::Pyro);
     gs.advance_multiple([Input::FromPlayer(
@@ -81,12 +81,12 @@ fn burning_max_2_stacks() {
     )]);
     assert_eq!(
         2,
-        gs.get_status_collection_mut(PlayerId::PlayerFirst)
+        gs.status_collection_mut(PlayerId::PlayerFirst)
             .get(StatusKey::Summon(SummonId::BurningFlame))
             .unwrap()
-            .get_usages()
+            .usages()
     );
-    gs.get_player_mut(PlayerId::PlayerSecond).char_states[0]
+    gs.player_mut(PlayerId::PlayerSecond).char_states[0]
         .applied
         .insert(Element::Pyro);
     gs.advance_multiple([Input::FromPlayer(
@@ -95,10 +95,10 @@ fn burning_max_2_stacks() {
     )]);
     assert_eq!(
         2,
-        gs.get_status_collection_mut(PlayerId::PlayerFirst)
+        gs.status_collection_mut(PlayerId::PlayerFirst)
             .get(StatusKey::Summon(SummonId::BurningFlame))
             .unwrap()
-            .get_usages()
+            .usages()
     );
 }
 
@@ -125,10 +125,10 @@ fn bloom_dendro_core_increases_summon_dmg() {
 
     assert_eq!(
         1,
-        gs.get_status_collection_mut(PlayerId::PlayerFirst)
+        gs.status_collection_mut(PlayerId::PlayerFirst)
             .get(StatusKey::Team(StatusId::DendroCore))
             .unwrap()
-            .get_usages()
+            .usages()
     );
     gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
@@ -136,7 +136,7 @@ fn bloom_dendro_core_increases_summon_dmg() {
         Input::NoAction,
     ]);
     assert!(gs
-        .get_status_collection_mut(PlayerId::PlayerFirst)
+        .status_collection_mut(PlayerId::PlayerFirst)
         .get(StatusKey::Team(StatusId::DendroCore))
         .is_none());
 }

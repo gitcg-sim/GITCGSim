@@ -33,7 +33,7 @@ pub const ICETIDE_VORTEX: Skill = Skill {
 
 struct IcetideVortex();
 impl SkillImpl for IcetideVortex {
-    fn get_commands(
+    fn commands(
         &self,
         _: &PlayerState,
         status_collection: &StatusCollection,
@@ -119,7 +119,7 @@ pub mod lightfall_sword {
 
         fn trigger_event(&self, e: &mut TriggerEventContext) -> Option<AppliedEffectResult> {
             let EventId::EndPhase = e.event_id else { return None };
-            let stacks = e.c.eff_state.get_counter();
+            let stacks = e.c.eff_state.counter();
             let dmg = 2 + stacks;
             e.cmd_deal_dmg(DealDMGType::Physical, dmg, 0);
             Some(AppliedEffectResult::DeleteSelf)
@@ -127,11 +127,11 @@ pub mod lightfall_sword {
 
         fn trigger_xevent(&self, e: &mut TriggerEventContext<XEvent>) -> Option<AppliedEffectResult> {
             let (SkillId::FavoniusBladeworkEdel | SkillId::IcetideVortex) =
-                e.get_event_skill_ensuring_own_player()?.skill_id
+                e.event_skill_ensuring_own_player()?.skill_id
             else {
                 return None;
             };
-            let stacks = e.c.eff_state.get_counter();
+            let stacks = e.c.eff_state.counter();
             let new_stacks = min(AppliedEffectState::MAX_COUNTER, stacks + 2);
             Some(AppliedEffectResult::SetCounter(new_stacks))
         }

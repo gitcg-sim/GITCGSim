@@ -272,49 +272,49 @@ pub mod xevent {
         OwnCharacterSkillEventI,
         XEventSkill,
         xevent_mask::SKILL_FROM_SELF,
-        |e| e.get_event_skill_ensuring_own_player()
+        |e| e.event_skill_ensuring_own_player()
     );
     event_handler_trait!(
         OpponentCharacterSkillEvent,
         OpponentCharacterSkillEventI,
         XEventSkill,
         xevent_mask::SKILL_FROM_OPP,
-        |e| e.get_event_skill_ensuring_opponent_player()
+        |e| e.event_skill_ensuring_opponent_player()
     );
     event_handler_trait!(
         AttachedCharacterSkillEvent,
         AttachedCharacterSkillEventI,
         XEventSkill,
         xevent_mask::SKILL_FROM_SELF,
-        |e| e.get_event_skill_ensuring_attached_character()
+        |e| e.event_skill_ensuring_attached_character()
     );
     event_handler_trait!(
         OwnCharacterIncomingDMGEvent,
         OwnCharacterIncomingDMGEventI,
         XEventDMG,
         xevent_mask::DMG_INCOMING,
-        |e| e.get_incoming_dmg_ensuring_own_player()
+        |e| e.incoming_dmg_ensuring_own_player()
     );
     event_handler_trait!(
         AttachedCharacterIncomingDMGEvent,
         AttachedCharacterIncomingDMGEventI,
         XEventDMG,
         xevent_mask::DMG_INCOMING,
-        |e| e.get_incoming_dmg_ensuring_attached_character()
+        |e| e.incoming_dmg_ensuring_attached_character()
     );
     event_handler_trait!(
         OwnCharacterOutgoingDMGEvent,
         OwnCharacterOutgoingDMGEventI,
         XEventDMG,
         xevent_mask::DMG_OUTGOING,
-        |e| e.get_outgoing_dmg_ensuring_own_player()
+        |e| e.outgoing_dmg_ensuring_own_player()
     );
     event_handler_trait!(
         AttachedCharacterOutgoingDMGEvent,
         AttachedCharacterOutgoingDMGEventI,
         XEventDMG,
         xevent_mask::DMG_OUTGOING,
-        |e| e.get_outgoing_dmg_ensuring_attached_character()
+        |e| e.outgoing_dmg_ensuring_attached_character()
     );
 
     #[macro_export]

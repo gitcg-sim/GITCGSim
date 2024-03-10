@@ -47,7 +47,7 @@ impl GameState {
     fn ensure_active_char(&self) -> Result<(PlayerId, u8), DispatchError> {
         let ap = self.phase.active_player();
         if let Some(active_player_id) = ap {
-            Ok((active_player_id, self.get_player(active_player_id).active_char_idx))
+            Ok((active_player_id, self.player(active_player_id).active_char_idx))
         } else {
             Err(DispatchError::InvalidInput(
                 "Cannot perform this action outside of Action Phase.",
@@ -125,7 +125,7 @@ impl GameState {
             return Err(DispatchError::CannotSwitchInto);
         }
 
-        let player = self.get_player(player_id);
+        let player = self.player(player_id);
         if player.active_char_idx == char_idx || !player.is_valid_char_idx(char_idx) {
             return Err(DispatchError::CannotSwitchInto);
         }
@@ -147,7 +147,7 @@ impl GameState {
         if Some(player_id) != self.phase.active_player() {
             return false;
         }
-        let player = self.get_player(player_id);
+        let player = self.player(player_id);
         if !player.is_valid_char_idx(player.active_char_idx) {
             return false;
         }
@@ -156,8 +156,8 @@ impl GameState {
             return false;
         }
 
-        let active_char = player.get_active_character();
-        let char_skills = &active_char.char_id.get_char_card().skills;
+        let active_char = player.active_character();
+        let char_skills = &active_char.char_id.char_card().skills;
         if !char_skills.iter().any(|&s| s == skill_id) {
             return false;
         }
@@ -165,7 +165,7 @@ impl GameState {
         if self.ignore_costs {
             return true;
         }
-        let cost = skill_id.get_skill().cost;
+        let cost = skill_id.skill().cost;
         if !active_char.can_pay_energy_cost(&cost) {
             return false;
         }
@@ -175,7 +175,7 @@ impl GameState {
 
     fn cmd_tgt(&self, player_id: PlayerId) -> Option<CommandTarget> {
         let opp = player_id.opposite();
-        let tgt_char_idx = self.get_player(opp).active_char_idx;
+        let tgt_char_idx = self.player(opp).active_char_idx;
         Some(CommandTarget {
             player_id: opp,
             char_idx: tgt_char_idx,
@@ -185,8 +185,8 @@ impl GameState {
     /// Requires active player and active character
     fn cast_skill(&mut self, skill_id: SkillId, from_prepare: bool) -> Result<Option<DispatchResult>, DispatchError> {
         let (player_id, char_idx) = self.ensure_active_char()?;
-        let char_id = self.get_player(player_id).get_active_character().char_id;
-        let char_skills = &char_id.get_char_card().skills;
+        let char_id = self.player(player_id).active_character().char_id;
+        let char_skills = &char_id.char_card().skills;
         if !from_prepare {
             let found = char_skills.iter().any(|&s| s == skill_id);
             if !found {
@@ -197,12 +197,12 @@ impl GameState {
         if self
             .status_collections
             .get(player_id)
-            .cannot_perform_actions(self.get_player(player_id).active_char_idx)
+            .cannot_perform_actions(self.player(player_id).active_char_idx)
         {
             return Err(DispatchError::CannotCastSkills);
         }
 
-        let skill = skill_id.get_skill();
+        let skill = skill_id.skill();
         self.pay_cost(&skill.cost, CostType::Skill(skill_id))?;
         let ctx = {
             let cmd_src = CommandSource::Skill { char_idx, skill_id };
@@ -218,8 +218,8 @@ impl GameState {
     }
 
     fn can_play_card(&self, card_id: CardId, selection: Option<CardSelection>) -> bool {
-        let card = card_id.get_card();
-        let Some(player) = self.get_active_player() else {
+        let card = card_id.card();
+        let Some(player) = self.active_player() else {
             return false;
         };
 
@@ -238,14 +238,14 @@ impl GameState {
             }
 
             if card.cost.energy_cost > 0 {
-                let target_char = self.players.get(active_player_id).get_active_character();
+                let target_char = self.players.get(active_player_id).active_character();
                 if !target_char.can_pay_energy_cost(&card.cost) {
                     return false;
                 }
             }
         }
 
-        if let Some(ci) = card_id.get_card_impl() {
+        if let Some(ci) = card_id.card_impl() {
             if !self.validate_selection(active_player_id, ci.selection(), selection) {
                 return false;
             }
@@ -269,7 +269,7 @@ impl GameState {
         card_id: CardId,
         selection: Option<CardSelection>,
     ) -> Result<Option<DispatchResult>, DispatchError> {
-        let card = card_id.get_card();
+        let card = card_id.card();
         let Some(active_player_id) = self.phase.active_player() else {
             return Err(DispatchError::UnableToPlayCard);
         };
@@ -300,19 +300,19 @@ impl GameState {
             selection,
         };
         let mut cmds = cmd_list![];
-        if let Some(ci) = card_id.get_card_impl() {
+        if let Some(ci) = card_id.card_impl() {
             ci.can_be_played(&cic).to_result()?;
             if !self.validate_selection(active_player_id, ci.selection(), selection) {
                 return Err(DispatchError::InvalidSelection);
             }
 
-            ci.get_effects(&cic, &ctx, &mut cmds);
+            ci.effects(&cic, &ctx, &mut cmds);
         } else {
             if selection.is_some() {
                 return Err(DispatchError::InvalidSelection);
             }
 
-            DefaultCardImpl().get_effects(&cic, &ctx, &mut cmds);
+            DefaultCardImpl().effects(&cic, &ctx, &mut cmds);
         }
 
         self.exec_commands(&cmds)
@@ -338,8 +338,8 @@ impl GameState {
         let Some(active_player_id) = self.phase.active_player() else {
             return false;
         };
-        let player = self.get_player(active_player_id);
-        let ep = player.get_element_priority();
+        let player = self.player(active_player_id);
+        let ep = player.element_priority();
         if player.dice.select_for_elemental_tuning(&ep).is_none() {
             return false;
         }
@@ -349,8 +349,8 @@ impl GameState {
 
     fn elemental_tuning(&mut self, player_id: PlayerId, card_id: CardId) -> Result<(), DispatchError> {
         let player = self.players.get_mut(player_id);
-        let char_card = player.get_active_character().char_id.get_char_card();
-        let ep = player.get_element_priority();
+        let char_card = player.active_character().char_id.char_card();
+        let ep = player.element_priority();
         let Some(elem_to_remove) = player.dice.select_for_elemental_tuning(&ep) else {
             return Err(DispatchError::UnableToPayCost);
         };
@@ -367,7 +367,7 @@ impl GameState {
         let Some(player_id) = self.phase.active_player() else {
             return smallvec![None];
         };
-        let Some(ci) = card_id.get_card_impl() else {
+        let Some(ci) = card_id.card_impl() else {
             return smallvec![None];
         };
 
@@ -398,13 +398,13 @@ impl GameState {
                     return (Cost::ONE, true);
                 };
 
-                let player = self.get_player(player_id);
+                let player = self.player(player_id);
                 let mut is_fast_action = true;
                 let Some((mut cost, cost_type)) = (match action {
-                    PlayerAction::PlayCard(card_id, _) => Some((card_id.get_card().cost, CostType::Card(card_id))),
+                    PlayerAction::PlayCard(card_id, _) => Some((card_id.card().cost, CostType::Card(card_id))),
                     PlayerAction::CastSkill(skill_id) => {
                         is_fast_action = false;
-                        Some((skill_id.get_skill().cost, CostType::Skill(skill_id)))
+                        Some((skill_id.skill().cost, CostType::Skill(skill_id)))
                     }
                     PlayerAction::SwitchCharacter(dst_char_idx) => {
                         is_fast_action = self.check_switch_is_fast_action(active_player_id, player.active_char_idx);
@@ -437,7 +437,7 @@ impl GameState {
             }
             Phase::SelectStartingCharacter { state } => {
                 let player_id = state.active_player();
-                for (char_idx, _) in self.get_player(player_id).char_states.enumerate_valid() {
+                for (char_idx, _) in self.player(player_id).char_states.enumerate_valid() {
                     acts.push(Input::FromPlayer(player_id, PlayerAction::SwitchCharacter(char_idx)));
                 }
             }
@@ -456,7 +456,7 @@ impl GameState {
     }
 
     fn available_actions_action_phase(&self, player_id: PlayerId, acts: &mut ActionList<Input>) {
-        let player = self.get_player(player_id);
+        let player = self.player(player_id);
         let init_acts_len = acts.len();
 
         if self
@@ -468,7 +468,7 @@ impl GameState {
         }
 
         // Cast Skill
-        if let Some(active_char) = self.get_active_character() {
+        if let Some(active_char) = self.active_character() {
             self.available_actions_cast_skill(active_char, player_id, acts);
         }
 
@@ -482,7 +482,7 @@ impl GameState {
 
         // Elemental Tuning
         let allowed_to_et = !player.is_tactical() || !has_others;
-        if allowed_to_et && self.get_active_character().is_some() {
+        if allowed_to_et && self.active_character().is_some() {
             self.available_actions_et(player_id, acts);
         }
 
@@ -490,7 +490,7 @@ impl GameState {
     }
 
     fn available_actions_play_card<A: Array<Item = Input>>(&self, player_id: PlayerId, acts: &mut SmallVec<A>) {
-        let player = self.get_player(player_id);
+        let player = self.player(player_id);
         let mut found = EnumSet::default();
         for &card_id in player.hand.iter() {
             if found.contains(card_id) {
@@ -512,7 +512,7 @@ impl GameState {
         player_id: PlayerId,
         acts: &mut SmallVec<A>,
     ) {
-        let skills = active_char.char_id.get_char_card().skills;
+        let skills = active_char.char_id.char_card().skills;
         for &skill_id in skills.iter().rev() {
             if self.can_cast_skill(player_id, skill_id) {
                 acts.push(Input::FromPlayer(player_id, PlayerAction::CastSkill(skill_id)));
@@ -521,7 +521,7 @@ impl GameState {
     }
 
     fn available_actions_switch<A: Array<Item = Input>>(&self, player_id: PlayerId, acts: &mut SmallVec<A>) {
-        let player = self.get_player(player_id);
+        let player = self.player(player_id);
         for (char_idx, _) in player.char_states.enumerate_valid() {
             if self.can_switch_to(player_id, char_idx) {
                 acts.push(Input::FromPlayer(player_id, PlayerAction::SwitchCharacter(char_idx)));
@@ -530,7 +530,7 @@ impl GameState {
     }
 
     fn available_actions_et<A: Array<Item = Input>>(&self, player_id: PlayerId, acts: &mut SmallVec<A>) {
-        let player = self.get_player(player_id);
+        let player = self.player(player_id);
         let mut found = EnumSet::default();
         for &card_id in player.hand.iter() {
             if found.contains(card_id) {
@@ -546,10 +546,10 @@ impl GameState {
 
     fn apply_passives(&mut self) {
         for player_id in [PlayerId::PlayerFirst, PlayerId::PlayerSecond] {
-            let player = self.get_player_mut(player_id);
+            let player = self.player_mut(player_id);
             let mut to_apply = vector![];
             for (i, c) in player.char_states.enumerate_valid() {
-                if let Some(p) = &c.char_id.get_char_card().passive {
+                if let Some(p) = &c.char_id.char_card().passive {
                     for &status_id in p.apply_statuses.iter() {
                         to_apply.push((i, status_id));
                     }
@@ -604,9 +604,9 @@ impl GameState {
         }
     }
 
-    pub fn get_nondet_request(&self) -> Option<NondetRequest> {
+    pub fn nondet_request(&self) -> Option<NondetRequest> {
         if let Some(pending_cmds) = &self.pending_cmds {
-            return pending_cmds.suspended_state.get_nondet_request();
+            return pending_cmds.suspended_state.nondet_request();
         }
 
         match self.phase {
@@ -618,10 +618,10 @@ impl GameState {
                 RollPhaseState::Start => None,
                 RollPhaseState::Rolling => Some(NondetRequest::RollDice(
                     (
-                        self.get_player(PlayerId::PlayerFirst)
-                            .get_dice_distribution(self.status_collections.get(PlayerId::PlayerFirst)),
-                        self.get_player(PlayerId::PlayerSecond)
-                            .get_dice_distribution(self.status_collections.get(PlayerId::PlayerSecond)),
+                        self.player(PlayerId::PlayerFirst)
+                            .dice_distribution(self.status_collections.get(PlayerId::PlayerFirst)),
+                        self.player(PlayerId::PlayerSecond)
+                            .dice_distribution(self.status_collections.get(PlayerId::PlayerSecond)),
                     )
                         .into(),
                 )),
@@ -776,7 +776,7 @@ impl GameState {
                         roll_phase_state: RollPhaseState::Rolling,
                     });
                     Ok(DispatchResult::NondetRequest(
-                        self.get_nondet_request().expect("get_nondet_request"),
+                        self.nondet_request().expect("nondet_request"),
                     ))
                 }
             },

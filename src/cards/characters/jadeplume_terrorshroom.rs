@@ -69,7 +69,7 @@ pub mod radical_vitality {
                 return None;
             }
 
-            let stacks = e.eff_state.get_counter();
+            let stacks = e.eff_state.counter();
             Some(AppliedEffectResult::SetCounter(increase_stacks(stacks)))
         }
 
@@ -78,7 +78,7 @@ pub mod radical_vitality {
                 return None;
             }
 
-            let stacks = e.eff_state.get_counter();
+            let stacks = e.eff_state.counter();
             if let Some(SkillId::FeatherSpreading) = e.skill_id() {
                 // 2 stacks when casting -> 4 + 2 = 6 DMG from Burst
                 dmg.dmg += stacks;
@@ -89,7 +89,7 @@ pub mod radical_vitality {
         }
 
         fn trigger_event(&self, e: &mut TriggerEventContext) -> Option<AppliedEffectResult> {
-            let stacks = e.c.eff_state.get_counter();
+            let stacks = e.c.eff_state.counter();
             match e.event_id {
                 EventId::EndPhase => {
                     if stacks >= 3 {

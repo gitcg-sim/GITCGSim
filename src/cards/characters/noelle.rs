@@ -70,7 +70,7 @@ pub mod full_plate {
         }
 
         fn trigger_xevent(&self, e: &mut TriggerEventContext<XEvent>) -> Option<AppliedEffectResult> {
-            let SkillId::FavoniusBladeworkMaid = e.get_event_skill_ensuring_own_player()?.skill_id else {
+            let SkillId::FavoniusBladeworkMaid = e.event_skill_ensuring_own_player()?.skill_id else {
                 return None;
             };
             if !e.c.eff_state.can_use_once_per_round() {

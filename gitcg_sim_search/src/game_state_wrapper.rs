@@ -59,7 +59,7 @@ impl<S: NondetState> Game for GameStateWrapper<S> {
     fn prepare_for_eval(&mut self) {
         const ROUNDS: u8 = 2;
         fn try_skip_round(game_state: &mut GameState) -> bool {
-            while game_state.get_phase().winner().is_some() {
+            while game_state.phase().winner().is_some() {
                 let actions = game_state.available_actions();
                 if actions.is_empty() {
                     return false;
@@ -88,7 +88,7 @@ impl<S: NondetState> Game for GameStateWrapper<S> {
             if let Phase::ActionPhase {
                 first_end_round: Some(..),
                 ..
-            } = self.game_state.get_phase()
+            } = self.game_state.phase()
             {
                 if !try_skip_round(&mut self.game_state) {
                     break;
@@ -101,12 +101,12 @@ impl<S: NondetState> Game for GameStateWrapper<S> {
     fn eval(&self, player_id: PlayerId) -> Self::Eval {
         let e1 = self
             .game_state
-            .get_player(player_id)
-            .eval(self.game_state.get_status_collection(player_id));
+            .player(player_id)
+            .eval(self.game_state.status_collection(player_id));
         let e2 = self
             .game_state
-            .get_player(player_id.opposite())
-            .eval(self.game_state.get_status_collection(player_id.opposite()));
+            .player(player_id.opposite())
+            .eval(self.game_state.status_collection(player_id.opposite()));
         let h = e1 - e2;
         if let Some(winner) = self.winner() {
             if winner == player_id {
@@ -121,7 +121,7 @@ impl<S: NondetState> Game for GameStateWrapper<S> {
 
     #[inline]
     fn round_number(&self) -> u8 {
-        self.game_state.get_round_number()
+        self.game_state.round_number()
     }
 
     fn shuffle_actions(actions: &mut Self::Actions, rng: &mut ThreadRng) {
@@ -203,7 +203,7 @@ impl<S: NondetState> Game for GameStateWrapper<S> {
     #[inline]
     fn depth_extension(&self, action: Self::Action) -> u8 {
         let Some(player_id) = self.to_move() else { return 0 };
-        let player = self.game_state.get_player(player_id);
+        let player = self.game_state.player(player_id);
         if !player.is_tactical() {
             return 0;
         }

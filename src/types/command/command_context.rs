@@ -134,12 +134,12 @@ impl CommandContext {
     }
 
     #[inline]
-    pub fn get_dmg_tgt_player_id(&self) -> Option<PlayerId> {
+    pub fn dmg_tgt_player_id(&self) -> Option<PlayerId> {
         self.tgt.map(|t| t.player_id)
     }
 
     #[inline]
-    pub fn get_dmg_tgt_char_idx(&self) -> Option<u8> {
+    pub fn dmg_tgt_char_idx(&self) -> Option<u8> {
         self.tgt.map(|t| t.char_idx)
     }
 }

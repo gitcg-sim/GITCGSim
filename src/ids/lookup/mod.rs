@@ -21,25 +21,25 @@ mod traits {
     where
         Self: Sized,
     {
-        fn get_char_card(self) -> &'static CharCard;
+        fn char_card(self) -> &'static CharCard;
     }
 
     pub trait GetSkill
     where
         Self: Sized,
     {
-        fn get_skill(self) -> &'static Skill;
+        fn skill(self) -> &'static Skill;
     }
 
     pub trait GetCard
     where
         Self: Sized,
     {
-        fn get_card(self) -> &'static Card;
+        fn card(self) -> &'static Card;
 
         #[inline]
-        fn get_card_impl(self) -> Option<&'static dyn CardImpl> {
-            self.get_card().card_impl
+        fn card_impl(self) -> Option<&'static dyn CardImpl> {
+            self.card().card_impl
         }
     }
 
@@ -47,9 +47,9 @@ mod traits {
     where
         Self: Sized,
     {
-        fn get_status(self) -> &'static Status;
+        fn status(self) -> &'static Status;
 
-        fn get_status_impl(self) -> &'static dyn StatusImpl;
+        fn status_impl(self) -> &'static dyn StatusImpl;
     }
 }
 

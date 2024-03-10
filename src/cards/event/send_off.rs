@@ -25,7 +25,7 @@ impl CardImpl for SendOff {
         Some(CardSelectionSpec::OpponentSummon)
     }
 
-    fn get_effects(
+    fn effects(
         &self,
         cic: &CardImplContext,
         ctx: &CommandContext,

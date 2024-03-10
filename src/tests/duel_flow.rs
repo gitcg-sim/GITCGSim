@@ -20,7 +20,7 @@ fn first_round_phases_before_action_phase() {
         gs.phase
     );
     assert_eq!(None, gs.to_move_player());
-    assert_eq!(Some(NondetRequest::DrawCards((5, 5).into())), gs.get_nondet_request());
+    assert_eq!(Some(NondetRequest::DrawCards((5, 5).into())), gs.nondet_request());
     assert!(gs.available_actions().is_empty());
     assert_eq!(
         Ok(DispatchResult::PlayerInput(PlayerId::PlayerFirst)),
@@ -51,7 +51,7 @@ fn first_round_phases_before_action_phase() {
 
     // Select starting character 1
     assert_eq!(Some(PlayerId::PlayerFirst), gs.to_move_player());
-    assert_eq!(None, gs.get_nondet_request());
+    assert_eq!(None, gs.nondet_request());
     assert_eq!(
         action_list![
             Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::SwitchCharacter(0)),
@@ -66,11 +66,11 @@ fn first_round_phases_before_action_phase() {
             PlayerAction::SwitchCharacter(1)
         ))
     );
-    assert_eq!(1, gs.get_player(PlayerId::PlayerFirst).active_char_idx);
+    assert_eq!(1, gs.player(PlayerId::PlayerFirst).active_char_idx);
 
     // Select starting character 2
     assert_eq!(Some(PlayerId::PlayerSecond), gs.to_move_player());
-    assert_eq!(None, gs.get_nondet_request());
+    assert_eq!(None, gs.nondet_request());
     assert_eq!(
         action_list![
             Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::SwitchCharacter(0)),
@@ -86,15 +86,15 @@ fn first_round_phases_before_action_phase() {
             PlayerAction::SwitchCharacter(0)
         ))
     );
-    assert_eq!(1, gs.get_player(PlayerId::PlayerFirst).active_char_idx);
-    assert_eq!(0, gs.get_player(PlayerId::PlayerSecond).active_char_idx);
+    assert_eq!(1, gs.player(PlayerId::PlayerFirst).active_char_idx);
+    assert_eq!(0, gs.player(PlayerId::PlayerSecond).active_char_idx);
 
     // Start of Roll Phase
     let dice_distrs = ByPlayer::new(
-        gs.get_player(PlayerId::PlayerFirst)
-            .get_dice_distribution(gs.get_status_collection(PlayerId::PlayerFirst)),
-        gs.get_player(PlayerId::PlayerSecond)
-            .get_dice_distribution(gs.get_status_collection(PlayerId::PlayerSecond)),
+        gs.player(PlayerId::PlayerFirst)
+            .dice_distribution(gs.status_collection(PlayerId::PlayerFirst)),
+        gs.player(PlayerId::PlayerSecond)
+            .dice_distribution(gs.status_collection(PlayerId::PlayerSecond)),
     );
     assert_eq!(
         Phase::RollPhase {
@@ -104,7 +104,7 @@ fn first_round_phases_before_action_phase() {
         gs.phase
     );
     assert_eq!(None, gs.to_move_player());
-    assert_eq!(None, gs.get_nondet_request());
+    assert_eq!(None, gs.nondet_request());
     assert_eq!(1, gs.available_actions().len());
     assert_eq!(
         Ok(DispatchResult::NondetRequest(NondetRequest::RollDice(dice_distrs))),
@@ -120,7 +120,7 @@ fn first_round_phases_before_action_phase() {
         gs.phase
     );
     assert_eq!(None, gs.to_move_player());
-    assert_eq!(Some(NondetRequest::RollDice(dice_distrs)), gs.get_nondet_request());
+    assert_eq!(Some(NondetRequest::RollDice(dice_distrs)), gs.nondet_request());
     assert_eq!(1, gs.available_actions().len());
     assert_eq!(
         Ok(DispatchResult::PlayerInput(PlayerId::PlayerFirst)),
@@ -139,7 +139,7 @@ fn first_round_phases_before_action_phase() {
         gs.phase
     );
     assert_eq!(Some(PlayerId::PlayerFirst), gs.to_move_player());
-    assert_eq!(None, gs.get_nondet_request());
+    assert_eq!(None, gs.nondet_request());
     assert!(!gs.available_actions().is_empty());
 }
 
@@ -185,13 +185,13 @@ fn action_phase_and_first_player_to_end_round() {
         },
         gs.phase
     );
-    assert!(gs.get_nondet_request().is_some());
+    assert!(gs.nondet_request().is_some());
     assert_eq!(
         Ok(DispatchResult::NoInput),
         gs.advance(Input::NondetResult(NondetResult::ProvideCards(Default::default())))
     );
 
-    assert_eq!(None, gs.get_nondet_request());
+    assert_eq!(None, gs.nondet_request());
     assert_eq!(
         Phase::RollPhase {
             first_active_player: PlayerId::PlayerFirst,
@@ -201,7 +201,7 @@ fn action_phase_and_first_player_to_end_round() {
     );
     gs.advance(Input::NoAction).unwrap();
 
-    assert!(gs.get_nondet_request().is_some());
+    assert!(gs.nondet_request().is_some());
     gs.advance(Input::NondetResult(NondetResult::ProvideDice(Default::default())))
         .unwrap();
     assert_eq!(
@@ -234,7 +234,7 @@ fn player_second_ended_round_first_should_start_next_round_first() {
             first_end_round: None,
             active_player: PlayerId::PlayerSecond
         },
-        gs.get_phase()
+        gs.phase()
     );
     assert_eq!(Some(PlayerId::PlayerSecond), gs.to_move_player());
 }
@@ -331,7 +331,7 @@ fn trigger_effects_after_post_death_switch() {
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::PostDeathSwitch(1)),
     ]);
     assert!(gs.has_team_status(PlayerId::PlayerSecond, StatusId::Icicle));
-    assert_eq!(7, gs.players.0.char_states[0].get_hp());
+    assert_eq!(7, gs.players.0.char_states[0].hp());
 }
 
 #[test]
@@ -362,12 +362,12 @@ fn end_phase_post_death_switch() {
         Input::NoAction,
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::PostDeathSwitch(1)),
     ]);
-    assert_eq!(2, gs.get_round_number());
+    assert_eq!(2, gs.round_number());
     assert_eq!(
         Phase::Drawing {
             first_active_player: PlayerId::PlayerFirst
         },
-        gs.get_phase()
+        gs.phase()
     );
 }
 
@@ -422,13 +422,13 @@ fn play_card() {
         PlayerAction::PlayCard(CardId::TheBestestTravelCompanion, None),
     )]);
     assert_eq!(2, gs.players.0.dice[Dice::Omni]);
-    assert_eq!(0, gs.players.0.get_active_character().get_energy());
+    assert_eq!(0, gs.players.0.active_character().energy());
     gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::PlayCard(CardId::Starsigns, None),
     )]);
     assert_eq!(0, gs.players.0.dice[Dice::Omni]);
-    assert_eq!(1, gs.players.0.get_active_character().get_energy());
+    assert_eq!(1, gs.players.0.active_character().energy());
 }
 
 #[test]
@@ -465,7 +465,7 @@ fn artifact_equip_replace() {
     )]);
     assert_eq!(
         StatusKey::Equipment(0, EquipSlot::Artifact, StatusId::BrokenRimesEcho),
-        gs.get_status_collection_mut(PlayerId::PlayerFirst)
+        gs.status_collection_mut(PlayerId::PlayerFirst)
             .find_equipment(0, EquipSlot::Artifact)
             .unwrap()
             .key
@@ -477,7 +477,7 @@ fn artifact_equip_replace() {
     )]);
     assert_eq!(
         StatusKey::Equipment(0, EquipSlot::Artifact, StatusId::WitchsScorchingHat),
-        gs.get_status_collection_mut(PlayerId::PlayerFirst)
+        gs.status_collection_mut(PlayerId::PlayerFirst)
             .find_equipment(0, EquipSlot::Artifact)
             .unwrap()
             .key
@@ -497,7 +497,7 @@ fn weapon_equip_replace() {
     )]);
     assert_eq!(
         StatusKey::Equipment(0, EquipSlot::Weapon, StatusId::SacrificialBow),
-        gs.get_status_collection_mut(PlayerId::PlayerFirst)
+        gs.status_collection_mut(PlayerId::PlayerFirst)
             .find_equipment(0, EquipSlot::Weapon)
             .unwrap()
             .key
@@ -509,7 +509,7 @@ fn weapon_equip_replace() {
     )]);
     assert_eq!(
         StatusKey::Equipment(0, EquipSlot::Weapon, StatusId::SkywardHarp),
-        gs.get_status_collection_mut(PlayerId::PlayerFirst)
+        gs.status_collection_mut(PlayerId::PlayerFirst)
             .find_equipment(0, EquipSlot::Weapon)
             .unwrap()
             .key
@@ -535,19 +535,19 @@ fn skill_cast_tracker() {
         ),
     ]);
     {
-        let ganyu = gs.get_player(PlayerId::PlayerFirst).get_active_character();
+        let ganyu = gs.player(PlayerId::PlayerFirst).active_character();
         assert_eq!(enum_set![CharFlag::SkillCastedThisTurn2], ganyu.flags);
     }
     {
-        let yoimiya = gs.get_player(PlayerId::PlayerFirst).char_states[1];
+        let yoimiya = gs.player(PlayerId::PlayerFirst).char_states[1];
         assert_eq!(enum_set![], yoimiya.flags);
     }
     {
-        let fischl = gs.get_player(PlayerId::PlayerSecond).get_active_character();
+        let fischl = gs.player(PlayerId::PlayerSecond).active_character();
         assert_eq!(enum_set![CharFlag::SkillCastedThisTurn0], fischl.flags);
     }
     {
-        let noelle = gs.get_player(PlayerId::PlayerSecond).char_states[1];
+        let noelle = gs.player(PlayerId::PlayerSecond).char_states[1];
         assert_eq!(enum_set![], noelle.flags);
     }
 
@@ -556,11 +556,11 @@ fn skill_cast_tracker() {
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::CastSkill(SkillId::Nightrider)),
     ]);
     {
-        let ganyu = gs.get_player(PlayerId::PlayerFirst).get_active_character();
+        let ganyu = gs.player(PlayerId::PlayerFirst).active_character();
         assert_eq!(enum_set![CharFlag::SkillCastedThisTurn2], ganyu.flags);
     }
     {
-        let fischl = gs.get_player(PlayerId::PlayerSecond).get_active_character();
+        let fischl = gs.player(PlayerId::PlayerSecond).active_character();
         assert_eq!(
             enum_set![CharFlag::SkillCastedThisTurn0 | CharFlag::SkillCastedThisTurn1],
             fischl.flags
@@ -572,38 +572,38 @@ fn skill_cast_tracker() {
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::NiwabiFireDance)),
     ]);
     {
-        let yoimiya = gs.get_player(PlayerId::PlayerFirst).char_states[1];
+        let yoimiya = gs.player(PlayerId::PlayerFirst).char_states[1];
         assert_eq!(enum_set![CharFlag::SkillCastedThisTurn1], yoimiya.flags);
     }
     gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::EndRound),
         Input::NoAction,
     ]);
-    assert_eq!(2, gs.get_round_number());
+    assert_eq!(2, gs.round_number());
     assert_eq!(
         Phase::Drawing {
             first_active_player: PlayerId::PlayerSecond
         },
-        gs.get_phase()
+        gs.phase()
     );
     {
-        let ganyu = gs.get_player(PlayerId::PlayerFirst).get_active_character();
+        let ganyu = gs.player(PlayerId::PlayerFirst).active_character();
         assert_eq!(enum_set![], ganyu.flags);
     }
     {
-        let yoimiya = gs.get_player(PlayerId::PlayerFirst).char_states[1];
+        let yoimiya = gs.player(PlayerId::PlayerFirst).char_states[1];
         assert_eq!(enum_set![], yoimiya.flags);
     }
     {
-        let fischl = gs.get_player(PlayerId::PlayerSecond).get_active_character();
+        let fischl = gs.player(PlayerId::PlayerSecond).active_character();
         assert_eq!(enum_set![], fischl.flags);
     }
     {
-        let noelle = gs.get_player(PlayerId::PlayerSecond).char_states[1];
+        let noelle = gs.player(PlayerId::PlayerSecond).char_states[1];
         assert_eq!(enum_set![], noelle.flags);
     }
     gs.advance_roll_phase_no_dice();
-    assert_eq!(Some(PlayerId::PlayerSecond), gs.get_phase().active_player());
+    assert_eq!(Some(PlayerId::PlayerSecond), gs.phase().active_player());
 }
 
 #[test]
@@ -622,21 +622,21 @@ fn test_select_starting_plunging_attack_flags() {
         PlayerAction::SwitchCharacter(1),
     ))
     .unwrap();
-    assert_eq!(0, gs.get_player(PlayerId::PlayerFirst).active_char_idx);
-    assert_eq!(1, gs.get_player(PlayerId::PlayerSecond).active_char_idx);
-    assert_eq!(enum_set![], gs.get_player(PlayerId::PlayerFirst).char_states[0].flags);
-    assert_eq!(enum_set![], gs.get_player(PlayerId::PlayerSecond).char_states[0].flags);
-    assert_eq!(enum_set![], gs.get_player(PlayerId::PlayerSecond).char_states[1].flags);
+    assert_eq!(0, gs.player(PlayerId::PlayerFirst).active_char_idx);
+    assert_eq!(1, gs.player(PlayerId::PlayerSecond).active_char_idx);
+    assert_eq!(enum_set![], gs.player(PlayerId::PlayerFirst).char_states[0].flags);
+    assert_eq!(enum_set![], gs.player(PlayerId::PlayerSecond).char_states[0].flags);
+    assert_eq!(enum_set![], gs.player(PlayerId::PlayerSecond).char_states[1].flags);
     assert_eq!(vec![Input::NoAction], gs.available_actions().to_vec());
     assert_eq!(Phase::new_roll_phase(PlayerId::PlayerFirst), gs.phase);
     gs.advance_roll_phase_no_dice();
-    assert!(gs.get_player(PlayerId::PlayerFirst).char_states[0]
+    assert!(gs.player(PlayerId::PlayerFirst).char_states[0]
         .flags
         .contains(CharFlag::PlungingAttack));
-    assert!(!gs.get_player(PlayerId::PlayerSecond).char_states[0]
+    assert!(!gs.player(PlayerId::PlayerSecond).char_states[0]
         .flags
         .contains(CharFlag::PlungingAttack));
-    assert!(gs.get_player(PlayerId::PlayerSecond).char_states[1]
+    assert!(gs.player(PlayerId::PlayerSecond).char_states[1]
         .flags
         .contains(CharFlag::PlungingAttack));
 }

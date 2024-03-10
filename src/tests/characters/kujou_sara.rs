@@ -16,7 +16,7 @@ fn tengu_juurai_ambush_applies_crowfeather_cover_end_phase() {
         PlayerAction::CastSkill(SkillId::TenguStormcall),
     )]);
     assert!(gs
-        .get_status_collection_mut(PlayerId::PlayerFirst)
+        .status_collection_mut(PlayerId::PlayerFirst)
         .get(StatusKey::Summon(SummonId::TenguJuuraiAmbush))
         .is_some());
     gs.advance_multiple([
@@ -27,7 +27,7 @@ fn tengu_juurai_ambush_applies_crowfeather_cover_end_phase() {
     ]);
     gs.advance_roll_phase_no_dice();
     assert!(gs
-        .get_status_collection_mut(PlayerId::PlayerFirst)
+        .status_collection_mut(PlayerId::PlayerFirst)
         .get(StatusKey::Character(1, StatusId::CrowfeatherCover))
         .is_some());
     gs.advance_multiple([
@@ -40,12 +40,12 @@ fn tengu_juurai_ambush_applies_crowfeather_cover_end_phase() {
     // Normal Attack: Usage not consumed
     assert_eq!(
         1,
-        gs.get_status_collection_mut(PlayerId::PlayerFirst)
+        gs.status_collection_mut(PlayerId::PlayerFirst)
             .get(StatusKey::Character(1, StatusId::CrowfeatherCover))
             .unwrap()
-            .get_usages()
+            .usages()
     );
-    assert_eq!(8, gs.get_player(PlayerId::PlayerSecond).char_states[1].get_hp(),);
+    assert_eq!(8, gs.player(PlayerId::PlayerSecond).char_states[1].hp(),);
     let gs0 = gs.clone();
     gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
@@ -53,9 +53,9 @@ fn tengu_juurai_ambush_applies_crowfeather_cover_end_phase() {
     ]);
 
     // Elemental Skill: Usage consumed
-    assert_eq!(4, gs.get_player(PlayerId::PlayerSecond).char_states[1].get_hp(),);
+    assert_eq!(4, gs.player(PlayerId::PlayerSecond).char_states[1].hp(),);
     assert!(gs
-        .get_status_collection_mut(PlayerId::PlayerFirst)
+        .status_collection_mut(PlayerId::PlayerFirst)
         .get(StatusKey::Character(1, StatusId::CrowfeatherCover))
         .is_none());
 
@@ -66,9 +66,9 @@ fn tengu_juurai_ambush_applies_crowfeather_cover_end_phase() {
     ]);
 
     // Elemental Burst: Usage consumed
-    assert_eq!(6, gs.get_player(PlayerId::PlayerSecond).char_states[1].get_hp(),);
+    assert_eq!(6, gs.player(PlayerId::PlayerSecond).char_states[1].hp(),);
     assert!(gs
-        .get_status_collection_mut(PlayerId::PlayerFirst)
+        .status_collection_mut(PlayerId::PlayerFirst)
         .get(StatusKey::Character(1, StatusId::CrowfeatherCover))
         .is_none());
 }

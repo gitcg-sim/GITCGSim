@@ -57,7 +57,7 @@ impl<S: NondetState> GameStateWrapper<S> {
     /// Panics: [GameState] advance error
     pub fn ensure_player(&mut self) {
         while self.to_move().is_none() && self.winner().is_none() {
-            let input = self.nd.get_no_to_move_player_input(&self.game_state);
+            let input = self.nd.no_to_move_player_input(&self.game_state);
             if let Err(e) = self.game_state.advance(input) {
                 panic!("{e:?}\n{input:?}");
             }

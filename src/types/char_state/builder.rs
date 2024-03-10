@@ -51,8 +51,8 @@ impl CharState {
     pub fn into_builder(&self) -> CharStateBuilder {
         CharStateBuilder {
             char_id: self.char_id,
-            hp: self.get_hp(),
-            energy: self.get_energy(),
+            hp: self.hp(),
+            energy: self.energy(),
             applied: self.applied.iter().collect(),
             flags: self.flags.iter().collect(),
             total_dmg_taken: self.total_dmg_taken,

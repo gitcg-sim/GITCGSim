@@ -182,7 +182,7 @@ fn run_tdl_self_play<
                 if let Some(winner) = game_state.winner() {
                     winner_eval(winner, player_id)
                 } else {
-                    searches.get(player_id).get_self_play_model().evaluate(game_state)
+                    searches.get(player_id).self_play_model().evaluate(game_state)
                 }
             };
             states.iter().map(eval_game_state).collect::<Vec<_>>()
@@ -193,14 +193,14 @@ fn run_tdl_self_play<
 
     if let Some(make_debug_entry) = make_debug_entry {
         for player_id in [PlayerId::PlayerFirst, PlayerId::PlayerSecond] {
-            let model = searches[player_id].get_self_play_model();
+            let model = searches[player_id].self_play_model();
             let entry = make_debug_entry(player_id, model.weights);
             println!("{}", serde_json::to_string(&entry).unwrap_or_default());
         }
     }
 
     for player_id in [PlayerId::PlayerFirst, PlayerId::PlayerSecond] {
-        let model = searches[player_id].get_self_play_model_mut();
+        let model = searches[player_id].self_play_model_mut();
         let weights = model.weights.as_slice_mut();
         let n_states = states.len();
         let evals = &evals[player_id];
@@ -246,7 +246,7 @@ fn main_tdl(mut deck: SearchOpts, opts: TDLOpts) -> Result<(), std::io::Error> {
     ));
     for i in 0..=opts.max_iters {
         deck.seed = Some(seed_gen.gen());
-        let initial = deck.get_standard_game(Some(SmallRng::from_seed(seed_gen.gen())))?;
+        let initial = deck.standard_game(Some(SmallRng::from_seed(seed_gen.gen())))?;
         let learning_rate = opts.base_learning_rate * 0.95f32.powi((i as i32) / opts.learning_rate_decay);
         let debug = if i % opts.log_iters == 0 {
             Some(|player_id, game_state| DebugEntry {
@@ -272,14 +272,14 @@ fn main_tdl(mut deck: SearchOpts, opts: TDLOpts) -> Result<(), std::io::Error> {
 
 fn generate_data_points_mcts<I: FnMut() -> GameStateWrapper<S>, S: NondetState>(
     tx: Sender<(Features, InputFeatures<f32>, u8)>,
-    mut get_initial: I,
+    mut initial: I,
     searches: &RefCell<ByPlayer<MCTS<GameStateWrapper<S>>>>,
     mcts_min_depth: i8,
     data_points_per_iter: usize,
     iterations: usize,
 ) {
     let mut rng = thread_rng();
-    let mut initial = get_initial();
+    let mut initial = initial();
     for i in 0..iterations {
         println!(
             "{}",
@@ -300,7 +300,7 @@ fn generate_data_points_mcts<I: FnMut() -> GameStateWrapper<S>, S: NondetState>(
                 vec.push(x);
                 ControlFlow::Continue(())
             };
-            mcts.get_self_play_policy_data_points(player_id, should_include, push_data_point);
+            mcts.self_play_policy_data_points(player_id, should_include, push_data_point);
             vec.sort_by_key(|d| 1_0000i32 - 1000 * (d.depth as i32) + rng.gen_range(0..10));
             vec.truncate(data_points_per_iter);
             for SelfPlayDataPoint {
@@ -340,7 +340,7 @@ fn generate_data_points_mcts<I: FnMut() -> GameStateWrapper<S>, S: NondetState>(
         if last_game_state.winner().is_none() {
             initial = last_game_state;
         } else {
-            initial = get_initial();
+            initial = initial();
         }
     }
 }
@@ -349,7 +349,7 @@ fn main_policy(deck: SearchOpts, opts: PolicyOpts) -> Result<(), std::io::Error>
     const BATCH_SIZE: usize = 500;
     const CUTOFF_PER_ITER: usize = 5;
     let config = MCTSConfig {
-        cpuct: deck.search.get_cpuct_config(),
+        cpuct: deck.search.cpuct_config(),
         random_playout_iters: deck.search.mcts_random_playout_iters.unwrap_or(1),
         random_playout_bias: deck.search.mcts_random_playout_bias,
         random_playout_cutoff: deck.search.mcts_random_playout_max_steps.unwrap_or(20),
@@ -370,26 +370,18 @@ fn main_policy(deck: SearchOpts, opts: PolicyOpts) -> Result<(), std::io::Error>
             let config = &config;
             let deck = Arc::new(deck.clone());
             let games = &games;
-            let get_initial = move || {
+            let initial = move || {
                 let deck: &SearchOpts = Arc::borrow(&deck);
                 let mut deck = deck.clone();
                 let mut seed_gen = thread_rng();
                 seed_gen.gen_range(0..255);
                 deck.seed = Some(seed_gen.gen());
                 games.fetch_add(1, Ordering::AcqRel);
-                deck.get_standard_game(Some(SmallRng::from_seed(seed_gen.gen())))
-                    .unwrap()
+                deck.standard_game(Some(SmallRng::from_seed(seed_gen.gen()))).unwrap()
             };
             let make_search = move || MCTS::new(*config);
             let searches = RefCell::new(ByPlayer::new(make_search(), make_search()));
-            generate_data_points_mcts(
-                tx,
-                get_initial,
-                &searches,
-                opts.mcts_min_depth,
-                CUTOFF_PER_ITER,
-                1_000_000,
-            )
+            generate_data_points_mcts(tx, initial, &searches, opts.mcts_min_depth, CUTOFF_PER_ITER, 1_000_000)
         }
     };
     let games = &games;

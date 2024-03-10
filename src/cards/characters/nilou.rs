@@ -46,7 +46,7 @@ pub const SKILLS: [(SkillId, Skill); 3] = [
 
 pub struct DanceOfHaftkarsvar();
 impl SkillImpl for DanceOfHaftkarsvar {
-    fn get_commands(
+    fn commands(
         &self,
         src_player: &PlayerState,
         _: &StatusCollection,
@@ -56,7 +56,7 @@ impl SkillImpl for DanceOfHaftkarsvar {
         if src_player
             .char_states
             .iter_all()
-            .any(|c| !matches!(c.char_id.get_char_card().elem, Element::Hydro | Element::Dendro))
+            .any(|c| !matches!(c.char_id.char_card().elem, Element::Hydro | Element::Dendro))
         {
             return;
         }
@@ -75,7 +75,7 @@ pub mod bountiful_core {
     trigger_event_impl!(BountifulCore, [DeclareEndOfRound, EndPhase], |e| {
         let dmg = if e.c.has_talent_equipped() { 3 } else { 2 };
         match e.event_id {
-            EventId::DeclareEndOfRound if e.c.eff_state.get_usages() >= 2 => {
+            EventId::DeclareEndOfRound if e.c.eff_state.usages() >= 2 => {
                 e.cmd_deal_dmg(DealDMGType::DENDRO, dmg, 0);
                 Some(AppliedEffectResult::ConsumeUsage)
             }

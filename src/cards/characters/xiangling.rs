@@ -24,7 +24,7 @@ pub const GUOBA_ATTACK: Skill = Skill {
 
 struct GuobaAttack();
 impl SkillImpl for GuobaAttack {
-    fn get_commands(
+    fn commands(
         &self,
         src_player: &PlayerState,
         _: &StatusCollection,
@@ -73,7 +73,7 @@ pub mod pyronado {
 
         fn trigger_xevent(&self, e: &mut TriggerEventContext<XEvent>) -> Option<AppliedEffectResult> {
             // TODO don't know about recasting Pyronado while another Pyronado is on field
-            if let SkillId::Pyronado = e.get_event_skill_ensuring_own_player()?.skill_id {
+            if let SkillId::Pyronado = e.event_skill_ensuring_own_player()?.skill_id {
                 return None;
             }
             e.cmd_deal_dmg(DealDMGType::PYRO, 2, 0);

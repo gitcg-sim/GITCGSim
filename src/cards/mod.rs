@@ -31,7 +31,7 @@ pub mod all_cards_reexports {
 // TODO move to derive
 impl ids::GetCharCard for ids::CharId {
     #[inline]
-    fn get_char_card(self: ids::CharId) -> &'static crate::types::card_defs::CharCard {
+    fn char_card(self: ids::CharId) -> &'static crate::types::card_defs::CharCard {
         self.__generated_lookup_char_card()
     }
 }

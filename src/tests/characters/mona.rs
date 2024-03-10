@@ -59,9 +59,9 @@ fn reflection_expires_without_usage_being_consumed() {
     ]);
     gs.advance_roll_phase_no_dice();
     assert!(!gs.has_summon(PlayerId::PlayerFirst, SummonId::Reflection));
-    let fischl = gs.get_player(PlayerId::PlayerSecond).get_active_character();
+    let fischl = gs.player(PlayerId::PlayerSecond).active_character();
     assert_eq!(elem_set![Element::Hydro], fischl.applied);
-    assert_eq!(8, fischl.get_hp());
+    assert_eq!(8, fischl.hp());
 }
 
 #[test]
@@ -79,10 +79,10 @@ fn reflection_reduces_dmg_and_remains_until_end_phase() {
     assert!(gs.has_summon(PlayerId::PlayerFirst, SummonId::Reflection));
     assert_eq!(
         1,
-        gs.get_status_collection_mut(PlayerId::PlayerFirst)
+        gs.status_collection_mut(PlayerId::PlayerFirst)
             .get(StatusKey::Summon(SummonId::Reflection))
             .unwrap()
-            .get_usages()
+            .usages()
     );
     gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerSecond,
@@ -90,23 +90,23 @@ fn reflection_reduces_dmg_and_remains_until_end_phase() {
     )]);
     assert_eq!(
         0,
-        gs.get_status_collection_mut(PlayerId::PlayerFirst)
+        gs.status_collection_mut(PlayerId::PlayerFirst)
             .get(StatusKey::Summon(SummonId::Reflection))
             .unwrap()
-            .get_usages()
+            .usages()
     );
-    assert_eq!(9, gs.get_player(PlayerId::PlayerFirst).get_active_character().get_hp());
+    assert_eq!(9, gs.player(PlayerId::PlayerFirst).active_character().hp());
     gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::EndRound),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
     ]);
-    gs.get_player_mut(PlayerId::PlayerSecond).char_states[0].applied.clear();
+    gs.player_mut(PlayerId::PlayerSecond).char_states[0].applied.clear();
     gs.advance_multiple([Input::NoAction]);
     gs.advance_roll_phase_no_dice();
     assert!(!gs.has_summon(PlayerId::PlayerFirst, SummonId::Reflection));
-    let fischl = gs.get_player(PlayerId::PlayerSecond).get_active_character();
+    let fischl = gs.player(PlayerId::PlayerSecond).active_character();
     assert_eq!(elem_set![Element::Hydro], fischl.applied);
-    assert_eq!(8, fischl.get_hp());
+    assert_eq!(8, fischl.hp());
 }
 
 // TODO do reaction DMG bonuses apply before or after doubling? (after currently)
@@ -120,7 +120,7 @@ fn stellaris_phantasm_doubles_dmg() {
     .build();
     gs.advance_roll_phase_no_dice();
     gs.ignore_costs = true;
-    gs.get_player_mut(PlayerId::PlayerFirst)
+    gs.player_mut(PlayerId::PlayerFirst)
         .add_to_hand_ignore(CardId::SacrificialSword);
     gs.advance_multiple([
         Input::FromPlayer(
@@ -136,7 +136,7 @@ fn stellaris_phantasm_doubles_dmg() {
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::GuhuaStyle)),
     ]);
     // 10 - 2*(2 + 1) = 4
-    assert_eq!(4, gs.get_player(PlayerId::PlayerSecond).get_active_character().get_hp());
+    assert_eq!(4, gs.player(PlayerId::PlayerSecond).active_character().hp());
 
     assert!(!gs.has_team_status(PlayerId::PlayerFirst, StatusId::IllusoryBubble));
     gs.advance_multiple([
@@ -144,7 +144,7 @@ fn stellaris_phantasm_doubles_dmg() {
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::GuhuaStyle)),
     ]);
 
-    assert_eq!(1, gs.get_player(PlayerId::PlayerSecond).get_active_character().get_hp());
+    assert_eq!(1, gs.player(PlayerId::PlayerSecond).active_character().hp());
 }
 
 #[test]
@@ -157,7 +157,7 @@ fn stellaris_phantasm_doubles_dmg_for_reaction_post_reaction_bonus() {
     .build();
     gs.advance_roll_phase_no_dice();
     gs.ignore_costs = true;
-    gs.get_player_mut(PlayerId::PlayerSecond).char_states[1]
+    gs.player_mut(PlayerId::PlayerSecond).char_states[1]
         .applied
         .insert(Element::Hydro);
     gs.advance_multiple([
@@ -170,7 +170,7 @@ fn stellaris_phantasm_doubles_dmg_for_reaction_post_reaction_bonus() {
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::PassionOverload)),
     ]);
     // Vaporize: 10 - 2*(3 + 2) = 0
-    assert_eq!(0, gs.get_player(PlayerId::PlayerSecond).char_states[1].get_hp());
+    assert_eq!(0, gs.player(PlayerId::PlayerSecond).char_states[1].hp());
     assert!(!gs.has_team_status(PlayerId::PlayerFirst, StatusId::IllusoryBubble));
 }
 
@@ -197,9 +197,9 @@ fn stellaris_phantasm_does_not_double_summon_dmg() {
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::EndRound),
     ]);
     assert!(gs.has_team_status(PlayerId::PlayerFirst, StatusId::IllusoryBubble));
-    assert_eq!(6, gs.get_player(PlayerId::PlayerSecond).char_states[0].get_hp());
-    assert_eq!(10, gs.get_player(PlayerId::PlayerSecond).char_states[1].get_hp());
-    assert_eq!(10, gs.get_player(PlayerId::PlayerSecond).char_states[2].get_hp());
+    assert_eq!(6, gs.player(PlayerId::PlayerSecond).char_states[0].hp());
+    assert_eq!(10, gs.player(PlayerId::PlayerSecond).char_states[1].hp());
+    assert_eq!(10, gs.player(PlayerId::PlayerSecond).char_states[2].hp());
 
     gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
@@ -207,9 +207,9 @@ fn stellaris_phantasm_does_not_double_summon_dmg() {
     ]);
 
     // 2 DMG taken
-    assert_eq!(8, gs.get_player(PlayerId::PlayerSecond).char_states[2].get_hp());
+    assert_eq!(8, gs.player(PlayerId::PlayerSecond).char_states[2].hp());
     assert_eq!(
         elem_set![Element::Pyro],
-        gs.get_player(PlayerId::PlayerSecond).char_states[2].applied
+        gs.player(PlayerId::PlayerSecond).char_states[2].applied
     );
 }

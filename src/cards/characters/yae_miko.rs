@@ -42,7 +42,7 @@ pub const SKILLS: [(SkillId, Skill); 3] = [
 
 pub struct GreatSecretArtTenkoKenshin();
 impl SkillImpl for GreatSecretArtTenkoKenshin {
-    fn get_commands(
+    fn commands(
         &self,
         _: &PlayerState,
         status_collection: &StatusCollection,
@@ -64,7 +64,7 @@ pub mod sesshou_sakura {
 
     pub struct SesshouSakuraEndOfRound();
     trigger_event_impl!(SesshouSakuraEndOfRound, [DeclareEndOfRound], |e| {
-        if e.c.eff_state.get_usages() < 4 {
+        if e.c.eff_state.usages() < 4 {
             return None;
         }
 

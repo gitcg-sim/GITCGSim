@@ -171,13 +171,13 @@ pub mod lithic_spear {
             Some(CardSelectionSpec::OwnCharacter)
         }
 
-        fn get_effects(
+        fn effects(
             &self,
             cic: &CardImplContext,
             ctx: &CommandContext,
             commands: &mut CommandList<(CommandContext, Command)>,
         ) {
-            get_effects_for_weapon(self.status_id, cic, ctx, commands);
+            effects_for_weapon(self.status_id, cic, ctx, commands);
             let Some(CardSelection::OwnCharacter(i)) = cic.selection else {
                 unreachable!()
             };
@@ -185,7 +185,7 @@ pub mod lithic_spear {
             let n = src_player
                 .char_states
                 .iter_valid()
-                .filter(|c| c.char_id.get_char_card().faction == Faction::Liyue)
+                .filter(|c| c.char_id.char_card().faction == Faction::Liyue)
                 .count() as u8;
             commands.push((
                 *ctx,
@@ -264,7 +264,7 @@ pub mod a_thousand_floating_dreams {
             _: (Reaction, Option<Element>),
             dmg: &mut DealDMG,
         ) -> Option<AppliedEffectResult> {
-            let c = e.eff_state.get_counter();
+            let c = e.eff_state.counter();
             if c == 0 {
                 None
             } else {

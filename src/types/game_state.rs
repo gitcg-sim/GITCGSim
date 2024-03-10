@@ -285,12 +285,12 @@ impl PlayerState {
     }
 
     #[inline]
-    pub fn get_active_char_idx(&self) -> u8 {
+    pub fn active_char_idx(&self) -> u8 {
         self.active_char_idx
     }
 
     #[inline]
-    pub fn get_dice_counter(&self) -> DiceCounter {
+    pub fn dice_counter(&self) -> DiceCounter {
         self.dice
     }
 
@@ -305,17 +305,17 @@ impl PlayerState {
     }
 
     #[inline]
-    pub fn get_hand(&self) -> &[CardId] {
+    pub fn hand(&self) -> &[CardId] {
         self.hand.slice()
     }
 
     #[inline]
-    pub fn get_char_states(&self) -> &CharStates {
+    pub fn char_states(&self) -> &CharStates {
         &self.char_states
     }
 
     #[inline]
-    pub fn get_flags(&self) -> EnumSet<PlayerFlag> {
+    pub fn flags(&self) -> EnumSet<PlayerFlag> {
         self.flags
     }
 }
@@ -340,12 +340,12 @@ impl<'a> PlayerStateView<'a> {
 
 impl GameState {
     #[inline]
-    pub fn get_phase(&self) -> Phase {
+    pub fn phase(&self) -> Phase {
         self.phase
     }
 
     #[inline]
-    pub fn get_round_number(&self) -> u8 {
+    pub fn round_number(&self) -> u8 {
         self.round_number
     }
 }

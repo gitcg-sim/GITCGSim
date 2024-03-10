@@ -45,7 +45,7 @@ pub struct SupportImpl(pub SupportId);
 
 impl CardImpl for SupportImpl {
     fn can_be_played(&self, cic: &CardImplContext) -> CanBePlayedResult {
-        if cic.get_next_available_suport_slot().is_some() {
+        if cic.next_available_suport_slot().is_some() {
             CanBePlayedResult::CanBePlayed
         } else {
             // TODO support replacing an existing support when there's not enough room
@@ -58,13 +58,13 @@ impl CardImpl for SupportImpl {
         None
     }
 
-    fn get_effects(
+    fn effects(
         &self,
         cic: &CardImplContext,
         ctx: &CommandContext,
         commands: &mut CommandList<(CommandContext, Command)>,
     ) {
-        let Some(slot) = cic.get_next_available_suport_slot() else {
+        let Some(slot) = cic.next_available_suport_slot() else {
             // TODO support replacing
             return;
         };
@@ -119,11 +119,11 @@ impl StatusImpl for CardCostReductionSupport {
             return None;
         }
 
-        if !self.card_type.matches(card_id.get_card().card_type) {
+        if !self.card_type.matches(card_id.card().card_type) {
             return None;
         }
 
-        let counter = e.eff_state.get_counter();
+        let counter = e.eff_state.counter();
         cost.try_reduce_by(counter)
             .then(|| AppliedEffectResult::SetCounterAndConsumeOncePerRound(counter.saturating_sub(cost.total_dice())))
     }
@@ -131,7 +131,7 @@ impl StatusImpl for CardCostReductionSupport {
     fn trigger_event(&self, e: &mut TriggerEventContext) -> Option<AppliedEffectResult> {
         let EventId::EndPhase = e.event_id else { return None };
 
-        let counter = e.c.eff_state.get_counter();
+        let counter = e.c.eff_state.counter();
         Some(AppliedEffectResult::SetCounter(counter + self.end_phase_counter_gain))
     }
 }

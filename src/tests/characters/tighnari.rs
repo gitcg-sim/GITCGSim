@@ -16,13 +16,13 @@ fn vijnana_phala_mine_charged_attack() {
     ]);
     assert!(gs.has_active_character_status(PlayerId::PlayerFirst, StatusId::VijnanaSuffusion));
     {
-        let fischl = &mut gs.get_player_mut(PlayerId::PlayerSecond).char_states[0];
-        assert_eq!(8, fischl.get_hp());
+        let fischl = &mut gs.player_mut(PlayerId::PlayerSecond).char_states[0];
+        assert_eq!(8, fischl.hp());
         assert_eq!(elem_set![Element::Dendro], fischl.applied);
         fischl.applied.clear();
     }
     assert!(gs
-        .get_player(PlayerId::PlayerFirst)
+        .player(PlayerId::PlayerFirst)
         .flags
         .contains(PlayerFlag::ChargedAttack));
 
@@ -31,8 +31,8 @@ fn vijnana_phala_mine_charged_attack() {
         PlayerAction::CastSkill(SkillId::KhandaBarrierBuster),
     )]);
     {
-        let fischl = &mut gs.get_player_mut(PlayerId::PlayerSecond).char_states[0];
-        assert_eq!(6, fischl.get_hp());
+        let fischl = &mut gs.player_mut(PlayerId::PlayerSecond).char_states[0];
+        assert_eq!(6, fischl.hp());
         assert_eq!(elem_set![Element::Dendro], fischl.applied);
     }
     assert!(gs.has_summon(PlayerId::PlayerFirst, SummonId::ClusterbloomArrow));
@@ -55,13 +55,13 @@ fn vijnana_phala_mine_non_charged_attack() {
     ]);
     assert!(gs.has_active_character_status(PlayerId::PlayerFirst, StatusId::VijnanaSuffusion));
     {
-        let fischl = &mut gs.get_player_mut(PlayerId::PlayerSecond).char_states[0];
-        assert_eq!(8, fischl.get_hp());
+        let fischl = &mut gs.player_mut(PlayerId::PlayerSecond).char_states[0];
+        assert_eq!(8, fischl.hp());
         assert_eq!(elem_set![Element::Dendro], fischl.applied);
         fischl.applied.clear();
     }
     assert!(!gs
-        .get_player(PlayerId::PlayerFirst)
+        .player(PlayerId::PlayerFirst)
         .flags
         .contains(PlayerFlag::ChargedAttack));
 
@@ -70,8 +70,8 @@ fn vijnana_phala_mine_non_charged_attack() {
         PlayerAction::CastSkill(SkillId::KhandaBarrierBuster),
     )]);
     {
-        let fischl = &mut gs.get_player_mut(PlayerId::PlayerSecond).char_states[0];
-        assert_eq!(6, fischl.get_hp());
+        let fischl = &mut gs.player_mut(PlayerId::PlayerSecond).char_states[0];
+        assert_eq!(6, fischl.hp());
         assert_eq!(elem_set![], fischl.applied);
     }
     assert!(!gs.has_summon(PlayerId::PlayerFirst, SummonId::ClusterbloomArrow));
@@ -91,7 +91,7 @@ fn talent_card_charged_attack() {
     gs.players
         .get_mut(PlayerId::PlayerFirst)
         .add_to_hand_ignore(CardId::KeenSight);
-    dbg!(&gs.get_player(PlayerId::PlayerFirst).dice);
+    dbg!(&gs.player(PlayerId::PlayerFirst).dice);
     gs.advance_multiple([
         Input::FromPlayer(
             PlayerId::PlayerFirst,
@@ -101,7 +101,7 @@ fn talent_card_charged_attack() {
     ]);
     assert!(gs.has_active_character_status(PlayerId::PlayerFirst, StatusId::VijnanaSuffusion));
     assert!(gs
-        .get_player(PlayerId::PlayerFirst)
+        .player(PlayerId::PlayerFirst)
         .flags
         .contains(PlayerFlag::ChargedAttack));
 
@@ -110,8 +110,8 @@ fn talent_card_charged_attack() {
         PlayerAction::CastSkill(SkillId::KhandaBarrierBuster),
     )]);
     {
-        let fischl = &mut gs.get_player_mut(PlayerId::PlayerSecond).char_states[0];
-        assert_eq!(6, fischl.get_hp());
+        let fischl = &mut gs.player_mut(PlayerId::PlayerSecond).char_states[0];
+        assert_eq!(6, fischl.hp());
         assert_eq!(elem_set![Element::Dendro], fischl.applied);
     }
     assert!(gs.has_summon(PlayerId::PlayerFirst, SummonId::ClusterbloomArrow));

@@ -39,7 +39,7 @@ fn perft_parallel<S: NondetState>(gs: &GameStateWrapper<S>, depth: u8, parallel_
 }
 
 pub fn run_perft(opts: &SearchOpts, parallel: bool, depth: u8) -> Result<(), std::io::Error> {
-    let gs = opts.get_standard_game(None)?;
+    let gs = opts.standard_game(None)?;
     let start_time = Instant::now();
     let n = if parallel {
         perft_parallel(&gs, depth, 4)

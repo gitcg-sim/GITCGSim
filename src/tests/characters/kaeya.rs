@@ -16,10 +16,10 @@ fn glacial_waltz_switch_trigger() {
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::SwitchCharacter(1)),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::SwitchCharacter(1)),
     ]);
-    assert_eq!(8, gs.get_player(PlayerId::PlayerSecond).get_active_character().get_hp());
+    assert_eq!(8, gs.player(PlayerId::PlayerSecond).active_character().hp());
     assert_eq!(
         elem_set![Element::Cryo],
-        gs.get_player(PlayerId::PlayerSecond).get_active_character().applied
+        gs.player(PlayerId::PlayerSecond).active_character().applied
     );
 }
 
@@ -44,13 +44,13 @@ fn talent_card() {
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
     ]);
     assert!(gs
-        .get_status_collection(PlayerId::PlayerFirst)
+        .status_collection(PlayerId::PlayerFirst)
         .get(StatusKey::Equipment(0, EquipSlot::Talent, StatusId::ColdBloodedStrike))
         .is_some());
-    assert_eq!(7, gs.players.0.char_states[0].get_hp());
+    assert_eq!(7, gs.players.0.char_states[0].hp());
     gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::Frostgnaw),
     )]);
-    assert_eq!(7, gs.players.0.char_states[0].get_hp());
+    assert_eq!(7, gs.players.0.char_states[0].hp());
 }

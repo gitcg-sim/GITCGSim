@@ -65,7 +65,7 @@ pub const SKILLS: [(SkillId, Skill); 4] = [
 
 pub struct TideAndTorrent();
 impl SkillImpl for TideAndTorrent {
-    fn get_commands(
+    fn commands(
         &self,
         _: &PlayerState,
         status_collection: &StatusCollection,

@@ -12,20 +12,20 @@ fn fatal_rainscreen_applies_hydro_to_self_and_creates_rain_sword() {
     )]);
     assert_eq!(
         elem_set![Element::Hydro],
-        gs.get_player(PlayerId::PlayerFirst).get_active_character().applied
+        gs.player(PlayerId::PlayerFirst).active_character().applied
     );
     assert!(gs.has_team_status(PlayerId::PlayerFirst, StatusId::RainSword));
     assert_eq!(
         elem_set![Element::Hydro],
-        gs.get_player(PlayerId::PlayerSecond).get_active_character().applied
+        gs.player(PlayerId::PlayerSecond).active_character().applied
     );
-    assert_eq!(8, gs.get_player(PlayerId::PlayerSecond).char_states[0].get_hp());
+    assert_eq!(8, gs.player(PlayerId::PlayerSecond).char_states[0].hp());
     assert_eq!(
         2,
-        gs.get_status_collection_mut(PlayerId::PlayerFirst)
+        gs.status_collection_mut(PlayerId::PlayerFirst)
             .get(StatusKey::Team(StatusId::RainSword))
             .unwrap()
-            .get_usages()
+            .usages()
     );
 }
 
@@ -42,14 +42,14 @@ fn talent_card_increases_fatal_rainscreen_usages() {
     )]);
     assert_eq!(
         elem_set![Element::Hydro],
-        gs.get_player(PlayerId::PlayerFirst).get_active_character().applied
+        gs.player(PlayerId::PlayerFirst).active_character().applied
     );
     assert_eq!(
         3,
-        gs.get_status_collection_mut(PlayerId::PlayerFirst)
+        gs.status_collection_mut(PlayerId::PlayerFirst)
             .get(StatusKey::Team(StatusId::RainSword))
             .unwrap()
-            .get_usages()
+            .usages()
     );
 }
 
@@ -69,15 +69,15 @@ fn rain_sword_reduces_dmg_above_3_by_1() {
             PlayerAction::CastSkill(SkillId::BoltsOfDownfall),
         ),
     ]);
-    assert_eq!(8, gs.get_player(PlayerId::PlayerSecond).char_states[0].get_hp());
+    assert_eq!(8, gs.player(PlayerId::PlayerSecond).char_states[0].hp());
     assert_eq!(
         2,
-        gs.get_status_collection_mut(PlayerId::PlayerFirst)
+        gs.status_collection_mut(PlayerId::PlayerFirst)
             .get(StatusKey::Team(StatusId::RainSword))
             .unwrap()
-            .get_usages()
+            .usages()
     );
-    assert_eq!(10, gs.get_player(PlayerId::PlayerFirst).char_states[1].get_hp());
+    assert_eq!(10, gs.player(PlayerId::PlayerFirst).char_states[1].hp());
     gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::SwitchCharacter(1)),
         Input::FromPlayer(
@@ -85,14 +85,14 @@ fn rain_sword_reduces_dmg_above_3_by_1() {
             PlayerAction::CastSkill(SkillId::MidnightPhantasmagoria),
         ),
     ]);
-    assert_eq!(6, gs.get_player(PlayerId::PlayerFirst).char_states[0].get_hp());
-    assert_eq!(7, gs.get_player(PlayerId::PlayerFirst).char_states[1].get_hp());
+    assert_eq!(6, gs.player(PlayerId::PlayerFirst).char_states[0].hp());
+    assert_eq!(7, gs.player(PlayerId::PlayerFirst).char_states[1].hp());
     assert_eq!(
         1,
-        gs.get_status_collection_mut(PlayerId::PlayerFirst)
+        gs.status_collection_mut(PlayerId::PlayerFirst)
             .get(StatusKey::Team(StatusId::RainSword))
             .unwrap()
-            .get_usages()
+            .usages()
     );
 }
 
@@ -108,20 +108,20 @@ fn raincutter_applies_hydro_to_self_and_creates_rainbow_bladework() {
     )]);
     assert_eq!(
         elem_set![Element::Hydro],
-        gs.get_player(PlayerId::PlayerFirst).get_active_character().applied
+        gs.player(PlayerId::PlayerFirst).active_character().applied
     );
     assert!(gs.has_team_status(PlayerId::PlayerFirst, StatusId::RainbowBladework));
     assert_eq!(
         elem_set![Element::Hydro],
-        gs.get_player(PlayerId::PlayerSecond).get_active_character().applied
+        gs.player(PlayerId::PlayerSecond).active_character().applied
     );
-    assert_eq!(9, gs.get_player(PlayerId::PlayerSecond).char_states[0].get_hp());
+    assert_eq!(9, gs.player(PlayerId::PlayerSecond).char_states[0].hp());
     assert_eq!(
         3,
-        gs.get_status_collection_mut(PlayerId::PlayerFirst)
+        gs.status_collection_mut(PlayerId::PlayerFirst)
             .get(StatusKey::Team(StatusId::RainbowBladework))
             .unwrap()
-            .get_usages()
+            .usages()
     );
 }
 
@@ -146,14 +146,14 @@ fn rainbow_bladework_procs_on_normal_attacks() {
     ]);
     assert_eq!(
         3,
-        gs.get_status_collection_mut(PlayerId::PlayerFirst)
+        gs.status_collection_mut(PlayerId::PlayerFirst)
             .get(StatusKey::Team(StatusId::RainbowBladework))
             .unwrap()
-            .get_usages()
+            .usages()
     );
     assert_eq!(
         elem_set![],
-        gs.get_player(PlayerId::PlayerSecond).get_active_character().applied
+        gs.player(PlayerId::PlayerSecond).active_character().applied
     );
     gs.advance_multiple([
         Input::FromPlayer(
@@ -164,13 +164,13 @@ fn rainbow_bladework_procs_on_normal_attacks() {
     ]);
     assert_eq!(
         2,
-        gs.get_status_collection_mut(PlayerId::PlayerFirst)
+        gs.status_collection_mut(PlayerId::PlayerFirst)
             .get(StatusKey::Team(StatusId::RainbowBladework))
             .unwrap()
-            .get_usages()
+            .usages()
     );
     assert_eq!(
         elem_set![Element::Hydro],
-        gs.get_player(PlayerId::PlayerSecond).get_active_character().applied
+        gs.player(PlayerId::PlayerSecond).active_character().applied
     );
 }

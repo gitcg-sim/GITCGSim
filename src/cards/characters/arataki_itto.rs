@@ -84,7 +84,7 @@ pub mod ushi {
             if !e.is_received_dmg() {
                 return None;
             }
-            if e.c.eff_state.get_counter() == 0 {
+            if e.c.eff_state.counter() == 0 {
                 return None;
             };
             let Some((char_idx, _)) = e.find_chararacter_for(|c| c.char_id == CharId::AratakiItto) else {
@@ -111,7 +111,7 @@ pub mod superlative_superstrength {
         }
 
         fn update_cost(&self, e: &StatusImplContext, cost: &mut Cost, _: CostType) -> Option<AppliedEffectResult> {
-            if !e.is_charged_attack() || e.eff_state.get_usages() < 2 {
+            if !e.is_charged_attack() || e.eff_state.usages() < 2 {
                 return None;
             }
 

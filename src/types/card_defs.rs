@@ -222,7 +222,7 @@ impl Cost {
 
 pub trait SkillImpl {
     #[allow(unused_variables)]
-    fn get_commands(
+    fn commands(
         &self,
         src_player: &PlayerState,
         status_collection: &StatusCollection,
@@ -499,7 +499,7 @@ impl Status {
     }
 
     #[inline]
-    pub fn get_casted_by_char_id(&self) -> CharId {
+    pub fn casted_by_char_id(&self) -> CharId {
         self.casted_by_character
             .or_else(|| self.talent_usages_increase.map(|t| t.0))
             .unwrap_or_else(|| panic!("Must declare casted_by_character for status: {}", self.name))
@@ -515,7 +515,7 @@ impl crate::std_subset::fmt::Display for CardType {
             CardType::Support(t) => write!(f, "Support: {t}"),
             CardType::Weapon(t) => write!(f, "Weapon: {t}"),
             CardType::Artifact => write!(f, "Artifact"),
-            CardType::Talent(char_id) => write!(f, "Talent: {}", char_id.get_char_card().name),
+            CardType::Talent(char_id) => write!(f, "Talent: {}", char_id.char_card().name),
         }
     }
 }

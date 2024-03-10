@@ -19,8 +19,8 @@ pub struct CardImplContext<'a> {
 
 impl<'a> CardImplContext<'a> {
     #[inline]
-    pub fn get_next_available_suport_slot(&self) -> Option<SupportSlot> {
-        self.status_collections[self.active_player_id].get_next_available_support_slot()
+    pub fn next_available_suport_slot(&self) -> Option<SupportSlot> {
+        self.status_collections[self.active_player_id].next_available_support_slot()
     }
 }
 
@@ -69,7 +69,7 @@ pub trait CardImpl {
     /// Precondition: The card can be played under the current game state and targeting.
     /// Called to determine the effects of the card.
     /// The default implementation adds commands based on the `body` field.
-    fn get_effects(
+    fn effects(
         &self,
         cic: &CardImplContext,
         ctx: &CommandContext,

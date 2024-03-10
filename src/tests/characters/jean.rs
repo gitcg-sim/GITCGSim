@@ -11,12 +11,8 @@ fn gale_blade_forces_switch_1_character() {
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::GaleBlade),
     )]);
-    assert_eq!(0, gs.get_player(PlayerId::PlayerSecond).active_char_idx);
-    assert!(gs
-        .get_player(PlayerId::PlayerSecond)
-        .get_active_character()
-        .applied
-        .is_empty());
+    assert_eq!(0, gs.player(PlayerId::PlayerSecond).active_char_idx);
+    assert!(gs.player(PlayerId::PlayerSecond).active_character().applied.is_empty());
 }
 
 #[test]
@@ -33,17 +29,17 @@ fn gale_blade_forces_switch_to_prev() {
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::GaleBlade),
     )]);
-    assert_eq!(1, gs.get_player(PlayerId::PlayerSecond).active_char_idx);
+    assert_eq!(1, gs.player(PlayerId::PlayerSecond).active_char_idx);
     gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::GaleBlade)),
     ]);
-    assert_eq!(2, gs.get_player(PlayerId::PlayerSecond).active_char_idx);
+    assert_eq!(2, gs.player(PlayerId::PlayerSecond).active_char_idx);
     gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::GaleBlade),
     )]);
-    assert_eq!(0, gs.get_player(PlayerId::PlayerSecond).active_char_idx);
+    assert_eq!(0, gs.player(PlayerId::PlayerSecond).active_char_idx);
 }
 
 #[test]
@@ -57,7 +53,7 @@ fn dandelion_breeze_heals_all_and_summons_dandelion_field() {
     .build();
     gs.advance_roll_phase_no_dice();
     {
-        let player = gs.get_player_mut(PlayerId::PlayerFirst);
+        let player = gs.player_mut(PlayerId::PlayerFirst);
         player.char_states[0].reduce_hp(5);
         player.char_states[1].reduce_hp(5);
         player.char_states[2].reduce_hp(5);
@@ -67,10 +63,10 @@ fn dandelion_breeze_heals_all_and_summons_dandelion_field() {
         PlayerAction::CastSkill(SkillId::DandelionBreeze),
     )]);
     {
-        let player = gs.get_player(PlayerId::PlayerFirst);
-        assert_eq!(7, player.char_states[0].get_hp());
-        assert_eq!(7, player.char_states[1].get_hp());
-        assert_eq!(7, player.char_states[2].get_hp());
+        let player = gs.player(PlayerId::PlayerFirst);
+        assert_eq!(7, player.char_states[0].hp());
+        assert_eq!(7, player.char_states[1].hp());
+        assert_eq!(7, player.char_states[2].hp());
     }
     gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
@@ -79,10 +75,10 @@ fn dandelion_breeze_heals_all_and_summons_dandelion_field() {
         Input::NoAction,
     ]);
     {
-        let player = gs.get_player(PlayerId::PlayerFirst);
-        assert_eq!(7, player.char_states[0].get_hp());
-        assert_eq!(8, player.char_states[1].get_hp());
-        assert_eq!(7, player.char_states[2].get_hp());
+        let player = gs.player(PlayerId::PlayerFirst);
+        assert_eq!(7, player.char_states[0].hp());
+        assert_eq!(8, player.char_states[1].hp());
+        assert_eq!(7, player.char_states[2].hp());
     }
-    assert_eq!(8, gs.get_player(PlayerId::PlayerSecond).char_states[0].get_hp());
+    assert_eq!(8, gs.player(PlayerId::PlayerSecond).char_states[0].hp());
 }

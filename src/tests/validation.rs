@@ -115,7 +115,7 @@ fn weapon_equip_validation() {
             .ignore_costs(true)
             .build();
     gs.advance_roll_phase_no_dice();
-    gs.get_player_mut(PlayerId::PlayerFirst).hand =
+    gs.player_mut(PlayerId::PlayerFirst).hand =
         [CardId::SkywardHarp, CardId::SkywardSpine, CardId::SacrificialSword].into();
     assert!(gs
         .clone()
@@ -155,7 +155,7 @@ fn weapon_equip_validation() {
         .is_ok());
 
     // reduce HP to zero
-    gs.get_player_mut(PlayerId::PlayerFirst)
+    gs.player_mut(PlayerId::PlayerFirst)
         .try_get_character_mut(1)
         .unwrap()
         .reduce_hp(10);
@@ -206,7 +206,7 @@ fn artifact_equip_validation() {
         .is_ok());
 
     // reduce HP to zero
-    gs.get_player_mut(PlayerId::PlayerFirst)
+    gs.player_mut(PlayerId::PlayerFirst)
         .try_get_character_mut(1)
         .unwrap()
         .reduce_hp(10);

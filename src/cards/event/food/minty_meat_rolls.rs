@@ -22,7 +22,7 @@ impl StatusImpl for MintyMeatRolls {
     }
 
     fn update_cost(&self, _: &StatusImplContext, cost: &mut Cost, cost_type: CostType) -> Option<AppliedEffectResult> {
-        let Some(SkillType::NormalAttack) = cost_type.get_skill().map(|s| s.skill_type) else {
+        let Some(SkillType::NormalAttack) = cost_type.skill().map(|s| s.skill_type) else {
             return None;
         };
 

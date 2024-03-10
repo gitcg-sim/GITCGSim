@@ -29,7 +29,7 @@ impl Eval {
     }
 
     #[inline]
-    pub fn get_eval(self) -> HV {
+    pub fn eval(self) -> HV {
         self._repr
     }
 

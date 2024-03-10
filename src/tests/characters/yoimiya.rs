@@ -13,9 +13,9 @@ fn niwabi_fire_dance_status() {
         PlayerAction::CastSkill(SkillId::NiwabiFireDance),
     )]);
     {
-        assert_eq!(0, gs.get_active_character().unwrap().get_energy());
+        assert_eq!(0, gs.active_character().unwrap().energy());
         assert!(gs
-            .get_status_collection(PlayerId::PlayerFirst)
+            .status_collection(PlayerId::PlayerFirst)
             .get(StatusKey::Character(0, StatusId::NiwabiEnshou))
             .is_some());
     }
@@ -25,29 +25,29 @@ fn niwabi_fire_dance_status() {
     ]);
 
     {
-        let ganyu = gs.get_player(PlayerId::PlayerSecond).get_active_character();
+        let ganyu = gs.player(PlayerId::PlayerSecond).active_character();
         assert_eq!(elem_set![Element::Pyro], ganyu.applied);
-        assert_eq!(7, ganyu.get_hp());
+        assert_eq!(7, ganyu.hp());
     }
     gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::FireworkFlareUp),
     )]);
     {
-        let ganyu = gs.get_player(PlayerId::PlayerSecond).get_active_character();
-        assert_eq!(4, ganyu.get_hp());
+        let ganyu = gs.player(PlayerId::PlayerSecond).active_character();
+        assert_eq!(4, ganyu.hp());
     }
     gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::FireworkFlareUp),
     )]);
     assert!(gs
-        .get_status_collection_mut(PlayerId::PlayerFirst)
+        .status_collection_mut(PlayerId::PlayerFirst)
         .get(StatusKey::Character(0, StatusId::NiwabiEnshou))
         .is_none());
     {
-        let ganyu = gs.get_player(PlayerId::PlayerSecond).get_active_character();
-        assert_eq!(2, ganyu.get_hp());
+        let ganyu = gs.player(PlayerId::PlayerSecond).active_character();
+        assert_eq!(2, ganyu.hp());
     }
 }
 
@@ -66,7 +66,7 @@ fn ryuukin_saxifrage_trigger_duration() {
         PlayerAction::CastSkill(SkillId::RyuukinSaxifrage),
     )]);
     assert!(gs
-        .get_status_collection_mut(PlayerId::PlayerFirst)
+        .status_collection_mut(PlayerId::PlayerFirst)
         .get(StatusKey::Team(StatusId::AurousBlaze))
         .is_some());
     gs.advance_multiple([
@@ -74,9 +74,9 @@ fn ryuukin_saxifrage_trigger_duration() {
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::FireworkFlareUp)),
     ]);
     {
-        let kaeya = gs.get_player(PlayerId::PlayerSecond).get_active_character();
+        let kaeya = gs.player(PlayerId::PlayerSecond).active_character();
         assert_eq!(elem_set![], kaeya.applied);
-        assert_eq!(8, kaeya.get_hp());
+        assert_eq!(8, kaeya.hp());
     }
     gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
@@ -88,9 +88,9 @@ fn ryuukin_saxifrage_trigger_duration() {
         log.print();
     }
     {
-        let kaeya = gs.get_player(PlayerId::PlayerSecond).get_active_character();
+        let kaeya = gs.player(PlayerId::PlayerSecond).active_character();
         assert_eq!(elem_set![Element::Pyro], kaeya.applied);
-        assert_eq!(5, kaeya.get_hp());
+        assert_eq!(5, kaeya.hp());
     }
 }
 
@@ -111,11 +111,11 @@ fn talent_card_costs_niwabi_enshou_and_increases_dmg() {
     )]);
     {
         assert!(gs
-            .get_status_collection(PlayerId::PlayerFirst)
+            .status_collection(PlayerId::PlayerFirst)
             .get(StatusKey::Character(0, StatusId::NiwabiEnshou))
             .is_some());
-        let yoimiya = gs.get_player(PlayerId::PlayerFirst).try_get_character(0).unwrap();
-        assert_eq!(0, yoimiya.get_energy());
+        let yoimiya = gs.player(PlayerId::PlayerFirst).try_get_character(0).unwrap();
+        assert_eq!(0, yoimiya.energy());
         assert!(yoimiya.has_talent_equipped());
     }
     gs.advance_multiple([
@@ -123,8 +123,8 @@ fn talent_card_costs_niwabi_enshou_and_increases_dmg() {
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::FireworkFlareUp)),
     ]);
     {
-        let ganyu = gs.get_player(PlayerId::PlayerSecond).get_active_character();
+        let ganyu = gs.player(PlayerId::PlayerSecond).active_character();
         assert_eq!(elem_set![Element::Pyro], ganyu.applied);
-        assert_eq!(6, ganyu.get_hp());
+        assert_eq!(6, ganyu.hp());
     }
 }

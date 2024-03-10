@@ -13,14 +13,14 @@ fn charged_attack_affected_by_explosive_spark() {
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
     ]);
     assert_eq!(6, gs.players.0.dice.total());
-    assert_eq!(7, gs.players.1.char_states[0].get_hp());
+    assert_eq!(7, gs.players.1.char_states[0].hp());
     gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::Kaboom),
     )]);
     // Charged Attack
     assert_eq!(4, gs.players.0.dice.total());
-    assert_eq!(5, gs.players.1.char_states[0].get_hp());
+    assert_eq!(5, gs.players.1.char_states[0].hp());
     assert!(!gs.has_active_character_status(PlayerId::PlayerFirst, StatusId::ExplosiveSpark));
 }
 
@@ -38,19 +38,19 @@ fn normal_attack_not_affected_by_explosive_spark() {
     ]);
     assert_eq!(
         1,
-        gs.get_status_collection(PlayerId::PlayerFirst)
+        gs.status_collection(PlayerId::PlayerFirst)
             .get(StatusKey::Character(0, StatusId::ExplosiveSpark))
             .unwrap()
-            .get_usages()
+            .usages()
     );
     assert_eq!(5, gs.players.0.dice.total());
-    assert_eq!(7, gs.players.1.char_states[0].get_hp());
+    assert_eq!(7, gs.players.1.char_states[0].hp());
     gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::Kaboom),
     )]);
     assert_eq!(2, gs.players.0.dice.total());
-    assert_eq!(6, gs.players.1.char_states[0].get_hp());
+    assert_eq!(6, gs.players.1.char_states[0].hp());
     assert!(gs.has_active_character_status(PlayerId::PlayerFirst, StatusId::ExplosiveSpark));
 }
 
@@ -69,10 +69,10 @@ fn talent_card_increases_explosive_spark_usages() {
     )]);
     assert_eq!(
         2,
-        gs.get_status_collection(PlayerId::PlayerFirst)
+        gs.status_collection(PlayerId::PlayerFirst)
             .get(StatusKey::Character(0, StatusId::ExplosiveSpark))
             .unwrap()
-            .get_usages()
+            .usages()
     );
 }
 
@@ -89,13 +89,13 @@ fn klee_take_damage() {
         PlayerId::PlayerFirst,
         PlayerAction::CastSkill(SkillId::SparksNSplash),
     )]);
-    assert_eq!(7, gs.players.1.char_states[0].get_hp());
+    assert_eq!(7, gs.players.1.char_states[0].hp());
     assert!(gs.has_team_status(PlayerId::PlayerSecond, StatusId::SparksNSplash));
     gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerSecond,
         PlayerAction::CastSkill(SkillId::BoltsOfDownfall),
     )]);
-    assert_eq!(5, gs.players.1.char_states[0].get_hp());
+    assert_eq!(5, gs.players.1.char_states[0].hp());
     gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::EndRound),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::SwitchCharacter(1)),
@@ -104,5 +104,5 @@ fn klee_take_damage() {
             PlayerAction::CastSkill(SkillId::CeremonialBladework),
         ),
     ]);
-    assert_eq!(8, gs.players.1.char_states[1].get_hp());
+    assert_eq!(8, gs.players.1.char_states[1].hp());
 }

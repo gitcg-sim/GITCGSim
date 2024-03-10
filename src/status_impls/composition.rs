@@ -192,7 +192,7 @@ mod tests {
         }
 
         fn trigger_xevent(&self, e: &mut TriggerEventContext<XEvent>) -> Option<AppliedEffectResult> {
-            let (_, _) = e.get_outgoing_dmg_ensuring_attached_character()?.reaction?;
+            let (_, _) = e.outgoing_dmg_ensuring_attached_character()?.reaction?;
             if !e.c.eff_state.can_use_once_per_round() {
                 return None;
             }
@@ -219,7 +219,7 @@ mod tests {
             cost: &mut Cost,
             cost_type: CostType,
         ) -> Option<AppliedEffectResult> {
-            let SkillType::NormalAttack = cost_type.get_skill()?.skill_type else {
+            let SkillType::NormalAttack = cost_type.skill()?.skill_type else {
                 return None;
             };
             cost.try_reduce_unaligned_cost(1)
@@ -230,7 +230,7 @@ mod tests {
             let XEvent::Skill(XEventSkill { skill_id, .. }) = e.event_id else {
                 return None;
             };
-            let SkillType::ElementalBurst = skill_id.get_skill().skill_type else {
+            let SkillType::ElementalBurst = skill_id.skill().skill_type else {
                 return None;
             };
             e.add_cmd(Command::AddSingleDice(Dice::Omni, 1));
@@ -259,7 +259,7 @@ mod tests {
         tgt: None,
     };
 
-    macro_rules! get_ctx {
+    macro_rules! ctx {
         ($($dmg_info: expr)?) => {
             StatusImplContext {
                 src_player_state: &crate::types::game_state::PlayerStateView {
@@ -272,7 +272,7 @@ mod tests {
                 status_key: StatusKey::Character(0, StatusId::NiwabiEnshou),
                 eff_state: &AppliedEffectState::from(128),
                 ctx: &COMMAND_CONTEXT,
-                dmg: get_ctx!(@dmg_info $($dmg_info)?),
+                dmg: ctx!(@dmg_info $($dmg_info)?),
             }
         };
         (@dmg_info) => { () };
@@ -335,7 +335,7 @@ mod tests {
 
     #[test]
     fn test_merged_outgoing_dmg() {
-        let ctx = get_ctx!(DMGInfo::default());
+        let ctx = ctx!(DMGInfo::default());
         let mut dmg = deal_elem_dmg(Element::Pyro, 2, 0);
         assert_eq!(Some(AppliedEffectResult::NoChange), ABC().outgoing_dmg(&ctx, &mut dmg));
         assert_eq!(3, dmg.dmg);
@@ -359,8 +359,8 @@ mod tests {
         });
 
         {
-            let ctx = get_ctx!();
-            let ctx1 = get_ctx!();
+            let ctx = ctx!();
+            let ctx1 = ctx!();
             let mut event_ctx = event_ctx!(ctx, dmg_event);
             assert_eq!(
                 Some(AppliedEffectResult::ConsumeOncePerRound),
@@ -373,8 +373,8 @@ mod tests {
             );
         }
         {
-            let ctx = get_ctx!();
-            let ctx1 = get_ctx!();
+            let ctx = ctx!();
+            let ctx1 = ctx!();
             let mut event_ctx = event_ctx!(ctx, dmg_event);
             assert_eq!(
                 Some(AppliedEffectResult::ConsumeOncePerRound),

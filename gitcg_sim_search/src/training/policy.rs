@@ -199,7 +199,7 @@ impl<S: NondetState> SelectionPolicy<GameStateWrapper<S>> for PolicyNetwork {
     fn on_parent<F: FnOnce() -> <GameStateWrapper<S> as Game>::Actions>(
         &self,
         ctx: &SelectionPolicyContext<GameStateWrapper<S>>,
-        get_children: F,
+        children: F,
     ) -> Self::State {
         let parent = ctx.parent;
         let mut gs = parent.state.game_state.clone();
@@ -208,7 +208,7 @@ impl<S: NondetState> SelectionPolicy<GameStateWrapper<S>> for PolicyNetwork {
         }
         let y = self.eval(&game_state_features::features(&gs).as_slice());
         let mut denominator = 1e-5;
-        let evals = get_children()
+        let evals = children()
             .iter()
             .map(|&action| {
                 let eval = self.action_value(action, &y);

@@ -29,7 +29,7 @@ impl StatusImpl for Tubby {
             return None;
         }
 
-        if card_id.get_card().card_type != CardType::Support(SupportType::Location) {
+        if card_id.card().card_type != CardType::Support(SupportType::Location) {
             return None;
         }
 

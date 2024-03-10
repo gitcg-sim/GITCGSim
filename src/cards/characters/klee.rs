@@ -54,7 +54,7 @@ pub mod sparks_n_splash {
         }
 
         fn trigger_xevent(&self, e: &mut TriggerEventContext<XEvent>) -> Option<AppliedEffectResult> {
-            let _ = e.get_event_skill_ensuring_own_player()?;
+            let _ = e.event_skill_ensuring_own_player()?;
             e.out_cmds.push((
                 e.ctx_for_dmg.without_target(),
                 Command::TakeDMG(DealDMG::new(DealDMGType::PYRO, 2, 0)),

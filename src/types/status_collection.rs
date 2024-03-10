@@ -181,16 +181,16 @@ impl StatusKey {
     }
 
     #[inline]
-    pub fn get_status(&self) -> &'static Status {
+    pub fn status(&self) -> &'static Status {
         match self {
             Self::Team(status_id) | Self::Character(_, status_id) | Self::Equipment(_, _, status_id) => {
                 let status_id = *status_id;
-                status_id.get_status()
+                status_id.status()
             }
-            Self::Summon(summon_id) => summon_id.get_status(),
+            Self::Summon(summon_id) => summon_id.status(),
             Self::Support(_, support_id) => {
                 let support_id = *support_id;
-                support_id.get_status()
+                support_id.status()
             }
         }
     }

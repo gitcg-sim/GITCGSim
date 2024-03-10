@@ -16,7 +16,7 @@ fn iter<F: Fn()>(f: F) {
     println!("dt = {dt_s} s, dt/run = {} ns", (dt_ns as f64) / (runs as f64));
 }
 
-fn get_game_state() -> GameState {
+fn game_state() -> GameState {
     let mut gs = GameStateInitializer::new_skip_to_roll_phase(
         vector![CharId::Yoimiya, CharId::KamisatoAyaka, CharId::Xingqiu],
         vector![CharId::Fischl, CharId::Ningguang, CharId::Noelle],
@@ -29,8 +29,8 @@ fn get_game_state() -> GameState {
     gs
 }
 
-fn get_game_state_for_zobrist_hash() -> GameState {
-    let mut gs = get_game_state();
+fn game_state_for_zobrist_hash() -> GameState {
+    let mut gs = game_state();
     gs.players.0.add_to_hand_ignore(CardId::TheBestestTravelCompanion);
     gs.players.0.add_to_hand_ignore(CardId::SacrificialBow);
     gs.players.0.add_to_hand_ignore(CardId::LeaveItToMe);
@@ -45,7 +45,7 @@ fn get_game_state_for_zobrist_hash() -> GameState {
 
 #[test]
 fn bench_cast_skill() {
-    let gs = get_game_state();
+    let gs = game_state();
     iter(|| {
         let mut gs = gs.clone();
         black_box(
@@ -60,7 +60,7 @@ fn bench_cast_skill() {
 
 #[test]
 fn bench_yoimiya_na_after_niwabi_fire_dance() {
-    let mut gs = get_game_state();
+    let mut gs = game_state();
     gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::FireworkFlareUp)),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::CastSkill(SkillId::Nightrider)),
@@ -79,7 +79,7 @@ fn bench_yoimiya_na_after_niwabi_fire_dance() {
 
 #[test]
 fn bench_zobrist_hash() {
-    let mut gs = get_game_state();
+    let mut gs = game_state();
     gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::NiwabiFireDance)),
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::CastSkill(SkillId::Nightrider)),
@@ -96,11 +96,11 @@ fn bench_zobrist_hash() {
 
 #[test]
 fn bench_zobrist_hash_for_player_state() {
-    let gs = get_game_state_for_zobrist_hash();
+    let gs = game_state_for_zobrist_hash();
     iter(|| {
         black_box({
             let mut h = ZobristHasher::new();
-            gs.get_player(PlayerId::PlayerFirst)
+            gs.player(PlayerId::PlayerFirst)
                 .zobrist_hash_full_recompute(&mut h, PlayerId::PlayerFirst);
             h.finish()
         });
@@ -109,11 +109,11 @@ fn bench_zobrist_hash_for_player_state() {
 
 #[test]
 fn bench_zobrist_hash_for_char_states() {
-    let gs = get_game_state_for_zobrist_hash();
+    let gs = game_state_for_zobrist_hash();
     iter(|| {
         black_box({
             let mut h = ZobristHasher::new();
-            gs.get_player(PlayerId::PlayerFirst)
+            gs.player(PlayerId::PlayerFirst)
                 .zobrist_hash_for_char_states(&mut h, PlayerId::PlayerFirst);
             h.finish()
         });
@@ -122,12 +122,12 @@ fn bench_zobrist_hash_for_char_states() {
 
 #[test]
 fn bench_zobrist_hash_for_single_char_state() {
-    let gs = get_game_state_for_zobrist_hash();
+    let gs = game_state_for_zobrist_hash();
     iter(|| {
         black_box({
             let mut h = ZobristHasher::new();
-            gs.get_player(PlayerId::PlayerFirst)
-                .get_active_character()
+            gs.player(PlayerId::PlayerFirst)
+                .active_character()
                 .zobrist_hash(&mut h, PlayerId::PlayerFirst, 0);
             h.finish()
         });
@@ -136,11 +136,11 @@ fn bench_zobrist_hash_for_single_char_state() {
 
 #[test]
 fn bench_zobrist_hash_for_status_collection() {
-    let gs = get_game_state_for_zobrist_hash();
+    let gs = game_state_for_zobrist_hash();
     iter(|| {
         black_box({
             let mut h = ZobristHasher::new();
-            gs.get_status_collection(PlayerId::PlayerFirst)
+            gs.status_collection(PlayerId::PlayerFirst)
                 .zobrist_hash(&mut h, PlayerId::PlayerFirst);
             h.finish()
         });
@@ -149,11 +149,11 @@ fn bench_zobrist_hash_for_status_collection() {
 
 #[test]
 fn bench_zobrist_hash_for_dice() {
-    let gs = get_game_state_for_zobrist_hash();
+    let gs = game_state_for_zobrist_hash();
     iter(|| {
         black_box({
             let mut h = ZobristHasher::new();
-            gs.get_player(PlayerId::PlayerFirst)
+            gs.player(PlayerId::PlayerFirst)
                 .zobrist_hash_for_dice(&mut h, PlayerId::PlayerFirst);
             h.finish()
         });

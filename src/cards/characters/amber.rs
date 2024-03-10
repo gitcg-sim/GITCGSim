@@ -50,7 +50,7 @@ pub mod baron_bunny {
         }
 
         fn incoming_dmg(&self, e: &StatusImplContext, dmg: &mut DealDMG) -> Option<AppliedEffectResult> {
-            if e.eff_state.get_usages() == 0 {
+            if e.eff_state.usages() == 0 {
                 return None;
             }
             dmg.reduce(2);

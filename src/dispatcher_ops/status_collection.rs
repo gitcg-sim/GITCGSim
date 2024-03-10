@@ -43,7 +43,7 @@ impl AppliedEffectState {
             self.set_duration(rounds);
         } else if let Some(usages) = status.usages {
             if let Some(ms) = status.max_stacks {
-                let mut u = self.get_usages() + usages;
+                let mut u = self.usages() + usages;
                 if u > ms {
                     u = ms
                 }
@@ -73,8 +73,8 @@ impl AppliedEffectState {
             }
             Some(AppliedEffectResult::ConsumeUsage) => self.consume_usage(),
             Some(AppliedEffectResult::ConsumeUsages(n)) => {
-                let u = self.get_usages();
-                if self.get_usages() == 0 || n == 0 {
+                let u = self.usages();
+                if self.usages() == 0 || n == 0 {
                     false
                 } else if u >= n {
                     self.set_usages(u - n);
@@ -376,7 +376,7 @@ impl StatusCollection {
             if status_char_idx != char_idx {
                 return true;
             }
-            if status_id.get_status().shifts_to_next_active_on_death {
+            if status_id.status().shifts_to_next_active_on_death {
                 shifts_to_next_active.push((status_id, e.state));
             }
             false
@@ -386,7 +386,7 @@ impl StatusCollection {
     pub fn has_shield_points(&self) -> bool {
         self.status_entries.iter().any(|e| match e.key {
             StatusKey::Team(status_id) | StatusKey::Character(_, status_id) | StatusKey::Equipment(_, _, status_id) => {
-                status_id.get_status().usages_as_shield_points && e.state.get_usages() > 0
+                status_id.status().usages_as_shield_points && e.state.usages() > 0
             }
             StatusKey::Summon(_) | StatusKey::Support(..) => false,
         })
@@ -444,7 +444,7 @@ impl StatusCollection {
                 continue;
             }
             if let Some(t) = si.preparing_skill(&e.state) {
-                return Some((t, e.key, e.state.get_counter()));
+                return Some((t, e.key, e.state.counter()));
             }
         }
         None
@@ -530,13 +530,13 @@ impl StatusCollection {
         mut func: F,
     ) -> bool {
         macro_rules! closure_body {
-            ($eff_state: expr, $sk: expr, $found: ident, $get_status_impl: expr) => {{
-                let si: StaticStatusImpl = $get_status_impl;
+            ($eff_state: expr, $sk: expr, $found: ident, $status_impl: expr) => {{
+                let si: StaticStatusImpl = $status_impl;
                 if check(si) {
                     let status_key: StatusKey = $sk;
                     let mut_eff_state: &mut _ = &mut $eff_state;
                     let res = func(mut_eff_state, status_key, si);
-                    ($eff_state).apply_change_and_check_retain(&mut $found, res, status_key.get_status())
+                    ($eff_state).apply_change_and_check_retain(&mut $found, res, status_key.status())
                 } else {
                     true
                 }
@@ -585,8 +585,8 @@ impl StatusCollection {
     ) -> bool {
         let mut found = false;
         macro_rules! closure_body {
-            ($eff_state: expr, $sk: expr, $found: ident, $get_status_impl: expr) => {{
-                let si: StaticStatusImpl = $get_status_impl;
+            ($eff_state: expr, $sk: expr, $found: ident, $status_impl: expr) => {{
+                let si: StaticStatusImpl = $status_impl;
                 found |= if check(si) {
                     let sk = $sk;
                     let es: &AppliedEffectState = &$eff_state;
@@ -626,18 +626,16 @@ impl StatusCollection {
     ) {
         let c1 = self.count();
         self.status_entries.retain(|e| match e.key {
-            StatusKey::Team(status_id) | character_or_equipment!(_, status_id) => {
-                f(status_id.get_status(), &mut e.state)
-            }
-            StatusKey::Summon(summon_id) => f(summon_id.get_status(), &mut e.state),
-            StatusKey::Support(_, support_id) => f(support_id.get_status(), &mut e.state),
+            StatusKey::Team(status_id) | character_or_equipment!(_, status_id) => f(status_id.status(), &mut e.state),
+            StatusKey::Summon(summon_id) => f(summon_id.status(), &mut e.state),
+            StatusKey::Support(_, support_id) => f(support_id.status(), &mut e.state),
         });
         if self.count() != c1 {
             self.refresh_responds_to();
         }
     }
 
-    pub fn get_next_available_support_slot(&self) -> Option<SupportSlot> {
+    pub fn next_available_support_slot(&self) -> Option<SupportSlot> {
         for slot in SupportSlot::VALUES {
             let found = self.status_entries.iter().any(|s| match s.key {
                 StatusKey::Support(slot1, _) => slot1 == slot,

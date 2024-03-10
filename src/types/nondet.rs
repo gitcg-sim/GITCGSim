@@ -164,14 +164,14 @@ impl NondetState for StandardNondetHandlerState {
         )));
 
         let determinized = {
-            let player = game_state.get_player(private_player_id);
+            let player = game_state.player(private_player_id);
             self.dice_determinization.determinize(
                 &mut self.rng,
-                player.get_dice_distribution(game_state.status_collections.get(private_player_id)),
+                player.dice_distribution(game_state.status_collections.get(private_player_id)),
             )
         };
 
-        let player = game_state.get_player_mut(private_player_id);
+        let player = game_state.player_mut(private_player_id);
         for c in player.hand.iter_mut() {
             *c = CardId::BlankCard;
         }
@@ -227,8 +227,8 @@ impl<S: NondetState> NondetProvider<S> {
     }
 
     /// Precondition: game_state.to_move_player().is_none()
-    pub fn get_no_to_move_player_input(&mut self, game_state: &GameState) -> Input {
-        if let Some(req) = game_state.get_nondet_request() {
+    pub fn no_to_move_player_input(&mut self, game_state: &GameState) -> Input {
+        if let Some(req) = game_state.nondet_request() {
             Input::NondetResult(S::sample_nondet(&mut self.state, game_state, req))
         } else {
             Input::NoAction

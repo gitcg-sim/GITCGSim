@@ -59,7 +59,7 @@ pub mod large_wind_spirit {
 
     pub struct LargeWindSpiritEndPhase();
     trigger_event_impl!(LargeWindSpiritEndPhase, [EndPhase], |e| {
-        let deal_dmg = DealDMGType::Elemental(Element::VALUES[e.c.eff_state.get_counter() as usize]);
+        let deal_dmg = DealDMGType::Elemental(Element::VALUES[e.c.eff_state.counter() as usize]);
         e.cmd_deal_dmg(deal_dmg, 2, 0);
         Some(AppliedEffectResult::ConsumeUsage)
     });
@@ -69,7 +69,7 @@ pub mod large_wind_spirit {
         const REACTION: bool = true;
 
         fn invoke(e: &mut TriggerEventContext<XEvent>, dmg: XEventDMG) -> Option<AppliedEffectResult> {
-            if e.c.eff_state.get_counter() != Element::Anemo as u8 {
+            if e.c.eff_state.counter() != Element::Anemo as u8 {
                 return None;
             }
             if let Some((Reaction::Swirl, Some(elem))) = dmg.reaction {

@@ -13,7 +13,7 @@ fn icetide_vortex() {
         PlayerAction::CastSkill(SkillId::IcetideVortex),
     )]);
     assert!(gs
-        .get_status_collection_mut(PlayerId::PlayerFirst)
+        .status_collection_mut(PlayerId::PlayerFirst)
         .get(StatusKey::Character(0, StatusId::Grimheart))
         .is_some());
     gs.advance_multiple([
@@ -21,7 +21,7 @@ fn icetide_vortex() {
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::IcetideVortex)),
     ]);
     assert!(gs
-        .get_status_collection_mut(PlayerId::PlayerFirst)
+        .status_collection_mut(PlayerId::PlayerFirst)
         .get(StatusKey::Character(0, StatusId::Grimheart))
         .is_none());
 }
@@ -42,34 +42,28 @@ fn glacial_illumination_prevents_energy_gain_and_increments_counter_and_deals_ph
         PlayerAction::CastSkill(SkillId::GlacialIllumination),
     )]);
     assert!(gs
-        .get_status_collection_mut(PlayerId::PlayerFirst)
+        .status_collection_mut(PlayerId::PlayerFirst)
         .get(StatusKey::Summon(SummonId::LightfallSword))
         .is_some());
-    assert_eq!(
-        0,
-        gs.get_player(PlayerId::PlayerFirst).get_active_character().get_energy()
-    );
-    let get_counter = |gs: &GameState| {
-        gs.get_status_collection(PlayerId::PlayerFirst)
+    assert_eq!(0, gs.player(PlayerId::PlayerFirst).active_character().energy());
+    let counter = |gs: &GameState| {
+        gs.status_collection(PlayerId::PlayerFirst)
             .get(StatusKey::Summon(SummonId::LightfallSword))
             .unwrap()
-            .get_counter()
+            .counter()
     };
-    assert_eq!(0, get_counter(&gs));
+    assert_eq!(0, counter(&gs));
     gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::SwitchCharacter(1)),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::IcetideVortex)),
     ]);
     {
-        let fischl = &gs.get_player(PlayerId::PlayerSecond).char_states[1];
+        let fischl = &gs.player(PlayerId::PlayerSecond).char_states[1];
         assert_eq!(elem_set![Element::Cryo], fischl.applied);
-        assert_eq!(8, fischl.get_hp());
+        assert_eq!(8, fischl.hp());
     }
-    assert_eq!(
-        0,
-        gs.get_player(PlayerId::PlayerFirst).get_active_character().get_energy()
-    );
-    assert_eq!(2, get_counter(&gs));
+    assert_eq!(0, gs.player(PlayerId::PlayerFirst).active_character().energy());
+    assert_eq!(2, counter(&gs));
     gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::SwitchCharacter(2)),
         Input::FromPlayer(
@@ -78,19 +72,16 @@ fn glacial_illumination_prevents_energy_gain_and_increments_counter_and_deals_ph
         ),
     ]);
     {
-        let kaeya = &gs.get_player(PlayerId::PlayerSecond).char_states[2];
+        let kaeya = &gs.player(PlayerId::PlayerSecond).char_states[2];
         assert_eq!(elem_set![], kaeya.applied);
-        assert_eq!(8, kaeya.get_hp());
+        assert_eq!(8, kaeya.hp());
     }
-    assert_eq!(
-        0,
-        gs.get_player(PlayerId::PlayerFirst).get_active_character().get_energy()
-    );
-    assert_eq!(4, get_counter(&gs));
+    assert_eq!(0, gs.player(PlayerId::PlayerFirst).active_character().energy());
+    assert_eq!(4, counter(&gs));
 
     // Set HP to 10 and Unapply Cryo
     {
-        let xiangling = &mut gs.get_player_mut(PlayerId::PlayerSecond).char_states[0];
+        let xiangling = &mut gs.player_mut(PlayerId::PlayerSecond).char_states[0];
         xiangling.set_hp(10);
         xiangling.applied = elem_set![];
     }
@@ -103,9 +94,9 @@ fn glacial_illumination_prevents_energy_gain_and_increments_counter_and_deals_ph
         Input::NoAction,
     ]);
     {
-        let xiangling = &gs.get_player(PlayerId::PlayerSecond).char_states[0];
+        let xiangling = &gs.player(PlayerId::PlayerSecond).char_states[0];
         assert_eq!(elem_set![], xiangling.applied);
-        assert_eq!(4, xiangling.get_hp());
+        assert_eq!(4, xiangling.hp());
     }
 }
 
@@ -129,14 +120,14 @@ fn glacial_illumination_does_not_accumulate_counter_on_others() {
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::Nightrider)),
     ]);
     assert!(gs
-        .get_status_collection_mut(PlayerId::PlayerFirst)
+        .status_collection_mut(PlayerId::PlayerFirst)
         .get(StatusKey::Summon(SummonId::LightfallSword))
         .is_some());
-    let get_counter = |gs: &GameState| {
-        gs.get_status_collection(PlayerId::PlayerFirst)
+    let counter = |gs: &GameState| {
+        gs.status_collection(PlayerId::PlayerFirst)
             .get(StatusKey::Summon(SummonId::LightfallSword))
             .unwrap()
-            .get_counter()
+            .counter()
     };
-    assert_eq!(0, get_counter(&gs));
+    assert_eq!(0, counter(&gs));
 }

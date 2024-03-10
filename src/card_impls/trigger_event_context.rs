@@ -37,7 +37,7 @@ impl<'a, 'b, 'c, 'd, 'v, T> TriggerEventContext<'a, 'b, 'c, 'd, 'v, T> {
 
     #[inline]
     pub fn consume_counter<F: FnOnce(&mut Self, u8)>(&mut self, f: F) -> Option<AppliedEffectResult> {
-        let c = self.c.eff_state.get_counter();
+        let c = self.c.eff_state.counter();
         if c == 0 {
             None
         } else {
@@ -57,7 +57,7 @@ impl<'a, 'b, 'c, 'd, 'v, T> TriggerEventContext<'a, 'b, 'c, 'd, 'v, T> {
 
 impl<'a, 'b, 'c, 'd, 'v> TriggerEventContext<'a, 'b, 'c, 'd, 'v, XEvent> {
     #[inline]
-    pub fn get_outgoing_dmg_ensuring_own_player(&self) -> Option<XEventDMG> {
+    pub fn outgoing_dmg_ensuring_own_player(&self) -> Option<XEventDMG> {
         let XEvent::DMG(d) = self.event_id else { return None };
         if d.src_player_id == self.ctx_for_dmg.src_player_id {
             Some(d)
@@ -67,7 +67,7 @@ impl<'a, 'b, 'c, 'd, 'v> TriggerEventContext<'a, 'b, 'c, 'd, 'v, XEvent> {
     }
 
     #[inline]
-    pub fn get_outgoing_dmg_ensuring_attached_character(&self) -> Option<XEventDMG> {
+    pub fn outgoing_dmg_ensuring_attached_character(&self) -> Option<XEventDMG> {
         let XEvent::DMG(d) = self.event_id else { return None };
         let char_idx = self.status_key.char_idx().expect("Must be character/equipment status");
         if d.src_player_id == self.ctx_for_dmg.src_player_id && self.ctx_for_dmg.src.char_idx() == Some(char_idx) {
@@ -78,7 +78,7 @@ impl<'a, 'b, 'c, 'd, 'v> TriggerEventContext<'a, 'b, 'c, 'd, 'v, XEvent> {
     }
 
     #[inline]
-    pub fn get_incoming_dmg_ensuring_own_player(&self) -> Option<XEventDMG> {
+    pub fn incoming_dmg_ensuring_own_player(&self) -> Option<XEventDMG> {
         let XEvent::DMG(d) = self.event_id else { return None };
         if d.src_player_id == self.ctx_for_dmg.src_player_id.opposite() {
             Some(d)
@@ -88,7 +88,7 @@ impl<'a, 'b, 'c, 'd, 'v> TriggerEventContext<'a, 'b, 'c, 'd, 'v, XEvent> {
     }
 
     #[inline]
-    pub fn get_incoming_dmg_ensuring_attached_character(&self) -> Option<XEventDMG> {
+    pub fn incoming_dmg_ensuring_attached_character(&self) -> Option<XEventDMG> {
         let XEvent::DMG(d) = self.event_id else { return None };
         let char_idx = self.status_key.char_idx().expect("Must be character/equipment status");
         if d.src_player_id == self.ctx_for_dmg.src_player_id.opposite() && char_idx == d.tgt_char_idx {
@@ -121,7 +121,7 @@ impl<'a, 'b, 'c, 'd, 'v> TriggerEventContext<'a, 'b, 'c, 'd, 'v, XEvent> {
     }
 
     #[inline]
-    pub fn get_dmg_event_reaction(&self) -> Option<(Reaction, Option<Element>)> {
+    pub fn dmg_event_reaction(&self) -> Option<(Reaction, Option<Element>)> {
         if let XEvent::DMG(d) = self.event_id {
             d.reaction
         } else {
@@ -130,7 +130,7 @@ impl<'a, 'b, 'c, 'd, 'v> TriggerEventContext<'a, 'b, 'c, 'd, 'v, XEvent> {
     }
 
     #[inline]
-    pub fn get_event_skill_ensuring_own_player(&self) -> Option<XEventSkill> {
+    pub fn event_skill_ensuring_own_player(&self) -> Option<XEventSkill> {
         let XEvent::Skill(evt_skill) = self.event_id else {
             return None;
         };
@@ -143,7 +143,7 @@ impl<'a, 'b, 'c, 'd, 'v> TriggerEventContext<'a, 'b, 'c, 'd, 'v, XEvent> {
     }
 
     #[inline]
-    pub fn get_event_skill_ensuring_opponent_player(&self) -> Option<XEventSkill> {
+    pub fn event_skill_ensuring_opponent_player(&self) -> Option<XEventSkill> {
         let XEvent::Skill(evt_skill) = self.event_id else {
             return None;
         };
@@ -156,7 +156,7 @@ impl<'a, 'b, 'c, 'd, 'v> TriggerEventContext<'a, 'b, 'c, 'd, 'v, XEvent> {
     }
 
     #[inline]
-    pub fn get_event_skill_ensuring_attached_character(&self) -> Option<XEventSkill> {
+    pub fn event_skill_ensuring_attached_character(&self) -> Option<XEventSkill> {
         let XEvent::Skill(evt_skill) = self.event_id else {
             return None;
         };

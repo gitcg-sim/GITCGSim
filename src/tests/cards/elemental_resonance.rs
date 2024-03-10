@@ -21,10 +21,10 @@ fn elemental_resonance_sprawling_greenery_does_not_increase_non_reaction_dmg() {
     ]);
     {
         let yoimiya = &gs.players.1.char_states[0];
-        assert_eq!(9, yoimiya.get_hp());
+        assert_eq!(9, yoimiya.hp());
     }
     assert!(gs
-        .get_status_collection(PlayerId::PlayerFirst)
+        .status_collection(PlayerId::PlayerFirst)
         .has_team_status(StatusId::ElementalResonanceSprawlingGreenery));
 }
 
@@ -48,7 +48,7 @@ fn elemental_resonance_sprawling_greenery_increases_reaction_dmg() {
         PlayerAction::PlayCard(CardId::ElementalResonanceSprawlingGreenery, None),
     )]);
     assert!(gs
-        .get_status_collection(PlayerId::PlayerFirst)
+        .status_collection(PlayerId::PlayerFirst)
         .has_team_status(StatusId::ElementalResonanceSprawlingGreenery));
 
     gs.advance_multiple([Input::FromPlayer(
@@ -58,7 +58,7 @@ fn elemental_resonance_sprawling_greenery_increases_reaction_dmg() {
     {
         let yoimiya = &gs.players.1.char_states[0];
         assert!(yoimiya.applied.is_empty());
-        assert_eq!(5, yoimiya.get_hp());
+        assert_eq!(5, yoimiya.hp());
     }
 }
 
@@ -80,30 +80,30 @@ fn elemental_resonance_sprawling_greenery_increases_usages_of_catalyzing_field()
     ]);
     assert_eq!(
         2,
-        gs.get_status_collection(PlayerId::PlayerFirst)
+        gs.status_collection(PlayerId::PlayerFirst)
             .get(StatusKey::Team(StatusId::CatalyzingField))
             .unwrap()
-            .get_usages()
+            .usages()
     );
     gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
         PlayerAction::PlayCard(CardId::ElementalResonanceSprawlingGreenery, None),
     )]);
     assert!(gs
-        .get_status_collection(PlayerId::PlayerFirst)
+        .status_collection(PlayerId::PlayerFirst)
         .has_team_status(StatusId::ElementalResonanceSprawlingGreenery));
     assert_eq!(
         3,
-        gs.get_status_collection(PlayerId::PlayerFirst)
+        gs.status_collection(PlayerId::PlayerFirst)
             .get(StatusKey::Team(StatusId::CatalyzingField))
             .unwrap()
-            .get_usages()
+            .usages()
     );
     // Cannot create Usages out of nothing
     assert!(!gs
-        .get_status_collection(PlayerId::PlayerFirst)
+        .status_collection(PlayerId::PlayerFirst)
         .has_team_status(StatusId::DendroCore));
     assert!(!gs
-        .get_status_collection(PlayerId::PlayerFirst)
+        .status_collection(PlayerId::PlayerFirst)
         .has_summon(SummonId::BurningFlame));
 }

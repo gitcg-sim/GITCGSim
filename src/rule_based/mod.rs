@@ -47,13 +47,13 @@ impl Default for RuleBasedSearchConfig {
 
 impl GameState {
     pub fn has_outgoing_reaction(&self, player_id: PlayerId, src_char_idx: u8, tgt_char_idx: u8) -> bool {
-        let Some(src_char) = self.get_player(player_id).try_get_character(src_char_idx) else {
+        let Some(src_char) = self.player(player_id).try_get_character(src_char_idx) else {
             return false;
         };
-        let Some(tgt_char) = self.get_player(player_id.opposite()).try_get_character(tgt_char_idx) else {
+        let Some(tgt_char) = self.player(player_id.opposite()).try_get_character(tgt_char_idx) else {
             return false;
         };
-        let src_elem = src_char.char_id.get_char_card().elem;
+        let src_elem = src_char.char_id.char_card().elem;
         tgt_char
             .applied
             .iter()
@@ -95,13 +95,10 @@ impl RuleBasedSearchConfig {
         player_id: PlayerId,
     ) -> SmallVec<[u8; 4]> {
         let game_state = &position.game_state;
-        let (src_player, opp_player) = (
-            game_state.get_player(player_id),
-            game_state.get_player(player_id.opposite()),
-        );
+        let (src_player, opp_player) = (game_state.player(player_id), game_state.player(player_id.opposite()));
         let own_dice_count = src_player.dice.total();
-        // let opp_dice_count = game_state.get_player(player_id.opposite()).dice.total();
-        let (tgt_char_idx, tgt_hp) = (opp_player.active_char_idx, opp_player.get_active_character().get_hp());
+        // let opp_dice_count = game_state.player(player_id.opposite()).dice.total();
+        let (tgt_char_idx, tgt_hp) = (opp_player.active_char_idx, opp_player.active_character().hp());
         let mut scores = src_player
             .char_states
             .iter_all()
@@ -127,12 +124,10 @@ impl RuleBasedSearchConfig {
                         0
                     }
                 };
-                let has_burst = src_char.get_energy() >= src_char.char_id.get_char_card().max_energy;
-                let has_one_off_burst = src_char.get_energy() + 1 == src_char.char_id.get_char_card().max_energy;
-                let hp = crate::std_subset::cmp::min(
-                    src_char.get_hp().saturating_sub(1) as usize,
-                    self.switch_scores_hp.len(),
-                );
+                let has_burst = src_char.energy() >= src_char.char_id.char_card().max_energy;
+                let has_one_off_burst = src_char.energy() + 1 == src_char.char_id.char_card().max_energy;
+                let hp =
+                    crate::std_subset::cmp::min(src_char.hp().saturating_sub(1) as usize, self.switch_scores_hp.len());
                 let offensive_part = offensive_threat_score
                     + (has_outgoing_reaction as u8) * self.switch_score_reaction
                     + (has_burst as u8) * self.switch_score_burst
@@ -140,7 +135,7 @@ impl RuleBasedSearchConfig {
                     + self.switch_scores_hp[hp];
 
                 let incoming_threat_score = {
-                    let src_hp = src_player.get_active_character().get_hp();
+                    let src_hp = src_player.active_character().hp();
                     if has_incoming_reaction || src_hp <= self.defensive_low_hp_threshold {
                         self.switch_score_defensive
                     } else {
@@ -167,8 +162,8 @@ impl RuleBasedSearchConfig {
         player_id: PlayerId,
         card_id: CardId,
     ) -> u8 {
-        let player = position.game_state.get_player(player_id);
-        let cost_total = card_id.get_card().cost.total_dice();
+        let player = position.game_state.player(player_id);
+        let cost_total = card_id.card().cost.total_dice();
         let dice_total = player.dice.total();
         let hand_size = player.hand.len();
         if cost_total > 0 && dice_total >= cost_total && dice_total - cost_total < self.play_card_min_dice_for_skills {
@@ -179,7 +174,7 @@ impl RuleBasedSearchConfig {
     }
 
     pub fn cast_skill_score<S: NondetState>(&self, _: &GameStateWrapper<S>, _: PlayerId, skill_id: SkillId) -> u8 {
-        match skill_id.get_skill().skill_type {
+        match skill_id.skill().skill_type {
             SkillType::NormalAttack => self.normal_attack_score,
             SkillType::ElementalSkill => self.elemental_skill_score,
             SkillType::ElementalBurst => self.elemental_burst_score,
@@ -193,9 +188,9 @@ impl RuleBasedSearchConfig {
         player_id: PlayerId,
     ) -> ActionList<(Input, u8)> {
         let switch_scores = self.switch_scores(position, player_id);
-        let player = position.game_state.get_player(player_id);
-        let on_dice_count = player.dice[Dice::Omni]
-            + player.dice[Dice::Elem(player.get_active_character().char_id.get_char_card().elem)];
+        let player = position.game_state.player(player_id);
+        let on_dice_count =
+            player.dice[Dice::Omni] + player.dice[Dice::Elem(player.active_character().char_id.char_card().elem)];
         actions
             .iter()
             .map(|&input| {

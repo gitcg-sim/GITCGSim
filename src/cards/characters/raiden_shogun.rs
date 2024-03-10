@@ -96,7 +96,7 @@ pub mod chakra_desiderata {
             let Some(SkillId::SecretArtMusouShinsetsu) = e.skill_id() else {
                 return None;
             };
-            let c = e.eff_state.get_counter();
+            let c = e.eff_state.counter();
             if c == 0 {
                 return None;
             }
@@ -105,7 +105,7 @@ pub mod chakra_desiderata {
         }
 
         fn trigger_xevent(&self, e: &mut TriggerEventContext<XEvent>) -> Option<AppliedEffectResult> {
-            let SkillType::ElementalBurst = e.get_event_skill_ensuring_own_player()?.skill_type() else {
+            let SkillType::ElementalBurst = e.event_skill_ensuring_own_player()?.skill_type() else {
                 return None;
             };
 
@@ -114,7 +114,7 @@ pub mod chakra_desiderata {
                 return None;
             }
 
-            let c = e.c.eff_state.get_counter();
+            let c = e.c.eff_state.counter();
             if c >= 3 {
                 None
             } else {

@@ -14,7 +14,7 @@ macro_rules! view {
             flags: $p.flags,
             dice: $p.dice,
             // TODO will eventually be needed?
-            // affected_by: $p.status_collection.get_affected_by_keys(),
+            // affected_by: $p.status_collection.affected_by_keys(),
             affected_by: Default::default(),
         }
     };
@@ -111,12 +111,12 @@ impl StatusCollection {
         self.for_each_char_status_mut_retain(
             Some(char_idx),
             |status_id, eff_state| {
-                let status = status_id.get_status();
+                let status = status_id.status();
                 if !(dmg.dmg > 0 && status.usages_as_shield_points) {
                     return true;
                 }
                 found = true;
-                let u = eff_state.get_usages();
+                let u = eff_state.usages();
                 if u > dmg.dmg {
                     let d = dmg.dmg;
                     dmg.dmg = 0;
@@ -239,7 +239,7 @@ impl PlayerState {
     }
 
     pub fn can_pay_dice_cost(&self, status_collection: &StatusCollection, cost: &Cost, cost_type: CostType) -> bool {
-        let ep = self.get_element_priority_for_cost_type(cost_type);
+        let ep = self.element_priority_for_cost_type(cost_type);
         let mut cost = *cost;
         self.augment_cost_immutable(status_collection, &mut cost, cost_type);
         self.dice.try_pay_cost(&cost, &ep).is_some()
@@ -253,7 +253,7 @@ impl PlayerState {
         cost: &Cost,
         cost_type: CostType,
     ) -> Option<DiceCounter> {
-        let ep = self.get_element_priority_for_cost_type(cost_type);
+        let ep = self.element_priority_for_cost_type(cost_type);
         if let Some(d) = self.dice.try_pay_cost(cost, &ep) {
             Some(d)
         } else {
@@ -263,21 +263,21 @@ impl PlayerState {
         }
     }
 
-    pub fn get_cast_skill_cmds(
+    pub fn cast_skill_cmds(
         &self,
         status_collection: &StatusCollection,
         ctx: &CommandContext,
         skill_id: SkillId,
     ) -> CommandList<(CommandContext, Command)> {
         let src_player = self;
-        let skill = skill_id.get_skill();
+        let skill = skill_id.skill();
         let mut cmds: CommandList<(CommandContext, Command)> = cmd_list![];
         if let Some(deal_dmg) = skill.deal_dmg {
             cmds.push((*ctx, Command::DealDMG(deal_dmg)));
         }
 
         if let Some(status_id) = skill.apply {
-            match status_id.get_status().attach_mode {
+            match status_id.status().attach_mode {
                 StatusAttachMode::Character => {
                     let char_idx = src_player.active_char_idx;
                     cmds.push((*ctx, Command::ApplyCharacterStatus(status_id, char_idx.into())));
@@ -327,7 +327,7 @@ impl PlayerState {
         let mut gains_energy = !skill.no_energy;
         src_player.update_gains_energy(status_collection, ctx, &mut gains_energy);
         if let Some(si) = skill.skill_impl {
-            si.get_commands(src_player, status_collection, ctx, &mut cmds);
+            si.commands(src_player, status_collection, ctx, &mut cmds);
         }
 
         if gains_energy && skill.skill_type != SkillType::ElementalBurst {
@@ -355,8 +355,8 @@ impl CharStates {
             .find(|&j| self.is_valid_char_idx(j))
     }
 
-    pub fn get_taken_most_dmg(&self) -> Option<(u8, &CharState)> {
-        self.enumerate_valid().max_by_key(|(_, c)| c.get_total_dmg_taken())
+    pub fn taken_most_dmg(&self) -> Option<(u8, &CharState)> {
+        self.enumerate_valid().max_by_key(|(_, c)| c.total_dmg_taken())
     }
 }
 

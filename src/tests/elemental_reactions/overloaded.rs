@@ -17,8 +17,8 @@ fn overloaded_force_switch() {
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::Nightrider)),
     ]);
     assert_eq!(1, gs.players.1.active_char_idx);
-    assert_eq!(4, gs.players.1.char_states[0].get_hp());
-    assert_eq!(10, gs.players.1.char_states[1].get_hp());
+    assert_eq!(4, gs.players.1.char_states[0].hp());
+    assert_eq!(10, gs.players.1.char_states[1].hp());
     assert!(gs.players.0.char_states[0].applied.is_empty());
 }
 

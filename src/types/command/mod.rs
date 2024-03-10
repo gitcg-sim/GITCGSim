@@ -46,7 +46,7 @@ pub mod xevent {
     impl XEventSkill {
         #[inline]
         pub fn skill_type(&self) -> SkillType {
-            self.skill_id.get_skill().skill_type
+            self.skill_id.skill().skill_type
         }
     }
 
@@ -132,7 +132,7 @@ pub mod xevent {
                 .build(),
                 Self::Skill(skill) => XEventCodeBuilder::Skill {
                     from_self: skill.src_player_id == player_id,
-                    skill_type: skill.skill_id.get_skill().skill_type,
+                    skill_type: skill.skill_id.skill().skill_type,
                 }
                 .build(),
             }
@@ -298,17 +298,17 @@ pub enum CostType {
 
 impl CostType {
     #[inline]
-    pub fn get_skill(&self) -> Option<&'static Skill> {
+    pub fn skill(&self) -> Option<&'static Skill> {
         match self {
-            Self::Skill(skill_id) => Some(skill_id.get_skill()),
+            Self::Skill(skill_id) => Some(skill_id.skill()),
             _ => None,
         }
     }
 
     #[inline]
-    pub fn get_card(&self) -> Option<&'static Card> {
+    pub fn card(&self) -> Option<&'static Card> {
         match self {
-            Self::Card(card_id) => Some(card_id.get_card()),
+            Self::Card(card_id) => Some(card_id.card()),
             _ => None,
         }
     }

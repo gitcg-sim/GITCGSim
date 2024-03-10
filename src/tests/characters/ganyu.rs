@@ -15,19 +15,13 @@ fn frostflake_arrow_piercing_dmg() {
         PlayerAction::CastSkill(SkillId::FrostflakeArrow),
     )]);
     {
-        let fischl = gs.get_player(PlayerId::PlayerSecond).get_active_character();
+        let fischl = gs.player(PlayerId::PlayerSecond).active_character();
         assert_eq!(elem_set![Element::Cryo], fischl.applied);
-        assert_eq!(8, fischl.get_hp());
-        assert_eq!(8, gs.get_player(PlayerId::PlayerSecond).char_states[1].get_hp());
-        assert_eq!(
-            elem_set![],
-            gs.get_player(PlayerId::PlayerSecond).char_states[1].applied
-        );
-        assert_eq!(8, gs.get_player(PlayerId::PlayerSecond).char_states[2].get_hp());
-        assert_eq!(
-            elem_set![],
-            gs.get_player(PlayerId::PlayerSecond).char_states[2].applied
-        );
+        assert_eq!(8, fischl.hp());
+        assert_eq!(8, gs.player(PlayerId::PlayerSecond).char_states[1].hp());
+        assert_eq!(elem_set![], gs.player(PlayerId::PlayerSecond).char_states[1].applied);
+        assert_eq!(8, gs.player(PlayerId::PlayerSecond).char_states[2].hp());
+        assert_eq!(elem_set![], gs.player(PlayerId::PlayerSecond).char_states[2].applied);
     }
 }
 
@@ -47,19 +41,13 @@ fn talent_card_does_not_increase_frostflake_arrow_dmg_first_cast() {
         PlayerAction::PlayCard(CardId::UndividedHeart, Some(CardSelection::OwnCharacter(0))),
     )]);
     {
-        let fischl = gs.get_player(PlayerId::PlayerSecond).get_active_character();
+        let fischl = gs.player(PlayerId::PlayerSecond).active_character();
         assert_eq!(elem_set![Element::Cryo], fischl.applied);
-        assert_eq!(8, fischl.get_hp());
-        assert_eq!(8, gs.get_player(PlayerId::PlayerSecond).char_states[1].get_hp());
-        assert_eq!(
-            elem_set![],
-            gs.get_player(PlayerId::PlayerSecond).char_states[1].applied
-        );
-        assert_eq!(8, gs.get_player(PlayerId::PlayerSecond).char_states[2].get_hp());
-        assert_eq!(
-            elem_set![],
-            gs.get_player(PlayerId::PlayerSecond).char_states[2].applied
-        );
+        assert_eq!(8, fischl.hp());
+        assert_eq!(8, gs.player(PlayerId::PlayerSecond).char_states[1].hp());
+        assert_eq!(elem_set![], gs.player(PlayerId::PlayerSecond).char_states[1].applied);
+        assert_eq!(8, gs.player(PlayerId::PlayerSecond).char_states[2].hp());
+        assert_eq!(elem_set![], gs.player(PlayerId::PlayerSecond).char_states[2].applied);
     }
 }
 
@@ -81,11 +69,11 @@ fn talent_card_increases_frostflake_arrow_dmg_subsequent_cast() {
         Input::NoAction,
     ]);
     {
-        let fischl = gs.get_player(PlayerId::PlayerSecond).get_active_character();
+        let fischl = gs.player(PlayerId::PlayerSecond).active_character();
         assert_eq!(elem_set![Element::Cryo], fischl.applied);
-        assert_eq!(8, gs.get_player(PlayerId::PlayerSecond).char_states[0].get_hp());
-        assert_eq!(8, gs.get_player(PlayerId::PlayerSecond).char_states[1].get_hp());
-        assert_eq!(8, gs.get_player(PlayerId::PlayerSecond).char_states[2].get_hp());
+        assert_eq!(8, gs.player(PlayerId::PlayerSecond).char_states[0].hp());
+        assert_eq!(8, gs.player(PlayerId::PlayerSecond).char_states[1].hp());
+        assert_eq!(8, gs.player(PlayerId::PlayerSecond).char_states[2].hp());
     }
     assert_eq!(2, gs.round_number);
     gs.advance_roll_phase_no_dice();
@@ -97,8 +85,8 @@ fn talent_card_increases_frostflake_arrow_dmg_subsequent_cast() {
         ),
     ]);
     {
-        assert_eq!(5, gs.get_player(PlayerId::PlayerSecond).char_states[0].get_hp());
-        assert_eq!(5, gs.get_player(PlayerId::PlayerSecond).char_states[1].get_hp());
-        assert_eq!(5, gs.get_player(PlayerId::PlayerSecond).char_states[2].get_hp());
+        assert_eq!(5, gs.player(PlayerId::PlayerSecond).char_states[0].hp());
+        assert_eq!(5, gs.player(PlayerId::PlayerSecond).char_states[1].hp());
+        assert_eq!(5, gs.player(PlayerId::PlayerSecond).char_states[2].hp());
     }
 }

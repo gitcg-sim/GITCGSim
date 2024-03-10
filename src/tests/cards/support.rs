@@ -24,7 +24,7 @@ fn playing_up_to_4_supports() {
         SupportSlot::VALUES
             .iter()
             .map(|&slot| gs
-                .get_status_collection(PlayerId::PlayerFirst)
+                .status_collection(PlayerId::PlayerFirst)
                 .find_support(slot)
                 .and_then(|s| s.support_id()))
             .collect::<Vec<_>>()
@@ -113,13 +113,13 @@ fn jade_chamber_guarantees_dice_with_active_character_elem() {
         PlayerAction::PlayCard(CardId::JadeChamber, None),
     )]);
     assert!(gs
-        .get_status_collection(PlayerId::PlayerFirst)
+        .status_collection(PlayerId::PlayerFirst)
         .find_support(SupportSlot::Slot0)
         .is_some());
-    assert_eq!(2, gs.get_dice_distribution(PlayerId::PlayerFirst).fixed_count());
+    assert_eq!(2, gs.dice_distribution(PlayerId::PlayerFirst).fixed_count());
     assert_eq!(
         2,
-        gs.get_dice_distribution(PlayerId::PlayerFirst)
+        gs.dice_distribution(PlayerId::PlayerFirst)
             .fixed_count_for_elem(Element::Electro)
     );
 
@@ -127,10 +127,10 @@ fn jade_chamber_guarantees_dice_with_active_character_elem() {
         PlayerId::PlayerFirst,
         PlayerAction::SwitchCharacter(1),
     )]);
-    assert_eq!(2, gs.get_dice_distribution(PlayerId::PlayerFirst).fixed_count());
+    assert_eq!(2, gs.dice_distribution(PlayerId::PlayerFirst).fixed_count());
     assert_eq!(
         2,
-        gs.get_dice_distribution(PlayerId::PlayerFirst)
+        gs.dice_distribution(PlayerId::PlayerFirst)
             .fixed_count_for_elem(Element::Cryo)
     );
 }
@@ -150,10 +150,10 @@ fn knights_of_favonius_library_updates_reroll_counts() {
         PlayerAction::PlayCard(CardId::KnightsOfFavoniusLibrary, None),
     )]);
     assert!(gs
-        .get_status_collection(PlayerId::PlayerFirst)
+        .status_collection(PlayerId::PlayerFirst)
         .find_support(SupportSlot::Slot0)
         .is_some());
-    assert_eq!(2, gs.get_dice_distribution(PlayerId::PlayerFirst).rerolls);
+    assert_eq!(2, gs.dice_distribution(PlayerId::PlayerFirst).rerolls);
 }
 
 #[test]
@@ -174,11 +174,11 @@ fn liben() {
     ]);
     assert_eq!(
         2,
-        gs.get_status_collection(PlayerId::PlayerFirst)
+        gs.status_collection(PlayerId::PlayerFirst)
             .find_support(SupportSlot::Slot0)
             .unwrap()
             .state
-            .get_counter()
+            .counter()
     );
     assert_eq!(1, gs.players.0.dice.total());
     assert_eq!(1, gs.players.0.dice[Dice::CRYO]);
@@ -193,7 +193,7 @@ fn liben() {
         )),
     ]);
     assert!(gs
-        .get_status_collection(PlayerId::PlayerFirst)
+        .status_collection(PlayerId::PlayerFirst)
         .find_support(SupportSlot::Slot0)
         .is_none());
     assert_eq!(2, gs.players.0.hand.len());

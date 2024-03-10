@@ -62,7 +62,7 @@ pub mod searing_onslaught_counter {
             let CostType::Skill(SkillId::SearingOnslaught) = cost_type else {
                 return None;
             };
-            let 1 = e.eff_state.get_counter() else { return None };
+            let 1 = e.eff_state.counter() else { return None };
             cost.try_reduce_elemental_cost(1, Element::Pyro)
                 .then_some(AppliedEffectResult::NoChange)
         }
@@ -71,7 +71,7 @@ pub mod searing_onslaught_counter {
             let Some(SkillId::SearingOnslaught) = e.skill_id() else {
                 return None;
             };
-            let counter = e.eff_state.get_counter();
+            let counter = e.eff_state.counter();
             match counter.cmp(&2) {
                 Ordering::Less => Some(AppliedEffectResult::SetCounter(counter + 1)),
                 Ordering::Equal => {

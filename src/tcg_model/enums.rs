@@ -26,7 +26,7 @@ impl Element {
         Element::Anemo,
     ];
 
-    pub fn get_name(&self) -> &'static str {
+    pub fn name(&self) -> &'static str {
         match self {
             Element::Pyro => "Pyro",
             Element::Hydro => "Hydro",

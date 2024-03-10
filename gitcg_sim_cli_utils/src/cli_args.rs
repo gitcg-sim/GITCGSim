@@ -231,8 +231,8 @@ pub struct SearchOpts {
 }
 
 impl DeckGen {
-    pub fn get_decks<R: Rng>(&self, rng: &mut R) -> Result<(Decklist, Decklist), std::io::Error> {
-        let mut get_deck = move |path: &Option<PathBuf>| -> Result<Decklist, std::io::Error> {
+    pub fn decks<R: Rng>(&self, rng: &mut R) -> Result<(Decklist, Decklist), std::io::Error> {
+        let mut deck = move |path: &Option<PathBuf>| -> Result<Decklist, std::io::Error> {
             match path {
                 None => {
                     if self.random_decks {
@@ -244,24 +244,24 @@ impl DeckGen {
                 Some(path) => File::open(path).and_then(read_decklist_from_file),
             }
         };
-        let deck1 = get_deck(&self.player1_deck)?;
+        let deck1 = deck(&self.player1_deck)?;
         let deck2 = if self.mirror_match {
             deck1.clone()
         } else {
-            get_deck(&self.player2_deck)?
+            deck(&self.player2_deck)?
         };
         Ok((deck1, deck2))
     }
 }
 
 impl SearchOpts {
-    pub fn get_decks(&self) -> Result<(Decklist, Decklist), std::io::Error> {
+    pub fn decks(&self) -> Result<(Decklist, Decklist), std::io::Error> {
         let mut r = SmallRng::seed_from_u64(self.seed.unwrap_or(100));
-        self.deck.get_decks(&mut r)
+        self.deck.decks(&mut r)
     }
 
-    pub fn get_standard_game(&self, rng: Option<SmallRng>) -> Result<GameStateWrapper, std::io::Error> {
-        let (d1, d2) = self.get_decks()?;
+    pub fn standard_game(&self, rng: Option<SmallRng>) -> Result<GameStateWrapper, std::io::Error> {
+        let (d1, d2) = self.decks()?;
         let rng = rng.unwrap_or_else(|| SmallRng::seed_from_u64(self.seed.unwrap_or(100)));
         let mut game = new_standard_game(&d1, &d2, rng);
         if self.tactical {
@@ -330,7 +330,7 @@ impl SearchConfig {
             }
             SearchAlgorithm::MCTS => {
                 let config = MCTSConfig {
-                    cpuct: self.get_cpuct_config(),
+                    cpuct: self.cpuct_config(),
                     tt_size_mb: self.tt_size_mb.unwrap_or(32),
                     limits,
                     parallel,
@@ -377,7 +377,7 @@ impl SearchConfig {
         }
     }
 
-    pub fn get_limits(&self) -> Option<SearchLimits> {
+    pub fn limits(&self) -> Option<SearchLimits> {
         if self.time_limit_ms.is_none() && self.max_positions.is_none() {
             return None;
         }
@@ -387,7 +387,7 @@ impl SearchConfig {
         })
     }
 
-    pub fn get_cpuct_config(&self) -> CpuctConfig {
+    pub fn cpuct_config(&self) -> CpuctConfig {
         CpuctConfig {
             init: self.mcts_cpuct_init.unwrap_or(CpuctConfig::STANDARD.init),
             base: self.mcts_cpuct_base.unwrap_or(CpuctConfig::STANDARD.base),
@@ -401,7 +401,7 @@ impl SearchOpts {
         self.search.make_search(parallel, limits)
     }
 
-    pub fn get_limits(&self) -> Option<SearchLimits> {
-        self.search.get_limits()
+    pub fn limits(&self) -> Option<SearchLimits> {
+        self.search.limits()
     }
 }

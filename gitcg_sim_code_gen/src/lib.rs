@@ -140,18 +140,18 @@ pub fn status_id_derives(input: TokenStream) -> TokenStream {
 }
 
 #[proc_macro_derive(GetStatus)]
-pub fn get_status_derive(input: TokenStream) -> TokenStream {
+pub fn status_derive(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
     let name = &input.ident;
     quote! {
         impl crate::ids::lookup::GetStatus for #name {
             #[inline]
-            fn get_status(self) -> &'static crate::types::card_defs::Status {
+            fn status(self) -> &'static crate::types::card_defs::Status {
                 self.__generated_lookup_status()
             }
 
             #[inline]
-            fn get_status_impl(self) -> &'static dyn crate::types::status_impl::StatusImpl {
+            fn status_impl(self) -> &'static dyn crate::types::status_impl::StatusImpl {
                 self.__generated_lookup_impl()
             }
         }
@@ -180,7 +180,7 @@ pub fn get_status_derive(input: TokenStream) -> TokenStream {
 ///
 /// This generated macro is used to generate non-dynamic (no `dyn`) `StatusImpl` implementations.
 #[proc_macro_derive(GeneratedEnumCasesMacro)]
-pub fn get_macro_derive(input: TokenStream) -> TokenStream {
+pub fn macro_derive(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
     let name = &input.ident;
     let syn::Data::Enum(data_enum) = &input.data else {
@@ -212,7 +212,7 @@ pub fn get_macro_derive(input: TokenStream) -> TokenStream {
 }
 
 #[proc_macro_derive(GetCard)]
-pub fn get_card_derive(input: TokenStream) -> TokenStream {
+pub fn card_derive(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
     let name = &input.ident;
     let syn::Data::Enum(data_enum) = &input.data else {
@@ -229,7 +229,7 @@ pub fn get_card_derive(input: TokenStream) -> TokenStream {
     quote! {
         impl crate::ids::lookup::GetCard for #name {
             #[inline]
-            fn get_card(self) -> &'static crate::types::card_defs::Card {
+            fn card(self) -> &'static crate::types::card_defs::Card {
                 match self { #card_lookup }
             }
         }

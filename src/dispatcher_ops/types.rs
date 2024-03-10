@@ -56,7 +56,7 @@ pub enum DispatchError {
 pub enum ExecResult {
     Success,
     /// Suspend execution of commands and hand control back to the dispatcher.
-    /// Then the dispatcher will return `suspended_state.get_dispatch_result()`
+    /// Then the dispatcher will return `suspended_state.dispatch_result()`
     Suspend(SuspendedState, Option<CommandList<(CommandContext, Command)>>),
     /// Stop executing commands and the dispatcher will return the specified result.
     Return(DispatchResult),

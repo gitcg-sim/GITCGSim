@@ -8,13 +8,13 @@ fn stonehide_consumes_2_usages_for_geo_dmg() {
             .ignore_costs(true)
             .build();
     gs.advance_roll_phase_no_dice();
-    assert_eq!(8, gs.get_player(PlayerId::PlayerFirst).char_states[0].get_hp());
+    assert_eq!(8, gs.player(PlayerId::PlayerFirst).char_states[0].hp());
     assert_eq!(
         3,
-        gs.get_status_collection_mut(PlayerId::PlayerFirst)
+        gs.status_collection_mut(PlayerId::PlayerFirst)
             .get(StatusKey::Character(0, StatusId::Stonehide))
             .unwrap()
-            .get_usages()
+            .usages()
     );
     gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::EndRound),
@@ -25,12 +25,12 @@ fn stonehide_consumes_2_usages_for_geo_dmg() {
     ]);
     assert_eq!(
         1,
-        gs.get_status_collection_mut(PlayerId::PlayerFirst)
+        gs.status_collection_mut(PlayerId::PlayerFirst)
             .get(StatusKey::Character(0, StatusId::Stonehide))
             .unwrap()
-            .get_usages()
+            .usages()
     );
-    assert_eq!(8, gs.get_player(PlayerId::PlayerFirst).char_states[0].get_hp());
+    assert_eq!(8, gs.player(PlayerId::PlayerFirst).char_states[0].hp());
 }
 
 #[test]
@@ -41,13 +41,13 @@ fn stonehide_removes_stone_force_at_zero_usages() {
             .ignore_costs(true)
             .build();
     gs.advance_roll_phase_no_dice();
-    assert_eq!(8, gs.get_player(PlayerId::PlayerFirst).char_states[0].get_hp());
+    assert_eq!(8, gs.player(PlayerId::PlayerFirst).char_states[0].hp());
     assert_eq!(
         3,
-        gs.get_status_collection_mut(PlayerId::PlayerFirst)
+        gs.status_collection_mut(PlayerId::PlayerFirst)
             .get(StatusKey::Character(0, StatusId::Stonehide))
             .unwrap()
-            .get_usages()
+            .usages()
     );
     gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::EndRound),
@@ -66,12 +66,12 @@ fn stonehide_removes_stone_force_at_zero_usages() {
     ]);
     assert_eq!(
         None,
-        gs.get_status_collection_mut(PlayerId::PlayerFirst)
+        gs.status_collection_mut(PlayerId::PlayerFirst)
             .get(StatusKey::Character(0, StatusId::Stonehide))
     );
     assert_eq!(
         None,
-        gs.get_status_collection_mut(PlayerId::PlayerFirst)
+        gs.status_collection_mut(PlayerId::PlayerFirst)
             .get(StatusKey::Character(0, StatusId::StoneForce))
     );
 }
@@ -84,12 +84,12 @@ fn stone_force_infuses_geo() {
             .ignore_costs(true)
             .build();
     gs.advance_roll_phase_no_dice();
-    gs.get_player_mut(PlayerId::PlayerSecond).char_states[0]
+    gs.player_mut(PlayerId::PlayerSecond).char_states[0]
         .applied
         .insert(Element::Pyro);
-    assert_eq!(8, gs.get_player(PlayerId::PlayerFirst).char_states[0].get_hp());
+    assert_eq!(8, gs.player(PlayerId::PlayerFirst).char_states[0].hp());
     assert!(gs
-        .get_status_collection_mut(PlayerId::PlayerFirst)
+        .status_collection_mut(PlayerId::PlayerFirst)
         .get(StatusKey::Character(0, StatusId::StoneForce))
         .is_some());
     gs.advance_multiple([Input::FromPlayer(
@@ -97,13 +97,13 @@ fn stone_force_infuses_geo() {
         PlayerAction::CastSkill(SkillId::PlamaLawa),
     )]);
     assert!(gs
-        .get_status_collection_mut(PlayerId::PlayerFirst)
+        .status_collection_mut(PlayerId::PlayerFirst)
         .get(StatusKey::Team(StatusId::CrystallizeShield))
         .is_some());
-    assert_eq!(6, gs.get_player(PlayerId::PlayerSecond).char_states[0].get_hp());
+    assert_eq!(6, gs.player(PlayerId::PlayerSecond).char_states[0].hp());
     gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::PlamaLawa)),
     ]);
-    assert_eq!(4, gs.get_player(PlayerId::PlayerSecond).char_states[0].get_hp());
+    assert_eq!(4, gs.player(PlayerId::PlayerSecond).char_states[0].hp());
 }

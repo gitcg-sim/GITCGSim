@@ -21,7 +21,7 @@ impl<'a, 'b, 'c, 'v, D> StatusImplContext<'a, 'b, 'c, 'v, D> {
 
     #[inline]
     pub fn src_char_card(&self) -> Option<&'static CharCard> {
-        self.src_char_id().map(CharId::get_char_card)
+        self.src_char_id().map(CharId::char_card)
     }
 
     #[inline]
@@ -31,7 +31,7 @@ impl<'a, 'b, 'c, 'v, D> StatusImplContext<'a, 'b, 'c, 'v, D> {
 
     #[inline]
     pub fn skill(&self) -> Option<&'static Skill> {
-        self.skill_id().map(SkillId::get_skill)
+        self.skill_id().map(SkillId::skill)
     }
 
     #[inline]
@@ -41,7 +41,7 @@ impl<'a, 'b, 'c, 'v, D> StatusImplContext<'a, 'b, 'c, 'v, D> {
 
     #[inline]
     pub fn weapon_type(&self) -> Option<WeaponType> {
-        self.get_src_character_state().map(|c| c.char_id.get_char_card().weapon)
+        self.src_character_state().map(|c| c.char_id.char_card().weapon)
     }
 
     #[inline]
@@ -55,12 +55,12 @@ impl<'a, 'b, 'c, 'v, D> StatusImplContext<'a, 'b, 'c, 'v, D> {
     }
 
     #[inline]
-    pub fn get_src_character_state(&self) -> Option<&CharState> {
-        self.ctx.src.char_idx().and_then(|ci| self.get_character_state(ci))
+    pub fn src_character_state(&self) -> Option<&CharState> {
+        self.ctx.src.char_idx().and_then(|ci| self.character_state(ci))
     }
 
     #[inline]
-    pub fn get_character_state(&self, char_idx: u8) -> Option<&CharState> {
+    pub fn character_state(&self, char_idx: u8) -> Option<&CharState> {
         let cs = self.src_player_state.char_states;
         if cs.is_valid_char_idx(char_idx) {
             return Some(&cs[char_idx]);
@@ -71,7 +71,7 @@ impl<'a, 'b, 'c, 'v, D> StatusImplContext<'a, 'b, 'c, 'v, D> {
     #[inline]
     pub fn is_switched_into_character(&self, char_id: CharId) -> bool {
         if let Some(tgt_char_idx) = self.ctx.src.switch_dst_char_idx() {
-            if let Some(cs) = self.get_character_state(tgt_char_idx) {
+            if let Some(cs) = self.character_state(tgt_char_idx) {
                 return cs.char_id == char_id;
             }
         }
@@ -87,7 +87,7 @@ impl<'a, 'b, 'c, 'v, D> StatusImplContext<'a, 'b, 'c, 'v, D> {
     pub fn is_plunging_attack(&self) -> bool {
         self.skill_type() == Some(SkillType::NormalAttack)
             && self
-                .get_src_character_state()
+                .src_character_state()
                 .is_some_and(|s| s.flags.contains(CharFlag::PlungingAttack))
     }
 
@@ -110,7 +110,7 @@ impl<'a, 'b, 'c, 'v, D> StatusImplContext<'a, 'b, 'c, 'v, D> {
             if status.applies_to_opposing {
                 unimplemented!()
             }
-            let char_id = status.get_casted_by_char_id();
+            let char_id = status.casted_by_char_id();
             self.src_player_state
                 .char_states
                 .iter_valid()
@@ -119,11 +119,11 @@ impl<'a, 'b, 'c, 'v, D> StatusImplContext<'a, 'b, 'c, 'v, D> {
 
         match self.status_key {
             StatusKey::Character(..) => self
-                .get_src_character_state()
+                .src_character_state()
                 .map(CharState::has_talent_equipped)
                 .unwrap_or(false),
-            StatusKey::Team(status_id) => check_for_status(status_id.get_status()),
-            StatusKey::Summon(summon_id) => check_for_status(summon_id.get_status()),
+            StatusKey::Team(status_id) => check_for_status(status_id.status()),
+            StatusKey::Summon(summon_id) => check_for_status(summon_id.status()),
             StatusKey::Equipment(..) => false,
             StatusKey::Support(..) => false,
         }

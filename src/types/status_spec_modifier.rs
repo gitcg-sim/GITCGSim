@@ -16,7 +16,7 @@ impl StatusSpecModifier {
     #[inline]
     pub fn modify(&self, key: StatusKey, eff_state: &mut AppliedEffectState) {
         for (_, count) in self.modifiers.iter().copied().filter(|k| k.0 == key) {
-            eff_state.set_usages(eff_state.get_usages() + count);
+            eff_state.set_usages(eff_state.usages() + count);
         }
     }
 }

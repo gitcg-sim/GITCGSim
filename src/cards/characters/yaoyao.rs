@@ -48,7 +48,7 @@ pub mod yuegui_throwing_mode {
 
     decl_summon_impl_type!(YueguiThrowingMode, I);
     trigger_event_impl!(YueguiThrowingMode, [Switched], |e| {
-        if e.c.has_talent_equipped() && e.c.eff_state.get_usages() == 1 {
+        if e.c.has_talent_equipped() && e.c.eff_state.usages() == 1 {
             e.cmd_deal_dmg(DealDMGType::DENDRO, 2, 0);
             e.add_cmd(Command::HealTakenMostDMG(2));
         } else {

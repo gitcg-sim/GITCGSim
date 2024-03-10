@@ -134,7 +134,7 @@ impl DiceCounter {
         let omni_count: u8 = avg + extra_omnis;
         let mut dice_counter = DiceCounter::omni(omni_count);
         if omni_count < free {
-            if let Some(off_elem) = dist.priority.get_off_element() {
+            if let Some(off_elem) = dist.priority.off_element() {
                 dice_counter.add_single(Dice::Elem(off_elem), free - omni_count);
             }
         }

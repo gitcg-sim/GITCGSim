@@ -106,7 +106,7 @@ pub fn iterate_match<
     G: Send + Sync + Fn(SmallRng) -> GameStateWrapper<S>,
 >(
     make_search: &M,
-    get_game: &G,
+    game: &G,
     opts: IterateMatchOpts,
 ) -> (i32, f32, SearchCounter) {
     let IterateMatchOpts {
@@ -125,11 +125,11 @@ pub fn iterate_match<
                 std::mem::swap(&mut search.0, &mut search.1);
             }
             let rng = SmallRng::seed_from_u64(random_seed.wrapping_add(2).overflowing_mul(i as u64).0);
-            let game = get_game(rng);
+            let game = game(rng);
 
             println!("+ Round {:3}", i + 1);
             let (winner, dt, c) = match_round(game, &mut search, steps);
-            let (winner_str, d_score) = get_winner_value(winner, flip);
+            let (winner_str, d_score) = winner_value(winner, flip);
             println!(
                 "- Round {:3} ... {winner_str} dt={:6.2}ms, states_visited={:8}",
                 i + 1,
@@ -149,7 +149,7 @@ pub fn iterate_match<
     (score, (score as f32) / ((2 * rounds) as f32), total_counter)
 }
 
-pub fn get_winner_value(winner: Option<PlayerId>, flip: bool) -> (&'static str, i32) {
+pub fn winner_value(winner: Option<PlayerId>, flip: bool) -> (&'static str, i32) {
     match winner {
         Some(PlayerId::PlayerFirst) => {
             if flip {

@@ -13,19 +13,19 @@ proptest! {
         let mut gs = gs;
         gs.advance(Input::NondetResult(NondetResult::ProvideCards(Default::default()))).unwrap();
         // TODO mulligan here
-        let a = a % gs.get_player(PlayerId::PlayerFirst).char_states.len();
-        let b = b % gs.get_player(PlayerId::PlayerSecond).char_states.len();
+        let a = a % gs.player(PlayerId::PlayerFirst).char_states.len();
+        let b = b % gs.player(PlayerId::PlayerSecond).char_states.len();
         gs.advance(Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::SwitchCharacter(a))).unwrap();
         gs.advance(Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::SwitchCharacter(b))).unwrap();
         assert_eq!(Phase::new_roll_phase(PlayerId::PlayerFirst), gs.phase);
-        assert_eq!(a, gs.get_player(PlayerId::PlayerFirst).active_char_idx);
-        assert_eq!(b, gs.get_player(PlayerId::PlayerSecond).active_char_idx);
+        assert_eq!(a, gs.player(PlayerId::PlayerFirst).active_char_idx);
+        assert_eq!(b, gs.player(PlayerId::PlayerSecond).active_char_idx);
         gs.advance(Input::NoAction).unwrap();
         gs.advance(Input::NondetResult(NondetResult::ProvideDice(Default::default()))).unwrap();
 
         assert_eq!(Some(PlayerId::PlayerFirst), gs.to_move_player());
-        assert_eq!(a, gs.get_player(PlayerId::PlayerFirst).active_char_idx);
-        assert_eq!(b, gs.get_player(PlayerId::PlayerSecond).active_char_idx);
+        assert_eq!(a, gs.player(PlayerId::PlayerFirst).active_char_idx);
+        assert_eq!(b, gs.player(PlayerId::PlayerSecond).active_char_idx);
     }
 
     #[test]
@@ -43,8 +43,8 @@ proptest! {
 
     #[test]
     fn cannot_contain_blank_card_on_hand(gs in arb_reachable_game_state()) {
-        assert!(!gs.get_player(crate::types::game_state::PlayerId::PlayerFirst).hand.contains(&CardId::BlankCard));
-        assert!(!gs.get_player(crate::types::game_state::PlayerId::PlayerSecond).hand.contains(&CardId::BlankCard));
+        assert!(!gs.player(crate::types::game_state::PlayerId::PlayerFirst).hand.contains(&CardId::BlankCard));
+        assert!(!gs.player(crate::types::game_state::PlayerId::PlayerSecond).hand.contains(&CardId::BlankCard));
     }
 
     #[test]
@@ -81,7 +81,7 @@ proptest! {
         }
 
         let gs = gs.game_state;
-        for sc in [gs.get_status_collection(PlayerId::PlayerFirst), gs.get_status_collection(PlayerId::PlayerSecond)] {
+        for sc in [gs.status_collection(PlayerId::PlayerFirst), gs.status_collection(PlayerId::PlayerSecond)] {
             let sort_keys: Vec<_> = sc.status_entries.iter().map(|s| s.key.sort_key()).collect();
             assert!(is_sorted(&sort_keys));
         }
@@ -93,12 +93,12 @@ proptest! {
         let player_id = gs.to_move().unwrap();
         let mut gs1 = gs;
         let (dice1, hand1, flags1) = {
-            let p = &gs1.game_state.get_player(player_id);
+            let p = &gs1.game_state.player(player_id);
             (p.dice, p.hand, p.flags)
         };
         gs1.hide_private_information(player_id.opposite());
         let (dice2, hand2, flags2) = {
-            let p = &gs1.game_state.get_player(player_id);
+            let p = &gs1.game_state.player(player_id);
             (p.dice, p.hand, p.flags)
         };
         assert_eq!(dice1, dice2);
@@ -137,19 +137,19 @@ proptest! {
             arb_decklist_with_chars(arb_char_ids_containing(CharId::Wanderer))
         ).arb_reachable().arb()
     ) {
-        assert!(gs.game_state.get_player(PlayerId::PlayerFirst).char_states.iter_all().any(|c| c.char_id == CharId::Beidou));
-        assert!(gs.game_state.get_player(PlayerId::PlayerSecond).char_states.iter_all().any(|c| c.char_id == CharId::Wanderer));
+        assert!(gs.game_state.player(PlayerId::PlayerFirst).char_states.iter_all().any(|c| c.char_id == CharId::Beidou));
+        assert!(gs.game_state.player(PlayerId::PlayerSecond).char_states.iter_all().any(|c| c.char_id == CharId::Wanderer));
     }
 
     #[test]
     fn incrementally_updated_element_priority_is_consistent(gs in arb_reachable_game_state_wrapper()) {
         for player_id in [PlayerId::PlayerFirst, PlayerId::PlayerSecond] {
-            let player = gs.game_state.get_player(player_id);
+            let player = gs.game_state.player(player_id);
             for (char_idx, cs) in player.char_states.enumerate_valid() {
                 let Some(ep) = cs.incremental_element_priority() else {
                     continue
                 };
-                assert_eq!(ep, player.get_element_priority_switch(char_idx));
+                assert_eq!(ep, player.element_priority_switch(char_idx));
             }
         }
     }

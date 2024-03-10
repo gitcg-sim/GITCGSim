@@ -170,13 +170,13 @@ pub mod player_state_features {
             return Default::default();
         }
 
-        let char_state = &player_state.get_char_states()[char_idx];
+        let char_state = &player_state.char_states()[char_idx];
         CharFeatures {
-            is_active: (player_state.get_active_char_idx() == char_idx).bv(),
+            is_active: (player_state.active_char_idx() == char_idx).bv(),
             is_alive: true.bv(),
-            hp: char_state.get_hp() as f32,
-            energy: char_state.get_energy() as f32,
-            applied_count: char_state.get_applied().len() as f32,
+            hp: char_state.hp() as f32,
+            energy: char_state.energy() as f32,
+            applied_count: char_state.applied().len() as f32,
             status: char_status_features(sc, char_idx),
         }
     }
@@ -190,11 +190,11 @@ pub mod player_state_features {
             return Default::default();
         }
 
-        let char_state = &player_state.get_char_states()[char_idx];
+        let char_state = &player_state.char_states()[char_idx];
         ExpressCharFeatures {
-            has_applied: if char_state.get_applied().is_empty() { 0.0 } else { 1.0 },
-            hp: char_state.get_hp() as f32,
-            energy: char_state.get_energy() as f32,
+            has_applied: if char_state.applied().is_empty() { 0.0 } else { 1.0 },
+            hp: char_state.hp() as f32,
+            energy: char_state.energy() as f32,
             status_count: char_status_features(sc, char_idx).total(),
         }
     }
@@ -208,8 +208,8 @@ pub mod player_state_features {
     }
 
     pub fn dice_features(player_state: &PlayerState) -> DiceFeatures<f32> {
-        let dice_counter = player_state.get_dice_counter();
-        let es = player_state.get_element_priority().elems();
+        let dice_counter = player_state.dice_counter();
+        let es = player_state.element_priority().elems();
         let off_count: u8 = Element::VALUES
             .iter()
             .copied()
@@ -254,20 +254,16 @@ pub mod game_state_features {
     fn turn_features(game_state: &GameState, player_id: PlayerId) -> TurnFeatures<f32> {
         TurnFeatures {
             own_turn: (game_state.to_move_player() == Some(player_id)).bv(),
-            opp_ended_round: game_state.get_phase().opponent_ended_round(player_id).bv(),
+            opp_ended_round: game_state.phase().opponent_ended_round(player_id).bv(),
         }
     }
 
     fn express_player_state_features(game_state: &GameState, player_id: PlayerId) -> ExpressPlayerStateFeatures<f32> {
-        let player_state = game_state.get_player(player_id);
-        let active_char_idx = player_state.get_active_char_idx();
+        let player_state = game_state.player(player_id);
+        let active_char_idx = player_state.active_char_idx();
         let mut chars: [ExpressCharFeatures<f32>; N_CHARS] = Default::default();
         for (char_idx, c) in chars.iter_mut().enumerate() {
-            *c = express_char_features(
-                player_state,
-                game_state.get_status_collection(player_id),
-                char_idx as u8,
-            );
+            *c = express_char_features(player_state, game_state.status_collection(player_id), char_idx as u8);
         }
 
         let mut active_char = Default::default();
@@ -275,9 +271,9 @@ pub mod game_state_features {
 
         let mut char_ids = [[[0.0; 32]; 4]; N_CHARS];
         for (i, n) in player_state
-            .get_char_states()
+            .char_states()
             .iter_all()
-            .map(|s| s.get_char_id().into_usize())
+            .map(|s| s.char_id().into_usize())
             .enumerate()
         {
             char_ids[i][n / 32][n % 32] = 1.0;
@@ -289,7 +285,7 @@ pub mod game_state_features {
             dice: dice_features(player_state),
             hand_count: player_state.hand_len() as f32,
             // team: player_state.team_features(),
-            team_status_count: team_features(game_state.get_status_collection(player_id)).total(),
+            team_status_count: team_features(game_state.status_collection(player_id)).total(),
             active_char,
             inactive_chars: chars,
             char_ids,
@@ -297,8 +293,8 @@ pub mod game_state_features {
     }
 
     fn player_state_features(game_state: &GameState, player_id: PlayerId) -> PlayerStateFeatures<f32> {
-        let player_state = game_state.get_player(player_id);
-        let sc = game_state.get_status_collection(player_id);
+        let player_state = game_state.player(player_id);
+        let sc = game_state.status_collection(player_id);
         let switch_is_fast_action = (0u8..(N_CHARS as u8))
             .any(|char_idx| game_state.check_switch_is_fast_action(player_id, char_idx))
             .bv();
@@ -415,7 +411,7 @@ pub mod input_features {
         target: Option<CardSelection>,
         value: T,
     ) -> InputFeatures<T> {
-        let card_type = card_id.get_card().card_type;
+        let card_type = card_id.card().card_type;
         let play_card = match card_type {
             CardType::Event | CardType::Food | CardType::ElementalResonance(..) | CardType::Talent(..) => {
                 vf!(PlayCardFeatures, event_or_other: value)
@@ -438,7 +434,7 @@ pub mod input_features {
     }
 
     fn cast_skill_features<T: Copy + Default>(skill_id: SkillId, value: T) -> InputFeatures<T> {
-        let cast_skill = match skill_id.get_skill().skill_type {
+        let cast_skill = match skill_id.skill().skill_type {
             SkillType::NormalAttack => vf!(CastSkillFeatures, normal_attack: value),
             SkillType::ElementalSkill => vf!(CastSkillFeatures, elemental_skill: value),
             SkillType::ElementalBurst => vf!(CastSkillFeatures, elemental_burst: value),

@@ -447,8 +447,8 @@ impl PlayerState {
 impl CharState {
     #[inline]
     pub fn zobrist_hash(&self, h: &mut ZobristHasher, player_id: PlayerId, char_idx: u8) {
-        h.hash(HASH_PROVIDER.hp(player_id, char_idx, self.get_hp()));
-        h.hash(HASH_PROVIDER.energy(player_id, char_idx, self.get_energy()));
+        h.hash(HASH_PROVIDER.hp(player_id, char_idx, self.hp()));
+        h.hash(HASH_PROVIDER.energy(player_id, char_idx, self.energy()));
         h.hash(HASH_PROVIDER.applied_elements(player_id, char_idx, self.applied));
         h.hash(HASH_PROVIDER.char_flags(player_id, char_idx, self.flags));
         h.hash(HASH_PROVIDER.total_dmg_taken(player_id, char_idx, self.total_dmg_taken));
@@ -459,8 +459,8 @@ impl StatusEntry {
     #[inline]
     pub fn zobrist_hash(&self, h: &mut ZobristHasher, index: usize, player_id: PlayerId) {
         let (a, b) = (
-            self.state.get_usages(),
-            self.state.get_counter() + if self.state.can_use_once_per_round() { 8 } else { 0 },
+            self.state.usages(),
+            self.state.counter() + if self.state.can_use_once_per_round() { 8 } else { 0 },
         );
         let hv: HashValue = match self.key {
             StatusKey::Character(char_idx, status_id) | StatusKey::Equipment(char_idx, _, status_id) => {

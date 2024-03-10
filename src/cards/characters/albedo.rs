@@ -45,7 +45,7 @@ pub const SKILLS: [(SkillId, Skill); 3] = [
 
 pub struct RiteOfProgenitureTectonicTide();
 impl SkillImpl for RiteOfProgenitureTectonicTide {
-    fn get_commands(
+    fn commands(
         &self,
         _: &PlayerState,
         status_collection: &StatusCollection,

@@ -18,7 +18,7 @@ impl CardImpl for FoodCardImpl {
         }
     }
 
-    fn get_effects(
+    fn effects(
         &self,
         cic: &CardImplContext,
         ctx: &CommandContext,

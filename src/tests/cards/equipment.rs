@@ -85,13 +85,10 @@ fn artifact_3_dice_guarantee() {
         PlayerAction::PlayCard(CardId::BlizzardStrayer, Some(CardSelection::OwnCharacter(0))),
     )]);
     let sc = &gs.status_collections.0;
-    assert_eq!(2, gs.players.0.get_dice_distribution(sc).fixed_count());
+    assert_eq!(2, gs.players.0.dice_distribution(sc).fixed_count());
     assert_eq!(
         2,
-        gs.players
-            .0
-            .get_dice_distribution(sc)
-            .fixed_count_for_elem(Element::Cryo)
+        gs.players.0.dice_distribution(sc).fixed_count_for_elem(Element::Cryo)
     );
 
     gs.advance_multiple([
@@ -100,13 +97,10 @@ fn artifact_3_dice_guarantee() {
     ]);
 
     let sc = &gs.status_collections.0;
-    assert_eq!(2, gs.players.0.get_dice_distribution(sc).fixed_count());
+    assert_eq!(2, gs.players.0.dice_distribution(sc).fixed_count());
     assert_eq!(
         2,
-        gs.players
-            .0
-            .get_dice_distribution(sc)
-            .fixed_count_for_elem(Element::Cryo)
+        gs.players.0.dice_distribution(sc).fixed_count_for_elem(Element::Cryo)
     );
 }
 
@@ -215,7 +209,7 @@ fn gamblers_earrings_triggers_on_summon_defeat() {
         ),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::Nightrider)),
     ]);
-    assert_eq!(1, gs.players.1.char_states[0].get_hp());
+    assert_eq!(1, gs.players.1.char_states[0].hp());
     assert_eq!(0, gs.players.0.dice[Dice::Omni]);
     gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
@@ -273,7 +267,7 @@ fn gamblers_earrings_does_not_trigger_on_non_active_summon_defeat() {
         ),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::Nightrider)),
     ]);
-    assert_eq!(1, gs.players.1.char_states[0].get_hp());
+    assert_eq!(1, gs.players.1.char_states[0].hp());
     assert_eq!(0, gs.players.0.dice[Dice::Omni]);
     gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
@@ -300,13 +294,13 @@ fn lithic_spear_grants_shield_points() {
         PlayerId::PlayerFirst,
         PlayerAction::PlayCard(CardId::LithicSpear, Some(CardSelection::OwnCharacter(0))),
     )]);
-    assert!(gs.get_status_collection(PlayerId::PlayerFirst).has_shield_points());
+    assert!(gs.status_collection(PlayerId::PlayerFirst).has_shield_points());
     assert_eq!(
         2,
-        gs.get_status_collection(PlayerId::PlayerFirst)
+        gs.status_collection(PlayerId::PlayerFirst)
             .get(StatusKey::Equipment(0, EquipSlot::Weapon, StatusId::LithicSpear))
             .unwrap()
-            .get_usages()
+            .usages()
     );
     gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::DoughFu)),
@@ -315,13 +309,13 @@ fn lithic_spear_grants_shield_points() {
             PlayerAction::CastSkill(SkillId::BoltsOfDownfall),
         ),
     ]);
-    assert!(!gs.get_status_collection(PlayerId::PlayerFirst).has_shield_points());
+    assert!(!gs.status_collection(PlayerId::PlayerFirst).has_shield_points());
     assert_eq!(
         0,
-        gs.get_status_collection(PlayerId::PlayerFirst)
+        gs.status_collection(PlayerId::PlayerFirst)
             .get(StatusKey::Equipment(0, EquipSlot::Weapon, StatusId::LithicSpear))
             .unwrap()
-            .get_usages()
+            .usages()
     );
 }
 
@@ -329,7 +323,7 @@ fn lithic_spear_grants_shield_points() {
 mod lucky_dogs_silver_circlet {
     use super::*;
 
-    fn get_game_state() -> GameState {
+    fn game_state() -> GameState {
         let mut gs = GameStateInitializer::new_skip_to_roll_phase(
             vector![CharId::Xiangling, CharId::Yoimiya, CharId::Xingqiu],
             vector![CharId::Fischl],
@@ -352,37 +346,37 @@ mod lucky_dogs_silver_circlet {
 
     #[test]
     fn test_does_not_proc_on_na() {
-        let mut gs = get_game_state();
+        let mut gs = game_state();
         gs.advance_multiple([Input::FromPlayer(
             PlayerId::PlayerFirst,
             PlayerAction::CastSkill(SkillId::DoughFu),
         )]);
-        assert_eq!(5, gs.get_player(PlayerId::PlayerFirst).char_states[0].get_hp());
+        assert_eq!(5, gs.player(PlayerId::PlayerFirst).char_states[0].hp());
     }
 
     #[test]
     fn test_does_not_proc_on_burst() {
-        let mut gs = get_game_state();
+        let mut gs = game_state();
         gs.advance_multiple([Input::FromPlayer(
             PlayerId::PlayerFirst,
             PlayerAction::CastSkill(SkillId::Pyronado),
         )]);
-        assert_eq!(5, gs.get_player(PlayerId::PlayerFirst).char_states[0].get_hp());
+        assert_eq!(5, gs.player(PlayerId::PlayerFirst).char_states[0].hp());
     }
 
     #[test]
     fn test_procs_once_per_round_on_own_skill() {
-        let mut gs = get_game_state();
+        let mut gs = game_state();
         gs.advance_multiple([Input::FromPlayer(
             PlayerId::PlayerFirst,
             PlayerAction::CastSkill(SkillId::GuobaAttack),
         )]);
-        assert_eq!(7, gs.get_player(PlayerId::PlayerFirst).char_states[0].get_hp());
+        assert_eq!(7, gs.player(PlayerId::PlayerFirst).char_states[0].hp());
         gs.advance_multiple([
             Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
             Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::GuobaAttack)),
         ]);
-        assert_eq!(7, gs.get_player(PlayerId::PlayerFirst).char_states[0].get_hp());
+        assert_eq!(7, gs.player(PlayerId::PlayerFirst).char_states[0].hp());
         gs.advance_multiple([
             Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::EndRound),
             Input::NoAction,
@@ -392,28 +386,28 @@ mod lucky_dogs_silver_circlet {
             Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
             Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::GuobaAttack)),
         ]);
-        assert_eq!(9, gs.get_player(PlayerId::PlayerFirst).char_states[0].get_hp());
+        assert_eq!(9, gs.player(PlayerId::PlayerFirst).char_states[0].hp());
     }
 
     #[test]
     fn test_does_not_proc_on_other_own_character_skill() {
-        let mut gs = get_game_state();
+        let mut gs = game_state();
         gs.advance_multiple([
             Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::SwitchCharacter(1)),
             Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
             Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::NiwabiFireDance)),
         ]);
-        assert_eq!(5, gs.get_player(PlayerId::PlayerFirst).char_states[0].get_hp());
+        assert_eq!(5, gs.player(PlayerId::PlayerFirst).char_states[0].hp());
     }
 
     #[test]
     fn test_does_not_proc_on_opponent_skill() {
-        let mut gs = get_game_state();
+        let mut gs = game_state();
         gs.advance_multiple([
             Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::EndRound),
             Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::CastSkill(SkillId::Nightrider)),
         ]);
-        assert_eq!(4, gs.get_player(PlayerId::PlayerFirst).char_states[0].get_hp());
+        assert_eq!(4, gs.player(PlayerId::PlayerFirst).char_states[0].hp());
     }
 }
 
@@ -439,7 +433,7 @@ mod ornate_kabuto {
             ),
             Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::Raincutter)),
         ]);
-        assert_eq!(0, gs.players.0.char_states[0].get_energy());
+        assert_eq!(0, gs.players.0.char_states[0].energy());
     }
 
     #[test]
@@ -460,8 +454,8 @@ mod ornate_kabuto {
             ),
             Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::Raincutter)),
         ]);
-        assert_eq!(0, gs.players.0.char_states[0].get_energy());
-        assert_eq!(1, gs.players.0.char_states[1].get_energy());
+        assert_eq!(0, gs.players.0.char_states[0].energy());
+        assert_eq!(1, gs.players.0.char_states[1].energy());
     }
 }
 
@@ -488,8 +482,8 @@ mod favonius_sword {
             Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::GuhuaStyle)),
             Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::EndRound),
         ]);
-        assert_eq!(1, gs.players.0.char_states[0].get_energy());
-        assert_eq!(7, gs.players.1.char_states[0].get_hp());
+        assert_eq!(1, gs.players.0.char_states[0].energy());
+        assert_eq!(7, gs.players.1.char_states[0].hp());
     }
 
     #[test]
@@ -510,7 +504,7 @@ mod favonius_sword {
             ),
             Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::FatalRainscreen)),
         ]);
-        assert_eq!(2, gs.players.0.char_states[0].get_energy());
+        assert_eq!(2, gs.players.0.char_states[0].energy());
     }
 
     #[test]
@@ -531,7 +525,7 @@ mod favonius_sword {
             ),
             Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::NiwabiFireDance)),
         ]);
-        assert_eq!(0, gs.players.0.char_states[1].get_energy());
+        assert_eq!(0, gs.players.0.char_states[1].energy());
     }
 }
 
@@ -548,7 +542,7 @@ mod aquila_favonia {
         .build();
         gs.advance_roll_phase_no_dice();
         {
-            let p = gs.get_player_mut(PlayerId::PlayerFirst);
+            let p = gs.player_mut(PlayerId::PlayerFirst);
             p.add_to_hand_ignore(CardId::AquilaFavonia);
             p.char_states[0].set_hp(8);
         }
@@ -567,7 +561,7 @@ mod aquila_favonia {
             PlayerId::PlayerFirst,
             PlayerAction::CastSkill(SkillId::StrikeOfFortune),
         )]);
-        assert_eq!(7, gs.get_player(PlayerId::PlayerSecond).char_states[0].get_hp());
+        assert_eq!(7, gs.player(PlayerId::PlayerSecond).char_states[0].hp());
     }
 
     #[test]
@@ -580,14 +574,14 @@ mod aquila_favonia {
                 PlayerAction::CastSkill(SkillId::NiwabiFireDance),
             ),
         ]);
-        assert_eq!(9, gs.get_player(PlayerId::PlayerFirst).char_states[0].get_hp());
+        assert_eq!(9, gs.player(PlayerId::PlayerFirst).char_states[0].hp());
         assert_eq!(
             1,
-            gs.get_status_collection_mut(PlayerId::PlayerFirst)
+            gs.status_collection_mut(PlayerId::PlayerFirst)
                 .find_equipment(0, EquipSlot::Weapon)
                 .unwrap()
                 .state
-                .get_counter()
+                .counter()
         );
     }
 
@@ -598,7 +592,7 @@ mod aquila_favonia {
             PlayerId::PlayerFirst,
             PlayerAction::CastSkill(SkillId::PassionOverload),
         )]);
-        assert_eq!(8, gs.get_player(PlayerId::PlayerFirst).char_states[0].get_hp());
+        assert_eq!(8, gs.player(PlayerId::PlayerFirst).char_states[0].hp());
     }
 
     #[test]
@@ -609,7 +603,7 @@ mod aquila_favonia {
             Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::SwitchCharacter(1)),
             Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::BoltsOfDownfall)),
         ]);
-        assert_eq!(8, gs.get_player(PlayerId::PlayerFirst).char_states[0].get_hp());
+        assert_eq!(8, gs.player(PlayerId::PlayerFirst).char_states[0].hp());
     }
 
     #[test]
@@ -622,6 +616,6 @@ mod aquila_favonia {
                 PlayerAction::CastSkill(SkillId::NiwabiFireDance),
             ),
         ]);
-        assert_eq!(8, gs.get_player(PlayerId::PlayerFirst).char_states[0].get_hp());
+        assert_eq!(8, gs.player(PlayerId::PlayerFirst).char_states[0].hp());
     }
 }

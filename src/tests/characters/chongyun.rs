@@ -73,7 +73,7 @@ fn chonghuas_frost_field_infusion_applies_to_claymores() {
         ),
     ]);
     assert!(gs.players.1.char_states[1].applied.contains(Element::Cryo));
-    assert_eq!(8, gs.players.1.char_states[1].get_hp());
+    assert_eq!(8, gs.players.1.char_states[1].hp());
 }
 
 #[test]
@@ -178,13 +178,13 @@ fn talent_card_affects_chonghuas_frost_field() {
     ]);
     assert_eq!(
         3,
-        gs.get_status_collection(PlayerId::PlayerFirst)
+        gs.status_collection(PlayerId::PlayerFirst)
             .get(StatusKey::Team(StatusId::ChonghuaFrostField))
             .unwrap()
-            .get_duration()
+            .duration()
     );
     assert!(gs.players.1.char_states[1].applied.contains(Element::Cryo));
-    assert_eq!(7, gs.players.1.char_states[1].get_hp());
+    assert_eq!(7, gs.players.1.char_states[1].hp());
 }
 
 #[test]
@@ -214,7 +214,7 @@ fn talent_card_on_different_character_doesnt_affect_chonghuas_frost_field() {
         Input::FromPlayer(PlayerId::PlayerSecond, PlayerAction::SwitchCharacter(1)),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::SwitchCharacter(0)),
     ]);
-    assert_eq!(10, gs.players.1.char_states[1].get_hp());
+    assert_eq!(10, gs.players.1.char_states[1].hp());
     assert_eq!(elem_set![], gs.players.1.char_states[1].applied);
 
     gs.advance_multiple([
@@ -226,16 +226,16 @@ fn talent_card_on_different_character_doesnt_affect_chonghuas_frost_field() {
     ]);
     assert_eq!(
         2,
-        gs.get_status_collection(PlayerId::PlayerFirst)
+        gs.status_collection(PlayerId::PlayerFirst)
             .get(StatusKey::Team(StatusId::ChonghuaFrostField))
             .unwrap()
-            .get_duration()
+            .duration()
     );
-    assert_eq!(8, gs.players.1.char_states[1].get_hp());
+    assert_eq!(8, gs.players.1.char_states[1].hp());
     assert_eq!(elem_set![Element::Cryo], gs.players.1.char_states[1].applied);
     gs.advance_multiple([
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::SwitchCharacter(1)),
         Input::FromPlayer(PlayerId::PlayerFirst, PlayerAction::CastSkill(SkillId::Demonbane)),
     ]);
-    assert_eq!(6, gs.players.1.char_states[1].get_hp());
+    assert_eq!(6, gs.players.1.char_states[1].hp());
 }

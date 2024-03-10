@@ -101,7 +101,7 @@ fn _test_zobrist_hash_random_steps(mut gs: GameState, max_steps: u8) {
             if let Phase::WinnerDecided { .. } = gs.phase {
                 break 'a;
             }
-            let input = nd.get_no_to_move_player_input(&gs);
+            let input = nd.no_to_move_player_input(&gs);
             gs.advance(input).unwrap();
         }
         let actions = gs.available_actions();

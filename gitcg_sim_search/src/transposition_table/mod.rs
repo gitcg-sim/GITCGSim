@@ -22,7 +22,7 @@ impl<K: Eq + Copy + Into<usize>, V: Sized + Clone> std::fmt::Debug for CacheTabl
             .field("megabytes", &self.megabytes)
             .field("number_of_entries", &self.number_of_entries)
             .field("bucket_count", &self.bucket_count)
-            .field("occupancy", &self.get_occupancy())
+            .field("occupancy", &self.occupancy())
             .finish()
     }
 }
@@ -43,27 +43,27 @@ impl<K: Eq + Copy + Into<usize>, V: Sized + Clone> CacheTable<K, V> {
         }
     }
 
-    pub fn get_megabytes(&self) -> usize {
+    pub fn megabytes(&self) -> usize {
         self.megabytes
     }
 
-    pub fn get_max_entries(&self) -> usize {
+    pub fn max_entries(&self) -> usize {
         self.number_of_entries
     }
 
-    pub fn get_bucket_count(&self) -> usize {
+    pub fn bucket_count(&self) -> usize {
         self.bucket_count
     }
 
-    pub fn get_occupied_count(&self) -> usize {
+    pub fn occupied_count(&self) -> usize {
         self.buckets
             .iter()
             .map(|bucket| bucket.read().expect("count").iter().filter(|x| x.is_some()).count())
             .sum()
     }
 
-    pub fn get_occupancy(&self) -> f64 {
-        (self.get_occupied_count() as f64) / (self.number_of_entries as f64)
+    pub fn occupancy(&self) -> f64 {
+        (self.occupied_count() as f64) / (self.number_of_entries as f64)
     }
 
     #[inline]
@@ -141,7 +141,7 @@ mod tests {
     #[test]
     fn test_get_set() {
         let table = CacheTable::<usize, u8>::new(1);
-        assert_eq!(0, table.get_occupied_count());
+        assert_eq!(0, table.occupied_count());
         let k1 = 123usize;
         let v1 = 100u8;
         let k2 = 10usize;
@@ -154,7 +154,7 @@ mod tests {
 
         table.set(&k1, v2);
         assert_eq!(Some(v2), table.get(&k1));
-        assert_eq!(1, table.get_occupied_count());
+        assert_eq!(1, table.occupied_count());
 
         table.set(&k2, v3);
         assert_eq!(Some(v3), table.get(&k2));
@@ -163,7 +163,7 @@ mod tests {
     #[test]
     fn test_replace_if() {
         let table = CacheTable::<usize, u8>::new(1);
-        assert_eq!(0, table.get_occupied_count());
+        assert_eq!(0, table.occupied_count());
         let k1 = 123usize;
         let v1 = 14u8;
         let v2 = 50u8;
@@ -171,14 +171,14 @@ mod tests {
         table.set(&k1, v1);
         table.replace_if(&k1, v2, |prev_value| *prev_value >= 50u8);
         assert_eq!(Some(v1), table.get(&k1));
-        assert_eq!(1, table.get_occupied_count());
+        assert_eq!(1, table.occupied_count());
 
         table.replace_if(&k1, v2, |prev_value| *prev_value >= 40u8);
         assert_eq!(Some(v1), table.get(&k1));
-        assert_eq!(1, table.get_occupied_count());
+        assert_eq!(1, table.occupied_count());
 
         table.replace_if(&k1, v2, |prev_value| *prev_value >= 10u8);
         assert_eq!(Some(v2), table.get(&k1));
-        assert_eq!(1, table.get_occupied_count());
+        assert_eq!(1, table.occupied_count());
     }
 }

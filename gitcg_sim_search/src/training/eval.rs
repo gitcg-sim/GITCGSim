@@ -69,8 +69,8 @@ impl<S: NondetState> EvalPolicy<GameStateWrapper<S>> for SelfPlayModel {
 }
 
 pub trait GetSelfPlayModel {
-    fn get_self_play_model(&self) -> &SelfPlayModel;
-    fn get_self_play_model_mut(&mut self) -> &mut SelfPlayModel;
+    fn self_play_model(&self) -> &SelfPlayModel;
+    fn self_play_model_mut(&mut self) -> &mut SelfPlayModel;
 }
 
 /// Boltzmann action selection
@@ -84,12 +84,12 @@ pub struct SelfPlaySearch {
 
 impl GetSelfPlayModel for SelfPlaySearch {
     #[inline]
-    fn get_self_play_model(&self) -> &SelfPlayModel {
+    fn self_play_model(&self) -> &SelfPlayModel {
         &self.model
     }
 
     #[inline]
-    fn get_self_play_model_mut(&mut self) -> &mut SelfPlayModel {
+    fn self_play_model_mut(&mut self) -> &mut SelfPlayModel {
         &mut self.model
     }
 }
@@ -137,12 +137,12 @@ impl<S: NondetState> GameTreeSearch<GameStateWrapper<S>> for SelfPlaySearch {
 
 impl<S: NondetState> GetSelfPlayModel for MCTS<GameStateWrapper<S>, SelfPlayModel> {
     #[inline]
-    fn get_self_play_model(&self) -> &SelfPlayModel {
+    fn self_play_model(&self) -> &SelfPlayModel {
         &self.eval_policy
     }
 
     #[inline]
-    fn get_self_play_model_mut(&mut self) -> &mut SelfPlayModel {
+    fn self_play_model_mut(&mut self) -> &mut SelfPlayModel {
         &mut self.eval_policy
     }
 }
