@@ -96,7 +96,7 @@ impl GameState {
             next_first_active_player: first_active_player,
         } = self.phase
         {
-            for player_id in [PlayerId::PlayerFirst, PlayerId::PlayerSecond] {
+            for player_id in PlayerId::VALUES {
                 self.status_collections.mutate_hashed(phc!(self, player_id), |sc| {
                     sc.consume_statuses(
                         CharIdxSelector::All,
@@ -1099,7 +1099,7 @@ impl GameState {
     }
 
     fn post_death_check(&mut self, prev_res: ExecResult) -> ExecResult {
-        for player_id in [PlayerId::PlayerFirst, PlayerId::PlayerSecond] {
+        for player_id in PlayerId::VALUES {
             let player = self.players.get_mut(player_id);
             if player.is_valid_char_idx(player.active_char_idx) {
                 continue;

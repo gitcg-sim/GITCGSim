@@ -90,12 +90,8 @@ fn first_round_phases_before_action_phase() {
     assert_eq!(0, gs.player(PlayerId::PlayerSecond).active_char_idx);
 
     // Start of Roll Phase
-    let dice_distrs = ByPlayer::new(
-        gs.player(PlayerId::PlayerFirst)
-            .dice_distribution(gs.status_collection(PlayerId::PlayerFirst)),
-        gs.player(PlayerId::PlayerSecond)
-            .dice_distribution(gs.status_collection(PlayerId::PlayerSecond)),
-    );
+    let dice_distrs =
+        ByPlayer::generate(|player_id| gs.player(player_id).dice_distribution(gs.status_collection(player_id)));
     assert_eq!(
         Phase::RollPhase {
             first_active_player: PlayerId::PlayerFirst,

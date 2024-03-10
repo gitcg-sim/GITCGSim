@@ -25,6 +25,12 @@ impl<T> ByPlayer<T> {
         Self(a, b)
     }
 
+    /// Given function `f`, produces `ByPlayer::new(f(PlayerId::PlayerFirst), f(PlayerId::PlayerSecond))`
+    #[inline]
+    pub fn generate<F: FnMut(PlayerId) -> T>(mut f: F) -> Self {
+        Self(f(PlayerId::PlayerFirst), f(PlayerId::PlayerSecond))
+    }
+
     #[inline]
     pub fn get(&self, player_id: PlayerId) -> &T {
         match player_id {

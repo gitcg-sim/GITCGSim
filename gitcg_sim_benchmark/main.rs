@@ -134,8 +134,7 @@ fn main() -> Result<(), std::io::Error> {
         let bf = move |n: f64| n.powf(1_f64 / (depth as f64));
         let game = Rc::new(deck_opts.standard_game(None)?);
         let benchmark = move |parallel: bool, steps: u32| {
-            let f = || deck_opts.make_search(parallel, deck_opts.limits());
-            let mut searches = ByPlayer::new(f(), f());
+            let mut searches = ByPlayer::generate(|_| deck_opts.make_search(parallel, deck_opts.limits()));
             let game = game.deref();
             let (dt_ns, c) = trace_search(game, &mut searches, steps);
             (dt_ns, c)

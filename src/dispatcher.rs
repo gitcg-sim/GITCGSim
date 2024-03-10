@@ -545,7 +545,7 @@ impl GameState {
     }
 
     fn apply_passives(&mut self) {
-        for player_id in [PlayerId::PlayerFirst, PlayerId::PlayerSecond] {
+        for player_id in PlayerId::VALUES {
             let player = self.player_mut(player_id);
             let mut to_apply = vector![];
             for (i, c) in player.char_states.enumerate_valid() {

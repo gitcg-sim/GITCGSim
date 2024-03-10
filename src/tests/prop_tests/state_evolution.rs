@@ -119,7 +119,7 @@ proptest! {
 
     #[test]
     fn non_active_characters_no_plunging_attack_flag(gs in arb_reachable_game_state_wrapper()) {
-        for player_id in [PlayerId::PlayerFirst, PlayerId::PlayerSecond] {
+        for player_id in PlayerId::VALUES {
             let PlayerState { char_states, active_char_idx, .. } = gs.game_state.players.get(player_id);
             for (char_idx, char_state) in char_states.enumerate_valid().filter(|(i, _)| i != active_char_idx) {
                 assert!(
@@ -143,7 +143,7 @@ proptest! {
 
     #[test]
     fn incrementally_updated_element_priority_is_consistent(gs in arb_reachable_game_state_wrapper()) {
-        for player_id in [PlayerId::PlayerFirst, PlayerId::PlayerSecond] {
+        for player_id in PlayerId::VALUES {
             let player = gs.game_state.player(player_id);
             for (char_idx, cs) in player.char_states.enumerate_valid() {
                 let Some(ep) = cs.incremental_element_priority() else {

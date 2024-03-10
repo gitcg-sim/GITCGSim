@@ -174,32 +174,26 @@ fn run_tdl_self_play<
 ) {
     let states = run_playout(initial, searches, 300, |_, _, _| ControlFlow::Continue(()));
     let mut searches = searches.borrow_mut();
-    let evals = [PlayerId::PlayerFirst, PlayerId::PlayerSecond]
-        .iter()
-        .copied()
-        .map(|player_id| {
-            let eval_game_state = |game_state: &GameStateWrapper<S>| {
-                if let Some(winner) = game_state.winner() {
-                    winner_eval(winner, player_id)
-                } else {
-                    searches.get(player_id).self_play_model().evaluate(game_state)
-                }
-            };
-            states.iter().map(eval_game_state).collect::<Vec<_>>()
-        })
-        .collect::<Vec<_>>();
-
-    let evals = ByPlayer::new(evals[0].clone(), evals[1].clone());
+    let evals = ByPlayer::generate(|player_id| {
+        let eval_game_state = |game_state: &GameStateWrapper<S>| {
+            if let Some(winner) = game_state.winner() {
+                winner_eval(winner, player_id)
+            } else {
+                searches.get(player_id).self_play_model().evaluate(game_state)
+            }
+        };
+        states.iter().map(eval_game_state).collect::<Vec<_>>()
+    });
 
     if let Some(make_debug_entry) = make_debug_entry {
-        for player_id in [PlayerId::PlayerFirst, PlayerId::PlayerSecond] {
+        for player_id in PlayerId::VALUES {
             let model = searches[player_id].self_play_model();
             let entry = make_debug_entry(player_id, model.weights);
             println!("{}", serde_json::to_string(&entry).unwrap_or_default());
         }
     }
 
-    for player_id in [PlayerId::PlayerFirst, PlayerId::PlayerSecond] {
+    for player_id in PlayerId::VALUES {
         let model = searches[player_id].self_play_model_mut();
         let weights = model.weights.as_slice_mut();
         let n_states = states.len();
@@ -240,10 +234,7 @@ fn new_search(init_weights: Features, player_id: PlayerId, beta: f32, delta: f32
 fn main_tdl(mut deck: SearchOpts, opts: TDLOpts) -> Result<(), std::io::Error> {
     let mut seed_gen = thread_rng();
     let (beta, delta) = (opts.beta, 1e-4);
-    let searches = RefCell::new(ByPlayer::new(
-        new_search(Default::default(), PlayerId::PlayerFirst, beta, delta),
-        new_search(Default::default(), PlayerId::PlayerSecond, beta, delta),
-    ));
+    let searches = RefCell::new(ByPlayer::generate(|p| new_search(Default::default(), p, beta, delta)));
     for i in 0..=opts.max_iters {
         deck.seed = Some(seed_gen.gen());
         let initial = deck.standard_game(Some(SmallRng::from_seed(seed_gen.gen())))?;
@@ -379,8 +370,7 @@ fn main_policy(deck: SearchOpts, opts: PolicyOpts) -> Result<(), std::io::Error>
                 games.fetch_add(1, Ordering::AcqRel);
                 deck.standard_game(Some(SmallRng::from_seed(seed_gen.gen()))).unwrap()
             };
-            let make_search = move || MCTS::new(*config);
-            let searches = RefCell::new(ByPlayer::new(make_search(), make_search()));
+            let searches = RefCell::new(ByPlayer::generate(move |_| MCTS::new(*config)));
             generate_data_points_mcts(tx, initial, &searches, opts.mcts_min_depth, CUTOFF_PER_ITER, 1_000_000)
         }
     };

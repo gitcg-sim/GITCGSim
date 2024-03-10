@@ -106,6 +106,8 @@ impl Display for PlayerId {
 }
 
 impl PlayerId {
+    pub const VALUES: [Self; 2] = [Self::PlayerFirst, Self::PlayerSecond];
+
     #[inline]
     pub fn opposite(self) -> PlayerId {
         match self {

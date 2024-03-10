@@ -80,7 +80,7 @@ impl Default for GameStateInitializer<MissingCharacters, MissingStartingConditio
 impl GameStateInitializer<HasCharacters, MissingStartingCondition> {
     pub fn new<T: Into<Vector<CharId>>>(c1: T, c2: T) -> Self {
         Self {
-            characters: ByPlayer::new(c1.into(), c2.into()),
+            characters: (c1.into(), c2.into()).into(),
             starting_condition: Default::default(),
             enable_log: Default::default(),
             ignore_costs: false,
@@ -149,7 +149,7 @@ impl GameStateInitializer<HasCharacters, HasStartingCondition> {
 
     fn empty_game_state() -> GameState {
         GameState {
-            players: ByPlayer::new(PlayerState::new([]), PlayerState::new([])),
+            players: ByPlayer::generate(|_| PlayerState::new([])),
             status_collections: Default::default(),
             pending_cmds: None,
             phase: Phase::INITIAL,
@@ -175,10 +175,7 @@ impl GameStateInitializer<HasCharacters, HasStartingCondition> {
         }
 
         let mut res = GameState {
-            players: ByPlayer::new(
-                PlayerState::new(self.characters.get(PlayerId::PlayerFirst).iter().copied()),
-                PlayerState::new(self.characters.get(PlayerId::PlayerSecond).iter().copied()),
-            ),
+            players: ByPlayer::generate(|player_id| PlayerState::new(self.characters.get(player_id).iter().copied())),
             phase: self.starting_condition.starting_phase(),
             ignore_costs: self.ignore_costs,
             ..Self::empty_game_state()
