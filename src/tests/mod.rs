@@ -1,7 +1,8 @@
 use crate::builder::*;
 use crate::cards::ids::*;
 use crate::dispatcher_ops::*;
-use crate::types::{dice_counter::*, game_state::*, input::*, tcg_model::*};
+use crate::types::{by_player::ByPlayer, dice_counter::*, game_state::*, input::*, tcg_model::*};
+
 use crate::{action_list, elem_set, list8, vector};
 use enumset::enum_set;
 
@@ -24,7 +25,7 @@ pub mod serialization;
 
 pub mod prop_tests;
 
-impl GameState {
+impl<P: GameStateParams> crate::types::game_state::GameState<P> {
     /// Handle advancing the game state through RollPhase until the start of Action Phase
     /// Panics: If `advance` causes an error.
     fn advance_roll_phase_no_dice(&mut self) {
@@ -89,7 +90,7 @@ impl GameState {
     }
 
     /// Panics: If `advance` causes an error.
-    fn advance_multiple<T: IntoIterator<Item = Input>>(self: &mut GameState, inputs: T) {
+    fn advance_multiple<T: IntoIterator<Item = Input>>(self: &mut crate::types::game_state::GameState<P>, inputs: T) {
         for input in inputs.into_iter() {
             self.advance(input).unwrap();
         }

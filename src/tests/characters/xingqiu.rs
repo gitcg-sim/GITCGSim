@@ -2,9 +2,10 @@ use super::*;
 
 #[test]
 fn fatal_rainscreen_applies_hydro_to_self_and_creates_rain_sword() {
-    let mut gs = GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Xingqiu], vector![CharId::Fischl])
-        .ignore_costs(true)
-        .build();
+    let mut gs: GameState<()> =
+        GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Xingqiu], vector![CharId::Fischl])
+            .ignore_costs(true)
+            .build();
     gs.advance_roll_phase_no_dice();
     gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
@@ -31,9 +32,10 @@ fn fatal_rainscreen_applies_hydro_to_self_and_creates_rain_sword() {
 
 #[test]
 fn talent_card_increases_fatal_rainscreen_usages() {
-    let mut gs = GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Xingqiu], vector![CharId::Fischl])
-        .ignore_costs(true)
-        .build();
+    let mut gs: GameState<()> =
+        GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Xingqiu], vector![CharId::Fischl])
+            .ignore_costs(true)
+            .build();
     gs.advance_roll_phase_no_dice();
     gs.players.0.add_to_hand_ignore(CardId::TheScentRemained);
     gs.advance_multiple([Input::FromPlayer(
@@ -55,7 +57,7 @@ fn talent_card_increases_fatal_rainscreen_usages() {
 
 #[test]
 fn rain_sword_reduces_dmg_above_3_by_1() {
-    let mut gs = GameStateInitializer::new_skip_to_roll_phase(
+    let mut gs: GameState<()> = GameStateInitializer::new_skip_to_roll_phase(
         vector![CharId::Xingqiu, CharId::Yoimiya],
         vector![CharId::Fischl, CharId::Noelle],
     )
@@ -98,9 +100,10 @@ fn rain_sword_reduces_dmg_above_3_by_1() {
 
 #[test]
 fn raincutter_applies_hydro_to_self_and_creates_rainbow_bladework() {
-    let mut gs = GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Xingqiu], vector![CharId::Fischl])
-        .ignore_costs(true)
-        .build();
+    let mut gs: GameState<()> =
+        GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Xingqiu], vector![CharId::Fischl])
+            .ignore_costs(true)
+            .build();
     gs.advance_roll_phase_no_dice();
     gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
@@ -127,7 +130,7 @@ fn raincutter_applies_hydro_to_self_and_creates_rainbow_bladework() {
 
 #[test]
 fn rainbow_bladework_procs_on_normal_attacks() {
-    let mut gs = GameStateInitializer::new_skip_to_roll_phase(
+    let mut gs: GameState<()> = GameStateInitializer::new_skip_to_roll_phase(
         vector![CharId::Xingqiu, CharId::Xiangling],
         vector![CharId::Fischl, CharId::Noelle],
     )

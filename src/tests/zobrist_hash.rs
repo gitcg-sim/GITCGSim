@@ -10,7 +10,7 @@ use super::*;
 
 #[test]
 fn zobrist_hash() {
-    let mut gs =
+    let mut gs: GameState<()> =
         GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Fischl], vector![CharId::Kaeya, CharId::Yoimiya])
             .ignore_costs(true)
             .build();

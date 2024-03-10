@@ -7,8 +7,8 @@ use crate::{
 
 use super::*;
 
-fn _initial_gs() -> GameState {
-    let mut gs = GameStateInitializer::new_skip_to_roll_phase(
+fn _initial_gs() -> crate::types::game_state::GameState<()> {
+    let mut gs: GameState<()> = GameStateInitializer::new_skip_to_roll_phase(
         vector![CharId::KamisatoAyaka, CharId::Yoimiya, CharId::Collei],
         vector![CharId::Diona, CharId::Ningguang, CharId::Noelle],
     )

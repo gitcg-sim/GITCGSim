@@ -49,7 +49,7 @@ pub fn arb_char_ids_containing(char_id: CharId) -> impl Strategy<Value = Vector<
 }
 
 prop_compose! {
-    pub fn arb_init_game_state()(p1_chars in arb_char_ids(), p2_chars in arb_char_ids()) -> GameState {
+    pub fn arb_init_game_state()(p1_chars in arb_char_ids(), p2_chars in arb_char_ids()) -> GameState<()> {
         GameStateInitializer::default()
             .characters(p1_chars, p2_chars)
             .start_at_beginning()
@@ -109,7 +109,7 @@ impl<D1: Strategy<Value = Decklist>, D2: Strategy<Value = Decklist>> ArbGameStat
 
     // TODO remove this warning if needed
     #[allow(dead_code)]
-    pub fn arb_game_state(self) -> impl Strategy<Value = GameState> {
+    pub fn arb_game_state(self) -> impl Strategy<Value = GameState<()>> {
         (self.arb_deck1, self.arb_deck2).prop_map(|(d1, d2)| {
             GameStateInitializer::default()
                 .characters(d1.characters, d2.characters)
@@ -202,7 +202,7 @@ prop_compose! {
 }
 
 prop_compose! {
-    pub fn arb_reachable_game_state()(game_state_wrapper in arb_reachable_game_state_wrapper()) -> GameState {
+    pub fn arb_reachable_game_state()(game_state_wrapper in arb_reachable_game_state_wrapper()) -> GameState<()> {
         game_state_wrapper.game_state
     }
 }

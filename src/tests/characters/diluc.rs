@@ -2,10 +2,11 @@ use super::*;
 
 #[test]
 fn searing_onslaught_increases_dmg_every_3rd_use_per_round() {
-    let mut gs = GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Diluc], vector![CharId::Kaeya])
-        .enable_log(true)
-        .ignore_costs(true)
-        .build();
+    let mut gs: GameState<()> =
+        GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Diluc], vector![CharId::Kaeya])
+            .enable_log(true)
+            .ignore_costs(true)
+            .build();
     gs.advance_roll_phase_no_dice();
     for r in 2..=3 {
         gs.advance_multiple([
@@ -46,7 +47,7 @@ fn searing_onslaught_increases_dmg_every_3rd_use_per_round() {
 
 #[test]
 fn dawn_grants_pyro_infusion() {
-    let mut gs =
+    let mut gs: GameState<()> =
         GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Diluc], vector![CharId::Kaeya, CharId::Fischl])
             .enable_log(true)
             .ignore_costs(true)

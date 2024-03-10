@@ -2,9 +2,10 @@ use super::*;
 
 #[test]
 fn charged_attack_affected_by_explosive_spark() {
-    let mut gs = GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Klee], vector![CharId::Fischl])
-        .enable_log(true)
-        .build();
+    let mut gs: GameState<()> =
+        GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Klee], vector![CharId::Fischl])
+            .enable_log(true)
+            .build();
 
     gs.advance_roll_phase_no_dice();
     gs.players.0.dice.add_single(Dice::Omni, 9);
@@ -26,9 +27,10 @@ fn charged_attack_affected_by_explosive_spark() {
 
 #[test]
 fn normal_attack_not_affected_by_explosive_spark() {
-    let mut gs = GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Klee], vector![CharId::Fischl])
-        .enable_log(true)
-        .build();
+    let mut gs: GameState<()> =
+        GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Klee], vector![CharId::Fischl])
+            .enable_log(true)
+            .build();
 
     gs.advance_roll_phase_no_dice();
     gs.players.0.dice.add_single(Dice::Omni, 8);
@@ -56,9 +58,10 @@ fn normal_attack_not_affected_by_explosive_spark() {
 
 #[test]
 fn talent_card_increases_explosive_spark_usages() {
-    let mut gs = GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Klee], vector![CharId::Fischl])
-        .enable_log(true)
-        .build();
+    let mut gs: GameState<()> =
+        GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Klee], vector![CharId::Fischl])
+            .enable_log(true)
+            .build();
 
     gs.advance_roll_phase_no_dice();
     gs.players.0.add_to_hand_ignore(CardId::PoundingSurprise);
@@ -78,7 +81,7 @@ fn talent_card_increases_explosive_spark_usages() {
 
 #[test]
 fn klee_take_damage() {
-    let mut gs =
+    let mut gs: GameState<()> =
         GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Klee], vector![CharId::Fischl, CharId::Kaeya])
             .enable_log(true)
             .ignore_costs(true)

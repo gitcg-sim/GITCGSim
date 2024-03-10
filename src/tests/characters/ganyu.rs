@@ -2,7 +2,7 @@ use super::*;
 
 #[test]
 fn frostflake_arrow_piercing_dmg() {
-    let mut gs = GameStateInitializer::new_skip_to_roll_phase(
+    let mut gs: GameState<()> = GameStateInitializer::new_skip_to_roll_phase(
         vector![CharId::Ganyu],
         vector![CharId::Fischl, CharId::Yoimiya, CharId::Kaeya],
     )
@@ -27,7 +27,7 @@ fn frostflake_arrow_piercing_dmg() {
 
 #[test]
 fn talent_card_does_not_increase_frostflake_arrow_dmg_first_cast() {
-    let mut gs = GameStateInitializer::new_skip_to_roll_phase(
+    let mut gs: GameState<()> = GameStateInitializer::new_skip_to_roll_phase(
         vector![CharId::Ganyu],
         vector![CharId::Fischl, CharId::Yoimiya, CharId::Kaeya],
     )
@@ -53,7 +53,7 @@ fn talent_card_does_not_increase_frostflake_arrow_dmg_first_cast() {
 
 #[test]
 fn talent_card_increases_frostflake_arrow_dmg_subsequent_cast() {
-    let mut gs = GameStateInitializer::new_skip_to_roll_phase(
+    let mut gs: GameState<()> = GameStateInitializer::new_skip_to_roll_phase(
         vector![CharId::Ganyu],
         vector![CharId::Fischl, CharId::Yoimiya, CharId::Kaeya],
     )

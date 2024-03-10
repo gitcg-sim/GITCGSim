@@ -2,7 +2,7 @@ use super::*;
 
 #[test]
 fn cryo_infusion() {
-    let mut gs = GameStateInitializer::new_skip_to_roll_phase(
+    let mut gs: GameState<()> = GameStateInitializer::new_skip_to_roll_phase(
         vector![CharId::Yoimiya, CharId::KamisatoAyaka],
         vector![CharId::Fischl, CharId::Ganyu],
     )
@@ -56,10 +56,11 @@ fn cryo_infusion() {
 
 #[test]
 fn cryo_infusion_at_duel_start() {
-    let mut gs = GameStateInitializer::new_skip_to_roll_phase(vector![CharId::KamisatoAyaka], vector![CharId::Fischl])
-        .enable_log(true)
-        .ignore_costs(true)
-        .build();
+    let mut gs: GameState<()> =
+        GameStateInitializer::new_skip_to_roll_phase(vector![CharId::KamisatoAyaka], vector![CharId::Fischl])
+            .enable_log(true)
+            .ignore_costs(true)
+            .build();
     gs.advance_roll_phase_no_dice();
     gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
@@ -74,10 +75,11 @@ fn cryo_infusion_at_duel_start() {
 
 #[test]
 fn kamisato_art_soumetsu_summon() {
-    let mut gs = GameStateInitializer::new_skip_to_roll_phase(vector![CharId::KamisatoAyaka], vector![CharId::Fischl])
-        .enable_log(true)
-        .ignore_costs(true)
-        .build();
+    let mut gs: GameState<()> =
+        GameStateInitializer::new_skip_to_roll_phase(vector![CharId::KamisatoAyaka], vector![CharId::Fischl])
+            .enable_log(true)
+            .ignore_costs(true)
+            .build();
     gs.advance_roll_phase_no_dice();
 
     gs.advance_multiple([Input::FromPlayer(
@@ -132,7 +134,7 @@ fn kamisato_art_soumetsu_summon() {
 
 #[test]
 fn cryo_infusion_under_talent_card() {
-    let mut gs = GameStateInitializer::new_skip_to_roll_phase(
+    let mut gs: GameState<()> = GameStateInitializer::new_skip_to_roll_phase(
         vector![CharId::Yoimiya, CharId::KamisatoAyaka],
         vector![CharId::Fischl, CharId::Ganyu],
     )

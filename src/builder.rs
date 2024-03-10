@@ -147,25 +147,26 @@ impl GameStateInitializer<HasCharacters, HasStartingCondition> {
         GameStateInitializer::<_, _>::new(c1, c2).starting_condition(StartingCondition::new(StartingPhase::RollPhase))
     }
 
-    fn empty_game_state() -> GameState {
-        GameState {
+    fn empty_game_state<P: GameStateParams>() -> GameState<P> {
+        GameState::<P> {
             players: ByPlayer::generate(|_| PlayerState::new([])),
             status_collections: Default::default(),
             pending_cmds: None,
             phase: Phase::INITIAL,
             round_number: 1,
             ignore_costs: false,
-            log: None,
+            log: Default::default(),
             _incremental_hash: Default::default(),
             _hash: Default::default(),
+            _marker: PhantomData,
         }
     }
 
-    pub fn build(self) -> GameState {
-        self.try_build().expect("Failed to build GameState.")
+    pub fn build<P: GameStateParams>(self) -> GameState<P> {
+        self.try_build::<P>().expect("Failed to build GameState.")
     }
 
-    pub fn try_build(self) -> Option<GameState> {
+    pub fn try_build<P: GameStateParams>(self) -> Option<GameState<P>> {
         const RANGE: crate::std_subset::ops::RangeInclusive<usize> = 1..=8;
         if !RANGE.contains(&self.characters.get(PlayerId::PlayerFirst).len()) {
             return None;
@@ -174,11 +175,11 @@ impl GameStateInitializer<HasCharacters, HasStartingCondition> {
             return None;
         }
 
-        let mut res = GameState {
+        let mut res = GameState::<P> {
             players: ByPlayer::generate(|player_id| PlayerState::new(self.characters.get(player_id).iter().copied())),
             phase: self.starting_condition.starting_phase(),
             ignore_costs: self.ignore_costs,
-            ..Self::empty_game_state()
+            ..Self::empty_game_state::<P>()
         };
         if self.enable_log {
             res.log = Some(Default::default());
@@ -198,9 +199,6 @@ crate::with_updaters!(
         pub players: ByPlayer<PlayerState>,
         pub status_collections: ByPlayer<StatusCollection>,
 
-        // Transient states
-        #[cfg_attr(feature = "serde", serde(default))]
-        pub log: Option<EventLog>,
         #[cfg_attr(feature = "serde", serde(default))]
         pub ignore_costs: bool,
 
@@ -219,25 +217,25 @@ impl GameStateBuilder {
             },
             players,
             status_collections: Default::default(),
-            log: Default::default(),
             ignore_costs: Default::default(),
             override_hash: Default::default(),
             override_incremental_hash: Default::default(),
         }
     }
 
-    pub fn build(self) -> GameState {
+    pub fn build<P: GameStateParams>(self) -> GameState<P> {
         let should_rehash = self.override_hash.is_none() && self.override_incremental_hash.is_none();
-        let mut gs = GameState {
+        let mut gs = GameState::<P> {
             pending_cmds: self.pending_cmds.map(Box::new),
             round_number: self.round_number,
             phase: self.phase,
             players: self.players,
             status_collections: self.status_collections,
-            log: self.log.map(Box::new),
+            log: Default::default(),
             ignore_costs: self.ignore_costs,
             _hash: self.override_hash.unwrap_or_default(),
             _incremental_hash: self.override_incremental_hash.unwrap_or_default(),
+            _marker: PhantomData,
         };
         if should_rehash {
             gs.rehash();
@@ -246,7 +244,7 @@ impl GameStateBuilder {
     }
 }
 
-impl GameState {
+impl<P: GameStateParams> GameState<P> {
     pub fn into_builder(self) -> GameStateBuilder {
         GameStateBuilder {
             pending_cmds: self.pending_cmds.map(|x| *x),
@@ -254,7 +252,6 @@ impl GameState {
             phase: self.phase,
             players: self.players,
             status_collections: self.status_collections,
-            log: self.log.map(|b| *b.clone()),
             ignore_costs: self.ignore_costs,
             override_hash: Some(self._hash),
             override_incremental_hash: Some(self._incremental_hash),
@@ -262,7 +259,19 @@ impl GameState {
     }
 }
 
-crate::impl_from_to_builder!(GameState, GameStateBuilder);
+impl<P: GameStateParams> From<GameStateBuilder> for GameState<P> {
+    #[inline]
+    fn from(value: GameStateBuilder) -> Self {
+        value.build()
+    }
+}
+
+impl<P: GameStateParams> From<GameState<P>> for GameStateBuilder {
+    #[inline]
+    fn from(value: GameState<P>) -> Self {
+        value.into_builder()
+    }
+}
 
 pub use crate::{
     dice_counter::builder::DiceCounterBuilder,
@@ -275,7 +284,7 @@ mod tests {
 
     #[test]
     fn test_initializer_ignore_costs() {
-        let game_state = GameStateInitializer::new(vec![CharId::Yoimiya], vec![CharId::Fischl])
+        let game_state: GameState<()> = GameStateInitializer::new(vec![CharId::Yoimiya], vec![CharId::Fischl])
             .ignore_costs(true)
             .starting_condition(StartingCondition::default())
             .build();
@@ -284,7 +293,7 @@ mod tests {
 
     #[test]
     fn test_initializer_enable_log() {
-        let game_state = GameStateInitializer::new(vec![CharId::Yoimiya], vec![CharId::Fischl])
+        let game_state: GameState<()> = GameStateInitializer::new(vec![CharId::Yoimiya], vec![CharId::Fischl])
             .enable_log(true)
             .starting_condition(StartingCondition::default())
             .build();

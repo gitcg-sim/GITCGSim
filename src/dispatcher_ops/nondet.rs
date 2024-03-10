@@ -2,7 +2,7 @@ use crate::types::by_player::ByPlayer;
 
 use super::*;
 
-impl GameState {
+impl<P: GameStateParams> GameState<P> {
     pub(crate) fn nondet_result_to_commands(
         &self,
         res: NondetResult,

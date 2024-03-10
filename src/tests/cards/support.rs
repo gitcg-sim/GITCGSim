@@ -2,10 +2,11 @@ use super::*;
 
 #[test]
 fn playing_up_to_4_supports() {
-    let mut gs = GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Fischl], vector![CharId::Yoimiya])
-        .enable_log(true)
-        .ignore_costs(true)
-        .build();
+    let mut gs: GameState<()> =
+        GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Fischl], vector![CharId::Yoimiya])
+            .enable_log(true)
+            .ignore_costs(true)
+            .build();
     gs.advance_roll_phase_no_dice();
     gs.players.0.hand = [CardId::Paimon, CardId::Katheryne, CardId::Paimon, CardId::DawnWinery].into();
     gs.advance_multiple([
@@ -33,9 +34,10 @@ fn playing_up_to_4_supports() {
 
 #[test]
 fn paimon_adds_omni_dice() {
-    let mut gs = GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Fischl], vector![CharId::Yoimiya])
-        .enable_log(true)
-        .build();
+    let mut gs: GameState<()> =
+        GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Fischl], vector![CharId::Yoimiya])
+            .enable_log(true)
+            .build();
 
     gs.players.0.dice.add_single(Dice::Omni, 3);
     gs.advance_roll_phase_no_dice();
@@ -72,9 +74,10 @@ fn paimon_adds_omni_dice() {
 
 #[test]
 fn multiple_paimon_adds_additional_omni_dice() {
-    let mut gs = GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Fischl], vector![CharId::Yoimiya])
-        .enable_log(true)
-        .build();
+    let mut gs: GameState<()> =
+        GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Fischl], vector![CharId::Yoimiya])
+            .enable_log(true)
+            .build();
 
     gs.players.0.dice.add_single(Dice::Omni, 6);
     gs.advance_roll_phase_no_dice();
@@ -100,7 +103,7 @@ fn multiple_paimon_adds_additional_omni_dice() {
 
 #[test]
 fn jade_chamber_guarantees_dice_with_active_character_elem() {
-    let mut gs =
+    let mut gs: GameState<()> =
         GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Fischl, CharId::Ganyu], vector![CharId::Yoimiya])
             .enable_log(true)
             .build();
@@ -137,7 +140,7 @@ fn jade_chamber_guarantees_dice_with_active_character_elem() {
 
 #[test]
 fn knights_of_favonius_library_updates_reroll_counts() {
-    let mut gs =
+    let mut gs: GameState<()> =
         GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Fischl, CharId::Ganyu], vector![CharId::Yoimiya])
             .enable_log(true)
             .build();
@@ -158,7 +161,7 @@ fn knights_of_favonius_library_updates_reroll_counts() {
 
 #[test]
 fn liben() {
-    let mut gs =
+    let mut gs: GameState<()> =
         GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Fischl, CharId::Ganyu], vector![CharId::Yoimiya])
             .enable_log(true)
             .build();

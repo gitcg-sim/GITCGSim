@@ -103,8 +103,8 @@ pub mod prelude {
     pub use crate::types::by_player::ByPlayer;
     pub use crate::types::dice_counter::{DiceCounter, DiceDeterminization, DiceDistribution, ElementPriority};
     pub use crate::types::game_state::{
-        AppliedEffectState, CardSelection, CharState, GameState, PendingCommands, Phase, PlayerFlag, PlayerId,
-        PlayerState, StatusCollection, StatusEntry, StatusKey, SuspendedState,
+        AppliedEffectState, CardSelection, CharState, GameState, GameStateParams, PendingCommands, Phase, PlayerFlag,
+        PlayerId, PlayerState, StatusCollection, StatusEntry, StatusKey, SuspendedState,
     };
     pub use crate::types::input::{Input, NondetResult, PlayerAction};
     pub use crate::types::logging::EventLog;

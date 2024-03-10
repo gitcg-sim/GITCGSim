@@ -2,7 +2,7 @@ use super::*;
 
 #[test]
 fn golden_chalices_bounty_generates_bountiful_core_when_meeting_requirements() {
-    let mut gs = GameStateInitializer::new_skip_to_roll_phase(
+    let mut gs: GameState<()> = GameStateInitializer::new_skip_to_roll_phase(
         vector![CharId::Nilou, CharId::Nahida, CharId::Mona],
         vector![CharId::Ganyu],
     )
@@ -23,7 +23,7 @@ fn golden_chalices_bounty_generates_bountiful_core_when_meeting_requirements() {
 
 #[test]
 fn when_team_has_non_dendro_or_hydro_chars_golden_chalices_bounty_does_not_generate_bountiful_core() {
-    let mut gs = GameStateInitializer::new_skip_to_roll_phase(
+    let mut gs: GameState<()> = GameStateInitializer::new_skip_to_roll_phase(
         vector![CharId::Nilou, CharId::Noelle, CharId::Mona],
         vector![CharId::Ganyu],
     )
@@ -40,7 +40,7 @@ fn when_team_has_non_dendro_or_hydro_chars_golden_chalices_bounty_does_not_gener
 }
 
 fn gs_bountiful_core() -> GameState {
-    let mut gs = GameStateInitializer::new_skip_to_roll_phase(
+    let mut gs: GameState<()> = GameStateInitializer::new_skip_to_roll_phase(
         vector![CharId::Nilou, CharId::Nahida, CharId::Mona],
         vector![CharId::Ganyu],
     )
@@ -81,7 +81,7 @@ fn bountiful_cores_deals_dmg_end_phase() {
 
 #[test]
 fn bountiful_cores_deals_dmg_end_of_round_given_usages() {
-    let mut gs = GameStateInitializer::new_skip_to_roll_phase(
+    let mut gs: GameState<()> = GameStateInitializer::new_skip_to_roll_phase(
         vector![CharId::Nilou, CharId::Nahida, CharId::Mona],
         vector![CharId::Ganyu],
     )
@@ -124,7 +124,7 @@ fn bountiful_cores_deals_dmg_end_of_round_given_usages() {
 
 #[test]
 fn talent_card_increases_bountiful_core_dmg() {
-    let mut gs = GameStateInitializer::new_skip_to_roll_phase(
+    let mut gs: GameState<()> = GameStateInitializer::new_skip_to_roll_phase(
         vector![CharId::Nilou, CharId::Nahida, CharId::Mona],
         vector![CharId::Ganyu],
     )
@@ -184,7 +184,7 @@ fn talent_card_increases_bountiful_core_dmg() {
 
 #[test]
 fn lingering_aeon_receives_dmg_end_phase() {
-    let mut gs = GameStateInitializer::new_skip_to_roll_phase(
+    let mut gs: GameState<()> = GameStateInitializer::new_skip_to_roll_phase(
         vector![CharId::Nilou, CharId::Nahida, CharId::Mona],
         vector![CharId::Nilou],
     )

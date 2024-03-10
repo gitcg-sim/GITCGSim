@@ -6,13 +6,13 @@ fn transpose_actions(xs: ActionList<Input>) -> ActionList<Input> {
     xs.iter().copied().map(Input::transpose).collect()
 }
 
-fn advance(game_state: &GameState, input: Input) -> GameState {
+fn advance<P: GameStateParams>(game_state: &GameState<P>, input: Input) -> GameState<P> {
     let mut gs1 = game_state.clone();
     gs1.advance(input).unwrap();
     gs1
 }
 
-fn action(gs: &GameState, n: usize) -> Result<Input, TestCaseError> {
+fn action<P: GameStateParams>(gs: &GameState<P>, n: usize) -> Result<Input, TestCaseError> {
     let actions = gs.available_actions();
     prop_assume!(!actions.is_empty());
     Ok(actions[n % actions.len()])

@@ -9,7 +9,7 @@ use smallvec::{smallvec, SmallVec};
 
 use crate::{chc, cmd_list, dispatcher::cmd_trigger_event, phc, reaction::find_reaction, view};
 
-impl GameState {
+impl<P: GameStateParams> GameState<P> {
     /// Attempt to pay the cost. Succeeds without cost payment if `ignore_costs` is true.
     pub fn pay_cost(&mut self, cost: &Cost, cost_type: CostType) -> Result<(), DispatchError> {
         if self.ignore_costs {

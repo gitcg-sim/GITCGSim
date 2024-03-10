@@ -2,7 +2,7 @@ use super::*;
 
 #[test]
 fn passive_switch_character_away_is_fast_action_once_per_round() {
-    let mut gs =
+    let mut gs: GameState<()> =
         GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Mona, CharId::Kaeya], vector![CharId::Fischl])
             .enable_log(true)
             .ignore_costs(true)
@@ -41,10 +41,11 @@ fn passive_switch_character_away_is_fast_action_once_per_round() {
 
 #[test]
 fn reflection_expires_without_usage_being_consumed() {
-    let mut gs = GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Mona], vector![CharId::Fischl])
-        .enable_log(true)
-        .ignore_costs(true)
-        .build();
+    let mut gs: GameState<()> =
+        GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Mona], vector![CharId::Fischl])
+            .enable_log(true)
+            .ignore_costs(true)
+            .build();
 
     gs.advance_roll_phase_no_dice();
     gs.advance_multiple([Input::FromPlayer(
@@ -66,10 +67,11 @@ fn reflection_expires_without_usage_being_consumed() {
 
 #[test]
 fn reflection_reduces_dmg_and_remains_until_end_phase() {
-    let mut gs = GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Mona], vector![CharId::Fischl])
-        .enable_log(true)
-        .ignore_costs(true)
-        .build();
+    let mut gs: GameState<()> =
+        GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Mona], vector![CharId::Fischl])
+            .enable_log(true)
+            .ignore_costs(true)
+            .build();
 
     gs.advance_roll_phase_no_dice();
     gs.advance_multiple([Input::FromPlayer(
@@ -112,7 +114,7 @@ fn reflection_reduces_dmg_and_remains_until_end_phase() {
 // TODO do reaction DMG bonuses apply before or after doubling? (after currently)
 #[test]
 fn stellaris_phantasm_doubles_dmg() {
-    let mut gs = GameStateInitializer::new_skip_to_roll_phase(
+    let mut gs: GameState<()> = GameStateInitializer::new_skip_to_roll_phase(
         vector![CharId::Mona, CharId::Xingqiu],
         vector![CharId::Fischl, CharId::Barbara],
     )
@@ -149,7 +151,7 @@ fn stellaris_phantasm_doubles_dmg() {
 
 #[test]
 fn stellaris_phantasm_doubles_dmg_for_reaction_post_reaction_bonus() {
-    let mut gs = GameStateInitializer::new_skip_to_roll_phase(
+    let mut gs: GameState<()> = GameStateInitializer::new_skip_to_roll_phase(
         vector![CharId::Mona, CharId::Bennett],
         vector![CharId::Fischl, CharId::Barbara],
     )
@@ -176,7 +178,7 @@ fn stellaris_phantasm_doubles_dmg_for_reaction_post_reaction_bonus() {
 
 #[test]
 fn stellaris_phantasm_does_not_double_summon_dmg() {
-    let mut gs = GameStateInitializer::new_skip_to_roll_phase(
+    let mut gs: GameState<()> = GameStateInitializer::new_skip_to_roll_phase(
         vector![CharId::Xiangling, CharId::Mona],
         vector![CharId::Fischl, CharId::Barbara, CharId::Kaeya],
     )

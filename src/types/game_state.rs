@@ -28,6 +28,14 @@ pub use super::card_selection::*;
 pub use super::char_state::*;
 pub use super::status_collection::*;
 
+pub trait GameStateParams: Debug + Copy + Clone + Default {
+    type EventLog: Debug + Clone + Default;
+}
+
+impl GameStateParams for () {
+    type EventLog = ();
+}
+
 /// The deterministic and perfect information portion of the Genius Invokation TCG game state.
 #[derive(Debug, Clone)]
 #[cfg_attr(
@@ -36,7 +44,7 @@ pub use super::status_collection::*;
     serde(from = "crate::builder::GameStateBuilder"),
     serde(into = "crate::builder::GameStateBuilder")
 )]
-pub struct GameState {
+pub struct GameState<P: GameStateParams = ()> {
     pub(crate) round_number: u8,
     pub(crate) phase: Phase,
     /// 0 (PlayerFirst) goes first at turn 1
@@ -59,6 +67,7 @@ pub struct GameState {
 
     // TODO make this generic
     pub log: Option<Box<EventLog>>,
+    pub(crate) _marker: crate::std_subset::marker::PhantomData<P>,
 }
 
 #[derive(Debug, Clone)]
@@ -340,7 +349,7 @@ impl<'a> PlayerStateView<'a> {
     }
 }
 
-impl GameState {
+impl<P: GameStateParams> GameState<P> {
     #[inline]
     pub fn phase(&self) -> Phase {
         self.phase

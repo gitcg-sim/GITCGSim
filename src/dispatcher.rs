@@ -43,7 +43,7 @@ pub(crate) fn cmd_trigger_event(src_player_id: PlayerId, event_id: EventId) -> (
     cmd_trigger_event_src(src_player_id, event_id, CommandSource::Event)
 }
 
-impl GameState {
+impl<P: GameStateParams> GameState<P> {
     fn ensure_active_char(&self) -> Result<(PlayerId, u8), DispatchError> {
         let ap = self.phase.active_player();
         if let Some(active_player_id) = ap {

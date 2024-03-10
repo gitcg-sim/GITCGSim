@@ -229,7 +229,10 @@ pub mod game_state_features {
     use super::*;
     use player_state_features::*;
 
-    fn can_perform_features(game_state: &GameState, player_id: PlayerId) -> CanPerformFeatures<f32> {
+    fn can_perform_features<P: GameStateParams>(
+        game_state: &GameState<P>,
+        player_id: PlayerId,
+    ) -> CanPerformFeatures<f32> {
         if game_state.to_move_player() != Some(player_id) {
             return Default::default();
         }
@@ -251,14 +254,17 @@ pub mod game_state_features {
         }
     }
 
-    fn turn_features(game_state: &GameState, player_id: PlayerId) -> TurnFeatures<f32> {
+    fn turn_features<P: GameStateParams>(game_state: &GameState<P>, player_id: PlayerId) -> TurnFeatures<f32> {
         TurnFeatures {
             own_turn: (game_state.to_move_player() == Some(player_id)).bv(),
             opp_ended_round: game_state.phase().opponent_ended_round(player_id).bv(),
         }
     }
 
-    fn express_player_state_features(game_state: &GameState, player_id: PlayerId) -> ExpressPlayerStateFeatures<f32> {
+    fn express_player_state_features<P: GameStateParams>(
+        game_state: &GameState<P>,
+        player_id: PlayerId,
+    ) -> ExpressPlayerStateFeatures<f32> {
         let player_state = game_state.player(player_id);
         let active_char_idx = player_state.active_char_idx();
         let mut chars: [ExpressCharFeatures<f32>; N_CHARS] = Default::default();
@@ -292,7 +298,10 @@ pub mod game_state_features {
         }
     }
 
-    fn player_state_features(game_state: &GameState, player_id: PlayerId) -> PlayerStateFeatures<f32> {
+    fn player_state_features<P: GameStateParams>(
+        game_state: &GameState<P>,
+        player_id: PlayerId,
+    ) -> PlayerStateFeatures<f32> {
         let player_state = game_state.player(player_id);
         let sc = game_state.status_collection(player_id);
         let switch_is_fast_action = (0u8..(N_CHARS as u8))
@@ -316,14 +325,14 @@ pub mod game_state_features {
     }
 
     // Unused
-    pub fn extended_features(game_state: &GameState) -> GameStateFeatures<f32> {
+    pub fn extended_features<P: GameStateParams>(game_state: &GameState<P>) -> GameStateFeatures<f32> {
         GameStateFeatures {
             p1: player_state_features(game_state, PlayerId::PlayerFirst),
             p2: player_state_features(game_state, PlayerId::PlayerSecond),
         }
     }
 
-    pub fn features(game_state: &GameState) -> ExpressGameStateFeatures<f32> {
+    pub fn features<P: GameStateParams>(game_state: &GameState<P>) -> ExpressGameStateFeatures<f32> {
         ExpressGameStateFeatures {
             p1: express_player_state_features(game_state, PlayerId::PlayerFirst),
             p2: express_player_state_features(game_state, PlayerId::PlayerSecond),

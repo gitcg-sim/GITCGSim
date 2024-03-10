@@ -1,5 +1,3 @@
-use crate::prelude::ByPlayer;
-
 use super::*;
 
 pub mod equipment;
@@ -10,7 +8,7 @@ pub mod elemental_resonance;
 
 #[test]
 fn changing_shifts() {
-    let mut gs = GameStateInitializer::new_skip_to_roll_phase(
+    let mut gs: GameState<()> = GameStateInitializer::new_skip_to_roll_phase(
         vector![CharId::Kaeya, CharId::Fischl],
         vector![CharId::KamisatoAyaka],
     )
@@ -31,7 +29,7 @@ fn changing_shifts() {
 
 #[test]
 fn changing_shifts_not_cleared() {
-    let mut gs = GameStateInitializer::new_skip_to_roll_phase(
+    let mut gs: GameState<()> = GameStateInitializer::new_skip_to_roll_phase(
         vector![CharId::Kaeya, CharId::Fischl],
         vector![CharId::KamisatoAyaka],
     )
@@ -56,7 +54,7 @@ fn changing_shifts_not_cleared() {
 
 #[test]
 fn leave_it_to_me() {
-    let mut gs = GameStateInitializer::new_skip_to_roll_phase(
+    let mut gs: GameState<()> = GameStateInitializer::new_skip_to_roll_phase(
         vector![CharId::Kaeya, CharId::Fischl],
         vector![CharId::KamisatoAyaka],
     )
@@ -81,7 +79,7 @@ fn leave_it_to_me() {
 #[test]
 fn food() {
     // TODO food implementation: target character and once per turn check
-    let mut gs = GameStateInitializer::new_skip_to_roll_phase(
+    let mut gs: GameState<()> = GameStateInitializer::new_skip_to_roll_phase(
         vector![CharId::Kaeya, CharId::Fischl, CharId::Yoimiya],
         vector![CharId::KamisatoAyaka],
     )
@@ -142,7 +140,7 @@ fn food() {
 
 #[test]
 fn i_havent_lost_yet_activation_condition() {
-    let mut gs =
+    let mut gs: GameState<()> =
         GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Kaeya, CharId::Fischl], vector![CharId::Yoimiya])
             .build();
 
@@ -186,7 +184,8 @@ fn i_havent_lost_yet_activation_condition() {
 
 #[test]
 fn strategize() {
-    let mut gs = GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Kaeya], vector![CharId::Yoimiya]).build();
+    let mut gs: GameState<()> =
+        GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Kaeya], vector![CharId::Yoimiya]).build();
 
     gs.players.0.dice.add_single(Dice::Omni, 8);
     gs.players.1.dice.add_single(Dice::Omni, 8);
@@ -207,9 +206,10 @@ fn strategize() {
 
 #[test]
 fn quick_knit() {
-    let mut gs = GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Fischl], vector![CharId::Yoimiya])
-        .ignore_costs(true)
-        .build();
+    let mut gs: GameState<()> =
+        GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Fischl], vector![CharId::Yoimiya])
+            .ignore_costs(true)
+            .build();
     gs.players.0.add_to_hand_ignore(CardId::QuickKnit);
     gs.advance_roll_phase_no_dice();
     gs.advance_multiple([
@@ -231,9 +231,10 @@ fn quick_knit() {
 
 #[test]
 fn send_off() {
-    let mut gs = GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Yoimiya], vector![CharId::Fischl])
-        .ignore_costs(true)
-        .build();
+    let mut gs: GameState<()> =
+        GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Yoimiya], vector![CharId::Fischl])
+            .ignore_costs(true)
+            .build();
     gs.players.0.add_to_hand_ignore(CardId::SendOff);
     gs.advance_roll_phase_no_dice();
     gs.advance_multiple([
@@ -256,7 +257,7 @@ fn send_off() {
 
 #[test]
 fn calxs_arts() {
-    let mut gs = GameStateInitializer::new_skip_to_roll_phase(
+    let mut gs: GameState<()> = GameStateInitializer::new_skip_to_roll_phase(
         vector![CharId::Yoimiya, CharId::Ganyu, CharId::Xingqiu],
         vector![CharId::Fischl],
     )

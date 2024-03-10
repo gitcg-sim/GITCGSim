@@ -2,7 +2,7 @@ use crate::types::ElementSet;
 
 use super::*;
 
-impl GameState {
+impl<P: GameStateParams> GameState<P> {
     #[inline]
     pub fn set_phase(&mut self, phase: Phase) {
         self._incremental_hash.hash(HASH_PROVIDER.phase(self.phase));

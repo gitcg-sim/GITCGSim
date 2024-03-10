@@ -2,7 +2,7 @@ use super::*;
 
 #[test]
 fn inspiration_field_dmg_bonus_and_no_heal_for_character_above_7hp() {
-    let mut gs = GameStateInitializer::new_skip_to_roll_phase(
+    let mut gs: GameState<()> = GameStateInitializer::new_skip_to_roll_phase(
         vector![CharId::Bennett, CharId::Ganyu],
         vector![CharId::Fischl, CharId::Noelle],
     )
@@ -23,7 +23,7 @@ fn inspiration_field_dmg_bonus_and_no_heal_for_character_above_7hp() {
 
 #[test]
 fn inspiration_field_no_dmg_bonus_and_heals_for_character_above_7hp() {
-    let mut gs = GameStateInitializer::new_skip_to_roll_phase(
+    let mut gs: GameState<()> = GameStateInitializer::new_skip_to_roll_phase(
         vector![CharId::Bennett, CharId::Ganyu],
         vector![CharId::Fischl, CharId::Noelle],
     )
@@ -44,7 +44,7 @@ fn inspiration_field_no_dmg_bonus_and_heals_for_character_above_7hp() {
 
 #[test]
 fn talent_card_has_dmg_bonus_and_no_heal_for_character_above_7hp() {
-    let mut gs = GameStateInitializer::new_skip_to_roll_phase(
+    let mut gs: GameState<()> = GameStateInitializer::new_skip_to_roll_phase(
         vector![CharId::Bennett, CharId::Ganyu],
         vector![CharId::Fischl, CharId::Noelle],
     )
@@ -72,7 +72,7 @@ fn talent_card_has_dmg_bonus_and_no_heal_for_character_above_7hp() {
 
 #[test]
 fn talent_card_has_dmg_bonus_and_heals_for_character_below_7hp() {
-    let mut gs = GameStateInitializer::new_skip_to_roll_phase(
+    let mut gs: GameState<()> = GameStateInitializer::new_skip_to_roll_phase(
         vector![CharId::Bennett, CharId::Ganyu],
         vector![CharId::Fischl, CharId::Noelle],
     )

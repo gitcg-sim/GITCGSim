@@ -2,7 +2,7 @@ use super::*;
 
 #[test]
 fn seed_of_skandha_receive_pd() {
-    let mut gs = GameStateInitializer::new_skip_to_roll_phase(
+    let mut gs: GameState<()> = GameStateInitializer::new_skip_to_roll_phase(
         vector![CharId::Nahida, CharId::Mona],
         vector![CharId::Ganyu, CharId::Fischl, CharId::Kaeya, CharId::Noelle],
     )
@@ -48,7 +48,7 @@ fn seed_of_skandha_receive_pd() {
 
 #[test]
 fn shrine_of_maya_increases_outgoing_reaction_dmg() {
-    let mut gs = GameStateInitializer::new_skip_to_roll_phase(
+    let mut gs: GameState<()> = GameStateInitializer::new_skip_to_roll_phase(
         vector![CharId::Nahida, CharId::Mona],
         vector![CharId::Ganyu, CharId::Fischl, CharId::Kaeya, CharId::Noelle],
     )

@@ -2,10 +2,11 @@ use super::*;
 
 #[test]
 fn niwabi_fire_dance_status() {
-    let mut gs = GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Yoimiya], vector![CharId::Ganyu])
-        .enable_log(true)
-        .ignore_costs(true)
-        .build();
+    let mut gs: GameState<()> =
+        GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Yoimiya], vector![CharId::Ganyu])
+            .enable_log(true)
+            .ignore_costs(true)
+            .build();
 
     gs.advance_roll_phase_no_dice();
     gs.advance_multiple([Input::FromPlayer(
@@ -53,7 +54,7 @@ fn niwabi_fire_dance_status() {
 
 #[test]
 fn ryuukin_saxifrage_trigger_duration() {
-    let mut gs = GameStateInitializer::new_skip_to_roll_phase(
+    let mut gs: GameState<()> = GameStateInitializer::new_skip_to_roll_phase(
         vector![CharId::Yoimiya, CharId::Fischl],
         vector![CharId::Ganyu, CharId::Kaeya],
     )
@@ -96,7 +97,7 @@ fn ryuukin_saxifrage_trigger_duration() {
 
 #[test]
 fn talent_card_costs_niwabi_enshou_and_increases_dmg() {
-    let mut gs = GameStateInitializer::new_skip_to_roll_phase(
+    let mut gs: GameState<()> = GameStateInitializer::new_skip_to_roll_phase(
         vector![CharId::Yoimiya, CharId::Fischl],
         vector![CharId::Ganyu, CharId::Kaeya],
     )

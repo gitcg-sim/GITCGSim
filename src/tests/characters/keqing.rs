@@ -1,7 +1,7 @@
 use super::*;
 
 fn game_state_after_stellar_restoration() -> GameState {
-    let mut gs = GameStateInitializer::new_skip_to_roll_phase(
+    let mut gs: GameState<()> = GameStateInitializer::new_skip_to_roll_phase(
         vector![CharId::Keqing, CharId::Ganyu],
         vector![CharId::Fischl, CharId::Yoimiya],
     )

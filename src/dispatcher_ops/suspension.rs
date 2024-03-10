@@ -27,7 +27,7 @@ impl SuspendedState {
         }
     }
 
-    pub fn available_actions(&self, game_state: &GameState) -> ActionList<Input> {
+    pub fn available_actions<P: GameStateParams>(&self, game_state: &GameState<P>) -> ActionList<Input> {
         let mut acts = action_list![];
         match *self {
             SuspendedState::PostDeathSwitch { player_id, .. } => {
@@ -41,7 +41,10 @@ impl SuspendedState {
         }
     }
 
-    pub fn iter_available_actions<'a>(&'a self, game_state: &'a GameState) -> impl Iterator<Item = Input> + 'a {
+    pub fn iter_available_actions<'a, P: GameStateParams>(
+        &'a self,
+        game_state: &'a GameState<P>,
+    ) -> impl Iterator<Item = Input> + 'a {
         use crate::iter_helpers::IterSwitch;
         match *self {
             SuspendedState::PostDeathSwitch { player_id, .. } => {
@@ -57,7 +60,7 @@ impl SuspendedState {
     }
 }
 
-impl GameState {
+impl<P: GameStateParams> GameState<P> {
     fn resolve_post_death_switch(
         &mut self,
         input: Input,

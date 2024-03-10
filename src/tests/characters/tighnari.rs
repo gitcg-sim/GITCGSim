@@ -2,10 +2,11 @@ use super::*;
 
 #[test]
 fn vijnana_phala_mine_charged_attack() {
-    let mut gs = GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Tighnari], vector![CharId::Fischl])
-        .enable_log(true)
-        .ignore_costs(true)
-        .build();
+    let mut gs: GameState<()> =
+        GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Tighnari], vector![CharId::Fischl])
+            .enable_log(true)
+            .ignore_costs(true)
+            .build();
     gs.advance_roll_phase_no_dice();
     gs.advance_multiple([
         Input::FromPlayer(
@@ -40,10 +41,11 @@ fn vijnana_phala_mine_charged_attack() {
 
 #[test]
 fn vijnana_phala_mine_non_charged_attack() {
-    let mut gs = GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Tighnari], vector![CharId::Fischl])
-        .enable_log(true)
-        .ignore_costs(true)
-        .build();
+    let mut gs: GameState<()> =
+        GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Tighnari], vector![CharId::Fischl])
+            .enable_log(true)
+            .ignore_costs(true)
+            .build();
     gs.advance_roll_phase_no_dice();
     gs.players.get_mut(PlayerId::PlayerFirst).dice.add_single(Dice::Omni, 1);
     gs.advance_multiple([
@@ -79,9 +81,10 @@ fn vijnana_phala_mine_non_charged_attack() {
 
 #[test]
 fn talent_card_charged_attack() {
-    let mut gs = GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Tighnari], vector![CharId::Fischl])
-        .enable_log(true)
-        .build();
+    let mut gs: GameState<()> =
+        GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Tighnari], vector![CharId::Fischl])
+            .enable_log(true)
+            .build();
 
     gs.advance_roll_phase_no_dice();
     {

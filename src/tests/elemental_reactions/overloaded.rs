@@ -2,7 +2,7 @@ use super::*;
 
 #[test]
 fn overloaded_force_switch() {
-    let mut gs = GameStateInitializer::new_skip_to_roll_phase(
+    let mut gs: GameState<()> = GameStateInitializer::new_skip_to_roll_phase(
         vector![CharId::Yoimiya, CharId::Fischl],
         vector![CharId::Yoimiya, CharId::Fischl],
     )
@@ -24,7 +24,7 @@ fn overloaded_force_switch() {
 
 #[test]
 fn overloaded_force_switch_no_alternatives() {
-    let mut gs = GameStateInitializer::new_skip_to_roll_phase(
+    let mut gs: GameState<()> = GameStateInitializer::new_skip_to_roll_phase(
         vector![CharId::Yoimiya, CharId::Fischl],
         vector![CharId::Yoimiya, CharId::Fischl],
     )
@@ -44,7 +44,7 @@ fn overloaded_force_switch_no_alternatives() {
 
 #[test]
 fn overloaded_force_switch_rotate() {
-    let mut gs = GameStateInitializer::new_skip_to_roll_phase(
+    let mut gs: GameState<()> = GameStateInitializer::new_skip_to_roll_phase(
         vector![CharId::Yoimiya, CharId::Fischl],
         vector![CharId::Yoimiya, CharId::Fischl, CharId::Ganyu],
     )

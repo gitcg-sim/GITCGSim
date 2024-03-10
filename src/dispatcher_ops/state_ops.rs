@@ -237,7 +237,7 @@ impl StatusCollection {
     }
 }
 
-impl GameState {
+impl<P: GameStateParams> GameState<P> {
     #[inline]
     pub fn player(&self, player_id: PlayerId) -> &PlayerState {
         self.players.get(player_id)
@@ -277,15 +277,6 @@ impl GameState {
     #[inline]
     pub fn active_character_id(&self) -> Option<CharId> {
         self.active_player().map(|x| x.active_character().char_id)
-    }
-
-    pub fn with_player(&self, player_id: PlayerId, player_state: &PlayerState) -> GameState {
-        let mut gs1 = self.clone();
-        match player_id {
-            PlayerId::PlayerFirst => gs1.players.0 = *player_state,
-            PlayerId::PlayerSecond => gs1.players.1 = *player_state,
-        }
-        gs1
     }
 
     pub fn convert_to_tactical_search(&mut self) {

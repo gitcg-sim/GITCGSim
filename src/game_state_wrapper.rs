@@ -1,17 +1,17 @@
-use crate::std_subset::fmt::Debug;
+use crate::{std_subset::fmt::Debug, types::game_state::GameStateParams};
 use rand::rngs::SmallRng;
 
 use crate::{data_structures::ActionList, prelude::*};
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Clone)]
-pub struct GameStateWrapper<S: NondetState = StandardNondetHandlerState> {
-    pub game_state: GameState,
+pub struct GameStateWrapper<S: NondetState = StandardNondetHandlerState, P: GameStateParams = ()> {
+    pub game_state: GameState<P>,
     #[cfg_attr(feature = "serde", serde(rename = "nondet"))]
     pub nd: NondetProvider<S>,
 }
 
-impl<S: NondetState> GameStateWrapper<S> {
+impl<S: NondetState, P: GameStateParams> GameStateWrapper<S, P> {
     pub fn winner(&self) -> Option<PlayerId> {
         match self.game_state.phase {
             Phase::WinnerDecided { winner } => Some(winner),
@@ -39,7 +39,7 @@ impl<S: NondetState> GameStateWrapper<S> {
     }
 }
 
-impl<S: NondetState> Debug for GameStateWrapper<S> {
+impl<S: NondetState, P: GameStateParams> Debug for GameStateWrapper<S, P> {
     fn fmt(&self, f: &mut crate::std_subset::fmt::Formatter<'_>) -> crate::std_subset::fmt::Result {
         f.debug_struct("GameStateWrapper")
             .field("game_state", &self.game_state)
@@ -47,8 +47,8 @@ impl<S: NondetState> Debug for GameStateWrapper<S> {
     }
 }
 
-impl<S: NondetState> GameStateWrapper<S> {
-    pub fn new(game_state: GameState, nd: NondetProvider<S>) -> Self {
+impl<S: NondetState, P: GameStateParams> GameStateWrapper<S, P> {
+    pub fn new(game_state: GameState<P>, nd: NondetProvider<S>) -> Self {
         let mut new = Self { game_state, nd };
         new.ensure_player();
         new

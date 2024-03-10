@@ -58,7 +58,7 @@ impl<S: NondetState> Game for GameStateWrapper<S> {
     #[inline]
     fn prepare_for_eval(&mut self) {
         const ROUNDS: u8 = 2;
-        fn try_skip_round(game_state: &mut GameState) -> bool {
+        fn try_skip_round(game_state: &mut GameState<()>) -> bool {
             while game_state.phase().winner().is_some() {
                 let actions = game_state.available_actions();
                 if actions.is_empty() {

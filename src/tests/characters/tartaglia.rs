@@ -2,7 +2,7 @@ use super::*;
 
 #[test]
 fn foul_legacy_raging_tide_melee_stance_and_riptide_transfer() {
-    let mut gs = GameStateInitializer::new_skip_to_roll_phase(
+    let mut gs: GameState<()> = GameStateInitializer::new_skip_to_roll_phase(
         vector![CharId::Tartaglia],
         vector![CharId::Ganyu, CharId::Fischl],
     )

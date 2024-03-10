@@ -303,9 +303,9 @@ impl<B: Backend> App<B> {
         Ok(if _animated { ANIM_SLEEP } else { DEFAULT_SLEEP })
     }
 
-    fn render_player(
+    fn render_player<P: GameStateParams>(
         f: &mut Frame<B>,
-        game_state: &GameState,
+        game_state: &GameState<P>,
         player_id: PlayerId,
         rect: Rect,
         rects: &mut HashMap<(PlayerId, RectKey), Rect>,
@@ -438,9 +438,9 @@ impl<B: Backend> App<B> {
         f.render_widget(dice_body, rect);
     }
 
-    fn render_actions_table(
+    fn render_actions_table<P: GameStateParams>(
         f: &mut Frame<B>,
-        gs: &GameState,
+        gs: &GameState<P>,
         selected_index: usize,
         acts: &[Input],
         rect: &Rect,
@@ -631,7 +631,7 @@ impl<B: Backend> App<B> {
         }
     }
 
-    fn render_log(f: &mut Frame<B>, game_state: &GameState, rect: Rect, scroll_y: &i16) {
+    fn render_log<P: GameStateParams>(f: &mut Frame<B>, game_state: &GameState<P>, rect: Rect, scroll_y: &i16) {
         let log_block = Block::default()
             .title("Log")
             .border_type(BorderType::Rounded)
@@ -736,9 +736,9 @@ fn advance_and_add_logs<S: std::fmt::Debug + NondetState>(
     add_logs(log_idx, &game.game_state, anim, rects);
 }
 
-fn add_logs(
+fn add_logs<P: GameStateParams>(
     log_idx: usize,
-    game_state: &GameState,
+    game_state: &GameState<P>,
     anim: &mut VecDeque<Animation>,
     rects: &HashMap<(PlayerId, RectKey), Rect>,
 ) {

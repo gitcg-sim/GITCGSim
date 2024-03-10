@@ -27,17 +27,21 @@ use super::{
     by_player::ByPlayer,
     command::SummonRandomSpec,
     dice_counter::{DiceCounter, DiceDeterminization, DiceDistribution},
-    game_state::{GameState, PlayerId},
+    game_state::{GameState, GameStateParams, PlayerId},
     input::{Input, NondetResult},
 };
 
 /// Trait for handling non-deterministic aspects of the game such as Elemental Dice rolls and drawing cards.
 pub trait NondetState: ZobristHashable + Clone + Send + Sync {
     #[allow(unused_variables)]
-    fn hide_private_information(&mut self, private_player_id: PlayerId, game_state: &mut GameState) {}
+    fn hide_private_information<P: GameStateParams>(
+        &mut self,
+        private_player_id: PlayerId,
+        game_state: &mut GameState<P>,
+    ) {
+    }
 
-    fn sample_nondet(&mut self, game_state: &GameState, req: NondetRequest) -> NondetResult;
-    //fn sample_nondet_multi(&mut self, game_state: &GameState, request: NondetRequest, samples: u8) -> Vec<(f32, NondetResult)>;
+    fn sample_nondet<P: GameStateParams>(&mut self, game_state: &GameState<P>, req: NondetRequest) -> NondetResult;
 }
 
 /// Provides no cards and no dice.
@@ -46,7 +50,7 @@ pub trait NondetState: ZobristHashable + Clone + Send + Sync {
 pub struct EmptyNondetState();
 
 impl NondetState for EmptyNondetState {
-    fn sample_nondet(&mut self, _game_state: &GameState, req: NondetRequest) -> NondetResult {
+    fn sample_nondet<P: GameStateParams>(&mut self, _game_state: &GameState<P>, req: NondetRequest) -> NondetResult {
         match req {
             NondetRequest::DrawCards(..) => NondetResult::ProvideCards(Default::default()),
             NondetRequest::RollDice(..) => NondetResult::ProvideDice(Default::default()),
@@ -155,7 +159,11 @@ impl ZobristHashable for StandardNondetHandlerState {
 }
 
 impl NondetState for StandardNondetHandlerState {
-    fn hide_private_information(&mut self, private_player_id: PlayerId, game_state: &mut GameState) {
+    fn hide_private_information<P: GameStateParams>(
+        &mut self,
+        private_player_id: PlayerId,
+        game_state: &mut GameState<P>,
+    ) {
         self.flags =
             enum_set![StandardNondetHandlerFlags::PlayerFirstFuture | StandardNondetHandlerFlags::PlayerSecondFuture];
         self.flags.insert(private_player_id.select((
@@ -180,7 +188,7 @@ impl NondetState for StandardNondetHandlerState {
         game_state.rehash();
     }
 
-    fn sample_nondet(&mut self, _game_state: &GameState, req: NondetRequest) -> NondetResult {
+    fn sample_nondet<P: GameStateParams>(&mut self, _game_state: &GameState<P>, req: NondetRequest) -> NondetResult {
         match req {
             NondetRequest::DrawCards(ByPlayer(a, b)) => NondetResult::ProvideCards(
                 (
@@ -227,7 +235,7 @@ impl<S: NondetState> NondetProvider<S> {
     }
 
     /// Precondition: game_state.to_move_player().is_none()
-    pub fn no_to_move_player_input(&mut self, game_state: &GameState) -> Input {
+    pub fn no_to_move_player_input<P: GameStateParams>(&mut self, game_state: &GameState<P>) -> Input {
         if let Some(req) = game_state.nondet_request() {
             Input::NondetResult(S::sample_nondet(&mut self.state, game_state, req))
         } else {
@@ -235,7 +243,11 @@ impl<S: NondetState> NondetProvider<S> {
         }
     }
 
-    pub fn hide_private_information(&mut self, game_state: &mut GameState, private_player_id: PlayerId) {
+    pub fn hide_private_information<P: GameStateParams>(
+        &mut self,
+        game_state: &mut GameState<P>,
+        private_player_id: PlayerId,
+    ) {
         S::hide_private_information(&mut self.state, private_player_id, game_state)
     }
 }

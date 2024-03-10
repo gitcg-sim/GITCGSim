@@ -309,7 +309,7 @@ impl<V> EnumArray<V> for Phase {
     type Array = [V; Phase::COUNT];
 }
 
-impl GameState {
+impl<P: GameStateParams> GameState<P> {
     /// Recompute the entire Zobrist hash from beginning without updating
     pub fn zobrist_hash_full_recompute(&self, h: &mut ZobristHasher) {
         self.incremental_zobrist_hash(h);

@@ -155,7 +155,7 @@ impl PendingCommands {
     }
 }
 
-impl GameState {
+impl<P: GameStateParams> GameState<P> {
     /// Swaps the roles of the two players.
     /// See also: `Input::transpose_in_place`
     pub fn transpose_in_place(&mut self) {

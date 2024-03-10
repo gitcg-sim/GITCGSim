@@ -10,7 +10,7 @@ use crate::{
     reaction::check_reaction,
     tcg_model::*,
     types::{
-        game_state::{GameState, PlayerId},
+        game_state::{GameState, GameStateParams, PlayerId},
         input::{Input, PlayerAction},
         nondet::*,
     },
@@ -45,7 +45,7 @@ impl Default for RuleBasedSearchConfig {
     }
 }
 
-impl GameState {
+impl<P: GameStateParams> GameState<P> {
     pub fn has_outgoing_reaction(&self, player_id: PlayerId, src_char_idx: u8, tgt_char_idx: u8) -> bool {
         let Some(src_char) = self.player(player_id).try_get_character(src_char_idx) else {
             return false;

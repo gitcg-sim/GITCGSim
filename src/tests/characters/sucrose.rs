@@ -2,10 +2,11 @@ use super::*;
 
 #[test]
 fn astable_anemohypostasis_creation_6308_forces_switch_1_character() {
-    let mut gs = GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Sucrose], vector![CharId::Ganyu])
-        .enable_log(true)
-        .ignore_costs(true)
-        .build();
+    let mut gs: GameState<()> =
+        GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Sucrose], vector![CharId::Ganyu])
+            .enable_log(true)
+            .ignore_costs(true)
+            .build();
     gs.advance_roll_phase_no_dice();
     gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,
@@ -17,7 +18,7 @@ fn astable_anemohypostasis_creation_6308_forces_switch_1_character() {
 
 #[test]
 fn astable_anemohypostasis_creation_6308_forces_switch_to_prev() {
-    let mut gs = GameStateInitializer::new_skip_to_roll_phase(
+    let mut gs: GameState<()> = GameStateInitializer::new_skip_to_roll_phase(
         vector![CharId::Sucrose],
         vector![CharId::Ganyu, CharId::Yoimiya, CharId::Fischl],
     )
@@ -53,7 +54,7 @@ fn astable_anemohypostasis_creation_6308_forces_switch_to_prev() {
 
 #[test]
 fn large_wind_spirit_deals_anemo_dmg_without_infusion() {
-    let mut gs =
+    let mut gs: GameState<()> =
         GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Sucrose], vector![CharId::Ganyu, CharId::Yoimiya])
             .enable_log(true)
             .ignore_costs(true)
@@ -89,7 +90,7 @@ fn large_wind_spirit_deals_anemo_dmg_without_infusion() {
 
 #[test]
 fn large_wind_spirit_deals_infuses_after_swirling() {
-    let mut gs =
+    let mut gs: GameState<()> =
         GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Sucrose], vector![CharId::Ganyu, CharId::Yoimiya])
             .enable_log(true)
             .ignore_costs(true)
@@ -153,7 +154,7 @@ fn large_wind_spirit_deals_infuses_after_swirling() {
 
 #[test]
 fn large_wind_spirit_infused_dmg_after_own_character_swirling() {
-    let mut gs = GameStateInitializer::new_skip_to_roll_phase(
+    let mut gs: GameState<()> = GameStateInitializer::new_skip_to_roll_phase(
         vector![CharId::Sucrose, CharId::Jean],
         vector![CharId::Jean, CharId::Yoimiya],
     )
@@ -209,10 +210,11 @@ fn large_wind_spirit_infused_dmg_after_own_character_swirling() {
 
 #[test]
 fn large_wind_spirit_does_not_infuse_after_opponent_summon_swirling() {
-    let mut gs = GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Sucrose], vector![CharId::Sucrose])
-        .enable_log(true)
-        .ignore_costs(true)
-        .build();
+    let mut gs: GameState<()> =
+        GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Sucrose], vector![CharId::Sucrose])
+            .enable_log(true)
+            .ignore_costs(true)
+            .build();
     gs.advance_roll_phase_no_dice();
     gs.advance_multiple([
         Input::FromPlayer(
@@ -257,10 +259,11 @@ fn large_wind_spirit_does_not_infuse_after_opponent_summon_swirling() {
 
 #[test]
 fn large_wind_spirit_does_not_infuse_after_opponent_skill_swirling() {
-    let mut gs = GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Sucrose], vector![CharId::Sucrose])
-        .enable_log(true)
-        .ignore_costs(true)
-        .build();
+    let mut gs: GameState<()> =
+        GameStateInitializer::new_skip_to_roll_phase(vector![CharId::Sucrose], vector![CharId::Sucrose])
+            .enable_log(true)
+            .ignore_costs(true)
+            .build();
     gs.advance_roll_phase_no_dice();
     gs.advance_multiple([Input::FromPlayer(
         PlayerId::PlayerFirst,

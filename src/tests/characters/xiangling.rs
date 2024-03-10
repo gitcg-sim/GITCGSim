@@ -2,7 +2,7 @@ use super::*;
 
 #[test]
 fn guoba_attack_deals_dmg_at_end_phase() {
-    let mut gs = GameStateInitializer::new_skip_to_roll_phase(
+    let mut gs: GameState<()> = GameStateInitializer::new_skip_to_roll_phase(
         vector![CharId::Xiangling, CharId::Fischl],
         vector![CharId::Kaeya],
     )
@@ -27,7 +27,7 @@ fn guoba_attack_deals_dmg_at_end_phase() {
 
 #[test]
 fn talent_card_deals_pyro_dmg_on_skill_cast() {
-    let mut gs = GameStateInitializer::new_skip_to_roll_phase(
+    let mut gs: GameState<()> = GameStateInitializer::new_skip_to_roll_phase(
         vector![CharId::Xiangling, CharId::Fischl],
         vector![CharId::Kaeya],
     )
@@ -51,7 +51,7 @@ fn talent_card_deals_pyro_dmg_on_skill_cast() {
 
 #[test]
 fn pyronado_deals_dmg_on_skill_cast() {
-    let mut gs = GameStateInitializer::new_skip_to_roll_phase(
+    let mut gs: GameState<()> = GameStateInitializer::new_skip_to_roll_phase(
         vector![CharId::Xiangling, CharId::Fischl],
         vector![CharId::Kaeya, CharId::Xingqiu],
     )

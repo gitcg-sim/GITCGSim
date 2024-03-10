@@ -2,7 +2,7 @@ use super::*;
 
 #[test]
 fn secret_art_musou_shinsetsu_increases_energy() {
-    let mut gs = GameStateInitializer::new_skip_to_roll_phase(
+    let mut gs: GameState<()> = GameStateInitializer::new_skip_to_roll_phase(
         vector![CharId::RaidenShogun, CharId::Noelle, CharId::Fischl],
         vector![CharId::Ganyu, CharId::Xiangling, CharId::Xingqiu],
     )
@@ -35,7 +35,7 @@ fn secret_art_musou_shinsetsu_increases_energy() {
 
 #[test]
 fn eye_of_stormy_judgment_increases_burst_dmg() {
-    let mut gs = GameStateInitializer::new_skip_to_roll_phase(
+    let mut gs: GameState<()> = GameStateInitializer::new_skip_to_roll_phase(
         vector![CharId::RaidenShogun, CharId::Noelle, CharId::Fischl],
         vector![CharId::Ganyu, CharId::Xiangling, CharId::Xingqiu],
     )
@@ -67,7 +67,7 @@ fn eye_of_stormy_judgment_increases_burst_dmg() {
 
 #[test]
 fn chakra_desiderata_buffs_burst() {
-    let mut gs = GameStateInitializer::new_skip_to_roll_phase(
+    let mut gs: GameState<()> = GameStateInitializer::new_skip_to_roll_phase(
         vector![CharId::Noelle, CharId::Fischl, CharId::RaidenShogun],
         vector![CharId::Ganyu, CharId::Xiangling, CharId::Xingqiu],
     )
@@ -107,7 +107,7 @@ fn chakra_desiderata_buffs_burst() {
 
 #[test]
 fn chakra_desiderata_under_talent_card_buffs_burst_twice() {
-    let mut gs = GameStateInitializer::new_skip_to_roll_phase(
+    let mut gs: GameState<()> = GameStateInitializer::new_skip_to_roll_phase(
         vector![CharId::Noelle, CharId::Fischl, CharId::RaidenShogun],
         vector![CharId::Ganyu, CharId::Xiangling, CharId::Xingqiu],
     )
@@ -141,10 +141,11 @@ fn chakra_desiderata_under_talent_card_buffs_burst_twice() {
 
 #[test]
 fn chakra_desiderata_counter_not_increased() {
-    let mut gs = GameStateInitializer::new_skip_to_roll_phase(vector![CharId::RaidenShogun], vector![CharId::Ganyu])
-        .enable_log(true)
-        .ignore_costs(true)
-        .build();
+    let mut gs: GameState<()> =
+        GameStateInitializer::new_skip_to_roll_phase(vector![CharId::RaidenShogun], vector![CharId::Ganyu])
+            .enable_log(true)
+            .ignore_costs(true)
+            .build();
 
     gs.advance_roll_phase_no_dice();
     assert!(gs.has_character_status(PlayerId::PlayerFirst, 0, StatusId::ChakraDesiderata));
