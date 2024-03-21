@@ -188,18 +188,6 @@ mod different_element_priority {
         fn same_number_of_dice_spent(d in arb_dice_counter(), cost in arb_tcg_cost_no_energy(), ep1 in arb_element_priority(), ep2 in arb_element_priority()) {
             ensure_same_number_of_dice_spent((d, cost), (d, cost), (ep1, ep2))?;
         }
-
-        // TODO doesn't work
-        #[cfg(any())]
-        #[test]
-        fn same_number_of_omni_paid(d in arb_dice_counter(), cost in arb_tcg_cost_no_energy(), ep1 in arb_element_priority(), ep2 in arb_element_priority()) {
-            let Some((omni_paid, omni_paid1)) =
-                cost_props((d, cost), (d, cost), (ep1, ep2), |d, updated| d[Dice::Omni] - updated[Dice::Omni])?
-            else {
-                return Ok(());
-            };
-            assert_eq!(omni_paid1, omni_paid);
-        }
     }
 }
 

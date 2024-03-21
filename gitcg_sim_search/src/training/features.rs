@@ -340,17 +340,6 @@ pub mod game_state_features {
     }
 }
 
-// impl<S: NondetState> gitcg_sim::game_tree_search::GameStateWrapper<S> {
-//     #[cfg(any())]
-//     pub fn features(&self) -> GameStateFeatures<f32> {
-//         self.game_state.features()
-//     }
-//
-//     pub fn features(&self) -> ExpressGameStateFeatures<f32> {
-//         self.game_state.features()
-//     }
-// }
-
 #[repr(C)]
 #[derive(Default, Copy, Clone)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
