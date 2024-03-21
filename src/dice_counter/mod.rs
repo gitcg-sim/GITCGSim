@@ -1,5 +1,6 @@
 use core::cell::RefCell;
 
+use crate::dice_counter::sort::move_to_right;
 use crate::std_subset::{ops::Index, vec, Vec};
 
 use constdefault::ConstDefault;
@@ -11,6 +12,8 @@ use crate::types::{
     card_defs::Cost,
     tcg_model::{Dice, Element},
 };
+
+mod sort;
 
 mod distribution;
 pub use distribution::{DiceDeterminization, DiceDistribution};
@@ -143,15 +146,17 @@ impl ElementPriority {
 
         let compute = || {
             let mut elem_order = Element::VALUES;
-            elem_order.sort_by_key(|&e| {
-                if active_elem == Some(e) {
-                    2
-                } else if important_elems.contains(e) {
-                    1
-                } else {
-                    0
-                }
-            });
+            let j = move_to_right(&mut elem_order, |&e| active_elem == Some(e));
+            move_to_right(&mut elem_order[..j], |&e| important_elems.contains(e));
+            // elem_order.sort_by_key(|&e| {
+            //     if active_elem == Some(e) {
+            //         2
+            //     } else if important_elems.contains(e) {
+            //         1
+            //     } else {
+            //         0
+            //     }
+            // });
             elem_order
         };
 
@@ -345,40 +350,9 @@ impl DiceCounter {
             .filter(|&e| self.elem[e.to_index()] > 0)
             .collect();
         let in_ep = ep.elems();
-        elems.sort_by_key(|&e| {
-            if in_ep.contains(e) {
-                2
-            } else {
-                let v = self.elem[e.to_index()];
-                if v >= 3 {
-                    1
-                } else {
-                    0
-                }
-            }
-        });
-        elems
-    }
 
-    #[cfg(any())]
-    fn elem_order(&self, ep: &ElementPriority) -> heapless::Vec<Element, 7> {
-        let mut elems: SmallVec<[Element; 7]> = Element::VALUES
-            .iter()
-            .copied()
-            .filter(|&e| self.elem[e.to_index()] > 0)
-            .collect();
-
-        let ElementPriority {
-            important_elems,
-            active_elem,
-            ..
-        } = *ep;
-        elems.sort_unstable_by_key(|&e| {
-            (0x200_u16 - (self.elem[e.to_index()] as u16))
-                + (if important_elems.contains(e) { 0x400 } else { 0 })
-                + (if active_elem == Some(e) { 0x800 } else { 0 })
-        });
-
+        let j = move_to_right(&mut elems, |&e| in_ep.contains(e));
+        move_to_right(&mut elems[..j], |&e| self.elem[e.to_index()] >= 3);
         elems
     }
 
