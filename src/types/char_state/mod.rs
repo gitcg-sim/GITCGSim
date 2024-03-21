@@ -1,5 +1,5 @@
 #![allow(non_snake_case)]
-use crate::data_structures::capped_list::CappedLengthList8;
+use crate::data_structures::capped_list::CapList;
 use crate::std_subset::fmt::Debug;
 use crate::std_subset::ops::{Index, IndexMut};
 
@@ -80,7 +80,7 @@ impl ConstDefault for CharState {
 #[cfg_attr(feature = "serde", serde(transparent))]
 #[repr(transparent)]
 pub struct CharStates {
-    char_states: CappedLengthList8<CharState, { Self::MAX_CHAR_STATES }>,
+    char_states: CapList<CharState, { Self::MAX_CHAR_STATES }>,
 }
 
 impl CharStates {
@@ -89,7 +89,7 @@ impl CharStates {
     pub fn from_ids<T: IntoIterator<Item = CharId>>(char_ids: T) -> Self {
         let v: heapless::Vec<CharState, { Self::MAX_CHAR_STATES }> = char_ids.into_iter().map(CharState::new).collect();
         Self {
-            char_states: CappedLengthList8::from_slice_copy(&v),
+            char_states: CapList::from_slice_copy(&v),
         }
     }
 
@@ -97,7 +97,7 @@ impl CharStates {
     pub fn new<T: Into<heapless::Vec<CharState, { Self::MAX_CHAR_STATES }>>>(char_states: T) -> Self {
         let v = char_states.into();
         Self {
-            char_states: CappedLengthList8::from_slice_copy(&v),
+            char_states: CapList::from_slice_copy(&v),
         }
     }
 

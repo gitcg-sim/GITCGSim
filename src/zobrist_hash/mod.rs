@@ -1,4 +1,4 @@
-use crate::data_structures::capped_list::CappedLengthList8;
+use crate::data_structures::capped_list::CapList;
 /// Zobrist hashing is the hashing method used for Genius Invokation TCG game states.
 /// The Zobrist hash of a game state is the XOR over all aspects of the game state that
 /// is relevant to its distinctiveness, such as:
@@ -378,7 +378,7 @@ impl<P: GameStateParams> GameState<P> {
 impl PlayerState {
     #[inline]
     pub(crate) fn tally_hand(
-        hand: &CappedLengthList8<CardId, { Self::HAND_SIZE_LIMIT }>,
+        hand: &CapList<CardId, { Self::HAND_SIZE_LIMIT }>,
     ) -> heapless::Vec<(CardId, u8), { Self::HAND_SIZE_LIMIT }> {
         let mut v = heapless::Vec::<_, { Self::HAND_SIZE_LIMIT }>::default();
         for &card_id in hand.iter() {
@@ -395,7 +395,7 @@ impl PlayerState {
 
     #[inline]
     pub(crate) fn hash_hand(
-        hand: &CappedLengthList8<CardId, { Self::HAND_SIZE_LIMIT }>,
+        hand: &CapList<CardId, { Self::HAND_SIZE_LIMIT }>,
         h: &mut ZobristHasher,
         player_id: PlayerId,
     ) {

@@ -3,7 +3,7 @@
 use core::marker::PhantomData;
 
 use crate::{
-    data_structures::capped_list::CappedLengthList8,
+    data_structures::capped_list::CapList,
     std_subset::{
         fmt::{Debug, Display},
         Box,
@@ -278,7 +278,7 @@ pub struct PlayerState {
     pub(crate) flags: EnumSet<PlayerFlag>,
     pub(crate) char_states: CharStates,
     // TODO use wrapper type for hand
-    pub(crate) hand: CappedLengthList8<CardId, { PlayerState::HAND_SIZE_LIMIT }>,
+    pub(crate) hand: CapList<CardId, { PlayerState::HAND_SIZE_LIMIT }>,
 }
 
 impl PlayerState {

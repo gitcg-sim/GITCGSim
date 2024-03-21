@@ -4,7 +4,7 @@ pub use const_default::*;
 
 pub mod capped_list;
 
-pub type List8<T> = capped_list::CappedLengthList8<T, 8>;
+pub type List8<T> = capped_list::CapList<T, 8>;
 
 pub type CommandList<T> = smallvec::SmallVec<[T; 8]>;
 

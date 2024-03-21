@@ -16,7 +16,7 @@ use smallvec::SmallVec;
 
 use crate::{
     cards::ids::*,
-    data_structures::{capped_list::CappedLengthList8, Vector},
+    data_structures::{capped_list::CapList, Vector},
     deck::*,
     list8,
     prelude::{HashValue, NondetRequest, ZobristHashable},
@@ -135,7 +135,7 @@ impl StandardNondetHandlerState {
                 break;
             }
         }
-        CappedLengthList8::from(v)
+        CapList::from(v)
     }
 }
 

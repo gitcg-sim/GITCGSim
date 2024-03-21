@@ -133,7 +133,7 @@ Third party collection types used:
 
 #### `src/data_structures/capped_list`
 
-This module contains the `CappedLengthList8<T, N>` type, which is similar to
+This module contains the `CapList<T, N>` type, which is similar to
 the `heapless::Vec` except it supports `Copy` and contains no unsafe code.
 
 ### `src/dice_counter`
